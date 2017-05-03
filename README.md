@@ -4,7 +4,7 @@ Malasakit is a customizable participatory assessment platform that collects and 
 ## Requirements:
 
 - python 2.7
-  - comes by default on most systems
+  - comes by default on most systems, otherwise use [this tutorial on virtual environments.](http://justinmi.me/blog/2017/04/15/python-virtual-env)
   - check installed version with `python -V` on terminal
 - pip: package manager for python
   - install with `sudo easy_install pip`
@@ -12,6 +12,8 @@ Malasakit is a customizable participatory assessment platform that collects and 
   - install with `sudo pip install django`
 - numpy
   - install with `sudo pip install numpy`
+- openpyxl
+  - install with `sudo pip install openpyxl`
 
 ## To run the system:
 - clone the repo
