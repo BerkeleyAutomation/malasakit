@@ -1,0 +1,224 @@
+{% load static %}
+{% load staticfiles %}
+{% static "" as baseUrl %}
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <!-- Social media stuff -->
+  <meta property="og:title" content="California Report Card"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:image" content="{% static 'img/cafe/cafe6.png' %}" />
+  <meta property="og:url" content="{{ url_root }}/" />
+  <meta property="og:description" content="The California Report Card allows visitors to grade issues facing California and to suggest issues for future report cards." />
+  <!-- <link rel="stylesheet" type= "text/css" href="{% static 'pcari/pretest_style.css' %}"> -->
+  <link rel="stylesheet" type= "text/css" href="{% static 'opinionspace.css' %}">
+  <link rel='stylesheet' type='text/css' href="{% static 'crc-transparent-slider.css' %}">
+  <!-- <script type='text/javascript' src="{% static 'crc-transparent-slider.js' %}"></script> -->
+  <script type='text/javascript' src="{% static 'accounts.js' %}"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+
+  <style>
+
+  /*.bar {
+    fill: steelblue;
+    #442b10 - original color (brownish)
+  }*/
+
+  .bar:hover {
+    fill: #76b9b6;
+  }
+
+  .axis {
+    font: 10px sans-serif;
+  }
+
+  .axis path,
+  .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+  }
+
+  .x.axis path {
+    display: none;
+  }
+
+  .d3-tip {
+  line-height: 1;
+  font-weight: bold;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+  }
+
+  /* Creates a small triangle extender for the tooltip */
+  .d3-tip:after {
+    box-sizing: border-box;
+    display: inline;
+    font-size: 10px;
+    width: 100%;
+    line-height: 1;
+    color: rgba(0, 0, 0, 0.8);
+    content: "\25BC";
+    position: absolute;
+    text-align: center;
+  }
+
+  /* Style northward tooltips differently */
+  .d3-tip.n:after {
+    margin: -1px 0 0 0;
+    top: 100%;
+    left: 0;
+}
+
+  </style>
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+  <title>PCARI</title>
+</head>
+<body>
+
+  <div class="full-page">
+
+
+    <center>
+      <div class="home-btn-dialog-box">
+        <div class="home-btn-title responsive-header">
+          <a href="{% url 'pcari:landing' %}" style="cursor: pointer;cursor: hand;"><span class="landing-page-banner">Malasakit</span></a> 
+        </div>
+
+        <div class="home-btn-wrapper" style="width:35%;display:inline-block; text-align: right;">
+          <a href="{% url 'pcari:switch_language' %}" class="translate-btn">{{translate}}</a>
+          <a href="{% url 'pcari:help' %}"><img width="30px" class='help-btn-dialog' id="help-landing" src="{% static 'img/cafe/CRC_help_bttn_compress.png' %}"></a>
+        </div>
+
+      </div> 
+      <!--<img class="header-img-topic center" src="{{ url_root }}/media/mobile/img/cafe/CRC_join.png"/>-->
+      <br/>
+
+        <span>{{graph_description}}</span>
+
+
+      <br/>
+
+    {% for tag,qid,score in tags %}
+
+    <div class="compare-box-{{qid}}" style="padding-bottom: 15px;max-width:620px; max-height: 55px;display: inline-block;">
+            <div class="compare-tag" style="float:left;">
+              <!--<div style="font-size: 12px; font-style: italic;font-weight: bolder;" onclick="accounts.hideAll();$('.detail-box-{{k.id}}').show();">{{k.id}}. </div>-->
+              <div style="font-size: 18px; font-weight: bolder; padding-top: 10%; padding-left:10px;" class="english">{{tag}}</div>
+              <!-- <div style="font-size: 14px; font-weight: bolder; cursor: pointer;cursor: hand;"><span>{{more_info}}</span></div> -->
+            </div>
+
+            <div style="cursor: pointer;cursor: hand; float:right; max-height: 55px;" id="sparkLineCanvas{{qid}}" width="320"></div>
+    </div>
+
+    <br>
+
+    <script>
+
+    {% if language %}
+      var lang = "English";
+    {% else %}
+      var lang = "Filipino";
+    {% endif %}
+
+    var margin = {top: 20, right: 20, bottom: 19, left: 40},
+        width = 320 - margin.left - margin.right,
+        height = 20;
+
+    if ({{qid}} % 2 == 1)
+            $('.compare-box-{{qid}}').css("background-color","rgba(0,0,0,0.05)")
+
+    var x{{qid}} = d3.scale.ordinal()
+        .rangeRoundBands([0, width], .1);
+
+    var y{{qid}} = d3.scale.linear()
+        .range([height, 0]);
+
+    var xAxis{{qid}} = d3.svg.axis()
+        .scale(x{{qid}})
+        .orient("bottom");
+
+    var yAxis{{qid}} = d3.svg.axis()
+        .scale(y{{qid}})
+        .orient("left");
+
+    var tip = d3.tip()
+        .attr('class', 'd3-tip')
+        .offset([-10, 0])
+        .html(function(d) {
+          return "<span style='color:white'>" + d.count + "</span>";
+        });
+
+    var svg{{qid}} = d3.select("#sparkLineCanvas{{qid}}").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    svg{{qid}}.call(tip);    
+
+    d3.tsv("{{baseUrl}}/data/q{{qid}}.tsv", type, function(error, data) {
+      if (error) throw error;
+
+      x{{qid}}.domain(data.map(function(d) { 
+        if (d.score == "skip" && lang == "English"){
+          return "Lakta.";
+        }
+        return d.score; }));
+      y{{qid}}.domain([0, d3.max(data, function(d) { return d.count; })]);
+
+      svg{{qid}}.append("g")
+          .attr("class", "x axis")
+          .attr("transform", "translate(0," + height + ")")
+          .call(xAxis{{qid}});
+
+      svg{{qid}}.selectAll(".bar")
+          .data(data)
+        .enter().append("rect")
+          .attr("class", "bar")
+          .attr("fill",function(d){
+            if (d.score == {{score}} || ((d.score == "skip" || d.score == "lundag") && {{score}} == "-1") ){
+              return "LightSkyBlue";
+              // return "coral";
+            } else{
+              return "LightSlateGray"; 
+              // return "steelblue";
+            }
+          })
+          .attr("x", function(d) { 
+            if (d.score == "skip" && lang == "English"){
+              return x{{qid}}("Lakta."); 
+            } else{
+              return x{{qid}}(d.score); 
+            }})
+          .attr("width", x{{qid}}.rangeBand())
+          .attr("y", function(d) { return y{{qid}}(d.count); })
+          .attr("height", function(d) { return height - y{{qid}}(d.count); })
+          .on('mouseover', tip.show)
+          .on('mouseout', tip.hide);
+    });
+
+    function type(d) {
+      d.count = +d.count;
+      return d;
+    };
+
+    </script>
+
+    {% endfor %}
+     
+
+      <div class="discuss-btn-div">
+        <a href="{% url 'pcari:bloom'%}"><div class='dialog-ready button-div-red responsive-btn' style="display: inline-block;">{{next}}</div></a><br/><br/>
+        <!--<div class='dialog-ready2 button-div responsive-btn' style="display: inline-block;">Tell Us Your Idea</div>-->
+        <!--<button type='submit' data-theme='b' class='dialog-next'  onclick="$('.dialog-text1').hide();$('.dialog-text2').show();"><font style="font-size: 16px;">Next</font></button>-->
+      </div>
+    </center>
+
+  </div>
+</body>
+</html>

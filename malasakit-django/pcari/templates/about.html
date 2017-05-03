@@ -1,0 +1,56 @@
+{% load staticfiles %}
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <!-- Social media stuff -->
+  <meta property="og:title" content="California Report Card"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:image" content="{% static 'img/cafe/cafe6.png' %}" />
+  <meta property="og:url" content="{{ url_root }}/" />
+  <meta property="og:description" content="The California Report Card allows visitors to grade issues facing California and to suggest issues for future report cards." />
+  <!-- <link rel="stylesheet" type= "text/css" href="{% static 'pcari/pretest_style.css' %}"> -->
+  <link rel="stylesheet" type= "text/css" href="{% static 'opinionspace.css' %}">
+  <script type='text/javascript' src="{% static 'accounts.js' %}"></script>
+  <script type='text/javascript' src="{% static 'd3.v2.min.js' %}"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+  <title>PCARI</title>
+</head>
+
+<script>
+function goBack() {
+    window.history.back();
+}
+</script>
+
+<body>
+ <div class="full-page">
+  <center>
+    <div class="home-btn-dialog-box landing-navigation">
+        <div class="home-btn-title responsive-header">
+          <a href="{% url 'pcari:landing' %}" style="cursor: pointer;cursor: hand;"><span class="landing-page-banner">Malasakit</span></a> 
+        </div>
+
+        <div class="home-btn-wrapper" style="width:35%;display:inline-block;">
+          <a href="{% url 'pcari:switch_language' %}" class="translate-btn">{{translate}}</a>
+          <img onclick="goBack()" width="30px" class='help-btn-dialog' id="help-landing" src="{% static 'img/cafe/CRC_back_bttn.png' %}">
+        </div>
+      </div>
+
+      <div class="landing-img-txt responsive-body" style="margin-top: 5%">   
+
+          <span style="font-weight: bold;"> About</span>
+
+          <br>
+          <br>
+
+          <div class="english" style="text-align: left;"> Bottom up e-government approaches that actively engage local community members, combined with emerging  ICT technologies, have great potential to enhance existing practices and effectively identify and address the perspectives, motivations and priorities of local communities.  Malasakit combines statistical models and collaborative filtering to streamline and structure public feedback on disasater preparedness priorities.</div>
+
+
+        </div>
+    </div>
+  </div>
+</center>
+</div>
+</body>
+</html>
