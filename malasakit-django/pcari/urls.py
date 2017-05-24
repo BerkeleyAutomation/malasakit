@@ -5,8 +5,9 @@ from . import views
 app_name = 'pcari'
 urlpatterns = [ 
     url(r'^$', views.landing, name='landing'),
-    url(r'^questions/$', views.create_user, name='create_user'),
-    url(r'^questions/(?P<is_new>[0-9]+)/$', views.create_user, name='create_user'),
+    url(r'^create-user/$', views.create_user, name='create_user'),
+    url(r'^create-user/(?P<is_new>[0-9]+)/$', views.create_user, name='create_user'),
+    url(r'^questions/$', views.questions, name='questions'),
     url(r'^comparison/(?P<qid>[0-9]+)/$', views.rate, name='rate'),
     url(r'^review/$', views.review, name='review'),
     url(r'^peerevaluation/$', views.bloom, name='bloom'),

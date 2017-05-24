@@ -1,5 +1,5 @@
 from django.http import Http404
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
@@ -11,6 +11,7 @@ from django.contrib.auth import authenticate, login
 from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.auth import logout
+from django.db import IntegrityError
 
 import json
 import random
@@ -89,6 +90,7 @@ def init_question_cookie(request, language):
 	request.session['QUESTION'] = l
 	request.session['Q_COUNT'] = Q.count()
 
+
 def landing(request):
 	user = request.user
 	if user.is_authenticated():
@@ -99,13 +101,14 @@ def landing(request):
 
 	description = TEXT['landing_description'] % len(User.objects.all())
 	context = {
-	'translate':TEXT['translate'], 
-	'landing_description':description, 
-	'more_info':TEXT['more_info'],
-	'short_description':TEXT['short_description'],
-	'begin':TEXT['begin_button']
+		'translate': TEXT['translate'], 
+		'landing_description': description, 
+		'more_info': TEXT['more_info'],
+		'short_description': TEXT['short_description'],
+		'begin': TEXT['begin_button']
 	}
 	return render(request, 'landing.html', context)
+	
 
 def create_user(request, is_new=True):
 	init_text_cookie(request)
@@ -133,71 +136,31 @@ def create_user(request, is_new=True):
 	else:
 		user = request.user
 		user_data = UserData.objects.get(user=user)
-
-	user_data = UserData.objects.all().filter(user=request.user)[0]
-	request.session['TEXT'] = GeneralSetting.objects.all()[0].get_text(user_data.language)
-	TEXT = GeneralSetting.objects.all()[0].get_text(user_data.language)
-
-	init_question_cookie(request,user_data.language)
-	QUAN_QUESTIONS = request.session['QUESTION']
-	Q_COUNT = request.session['Q_COUNT']
 	
-	print(len(QUAN_QUESTIONS))
-	
-	q = QUAN_QUESTIONS[0]
-	print((QUAN_QUESTIONS.index(q)+1,Q_COUNT))
+	return redirect(reverse('pcari:questions'))
 
-	question_of = TEXT['question_of'] % (QUAN_QUESTIONS.index(q)+1,Q_COUNT)
 
-	if q["qid"] == 5:
-		scale_description = "0 (less than one day) to 9 (or more)" if TEXT['translate'] == "Filipino" else "Mula 0 (mas mababa sa isang araw) hanggang 9 (o mas mataas pa)"
-	elif q["qid"] == 8:
-		scale_description = "0 (less than one week) to 9 (or more)" if TEXT['translate'] == "Filipino" else "Mula 0 (mas mababa sa isang linggo) hanggang 9 (o mas mataas pa)"
-	else:
-		scale_description = TEXT['scale_description']
-
-	context = {
-	'translate':TEXT['translate'], 
-	'question_description':TEXT['question_description'], 
-	'feedback_description':TEXT['feedback_description'], 
-	'skip':TEXT['skip_button'],
-	'question_of':question_of,
-	'question': q["question"],# if TEXT['translate'] == "Filipino" else q.filipino_question,
-	'scale_description':TEXT['scale_description'],
-	'qid': q["qid"], 
-	'rating':True
-	}
-
-	return render(request, 'rating.html', context)
+def questions():
+	return 'Nothing yet'
 
 
 def rate(request, qid):
 	init_text_cookie(request)
 	user = request.user
 	if not user.is_authenticated():
-		return landing(request)
+		return redirect(reverse('pcari:landing'))
 
-	user_data = UserData.objects.all().filter(user=user)[0]
-
-	# print request.POST
-
-	init_question_cookie(request,user_data.language)
+	user_data = UserData.objects.get(user=user)
+	init_question_cookie(request, user_data.language)
 	
 	try:
-		rating = Rating(user = user, qid = qid)
+		rating = Rating(user=user, qid=qid)
 		rating.save()
-	except:
-		rating = Rating.objects.all().filter(user=user,qid=qid)[0]
-		# print "correct"
+	except IntegrityError:
+		rating = Rating.objects.get(user=user, qid=qid)
 
-
-	try:
-		rating.score = request.POST['choice']
-		rating.save()
-	except:
-		pass
-
-	# print rating.score
+	rating.score = request.POST['choice']
+	rating.save()
 
 	if rating.score == "Skip" or rating.score == "Laktawan":
 		rating.score = -1
@@ -262,6 +225,7 @@ def rate(request, qid):
 	}
 
 	return render(request, 'rating.html', context)
+
 
 def personal(request):
 	init_text_cookie(request)
