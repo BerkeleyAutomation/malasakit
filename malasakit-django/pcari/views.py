@@ -112,12 +112,12 @@ def create_user(request, is_new=True):
 
 	if is_new:
 		uid = int(User.objects.last().username) + 1
+		username, email, password = str(uid), str(uid) + '@example.com', str(uid)
 		
 		# TODO: come up with a better scheme for handling errors (e.g. redirect)
-		message = 'Username `{0}` already exists'.format(uid)
-		assert not User.objects.filter(username__iexact=uid).exists(), message
+		message = 'Username `{0}` already exists'.format(username)
+		assert not User.objects.filter(username__iexact=username).exists(), message
 		
-		username, email, password = str(uid), str(uid) + '@example.com', str(uid)
 		new_user = User.objects.create_user(username, email, password)
 		new_user.save()
 		
