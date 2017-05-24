@@ -133,15 +133,23 @@ def create_user(request, is_new=True):
 		TEXT = request.session['TEXT']
 		user_data = UserData(user=user, language=translate(TEXT['translate']))
 		user_data.save()
-	else:
-		user = request.user
-		user_data = UserData.objects.get(user=user)
 	
 	return redirect(reverse('pcari:questions'))
 
 
-def questions():
-	return 'Nothing yet'
+def questions(request):
+	init_text_cookie(request)
+	user = request.user
+	if not user.is_authenticated():
+		return redirect(reverse('pcari:create_user'))
+	
+	return render(request, 'questions.html')
+
+
+def get_question(request, qid):
+	question = QuantitativeQuestion.objects.get(qid=qid)
+	question.get_question(request.session['language'])
+	# JSON this
 
 
 def rate(request, qid):
