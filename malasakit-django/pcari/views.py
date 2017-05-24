@@ -77,8 +77,9 @@ def switch_language(request):
 
 def init_text_cookie(request):
 	if 'TEXT' not in request.session:
-		request.session['TEXT']= GeneralSetting.objects.all()[0].get_text('Filipino')
 		request.session['language'] = 'Filipino'
+		general_settings = GeneralSetting.objects.first()
+		request.session['TEXT'] = general_settings.get_text(request.session['language'])
 
 def init_question_cookie(request, language):
 	l = []
@@ -106,37 +107,33 @@ def landing(request):
 	}
 	return render(request, 'landing.html', context)
 
-def create_user(request, is_new = 1):
+def create_user(request, is_new=True):
 	init_text_cookie(request)
-	#User Authentication
 
-
-	if is_new == 1:
-		uid = int(list(User.objects.all())[-1].username) + 1
-		new_user = User.objects.create_user('%d' % uid,'%d@example.com' % uid,'%d' % uid)
+	if is_new:
+		uid = int(User.objects.last().username) + 1
+		
+		# TODO: come up with a better scheme for handling errors (e.g. redirect)
+		message = 'Username `{0}` already exists'.format(uid)
+		assert not User.objects.filter(username__iexact=uid).exists(), message
+		
+		username, email, password = str(uid), str(uid) + '@example.com', str(uid)
+		new_user = User.objects.create_user(username, email, password)
 		new_user.save()
 		
-		user = authenticate(username=new_user.username, password=new_user.username)
-		
-		login(request,user)
+		user = authenticate(username=username, password=password)		
+		login(request, user)
 
-		#Data Initialization
-		progression = UserProgression(user = user)
-		progression.landing = True
+		progression = UserProgression(user=user, landing=True)
 		progression.save()
 
-		init_text_cookie(request)
 		TEXT = request.session['TEXT']
 		user_data = UserData(user=user, language=translate(TEXT['translate']))
 		user_data.save()
 	else:
 		user = request.user
-		user_data = UserData.objects.all().filter(user=user)[0]
+		user_data = UserData.objects.get(user=user)
 
-	# data = {
- #        'is_taken': User.objects.filter(username__iexact=username).exists()
- #    }
- 	# print JsonResponse(context
 	user_data = UserData.objects.all().filter(user=request.user)[0]
 	request.session['TEXT'] = GeneralSetting.objects.all()[0].get_text(user_data.language)
 	TEXT = GeneralSetting.objects.all()[0].get_text(user_data.language)
@@ -145,7 +142,10 @@ def create_user(request, is_new = 1):
 	QUAN_QUESTIONS = request.session['QUESTION']
 	Q_COUNT = request.session['Q_COUNT']
 	
+	print(len(QUAN_QUESTIONS))
+	
 	q = QUAN_QUESTIONS[0]
+	print((QUAN_QUESTIONS.index(q)+1,Q_COUNT))
 
 	question_of = TEXT['question_of'] % (QUAN_QUESTIONS.index(q)+1,Q_COUNT)
 
@@ -240,10 +240,7 @@ def rate(request, qid):
 	else:
 		TEXT = GeneralSetting.objects.all()[0].get_text(request.session['language'])
 
-	question_of = TEXT['question_of'] % (QUAN_QUESTIONS.index(q)+1,Q_COUNT)
-
-
-
+	question_of = TEXT['question_of'] % (QUAN_QUESTIONS.index(q) + 1, Q_COUNT)
 
 	if q["qid"] == 5:
 		scale_description = "0 (less than one day) to 9 (or more)" if TEXT['translate'] == "Filipino" else "Mula 0 (mas mababa sa isang araw) hanggang 9 (o mas mataas pa)"
