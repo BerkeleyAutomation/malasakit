@@ -156,11 +156,12 @@ def save_answer(request):
 	init_text_cookie(request)
 	user = request.user
 	if not user.is_authenticated():
-		return redirect(reverse('pcari:landing'))
+		pass  # TODO: send back an error
 	
 	try:
 		qid, choice = request.POST['qid'], request.POST['choice']
 		rating = Rating(user=user, qid=qid)
+		rating.save()
 	except IntegrityError:
 		rating = Rating.objects.get(user=user, qid=qid)
 	except KeyError:
@@ -168,6 +169,10 @@ def save_answer(request):
 	
 	rating.score = int(choice)
 	rating.save()
+	
+	# TODO: remove this debug code
+	question = QuantitativeQuestion.objects.get(qid=qid).get_question(request.session['language'])
+	print(u'User {0} assigned the rating {1} to the statement "{2}"'.format(user.username, rating.score, question['question']))
 	
 	progression = UserProgression.objects.get(user=user)
 	progression.rating = True
