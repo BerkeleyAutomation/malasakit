@@ -1,11 +1,12 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render, redirect
 
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, HttpResponseBadRequest, HttpResponseNotAllowed
 from django.core.urlresolvers import reverse
 from django.template import loader
 from pcari.models import  QuantitativeQuestion, QualitativeQuestion, Rating, UserProgression, Comment, CommentRating, GeneralSetting, UserData
 from django.views import generic
+from django.views.decorators.http import require_GET, require_POST
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.utils import timezone
@@ -82,14 +83,6 @@ def init_text_cookie(request):
 		general_settings = GeneralSetting.objects.first()
 		request.session['TEXT'] = general_settings.get_text(request.session['language'])
 
-def init_question_cookie(request, language):
-	l = []
-	Q = QuantitativeQuestion.objects.all()
-	for q in Q:
-		l.append(q.get_question(language))
-	request.session['QUESTION'] = l
-	request.session['Q_COUNT'] = Q.count()
-
 
 def landing(request):
 	user = request.user
@@ -146,93 +139,42 @@ def questions(request):
 	return render(request, 'questions.html')
 
 
+@require_GET
+def get_question_ids(request):
+	question_data = QuantitativeQuestion.objects.values('qid')
+	return JsonResponse({'qids': [question['qid'] for question in question_data]})
+
+
+@require_GET
 def get_question(request, qid):
 	question = QuantitativeQuestion.objects.get(qid=qid)
-	question.get_question(request.session['language'])
-	# JSON this
+	return JsonResponse(question.get_question(request.session['language']))
 
 
-def rate(request, qid):
+@require_POST
+def save_answer(request):
 	init_text_cookie(request)
 	user = request.user
 	if not user.is_authenticated():
 		return redirect(reverse('pcari:landing'))
-
-	user_data = UserData.objects.get(user=user)
-	init_question_cookie(request, user_data.language)
 	
 	try:
+		qid, choice = request.POST['qid'], request.POST['choice']
 		rating = Rating(user=user, qid=qid)
-		rating.save()
 	except IntegrityError:
 		rating = Rating.objects.get(user=user, qid=qid)
-
-	rating.score = request.POST['choice']
-	rating.save()
-
-	if rating.score == "Skip" or rating.score == "Laktawan":
-		rating.score = -1
-		rating.save()
-
-	# if rating.score == "Submit" or rating.score == "Ipasa":
-	#     rating.response = request.POST['comment']
-
-	r = Rating.objects.all().filter(user=user)
-	rating_list = map(lambda x: x.qid, r)
-
-	progression = UserProgression.objects.all().filter(user=user)[0]
-	progression.rating = True
-	progression.num_rated = len(rating_list)
-	progression.save()
-
-	# try:
-	# 	q = QUAN_QUESTIONS[QUAN_QUESTIONS.index([x for x in QUAN_QUESTIONS if x.qid == int(qid)][0])+1]
-	# except:
-	# 	return personal(request)
-
-	# if progression.num_rated < Q_COUNT:
+	except KeyError:
+		return HttpResponseBadRequest()
 	
-	QUAN_QUESTIONS = request.session['QUESTION']
-	Q_COUNT = request.session['Q_COUNT']
-	user = request.user
-	try:
-		q = QUAN_QUESTIONS[QUAN_QUESTIONS.index([x for x in QUAN_QUESTIONS if x["qid"] == int(qid)][0])+1]
-	except:
-		return personal(request)
-	# if progression.num_rated < QUAN_COUNT:
-	# 	q = QUAN_QUESTIONS[progression.num_rated]
-	# 	qualitative = False
-	# else:
-	# 	q = QUAL_QUESTIONS[progression.num_rated-QUAN_COUNT]
-	# 	qualitative = True
-	if user.is_authenticated():
-		user_data = UserData.objects.all().filter(user=user)[0]
-		TEXT = GeneralSetting.objects.all()[0].get_text(user_data.language)
-	else:
-		TEXT = GeneralSetting.objects.all()[0].get_text(request.session['language'])
-
-	question_of = TEXT['question_of'] % (QUAN_QUESTIONS.index(q) + 1, Q_COUNT)
-
-	if q["qid"] == 5:
-		scale_description = "0 (less than one day) to 9 (or more)" if TEXT['translate'] == "Filipino" else "Mula 0 (mas mababa sa isang araw) hanggang 9 (o mas mataas pa)"
-	elif q["qid"] == 8:
-		scale_description = "0 (less than one week) to 9 (or more)" if TEXT['translate'] == "Filipino" else "Mula 0 (mas mababa sa isang linggo) hanggang 9 (o mas mataas pa)"
-	else:
-		scale_description = TEXT['scale_description']
-
-	context = {
-	'translate':TEXT['translate'], 
-	'question_description':TEXT['question_description'], 
-	'feedback_description':TEXT['feedback_description'], 
-	'skip':TEXT['skip_button'],
-	'question_of':question_of,
-	'question': q["question"],
-	'scale_description':scale_description,
-	'qid': q["qid"], 
-	'rating':True
-	}
-
-	return render(request, 'rating.html', context)
+	rating.score = int(choice)
+	rating.save()
+	
+	progression = UserProgression.objects.get(user=user)
+	progression.rating = True
+	progression.num_rated = Rating.objects.filter(user=user).count()
+	progression.save()
+	
+	return HttpResponse()
 
 
 def personal(request):
