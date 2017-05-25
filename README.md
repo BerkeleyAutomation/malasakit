@@ -1,4 +1,7 @@
 # malasakit-v1
+
+![Build status indicator](https://travis-ci.org/BerkeleyAutomation/malasakit-v1.svg?branch=master)
+
 Malasakit is a customizable participatory assessment platform that collects and integrates quantitative assessment, qualitative feedback, and peer-to-peer collaborative filtering on ways local communities can become better prepared for typhoons and floods. 
 
 ## Requirements:
