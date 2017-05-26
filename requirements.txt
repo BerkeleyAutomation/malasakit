@@ -1,6 +1,3 @@
-# This requirements file lists all the dependencies for PCARI. Run pip install -r requirements.txt to install all the dependencies. 
-# It is prefered that you do this in a separate Python virtual environment to limit duplications and conflict errors. A short tutorial on Python virtual environments can be found here: http://justinmi.me/blog/2017/04/15/python-virtual-env
-
 django==1.10.5
 openpyxl==2.4.7
 numpy==1.12.1
