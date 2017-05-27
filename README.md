@@ -13,10 +13,14 @@ Malasakit is a customizable participatory assessment platform that collects and 
   - install with `sudo easy_install pip`
 - django, numpy, openpyxl
   - install with `sudo pip install requirements.txt`
+- run migrations using 'python manage.py migrate'
 
-## Setup (if using conda)
-- Follow the instructions [in this tutorial on virtual environments.](http://justinmi.me/blog/2017/04/15/python-virtual-env) to set up `conda`
-- create new virtual environment using `conda create --name test python=2 django=1.10.5 openpyxl=2.4.7 numpy=1.12.1`
+## Setup (if using conda):
+- If you don't have Anaconda installed, follow the instructions [in this tutorial on virtual environments.](http://justinmi.me/blog/2017/04/15/python-virtual-env) to set up `conda`
+- create new virtual environment using `conda create --name pcari python=2 django=1.10.5 openpyxl=2.4.7 numpy=1.12.1`
+- activate virtual environment using `source activate pcari`
+- run migrations using 'python manage.py migrate'
+
 
 
 ## To run the system:

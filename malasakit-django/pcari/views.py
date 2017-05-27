@@ -49,9 +49,8 @@ def switch_language(request):
 		request.session['TEXT']= GeneralSetting.objects.all()[0].get_text(TEXT['translate'])
 		request.session['language'] = TEXT['translate']
 
-
 	if "questions" in url:
-		return HttpResponseRedirect(reverse('pcari:create_user', args=(0,)))
+        return HttpResponseRedirect(reverse('pcari:create_user', args=(0,)))
 	elif "comparison" in url:
 		return HttpResponseRedirect(reverse('pcari:rate', args=(url[-2],)))
 	elif "personal" in url:
@@ -77,7 +76,7 @@ def switch_language(request):
 
 def init_text_cookie(request):
 	if 'TEXT' not in request.session:
-		request.session['TEXT']= GeneralSetting.objects.all()[0].get_text('Filipino')
+		request.session['TEXT'] = GeneralSetting.objects.all()[0].get_text('Filipino')
 		request.session['language'] = 'Filipino'
 
 def init_question_cookie(request, language):
@@ -650,19 +649,19 @@ def comment_update():
 		comment.save()
 
 def se_update():
-	comments = Comment.objects.all()
-	for comment in comments:
-		if comment.number_rated == 0:
-			continue
-		ratings = CommentRating.objects.all().filter(cid=comment.id)
-		var = 0
-		ave = comment.average_score
-		for rating in ratings:
-			if rating.score == -1 or rating.score == -2:
-				continue
-			var += (rating.score - ave + 0.0)**2 / (comment.number_rated + 0.0)
-		comment.se = (sqrt(var) + 0.0) / (sqrt(comment.number_rated) + 0.0)
-		comment.save()
+    comments = Comment.objects.all()
+    for comment in comments:
+        if comment.number_rated == 0:
+            continue
+        ratings = CommentRating.objects.all().filter(cid=comment.id)
+        var = 0
+        ave = comment.average_score
+        for rating in ratings:
+            if rating.score == -1 or rating.score == -2:
+                continue
+            var += (rating.score - ave + 0.0)**2 / (comment.number_rated + 0.0)
+        comment.se = (sqrt(var) + 0.0) / (sqrt(comment.number_rated) + 0.0)
+        comment.save()
 
 def clean_empty():
 	users = User.objects.all()
