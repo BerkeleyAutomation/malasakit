@@ -10,7 +10,7 @@ Malasakit is a customizable participatory assessment platform that collects and 
   - comes by default on most systems, otherwise use 
   - check installed version with `python -V` on terminal
 - pip: package manager for python
-  - install with `sudo easy_install pip`
+  - install with instructions from the [`pip` website](https://pip.pypa.io/en/stable/installing/)
 - django, numpy, openpyxl
   - install with `sudo pip install requirements.txt`
 - run migrations using 'python manage.py migrate'
@@ -20,6 +20,7 @@ Malasakit is a customizable participatory assessment platform that collects and 
 - create new virtual environment using `conda create --name pcari python=2 django=1.10.5 openpyxl=2.4.7 numpy=1.12.1`
 - activate virtual environment using `source activate pcari`
 - run migrations using 'python manage.py migrate'
+- to deactivate virtual environment, enter `source deactivate`
 
 
 
