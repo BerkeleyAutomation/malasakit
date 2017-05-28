@@ -36,69 +36,76 @@ class Text(models.Model):
     def get_translated_message(self, language):
         return self.translation_set.get(language=language).message
 
+
+class Response(models.Model):
+    """
+    A `Response` is an abstract model of user-generated data.
+    """
+    respondent = models.ForeignKey('Respondent', on_delete=models.CASCADE)
+    datetime = models.DateTimeField(auto_now_add=True)
+
     class Meta:
         abstract = True
 
 
-class Comment(Text):
+class Comment(Text, Response):
     """
-    A `Comment` is a user-generated response to a `QualitativeQuestion`.
+    A `Comment` is a textual response to a `QualitativeQuestion`.
     """
     question = models.ForeignKey('QualitativeQuestion', on_delete=models.CASCADE)
     author = models.ForeignKey('Respondent', on_delete=models.CASCADE)
     datetime = models.DateTimeField(auto_now_add=True)
 
 
-class Templating(Text):
+class Rating(Response):
     """
-    `Templating` is developer-generated text used for instructions and questions.
+    A `Rating` is an abstract model of a numeric response.
     """
-
-
-class Rating(models.Model):
     NOT_RATED = -2
     SKIPPED = -1
 
-    respondent = models.ForeignKey('Respondent', on_delete=models.CASCADE)
-    datetime = models.DateTimeField(auto_now_add=True)
     score = models.SmallIntegerField(default=NOT_RATED)
 
     class Meta:
         abstract = True
 
 
-class CommentRating(Rating):
-    comment = models.ForeignKey('Comment', on_delete=models.CASCADE)
-
-    class Meta:
-        unique_together = ('respondent', 'comment')
-
-
 class QuantitativeQuestionRating(Rating):
+    """
+    A `QuantitativeQuestionRating` is a numeric response to a `QuantitativeQuestion`.
+    """
     question = models.ForeignKey('QuantitativeQuestion', on_delete=models.CASCADE)
 
     class Meta:
         unique_together = ('respondent', 'question')
 
 
+class CommentRating(Rating):
+    """
+    A `CommentRating` is a numeric response to a `Comment`.
+    """
+    comment = models.ForeignKey('Comment', on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('respondent', 'comment')
+
+
 class Question(models.Model):
-    prompt = models.OneToOneField('Templating', on_delete=models.CASCADE)
+    prompt = models.OneToOneField('Text', on_delete=models.CASCADE)
 
     class Meta:
         abstract = True
 
 
 class QualitativeQuestion(Question):
-    prompt = models.ForeignKey('Templating', on_delete=models.CASCADE)
-
     @property
     def num_responses(self):
         return Comment.objects.filter(question=self).count()
 
 
 class QuantitativeQuestion(Question):
-    left_end_description = models.OneToOneField('Templating', on_delete=models.CASCADE)
-    right_end_description = models.OneToOneField('Templating', on_delete=models.CASCADE)
+    left_end_description = models.OneToOneField('Text', on_delete=models.CASCADE)
+    right_end_description = models.OneToOneField('Text', on_delete=models.CASCADE)
 
     def select_ratings(self):
         return QuantitativeQuestionRating.objects.filter(question=self)
