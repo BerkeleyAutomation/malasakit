@@ -8,6 +8,27 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 
+class Text(models.Model):
+    """
+    The `Text` model is a wrapper model that bundles a message with the
+    language it is written in.
+    """
+    # Use the codes in the ISO 639-2 standard for the first entry.
+    LANGUAGES = (
+        ('ENG', 'English'),
+        ('FIL', 'Filipino')
+    )
+
+    language = models.CharField(max_length=3, choices=LANGUAGES)
+    message = models.TextField()
+
+
+class Comment(Text):
+    author = models.ForeignKey('Respondent', on_delete=models.CASCADE)
+    datetime = models.DateTimeField(auto_now_add=True)
+    text = models.ForeignKey('Text', on_delete=models.CASCADE)
+
+
 class Tag(models.Model):
     name = models.CharField(max_length=32)
 
@@ -17,18 +38,26 @@ class Tag(models.Model):
 
 
 class Translation(models.Model):
-    # Use ISO 639-2 for the first entry (save space usage)
-    LANGUAGES = (
-        ('ENG', 'English'),
-        ('FIL', 'Filipino')
-    )
-
     tag = models.ForeignKey('Tag', on_delete=models.CASCADE)
-    language = models.CharField(max_length=3, choices=LANGUAGES)
-    text = models.TextField()
 
     class Meta:
         unique_together = ('tag', 'language')
+
+
+class Respondent(models.Model):
+    GENDERS = (
+        ('M', 'Male'),
+        ('F', 'Female')
+    )
+
+    age = models.PositiveSmallIntegerField(default=None, null=True, blank=True)
+    barangay = models.CharField(max_length=512, default=None, null=True, blank=True)
+    gender = models.CharField(max_length=1, choices=GENDERS, default=None, null=True, blank=True)
+    language = models.CharField(max_length=3, choices=Text.LANGUAGES, default='FIL')
+
+    @property
+    def num_rated(self):
+        return Rating.objects.filter(respondent=self).count()
 
 
 class QuantitativeQuestion(models.Model):
@@ -48,25 +77,12 @@ class QuantitativeQuestion(models.Model):
             q = self.filipino_question
         return {'qid':self.qid,'question':q}
 
+
 class QualitativeQuestion(models.Model):
     qid = models.AutoField(primary_key=True)
     question = models.CharField(max_length=500, default="")
     filipino_question = models.CharField(max_length=500, default="walang filipino pagsasalin")
 
-class UserData(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE,)
-    age = models.IntegerField(default=0, null = True, blank=True)
-    barangay = models.CharField(max_length=500, default="", null = True, blank=True)
-    GENDER_CHOICES = (
-    ('M', 'Male'),
-    ('F', 'Female'),
-    )
-    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null = True, blank=True)
-    LANGUAGE_CHOICES = (
-    ('English', 'English'),
-    ('Filipino', 'Filipino'),
-    )
-    language = models.CharField(max_length=15, choices=LANGUAGE_CHOICES, default="Filipino")
 
 # If a user does not rate a question, the score will be -2.
 # If they choose to skip a question, the score will be -1.
@@ -81,6 +97,7 @@ class Rating(models.Model):
 
     class Meta:
         unique_together = (('user', 'qid'),)
+
 
 class Comment(models.Model):
     LANGUAGE_CHOICES = (
@@ -98,12 +115,14 @@ class Comment(models.Model):
     original_language = models.CharField(max_length=15, choices=LANGUAGE_CHOICES, null=True, blank=True)
     se = models.FloatField(default = 0, null = True, blank = True);
 
+
 class CommentRating(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, db_index = True)
     cid = models.IntegerField(default = -1)
     score = models.IntegerField(default = 0)
     date = models.DateTimeField(auto_now_add = True)
     accounted = models.BooleanField(default=False)
+
 
 class UserProgression(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE,)
@@ -120,6 +139,7 @@ class UserProgression(models.Model):
     logout = models.BooleanField(default=False)
     completion_rate = models.IntegerField(default = 0)
 
+
 class Progression(models.Model):
     landing = models.FloatField(default=0)
     rating = models.FloatField(default=0)
@@ -128,6 +148,7 @@ class Progression(models.Model):
     peer_rating = models.FloatField(default=0)
     comment = models.FloatField(default=0)
     logout = models.FloatField(default=0)
+
 
 class FlaggedComment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, db_index = True)
