@@ -1,7 +1,5 @@
 from __future__ import unicode_literals
 
-import datetime
-
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils import timezone
@@ -10,8 +8,8 @@ from django.contrib.auth.models import User
 # IMPORTANT: Create only one instance
 class GeneralSetting(models.Model):
     LANGUAGE_CHOICES = (
-    ('English', 'English'),
-    ('Filipino', 'Filipino'),
+        ('English', 'English'),
+        ('Filipino', 'Filipino'),
     )
 
     default_language = models.CharField(max_length=15, choices=LANGUAGE_CHOICES, default="English")
@@ -101,45 +99,48 @@ class GeneralSetting(models.Model):
     filipino_personal = models.CharField(max_length=300, default="Paki sagutan ang mga sumusunod para maikumpara ang iyong sagot sa iba")
 
 
-    def get_text(self, language = None):
-        if language == None:
+    def get_text(self, language=None):
+        if language is None:
             language = "Filipino"
 
-        translate = {"English":"Filipino","Filipino":"English"}[language]
+        translate = {"English":"Filipino", "Filipino":"English"}[language]
 
         if language == "English":
-            return {'translate' : translate,
-            'landing_description' : self.english_landing_description,
-            'question_description' : self.english_question_description,
-            'graph_description' : self.english_graph_description,
-            'peer_evaluation_description' : self.english_peer_evaluation_description,
-            'comment_description' : self.english_comment_description,
-            'feedback_description' : self.english_feedback_description,
-            'bloom_description' : self.english_bloom_description,
-            'begin_button' : self.english_begin_button,
-            'skip_button' : self.english_skip_button,
-            'next_button' : self.english_next_button,
-            'post_button' : self.english_post_button,
-            'submit_button' : self.english_submit_button,
-            'about': self.english_about_pcari,
-            'more_info': self.english_more_info,
-            'short_description': self.english_short_description,
-            'scale_description': self.english_scale_description,
-            'suggest_own': self.english_suggest_own,
-            'exit': self.english_exit,
-            'rate_more': self.english_rate_more_ideas,
-            'share_description': self.english_share_description,
-            'learn_more': self.english_learn_more,
-            "age": self.english_age,
-            "gender": self.english_gender,
-            "select": self.english_select,
-            "male": self.english_male,
-            "female": self.english_female,
-            "error": self.english_error,
-            "personal": self.english_personal,
-            'question_of' : self.english_question_of}
-        else:
-            return {'translate':translate,
+            return {
+                'translate' : translate,
+                'landing_description' : self.english_landing_description,
+                'question_description' : self.english_question_description,
+                'graph_description' : self.english_graph_description,
+                'peer_evaluation_description' : self.english_peer_evaluation_description,
+                'comment_description' : self.english_comment_description,
+                'feedback_description' : self.english_feedback_description,
+                'bloom_description' : self.english_bloom_description,
+                'begin_button' : self.english_begin_button,
+                'skip_button' : self.english_skip_button,
+                'next_button' : self.english_next_button,
+                'post_button' : self.english_post_button,
+                'submit_button' : self.english_submit_button,
+                'about': self.english_about_pcari,
+                'more_info': self.english_more_info,
+                'short_description': self.english_short_description,
+                'scale_description': self.english_scale_description,
+                'suggest_own': self.english_suggest_own,
+                'exit': self.english_exit,
+                'rate_more': self.english_rate_more_ideas,
+                'share_description': self.english_share_description,
+                'learn_more': self.english_learn_more,
+                "age": self.english_age,
+                "gender": self.english_gender,
+                "select": self.english_select,
+                "male": self.english_male,
+                "female": self.english_female,
+                "error": self.english_error,
+                "personal": self.english_personal,
+                'question_of' : self.english_question_of
+            }
+        
+        return {
+            'translate':translate,
             'landing_description' : self.filipino_landing_description,
             'question_description' : self.filipino_question_description,
             'graph_description' : self.filipino_graph_description,
@@ -168,13 +169,14 @@ class GeneralSetting(models.Model):
             "female": self.filipino_female,
             "error": self.filipino_error,
             "personal": self.filipino_personal,
-            'question_of' : self.filipino_question_of}
+            'question_of' : self.filipino_question_of
+        }
 
 class QuantitativeQuestion(models.Model):
     qid = models.AutoField(primary_key=True)
     question = models.CharField(max_length=500, default="")
-    average_score = models.FloatField(default = 0)
-    number_rated = models.IntegerField(default = 0)
+    average_score = models.FloatField(default=0)
+    number_rated = models.IntegerField(default=0)
     tag = models.CharField(max_length=50, default="")
     filipino_tag = models.CharField(max_length=50, default="")
     filipino_question = models.CharField(max_length=500, default="walang filipino pagsasalin")
@@ -185,7 +187,7 @@ class QuantitativeQuestion(models.Model):
         else:
             # print "in model filipno"
             q = self.filipino_question
-        return {'qid':self.qid,'question':q}
+        return {'qid':self.qid, 'question':q}
 
 class QualitativeQuestion(models.Model):
     qid = models.AutoField(primary_key=True)
@@ -194,13 +196,13 @@ class QualitativeQuestion(models.Model):
 
 class UserData(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE,)
-    age = models.IntegerField(default=0, null = True, blank=True)
-    barangay = models.CharField(max_length=500, default="", null = True, blank=True)
+    age = models.IntegerField(default=0, null=True, blank=True)
+    barangay = models.CharField(max_length=500, default="", null=True, blank=True)
     GENDER_CHOICES = (
     ('M', 'Male'),
     ('F', 'Female'),
     )
-    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null = True, blank=True)
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True, blank=True)
     LANGUAGE_CHOICES = (
     ('English', 'English'),
     ('Filipino', 'Filipino'),
@@ -211,11 +213,11 @@ class UserData(models.Model):
 # If they choose to skip a question, the score will be -1.
 # For qualitative questions, the score will remain -2.
 class Rating(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, db_index = True)
-    qid = models.IntegerField(default = -1)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True)
+    qid = models.IntegerField(default=-1)
     date = models.DateTimeField(auto_now_add=True)
-    score = models.IntegerField(default = -2)
-    response = models.CharField(max_length = 1000, default = "")
+    score = models.IntegerField(default=-2)
+    response = models.CharField(max_length=1000, default="")
     accounted = models.BooleanField(default=False)
 
     class Meta:
