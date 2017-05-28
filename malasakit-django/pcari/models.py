@@ -7,10 +7,9 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils import timezone
 
 
-class Text(models.Model):
+class Translation(models.Model):
     """
-    The `Text` model is a model that bundles a message with the language it is
-    written in.
+    A `Translation` bundles a message with the language it is written in.
     """
     # Use the codes in the ISO 639-2 standard for the first entry.
     LANGUAGES = (
@@ -18,33 +17,80 @@ class Text(models.Model):
         ('FIL', 'Filipino')
     )
 
+    text = models.ForeignKey('Text', on_delete=models.CASCADE)
     language = models.CharField(max_length=3, choices=LANGUAGES)
     message = models.TextField()
 
     class Meta:
-        abstract = True
+        unique_together = ('text', 'language')
 
 
-class Question(models.Model):
+class Text(models.Model):
+    """
+    A `Text` groups together equivalent translations.
+
+    Any clients of the `Text` class can act language-agnostic.
+    """
     tag = models.CharField(max_length=64)
-    prompt = models.ForeignKey(Text, on_delete=models.CASCADE)
+
+    def get_translated_message(self, language):
+        return self.translation_set.get(language=language).message
 
     class Meta:
         abstract = True
 
 
-class QualitativeQuestion(Question):
-    pass
+class Comment(Text):
+    """
+    A `Comment` is a user-generated response to a `QualitativeQuestion`.
+    """
+    question = models.ForeignKey('QualitativeQuestion', on_delete=models.CASCADE)
+    author = models.ForeignKey('Respondent', on_delete=models.CASCADE)
+    datetime = models.DateTimeField(auto_now_add=True)
 
 
-class QuantitativeQuestion(Question):
-    pass
+class TemplatingText(Text):
+    """
+    `TemplatingText` is developer-generated text used for instructions and questions.
+    """
+
+
+class Question(models.Model):
+    prompt = models.OneToOne('TemplatingText', on_delete=models.CASCADE)
+
+    class Meta:
+        abstract = True
+
+    @property
+    def num_responses(self):
+        return self.objects.filter(question=)
+
+
+class QualitativeQuestion(models.Model):
+    prompt = models.ForeignKey('Templating', on_delete=models.CASCADE)
+
+
+class QuantitativeQuestion(models.Model):
+    left_end_description = models.OneToOneField('Text', on_delete=models.CASCADE)
+    right_end_description = models.OneToOneField('Text', on_delete=models.CASCADE)
+
+    def select_ratings(self):
+        return QuantitativeQuestionRating.objects.filter(question=self)
+
+    @property
+    def mean_score(self):
+        pass
+
+    @property
+    def num_rated(self):
+        excluded_ratings = [Rating.NOT_RATED, Rating.SKIPPED]
+        return select_ratings().exclude(score__in=excluded_ratings).count()
 
 
 class Comment(models.Model):
     question = models.ForeignKey('QualitativeQuestion', on_delete=models.CASCADE)
     author = models.ForeignKey('Respondent', on_delete=models.CASCADE)
-    datetime = models.DateTimeField(auto_now_add=True)
+    
     text = models.OneToOneField('Text', on_delete=models.CASCADE)
 
 
@@ -54,7 +100,7 @@ class Rating(models.Model):
 
     respondent = models.ForeignKey('Respondent', on_delete=models.CASCADE)
     datetime = models.DateTimeField(auto_now_add=True)
-    score = models.PositiveSmallIntegerField(default=NOT_RATED)
+    score = models.SmallIntegerField(default=NOT_RATED)
 
     class Meta:
         abstract = True
@@ -67,8 +113,8 @@ class CommentRating(Rating):
         unique_together = ('respondent', 'comment')
 
 
-class QualitativeQuestionRating(Rating):
-    question = models.ForeignKey('QualitativeQuestion', on_delete=models.CASCADE)
+class QuantitativeQuestionRating(Rating):
+    question = models.ForeignKey('QuantitativeQuestion', on_delete=models.CASCADE)
 
     class Meta:
         unique_together = ('respondent', 'question')
