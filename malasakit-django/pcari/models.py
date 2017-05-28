@@ -5,13 +5,12 @@ import datetime
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils import timezone
-from django.contrib.auth.models import User
 
 
 class Text(models.Model):
     """
-    The `Text` model is a wrapper model that bundles a message with the
-    language it is written in.
+    The `Text` model is a model that bundles a message with the language it is
+    written in.
     """
     # Use the codes in the ISO 639-2 standard for the first entry.
     LANGUAGES = (
@@ -22,11 +21,57 @@ class Text(models.Model):
     language = models.CharField(max_length=3, choices=LANGUAGES)
     message = models.TextField()
 
+    class Meta:
+        abstract = True
 
-class Comment(Text):
+
+class Question(models.Model):
+    tag = models.CharField(max_length=64)
+    prompt = models.ForeignKey(Text, on_delete=models.CASCADE)
+
+    class Meta:
+        abstract = True
+
+
+class QualitativeQuestion(Question):
+    pass
+
+
+class QuantitativeQuestion(Question):
+    pass
+
+
+class Comment(models.Model):
+    question = models.ForeignKey('QualitativeQuestion', on_delete=models.CASCADE)
     author = models.ForeignKey('Respondent', on_delete=models.CASCADE)
     datetime = models.DateTimeField(auto_now_add=True)
-    text = models.ForeignKey('Text', on_delete=models.CASCADE)
+    text = models.OneToOneField('Text', on_delete=models.CASCADE)
+
+
+class Rating(models.Model):
+    NOT_RATED = -2
+    SKIPPED = -1
+
+    respondent = models.ForeignKey('Respondent', on_delete=models.CASCADE)
+    datetime = models.DateTimeField(auto_now_add=True)
+    score = models.PositiveSmallIntegerField(default=NOT_RATED)
+
+    class Meta:
+        abstract = True
+
+
+class CommentRating(Rating):
+    comment = models.ForeignKey('Comment', on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('respondent', 'comment')
+
+
+class QualitativeQuestionRating(Rating):
+    question = models.ForeignKey('QualitativeQuestion', on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('respondent', 'question')
 
 
 class Tag(models.Model):
