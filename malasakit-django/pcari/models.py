@@ -10,56 +10,87 @@ from django.utils import timezone
 class Translation(models.Model):
     """
     A `Translation` bundles a message with the language it is written in.
+
+    Attributes:
+        LANGUAGES: A tuple of pairs (tuples of size two), each of which has a
+                   language code as the first entry and the language name as
+                   the second. The three-letter language code should be taken
+                   from the ISO 639-2 standard.
+        phrase: A reference to a model that bundles equivalent translations
+                together.
+        language: A language code (see the `LANGAUGES` attribute).
+        message: The text itself written in `language`.
+        word_count: The number of words in the `message` (words are delimited
+                    with contiguous whitespace).
+
+    TODO: validate `language` on assignment
     """
-    # Use the codes in the ISO 639-2 standard for the first entry.
     LANGUAGES = (
         ('ENG', 'English'),
         ('FIL', 'Filipino')
     )
 
-    text = models.ForeignKey('Text', on_delete=models.CASCADE)
+    phrase = models.ForeignKey('Phrase', on_delete=models.CASCADE)
     language = models.CharField(max_length=3, choices=LANGUAGES)
-    message = models.TextField()
+    message = models.TextField(null=True, empty=True)
 
     class Meta:
-        unique_together = ('text', 'language')
+        unique_together = ('phrase', 'language')
+
+    @property
+    def word_count(self):
+        return len(self.message.split())
 
 
-class Text(models.Model):
+class Phrase(models.Model):
     """
-    A `Text` groups together equivalent translations.
+    A `Phrase` groups together equivalent translations.
 
-    Any clients of the `Text` class can act language-agnostic.
+    Any clients of the `Phrase` class can act language-agnostic.
     """
     tag = models.CharField(max_length=64, null=True, blank=True)
 
-    def get_translated_message(self, language):
+    def get_translation(self, language):
         return self.translation_set.get(language=language).message
 
+    def update_or_create_translation(self, language, message):
+        Translation.objects.update_or_create(phrase=self, language=language,
+                                             defaults={'message': message})
 
-class Response(models.Model):
+    def all_translations(self):
+        translations = Translation.objects.filter(phrase=self)
+        return {translation.language: translation.message
+                for translation in translations}
+
+
+class ResponseMixin(models.Model):
     """
     A `Response` is an abstract model of user-generated data.
-
-    Multiple inheritance is usually discouraged, but this class is intended to
-    act as a mixin.
     """
     respondent = models.ForeignKey('Respondent', on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
-    time_to_respond = models.DurationField(null=True, blank=True)
 
     class Meta:
         abstract = True
 
 
-class Comment(Text, Response):
+class Comment(Phrase, ResponseMixin):
     """
     A `Comment` is a textual response to a `QualitativeQuestion`.
+
+    Example usage:
+
+    >>> respondent = Respondent()
+    >>> prompt = Phrase(tag='weather-question')
+    >>> prompt.update_or_create_translation('ENG', 'How is the weather?')
+    >>> question = QualitativeQuestion(prompt=prompt)
+    >>> comment = Comment(respondent=respondent, question=question, tag='comment')
+    >>> comment.update_or_create_translation('ENG', 'Not raining.')
     """
     question = models.ForeignKey('QualitativeQuestion', on_delete=models.CASCADE)
 
 
-class Rating(Response):
+class Rating(ResponseMixin):
     """
     A `Rating` is an abstract model of a numeric response.
     """
@@ -93,7 +124,7 @@ class CommentRating(Rating):
 
 
 class Question(models.Model):
-    prompt = models.OneToOneField('Text', related_name='+', on_delete=models.CASCADE)
+    prompt = models.OneToOneField('Phrase', related_name='+', on_delete=models.CASCADE)
 
     class Meta:
         abstract = True
@@ -106,8 +137,8 @@ class QualitativeQuestion(Question):
 
 
 class QuantitativeQuestion(Question):
-    left_end_description = models.OneToOneField('Text', related_name='+', on_delete=models.CASCADE)
-    right_end_description = models.OneToOneField('Text', related_name='+', on_delete=models.CASCADE)
+    left_end_description = models.OneToOneField('Phrase', related_name='+', on_delete=models.CASCADE)
+    right_end_description = models.OneToOneField('Phrase', related_name='+', on_delete=models.CASCADE)
 
     def select_ratings(self):
         return QuantitativeQuestionRating.objects.filter(question=self)
