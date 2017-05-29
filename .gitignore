@@ -91,3 +91,6 @@ ENV/
 # DB
 *.sqlite3
 db
+
+# MacOS-specific binary files
+*.DS_Store
