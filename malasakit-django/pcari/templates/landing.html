@@ -47,7 +47,7 @@
 
 
         <div>
-          <form action="{% url 'pcari:create_user'%}" method="POST">
+          <form action="{% url 'pcari:create_user' %}" method="POST">
               {% csrf_token %}
               <input  class='button-div-red' style="margin-top: 10px;" type="submit" value="{{begin}}" />
             </form>

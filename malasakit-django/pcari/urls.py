@@ -5,9 +5,12 @@ from . import views
 app_name = 'pcari'
 urlpatterns = [ 
     url(r'^$', views.landing, name='landing'),
-    url(r'^questions/$', views.create_user, name='create_user'),
-    url(r'^questions/(?P<is_new>[0-9]+)/$', views.create_user, name='create_user'),
-    url(r'^comparison/(?P<qid>[0-9]+)/$', views.rate, name='rate'),
+    url(r'^create-user/$', views.create_user, name='create_user'),
+    url(r'^create-user/(?P<is_new>[0-9]+)/$', views.create_user, name='create_user'),
+    url(r'^questions/$', views.questions, name='questions'),
+    url(r'^get-question-ids/$', views.get_question_ids, name='get_question_ids'),
+    url(r'^get-question/(?P<qid>\d+)/$', views.get_question, name='get_question'),
+    url(r'^save-answer/$', views.save_answer, name='save_answer'),
     url(r'^review/$', views.review, name='review'),
     url(r'^peerevaluation/$', views.bloom, name='bloom'),
     url(r'^rate/(?P<cid>[0-9]+)/$', views.get_comment, name='get_comment'),
