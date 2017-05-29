@@ -31,7 +31,7 @@ class Text(models.Model):
 
     Any clients of the `Text` class can act language-agnostic.
     """
-    tag = models.CharField(max_length=64)
+    tag = models.CharField(max_length=64, null=True, blank=True)
 
     def get_translated_message(self, language):
         return self.translation_set.get(language=language).message
@@ -40,9 +40,13 @@ class Text(models.Model):
 class Response(models.Model):
     """
     A `Response` is an abstract model of user-generated data.
+
+    Multiple inheritance is usually discouraged, but this class is intended to
+    act as a mixin.
     """
     respondent = models.ForeignKey('Respondent', on_delete=models.CASCADE)
-    datetime = models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    time_to_respond = models.DurationField(null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -53,8 +57,6 @@ class Comment(Text, Response):
     A `Comment` is a textual response to a `QualitativeQuestion`.
     """
     question = models.ForeignKey('QualitativeQuestion', on_delete=models.CASCADE)
-    author = models.ForeignKey('Respondent', on_delete=models.CASCADE)
-    datetime = models.DateTimeField(auto_now_add=True)
 
 
 class Rating(Response):
@@ -91,7 +93,7 @@ class CommentRating(Rating):
 
 
 class Question(models.Model):
-    prompt = models.OneToOneField('Text', on_delete=models.CASCADE)
+    prompt = models.OneToOneField('Text', related_name='+', on_delete=models.CASCADE)
 
     class Meta:
         abstract = True
@@ -104,18 +106,20 @@ class QualitativeQuestion(Question):
 
 
 class QuantitativeQuestion(Question):
-    left_end_description = models.OneToOneField('Text', on_delete=models.CASCADE)
-    right_end_description = models.OneToOneField('Text', on_delete=models.CASCADE)
+    left_end_description = models.OneToOneField('Text', related_name='+', on_delete=models.CASCADE)
+    right_end_description = models.OneToOneField('Text', related_name='+', on_delete=models.CASCADE)
 
     def select_ratings(self):
         return QuantitativeQuestionRating.objects.filter(question=self)
 
     @property
     def mean_score(self):
-        pass
+        excluded_ratings = [Rating.NOT_RATED, Rating.SKIPPED]
+        scores = list(select_ratings().exclude(score__in=excluded_ratings).all())
+        return sum(scores)/len(scores)
 
     @property
-    def num_rated(self):
+    def num_ratings(self):
         excluded_ratings = [Rating.NOT_RATED, Rating.SKIPPED]
         return select_ratings().exclude(score__in=excluded_ratings).count()
 
@@ -127,10 +131,15 @@ class Respondent(models.Model):
     )
 
     age = models.PositiveSmallIntegerField(default=None, null=True, blank=True)
-    barangay = models.CharField(max_length=512, default=None, null=True, blank=True)
     gender = models.CharField(max_length=1, choices=GENDERS, default=None, null=True, blank=True)
-    language = models.CharField(max_length=3, choices=Text.LANGUAGES, default='FIL')
+    # TODO: generalize location data
+    barangay = models.CharField(max_length=512, default=None, null=True, blank=True)
+    language = models.CharField(max_length=3, choices=Translation.LANGUAGES, default='FIL')
 
     @property
-    def num_rated(self):
-        return Rating.objects.filter(respondent=self).count()
+    def num_questions_rated(self):
+        return QuantitativeQuestionRating.objects.filter(respondent=self).count()
+
+    @property
+    def num_comments_rated(self):
+        return CommentRating.objects.filter(respondent=self).count()

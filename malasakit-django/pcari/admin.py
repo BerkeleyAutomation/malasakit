@@ -13,6 +13,7 @@ try:
 except ImportError:
     from openpyxl.utils import get_column_letter
 
+"""
 # Register your models here.
 from pcari.models import QuantitativeQuestion, QualitativeQuestion, Rating, Comment, UserProgression, GeneralSetting, FlaggedComment, UserData, CommentRating
 
@@ -313,3 +314,4 @@ class UserDataAdmin(admin.ModelAdmin):
 
 admin.site.register(UserData,UserDataAdmin)
 # admin.site.register(UserProgression, UserProgressionAdmin)
+"""
