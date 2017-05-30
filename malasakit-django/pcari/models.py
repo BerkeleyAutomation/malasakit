@@ -6,15 +6,6 @@ Attributes:
                language code as the first entry and the language name as
                the second. The three-letter language code should be taken
                from the ISO 639-2 standard.
-    Response:
-    Comment:
-    Rating:
-    QuantitativeQuestionRating:
-    CommentRating:
-    Question:
-    QualitativeQuestion:
-    QuantitativeQuestion:
-    Respondent:
 """
 
 from __future__ import unicode_literals
@@ -173,6 +164,8 @@ class QualitativeQuestion(Question):
         comments: A Django `QuerySet` of `Comment`s in response to this
                   question.
     """
+    # pylint: disable=model-no-explicit-unicode
+
     class Meta:
         proxy = True
 
@@ -189,6 +182,8 @@ class QuantitativeQuestion(Question):
         mean_score: The mean score given to this `QuantitativeQuestion`.
         num_ratings: The number times respondents have rated this question.
     """
+    # pylint: disable=model-no-explicit-unicode
+
     class Meta:
         proxy = True
 
