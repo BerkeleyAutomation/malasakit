@@ -13,7 +13,7 @@ class Response(models.Model):
 
     Attributes:
         respondent: A reference to the user who made this `Response`.
-        timestamp: The date and time at which this `Response` was submitted.
+        timestamp: The date and time at which this `Response` was made.
     """
     respondent = models.ForeignKey('Respondent', on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -24,16 +24,16 @@ class Response(models.Model):
 
 class Comment(Response):
     """
-    A `Comment` is a textual response to a `QualitativeQuestion`.
+    A `Comment` is an open-ended text response to a `QualitativeQuestion`.
 
     Attributes:
         LANGUAGES: A tuple of pairs (tuples of size two), each of which has a
                    language code as the first entry and the language name as
                    the second. The three-letter language code should be taken
                    from the ISO 639-2 standard.
+        question: A reference to a `QualitativeQuestion`.
         language: A language code (see the `LANGAUGES` attribute).
         message: The text itself written in `language`.
-        question: A reference to a `QualitativeQuestion`.
         flagged: A boolean indicating whether this comment was flagged for
                  further inspection.
         word_count: The number of words in the `message` (words are delimited
@@ -62,10 +62,22 @@ class Comment(Response):
     def word_count(self):
         return len(self.message.split())
 
+    class Meta:
+        unique_together = ('respondent', 'question')
+
 
 class Rating(Response):
     """
     A `Rating` is an abstract model of a numeric response.
+
+    Attributes:
+        NOT_RATED: A sentinel value assigned to a `Rating` that the user never
+                   submitted (that is, a default value).
+        SKIPPED: A sentinel value assigned to a `Rating` where the user
+                 intentionally chose to decline rating a question or a comment.
+        score: An integer that quantifies a rating. (No scale is provided, by
+               design. Interpreting the `score` is the responsibility of
+               clients of this model.)
     """
     NOT_RATED = -2
     SKIPPED = -1
@@ -79,6 +91,9 @@ class Rating(Response):
 class QuantitativeQuestionRating(Rating):
     """
     A `QuantitativeQuestionRating` is a numeric response to a `QuantitativeQuestion`.
+
+    Attributes:
+        question: A reference to the `QuantitativeQuestion` this rating is in response to.
     """
     question = models.ForeignKey('QuantitativeQuestion', on_delete=models.CASCADE)
 
@@ -89,6 +104,9 @@ class QuantitativeQuestionRating(Rating):
 class CommentRating(Rating):
     """
     A `CommentRating` is a numeric response to a `Comment`.
+
+    Attributes:
+        comment: A reference to the `Comment` this comment is in response to.
     """
     comment = models.ForeignKey('Comment', on_delete=models.CASCADE)
 
@@ -97,21 +115,35 @@ class CommentRating(Rating):
 
 
 class Question(models.Model):
-    prompt = models.TextField()
+    """
+    A `Question` models a prompt presented to the user that requires a response.
 
-    class Meta:
-        abstract = True
+    Attributes:
+        identifier: A unique string associated with each `Question`.
+        prompt: The prompt in the primary language of the application.
+    """
+    identifier = models.CharField(max_length=16, primary_key=True)
+    prompt = models.TextField(null=True, blank=True)
 
 
 class QualitativeQuestion(Question):
+    """
+    A `QualitativeQuestion` is a `Question` that asks for a comment.
+    """
+    class Meta:
+        proxy = True
+
     @property
     def comments(self):
         return Comment.objects.filter(question=self)
 
 
 class QuantitativeQuestion(Question):
-    left_end_description = models.TextField()
-    right_end_description = models.TextField()
+    """
+    A `QuantitativeQuestion` is a `Question` that asks for a numeric rating.
+    """
+    class Meta:
+        proxy = True
 
     def select_ratings(self, answered=True):
         query = QuantitativeQuestionRating.objects.filter(question=self)
