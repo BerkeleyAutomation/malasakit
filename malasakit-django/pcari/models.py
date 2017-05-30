@@ -69,10 +69,10 @@ class Comment(Response):
     language = models.CharField(max_length=3, choices=LANGUAGES)
     message = models.TextField(blank=True)
     flagged = models.BooleanField(default=False)
-    tag = models.CharField(max_length=64, blank=True)
+    tag = models.CharField(max_length=64, blank=True, default='')
 
     def __unicode__(self):
-        return 'Comment {0}: "{1}"'.format(self.id, self.message)
+        return '{0}: "{1}"'.format(self.id, self.message)
 
     @property
     def word_count(self):
@@ -117,7 +117,7 @@ class QuantitativeQuestionRating(Rating):
                                  on_delete=models.CASCADE)
 
     def __unicode__(self):
-        template = 'QuantitativeQuestionRating of QuantitativeQuestion {0}: {1}'
+        template = 'QuantitativeQuestion {0}: {1}'
         return template.format(self.question_id, self.score)
 
     class Meta:
@@ -134,8 +134,7 @@ class CommentRating(Rating):
     comment = models.ForeignKey('Comment', on_delete=models.CASCADE)
 
     def __unicode__(self):
-        template = 'CommentRating of Comment {0}: {1}'
-        return template.format(self.comment_id, self.score)
+        return 'Comment {0}: {1}'.format(self.comment_id, self.score)
 
     class Meta:
         unique_together = ('respondent', 'comment')
@@ -147,17 +146,14 @@ class Question(models.Model):
     response.
 
     Attributes:
-        identifier: A unique string associated with each `Question`.
         prompt: The prompt in the primary language of the application.
         tag: A short string that summarizes the prompt.
     """
-    identifier = models.CharField(max_length=16, primary_key=True)
     prompt = models.TextField(blank=True)
-    tag = models.CharField(max_length=64, blank=True)
+    tag = models.CharField(max_length=64, blank=True, default='')
 
     def __unicode__(self):
-        return '{0} {1}: "{2}"'.format(self.__class__.__name__,
-                                       self.identifier, self.prompt)
+        return '{0}: "{1}"'.format(self.id, self.prompt)
 
 
 class QualitativeQuestion(Question):
@@ -267,7 +263,7 @@ class Respondent(models.Model):
     completed_survey = models.BooleanField(default=False)
 
     def __unicode__(self):
-        return 'Respondent {0}'.format(self.id)
+        return '{0}'.format(self.id)
 
     @property
     def num_questions_rated(self):
