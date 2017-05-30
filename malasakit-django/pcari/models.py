@@ -1,3 +1,11 @@
+"""
+Attributes:
+    LANGUAGES: A tuple of pairs (tuples of size two), each of which has a
+               language code as the first entry and the language name as
+               the second. The three-letter language code should be taken
+               from the ISO 639-2 standard.
+"""
+
 from __future__ import unicode_literals
 
 import datetime
@@ -7,11 +15,17 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils import timezone
 
 
+LANGUAGES = (
+    ('ENG', 'English'),
+    ('FIL', 'Filipino')
+)
+
+
 class Response(models.Model):
-    """
     A `Response` is an abstract model of user-generated data.
 
     Attributes:
+    """
         respondent: A reference to the user who made this `Response`.
         timestamp: The date and time at which this `Response` was made.
     """
@@ -27,10 +41,6 @@ class Comment(Response):
     A `Comment` is an open-ended text response to a `QualitativeQuestion`.
 
     Attributes:
-        LANGUAGES: A tuple of pairs (tuples of size two), each of which has a
-                   language code as the first entry and the language name as
-                   the second. The three-letter language code should be taken
-                   from the ISO 639-2 standard.
         question: A reference to a `QualitativeQuestion`.
         language: A language code (see the `LANGAUGES` attribute).
         message: The text itself written in `language`.
@@ -48,11 +58,6 @@ class Comment(Response):
     >>> comment = Comment(question=question, respondent=respondent,
     ...                   language='ENG', message='Not raining.')
     """
-    LANGUAGES = (
-        ('ENG', 'English'),
-        ('FIL', 'Filipino')
-    )
-
     question = models.ForeignKey('QualitativeQuestion', on_delete=models.CASCADE)
     language = models.CharField(max_length=3, choices=LANGUAGES)
     message = models.TextField()
@@ -164,6 +169,19 @@ class QuantitativeQuestion(Question):
 
 
 class Respondent(models.Model):
+    """
+    Attributes:
+        GENDERS: Choices for the `gender` field. This attribute is a tuple of
+                 pairs of strings, of which the second entry is the full gender
+                 name and the first is a single-letter abbreviation.
+        age: The age of the respondent in years.
+        gender: The gender of the respondent, as selected from `GENDERS`.
+        location: An open text field that describes the `respondent`'s
+                  residence. (In the particular context of the PCARI project,
+                  this field should contain the name of the `Respondent`'s
+                  barangay.)
+        language: The language preferred by this respondent.
+    """
     GENDERS = (
         ('M', 'Male'),
         ('F', 'Female')
@@ -171,9 +189,8 @@ class Respondent(models.Model):
 
     age = models.PositiveSmallIntegerField(default=None, null=True, blank=True)
     gender = models.CharField(max_length=1, choices=GENDERS, default=None, null=True, blank=True)
-    # TODO: generalize location data
-    barangay = models.CharField(max_length=512, default=None, null=True, blank=True)
-    language = models.CharField(max_length=3, choices=Translation.LANGUAGES, default='FIL')
+    location = models.CharField(max_length=512, default=None, null=True, blank=True)
+    language = models.CharField(max_length=3, choices=LANGUAGES)
 
     @property
     def num_questions_rated(self):
