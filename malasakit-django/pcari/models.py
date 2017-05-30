@@ -1,18 +1,29 @@
 """
+This module defines the structure of the data.
+
 Attributes:
     LANGUAGES: A tuple of pairs (tuples of size two), each of which has a
                language code as the first entry and the language name as
                the second. The three-letter language code should be taken
                from the ISO 639-2 standard.
+    Response:
+    Comment:
+    Rating:
+    QuantitativeQuestionRating:
+    CommentRating:
+    Question:
+    QualitativeQuestion:
+    QuantitativeQuestion:
+    Respondent:
 """
 
 from __future__ import unicode_literals
 
-import datetime
+# Public-facing models (parent models are excluded)
+__all__ = ['Comment', 'QuantitativeQuestionRating', 'CommentRating',
+           'QualitativeQuestion', 'QuantitativeQuestion', 'Respondent']
 
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
-from django.utils import timezone
 
 
 LANGUAGES = (
@@ -58,11 +69,15 @@ class Comment(Response):
     >>> comment = Comment(question=question, respondent=respondent,
     ...                   language='ENG', message='Not raining.')
     """
-    question = models.ForeignKey('QualitativeQuestion', on_delete=models.CASCADE)
+    question = models.ForeignKey('QualitativeQuestion',
+                                 on_delete=models.CASCADE)
     language = models.CharField(max_length=3, choices=LANGUAGES)
     message = models.TextField()
     flagged = models.BooleanField(default=False)
     tag = models.CharField(max_length=64)
+
+    def __unicode__(self):
+        return 'Comment {0}: "{1}"'.format(self.id, self.message)
 
     @property
     def word_count(self):
@@ -96,12 +111,19 @@ class Rating(Response):
 
 class QuantitativeQuestionRating(Rating):
     """
-    A `QuantitativeQuestionRating` is a numeric response to a `QuantitativeQuestion`.
+    A `QuantitativeQuestionRating` is a numeric response to a
+    `QuantitativeQuestion`.
 
     Attributes:
-        question: A reference to the `QuantitativeQuestion` this rating is in response to.
+        question: A reference to the `QuantitativeQuestion` this rating is in
+                  response to.
     """
-    question = models.ForeignKey('QuantitativeQuestion', on_delete=models.CASCADE)
+    question = models.ForeignKey('QuantitativeQuestion',
+                                 on_delete=models.CASCADE)
+
+    def __unicode__(self):
+        template = 'QuantitativeQuestionRating of QuantitativeQuestion {0}: {1}'
+        return template.format(self.question_id, self.score)
 
     class Meta:
         unique_together = ('respondent', 'question')
@@ -116,13 +138,18 @@ class CommentRating(Rating):
     """
     comment = models.ForeignKey('Comment', on_delete=models.CASCADE)
 
+    def __unicode__(self):
+        template = 'CommentRating of Comment {0}: {1}'
+        return template.format(self.comment_id, self.score)
+
     class Meta:
         unique_together = ('respondent', 'comment')
 
 
 class Question(models.Model):
     """
-    A `Question` models a prompt presented to the user that requires a response.
+    A `Question` models a prompt presented to the user that requires a
+    response.
 
     Attributes:
         identifier: A unique string associated with each `Question`.
@@ -133,13 +160,18 @@ class Question(models.Model):
     prompt = models.TextField(null=True, blank=True)
     tag = models.CharField(max_length=64)
 
+    def __unicode__(self):
+        return '{0} {1}: "{2}"'.format(self.__class__.__name__,
+                                       self.identifier, self.prompt)
+
 
 class QualitativeQuestion(Question):
     """
     A `QualitativeQuestion` is a `Question` that asks for a comment.
 
     Attributes:
-        comments: A Django `QuerySet` of `Comment`s in response to this question.
+        comments: A Django `QuerySet` of `Comment`s in response to this
+                  question.
     """
     class Meta:
         proxy = True
@@ -162,7 +194,8 @@ class QuantitativeQuestion(Question):
 
     def select_ratings(self, answered=True):
         """
-        Select `QuantitativeQuestionRating` instances attached to this question.
+        Select `QuantitativeQuestionRating` instances attached to this
+        question.
 
         Args:
             answered: When `True`, select only `QuantitativeQuestionRating`s
@@ -177,17 +210,16 @@ class QuantitativeQuestion(Question):
         if answered:
             excluded_ratings = [Rating.NOT_RATED, Rating.SKIPPED]
             return query.exclude(score__in=excluded_ratings)
-        else:
-            return query
+        return query
 
     @property
     def mean_score(self):
-        scores = select_ratings().values_list('score', flat=True)
+        scores = self.select_ratings().values_list('score', flat=True)
         return sum(scores)/len(scores)
 
     @property
     def num_ratings(self):
-        return select_ratings().count()
+        return self.select_ratings().count()
 
 
 class Respondent(models.Model):
@@ -228,15 +260,21 @@ class Respondent(models.Model):
     )
 
     age = models.PositiveSmallIntegerField(default=None, null=True, blank=True)
-    gender = models.CharField(max_length=1, choices=GENDERS, default=None, null=True, blank=True)
-    location = models.CharField(max_length=512, default=None, null=True, blank=True)
+    gender = models.CharField(max_length=1, choices=GENDERS, default=None,
+                              null=True, blank=True)
+    location = models.CharField(max_length=512, default=None, null=True,
+                                blank=True)
     language = models.CharField(max_length=3, choices=LANGUAGES)
     submitted_personal_data = models.BooleanField(default=False)
     completed_survey = models.BooleanField(default=False)
 
+    def __unicode__(self):
+        return 'Respondent {0}'.format(self.id)
+
     @property
     def num_questions_rated(self):
-        return QuantitativeQuestionRating.objects.filter(respondent=self).count()
+        questions = QuantitativeQuestionRating.objects.filter(respondent=self)
+        return questions.count()
 
     @property
     def num_comments_rated(self):
