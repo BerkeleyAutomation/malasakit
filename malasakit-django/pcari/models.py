@@ -22,10 +22,10 @@ LANGUAGES = (
 
 
 class Response(models.Model):
+    """
     A `Response` is an abstract model of user-generated data.
 
     Attributes:
-    """
         respondent: A reference to the user who made this `Response`.
         timestamp: The date and time at which this `Response` was made.
     """
@@ -42,14 +42,14 @@ class Comment(Response):
 
     Attributes:
         question: A reference to a `QualitativeQuestion`.
-        language: A language code (see the `LANGAUGES` attribute).
+        language: A language code (see this module's `LANGAUGES` attribute).
         message: The text itself written in `language`.
         flagged: A boolean indicating whether this comment was flagged for
                  further inspection.
+        tag: A short string that summarizes this comment's message. (This field
+             is not user-generated.)
         word_count: The number of words in the `message` (words are delimited
                     with contiguous whitespace).
-
-    TODO: validate `language` on assignment
 
     Example usage:
 
@@ -62,6 +62,7 @@ class Comment(Response):
     language = models.CharField(max_length=3, choices=LANGUAGES)
     message = models.TextField()
     flagged = models.BooleanField(default=False)
+    tag = models.CharField(max_length=64)
 
     @property
     def word_count(self):
@@ -126,14 +127,19 @@ class Question(models.Model):
     Attributes:
         identifier: A unique string associated with each `Question`.
         prompt: The prompt in the primary language of the application.
+        tag: A short string that summarizes the prompt.
     """
     identifier = models.CharField(max_length=16, primary_key=True)
     prompt = models.TextField(null=True, blank=True)
+    tag = models.CharField(max_length=64)
 
 
 class QualitativeQuestion(Question):
     """
     A `QualitativeQuestion` is a `Question` that asks for a comment.
+
+    Attributes:
+        comments: A Django `QuerySet` of `Comment`s in response to this question.
     """
     class Meta:
         proxy = True
@@ -146,11 +152,27 @@ class QualitativeQuestion(Question):
 class QuantitativeQuestion(Question):
     """
     A `QuantitativeQuestion` is a `Question` that asks for a numeric rating.
+
+    Attributes:
+        mean_score: The mean score given to this `QuantitativeQuestion`.
+        num_ratings: The number times respondents have rated this question.
     """
     class Meta:
         proxy = True
 
     def select_ratings(self, answered=True):
+        """
+        Select `QuantitativeQuestionRating` instances attached to this question.
+
+        Args:
+            answered: When `True`, select only `QuantitativeQuestionRating`s
+                      where the respondent did not skip this question (whether
+                      intentionally or not). When `True`, the scores of the
+                      ratings returned are guaranteed to be nonnegative.
+
+        Returns:
+            A Django `QuerySet` containing this question's ratings.
+        """
         query = QuantitativeQuestionRating.objects.filter(question=self)
         if answered:
             excluded_ratings = [Rating.NOT_RATED, Rating.SKIPPED]
@@ -160,7 +182,7 @@ class QuantitativeQuestion(Question):
 
     @property
     def mean_score(self):
-        scores = list(select_ratings().all())
+        scores = select_ratings().values_list('score', flat=True)
         return sum(scores)/len(scores)
 
     @property
@@ -170,6 +192,8 @@ class QuantitativeQuestion(Question):
 
 class Respondent(models.Model):
     """
+    A `Respondent` represents a one-time participant in a survey.
+
     Attributes:
         GENDERS: Choices for the `gender` field. This attribute is a tuple of
                  pairs of strings, of which the second entry is the full gender
@@ -181,6 +205,22 @@ class Respondent(models.Model):
                   this field should contain the name of the `Respondent`'s
                   barangay.)
         language: The language preferred by this respondent.
+        submitted_personal_data: A boolean indicating whether the user
+                                 completed the form asking for `age`, `gender`,
+                                 and `location`. Because this form is entirely
+                                 optional, there is no other way to infer the
+                                 `Respondent`'s progression through this stage.
+        completed_survey: A boolean indicating whether the user completed the
+                          entire survey.
+        num_questions_rated: The number of `QuantitativeQuestion`'s answered by
+                             this `Respondent`. From this number, we can infer
+                             whether this `Respondent` reached the rating stage
+                             of the survey.
+        num_comments_rated: The number of `Comment`'s reviewed by this
+                            `Respondent`. Similarly, we can infer user
+                            progression from this attribute.
+        comments_made: A Django `QuerySet` of all comments attached to this
+                       `Respondent`.
     """
     GENDERS = (
         ('M', 'Male'),
@@ -191,6 +231,8 @@ class Respondent(models.Model):
     gender = models.CharField(max_length=1, choices=GENDERS, default=None, null=True, blank=True)
     location = models.CharField(max_length=512, default=None, null=True, blank=True)
     language = models.CharField(max_length=3, choices=LANGUAGES)
+    submitted_personal_data = models.BooleanField(default=False)
+    completed_survey = models.BooleanField(default=False)
 
     @property
     def num_questions_rated(self):
