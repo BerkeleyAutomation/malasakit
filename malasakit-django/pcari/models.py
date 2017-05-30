@@ -69,6 +69,8 @@ class ResponseMixin(models.Model):
     """
     respondent = models.ForeignKey('Respondent', on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
+    # TODO: discuss the following field
+    time_to_respond = models.DurationField(null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -88,6 +90,7 @@ class Comment(Phrase, ResponseMixin):
     >>> comment.update_or_create_translation('ENG', 'Not raining.')
     """
     question = models.ForeignKey('QualitativeQuestion', on_delete=models.CASCADE)
+    flagged = models.BooleanField(default=False)
 
 
 class Rating(ResponseMixin):
@@ -132,27 +135,30 @@ class Question(models.Model):
 
 class QualitativeQuestion(Question):
     @property
-    def num_responses(self):
-        return Comment.objects.filter(question=self).count()
+    def comments(self):
+        return Comment.objects.filter(question=self)
 
 
 class QuantitativeQuestion(Question):
     left_end_description = models.OneToOneField('Phrase', related_name='+', on_delete=models.CASCADE)
     right_end_description = models.OneToOneField('Phrase', related_name='+', on_delete=models.CASCADE)
 
-    def select_ratings(self):
-        return QuantitativeQuestionRating.objects.filter(question=self)
+    def select_ratings(self, answered=True):
+        query = QuantitativeQuestionRating.objects.filter(question=self)
+        if answered:
+            excluded_ratings = [Rating.NOT_RATED, Rating.SKIPPED]
+            return query.exclude(score__in=excluded_ratings)
+        else:
+            return query
 
     @property
     def mean_score(self):
-        excluded_ratings = [Rating.NOT_RATED, Rating.SKIPPED]
-        scores = list(select_ratings().exclude(score__in=excluded_ratings).all())
+        scores = list(select_ratings().all())
         return sum(scores)/len(scores)
 
     @property
     def num_ratings(self):
-        excluded_ratings = [Rating.NOT_RATED, Rating.SKIPPED]
-        return select_ratings().exclude(score__in=excluded_ratings).count()
+        return select_ratings().count()
 
 
 class Respondent(models.Model):
@@ -174,3 +180,7 @@ class Respondent(models.Model):
     @property
     def num_comments_rated(self):
         return CommentRating.objects.filter(respondent=self).count()
+
+    @property
+    def comments_made(self):
+        return Comment.objects.filter(respondent=self).all()
