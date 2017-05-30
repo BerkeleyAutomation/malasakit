@@ -7,93 +7,63 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils import timezone
 
 
-class Translation(models.Model):
+class Response(models.Model):
     """
-    A `Translation` bundles a message with the language it is written in.
+    A `Response` is an abstract model of user-generated data.
+
+    Attributes:
+        respondent: A reference to the user who made this `Response`.
+        timestamp: The date and time at which this `Response` was submitted.
+    """
+    respondent = models.ForeignKey('Respondent', on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        abstract = True
+
+
+class Comment(Response):
+    """
+    A `Comment` is a textual response to a `QualitativeQuestion`.
 
     Attributes:
         LANGUAGES: A tuple of pairs (tuples of size two), each of which has a
                    language code as the first entry and the language name as
                    the second. The three-letter language code should be taken
                    from the ISO 639-2 standard.
-        phrase: A reference to a model that bundles equivalent translations
-                together.
         language: A language code (see the `LANGAUGES` attribute).
         message: The text itself written in `language`.
+        question: A reference to a `QualitativeQuestion`.
+        flagged: A boolean indicating whether this comment was flagged for
+                 further inspection.
         word_count: The number of words in the `message` (words are delimited
                     with contiguous whitespace).
 
     TODO: validate `language` on assignment
+
+    Example usage:
+
+    >>> respondent = Respondent()
+    >>> question = QualitativeQuestion(prompt='How is the weather?')
+    >>> comment = Comment(question=question, respondent=respondent,
+    ...                   language='ENG', message='Not raining.')
     """
     LANGUAGES = (
         ('ENG', 'English'),
         ('FIL', 'Filipino')
     )
 
-    phrase = models.ForeignKey('Phrase', on_delete=models.CASCADE)
+    question = models.ForeignKey('QualitativeQuestion', on_delete=models.CASCADE)
     language = models.CharField(max_length=3, choices=LANGUAGES)
-    message = models.TextField(null=True, empty=True)
-
-    class Meta:
-        unique_together = ('phrase', 'language')
+    message = models.TextField()
+    flagged = models.BooleanField(default=False)
 
     @property
     def word_count(self):
         return len(self.message.split())
 
 
-class Phrase(models.Model):
-    """
-    A `Phrase` groups together equivalent translations.
-
-    Any clients of the `Phrase` class can act language-agnostic.
-    """
-    tag = models.CharField(max_length=64, null=True, blank=True)
-
-    def get_translation(self, language):
-        return self.translation_set.get(language=language).message
-
-    def update_or_create_translation(self, language, message):
-        Translation.objects.update_or_create(phrase=self, language=language,
-                                             defaults={'message': message})
-
-    def all_translations(self):
-        translations = Translation.objects.filter(phrase=self)
-        return {translation.language: translation.message
-                for translation in translations}
-
-
-class ResponseMixin(models.Model):
-    """
-    A `Response` is an abstract model of user-generated data.
-    """
-    respondent = models.ForeignKey('Respondent', on_delete=models.CASCADE)
-    timestamp = models.DateTimeField(auto_now_add=True)
-    # TODO: discuss the following field
-    time_to_respond = models.DurationField(null=True, blank=True)
-
-    class Meta:
-        abstract = True
-
-
-class Comment(Phrase, ResponseMixin):
-    """
-    A `Comment` is a textual response to a `QualitativeQuestion`.
-
-    Example usage:
-
-    >>> respondent = Respondent()
-    >>> prompt = Phrase(tag='weather-question')
-    >>> prompt.update_or_create_translation('ENG', 'How is the weather?')
-    >>> question = QualitativeQuestion(prompt=prompt)
-    >>> comment = Comment(respondent=respondent, question=question, tag='comment')
-    >>> comment.update_or_create_translation('ENG', 'Not raining.')
-    """
-    question = models.ForeignKey('QualitativeQuestion', on_delete=models.CASCADE)
-    flagged = models.BooleanField(default=False)
-
-
-class Rating(ResponseMixin):
+class Rating(Response):
     """
     A `Rating` is an abstract model of a numeric response.
     """
@@ -127,7 +97,7 @@ class CommentRating(Rating):
 
 
 class Question(models.Model):
-    prompt = models.OneToOneField('Phrase', related_name='+', on_delete=models.CASCADE)
+    prompt = models.TextField()
 
     class Meta:
         abstract = True
@@ -140,8 +110,8 @@ class QualitativeQuestion(Question):
 
 
 class QuantitativeQuestion(Question):
-    left_end_description = models.OneToOneField('Phrase', related_name='+', on_delete=models.CASCADE)
-    right_end_description = models.OneToOneField('Phrase', related_name='+', on_delete=models.CASCADE)
+    left_end_description = models.TextField()
+    right_end_description = models.TextField()
 
     def select_ratings(self, answered=True):
         query = QuantitativeQuestionRating.objects.filter(question=self)
