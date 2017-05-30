@@ -59,13 +59,17 @@ class Comment(Response):
     >>> question = QualitativeQuestion(prompt='How is the weather?')
     >>> comment = Comment(question=question, respondent=respondent,
     ...                   language='ENG', message='Not raining.')
+    >>> comment.message
+    'Not raining.'
+    >>> comment.word_count
+    2
     """
     question = models.ForeignKey('QualitativeQuestion',
                                  on_delete=models.CASCADE)
     language = models.CharField(max_length=3, choices=LANGUAGES)
-    message = models.TextField()
+    message = models.TextField(blank=True)
     flagged = models.BooleanField(default=False)
-    tag = models.CharField(max_length=64)
+    tag = models.CharField(max_length=64, blank=True)
 
     def __unicode__(self):
         return 'Comment {0}: "{1}"'.format(self.id, self.message)
@@ -148,8 +152,8 @@ class Question(models.Model):
         tag: A short string that summarizes the prompt.
     """
     identifier = models.CharField(max_length=16, primary_key=True)
-    prompt = models.TextField(null=True, blank=True)
-    tag = models.CharField(max_length=64)
+    prompt = models.TextField(blank=True)
+    tag = models.CharField(max_length=64, blank=True)
 
     def __unicode__(self):
         return '{0} {1}: "{2}"'.format(self.__class__.__name__,
@@ -256,9 +260,8 @@ class Respondent(models.Model):
 
     age = models.PositiveSmallIntegerField(default=None, null=True, blank=True)
     gender = models.CharField(max_length=1, choices=GENDERS, default=None,
-                              null=True, blank=True)
-    location = models.CharField(max_length=512, default=None, null=True,
-                                blank=True)
+                              blank=True)
+    location = models.CharField(max_length=512, default=None, blank=True)
     language = models.CharField(max_length=3, choices=LANGUAGES)
     submitted_personal_data = models.BooleanField(default=False)
     completed_survey = models.BooleanField(default=False)
