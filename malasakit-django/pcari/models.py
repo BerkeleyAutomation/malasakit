@@ -23,6 +23,93 @@ LANGUAGES = (
 )
 
 
+def accepts_ratings(ratings_model, keyword):
+    """
+    A higher-order decorator that attaches properties to a model that is able
+    to be rated.
+
+    In particular, these properties compute descriptive statistics of the
+    ratings dynamically by pulling records from other models on-the-fly.
+    These statistics include:
+      * the number of ratings,
+      * the mean rating, and
+      * the standard error of the ratings.
+
+    Args:
+        ratings_model: The model containing the ratings. This model should
+                       subclass the abstract `Rating`s model, but at a minimum,
+                       the `ratings_model` should have a `score` attribute
+                       that obeys the convention of `Rating.NOT_RATED` and
+                       `Rating.SKIPPED`.
+        keyword: The name of the field of the `ratings_model` that refers to
+                 `target_model` being rated (that is, the model this decorator
+                 is used on).
+
+    Example usage:
+
+    >>> class FeedbackRating(Rating):
+    ...     feedback = models.ForeignKey('Feedback', on_delete=models.CASCADE)
+    ...
+    >>> @accepts_ratings(FeedbackRating, 'feedback')
+    ... class Feedback(models.Model):
+    ...     pass
+    ...
+    >>> respondent = Respondent()
+    >>> respondent.save()
+    >>> feedback = Feedback()
+    >>> feedback.save()
+    >>> FeedbackRating(respondent=respondent, feedback=feedback, score=1).save()
+    >>> FeedbackRating(respondent=respondent, feedback=feedback, score=3).save()
+    >>> FeedbackRating(respondent=respondent, feedback=feedback, score=4).save()
+    >>> feedback.num_ratings
+    3
+    >>> abs(feedback.mean_score - 8/3.0) < 1e-9  # (1 + 3 + 4)/3 = 8/3
+    True
+    """
+    def ratings_aggregator(target_model):
+        """ The decorator itself. """
+        def select_ratings(self, answered=True):
+            """
+            Select ratings attached to this target model instance.
+
+            Args:
+                answered: When `True`, select only ratings where the respondent
+                          did not skip this question or comment (whether
+                          intentionally or not). When `True`, the scores of the
+                          ratings returned are guaranteed to be nonnegative.
+
+            Returns:
+                A Django `QuerySet` containing this question's or comment's
+                ratings.
+            """
+            query = ratings_model.objects.filter(**{keyword: self})
+            if answered:
+                excluded_ratings = [Rating.NOT_RATED, Rating.SKIPPED]
+                return query.exclude(score__in=excluded_ratings)
+            return query
+
+        def mean_score(self):
+            scores = self.select_ratings().values_list('score', flat=True)
+            return float(sum(scores))/len(scores)
+
+        def num_ratings(self):
+            return self.select_ratings().count()
+
+        def standard_error(self):
+            # pylint: disable=missing-docstring
+            scores = self.select_ratings().values_list('score', flat=True)
+            mean_score = float(sum(scores))/len(scores)
+            variance = sum(pow(score - mean_score, 2)/len(scores) for score in scores)
+            return variance**0.5/len(scores)**2
+
+        target_model.select_ratings = select_ratings
+        target_model.mean_score = property(mean_score)
+        target_model.num_ratings = property(num_ratings)
+        target_model.standard_error = property(standard_error)
+        return target_model
+    return ratings_aggregator
+
+
 class Response(models.Model):
     """
     A `Response` is an abstract model of user-generated data.
@@ -36,53 +123,6 @@ class Response(models.Model):
 
     class Meta:
         abstract = True
-
-
-class Comment(Response):
-    """
-    A `Comment` is an open-ended text response to a `QualitativeQuestion`.
-
-    Attributes:
-        question: A reference to a `QualitativeQuestion`.
-        language: A language code (see this module's `LANGAUGES` attribute).
-        message: The text itself written in `language`.
-        flagged: A boolean indicating whether this comment was flagged for
-                 further inspection.
-        tag: A short string that summarizes this comment's message. (This field
-             is not user-generated.)
-        word_count: The number of words in the `message` (words are delimited
-                    with contiguous whitespace).
-
-    Example usage:
-
-    >>> respondent = Respondent()
-    >>> question = QualitativeQuestion(prompt='How is the weather?')
-    >>> comment = Comment(question=question, respondent=respondent,
-    ...                   language='ENG', message='Not raining.')
-    >>> comment.message
-    'Not raining.'
-    >>> comment.word_count
-    2
-    """
-    question = models.ForeignKey('QualitativeQuestion',
-                                 on_delete=models.CASCADE)
-    language = models.CharField(max_length=3, choices=LANGUAGES)
-    message = models.TextField(blank=True)
-    flagged = models.BooleanField(default=False)
-    tag = models.CharField(max_length=256, blank=True, default='')
-
-    def __unicode__(self):
-        return '{0}: "{1}"'.format(self.id, self.message)
-
-    @property
-    def word_count(self):
-        return len(self.message.split())
-
-    # TODO: add mean rating, number rated, and standard error (i.e., the old
-    #       SE field) using the `property decorator`
-
-    class Meta:
-        unique_together = ('respondent', 'question')
 
 
 class Rating(Response):
@@ -143,6 +183,51 @@ class CommentRating(Rating):
         unique_together = ('respondent', 'comment')
 
 
+@accepts_ratings(CommentRating, 'comment')
+class Comment(Response):
+    """
+    A `Comment` is an open-ended text response to a `QualitativeQuestion`.
+
+    Attributes:
+        question: A reference to a `QualitativeQuestion`.
+        language: A language code (see this module's `LANGAUGES` attribute).
+        message: The text itself written in `language`.
+        flagged: A boolean indicating whether this comment was flagged for
+                 further inspection.
+        tag: A short string that summarizes this comment's message. (This field
+             is not user-generated.)
+        word_count: The number of words in the `message` (words are delimited
+                    with contiguous whitespace).
+
+    Example usage:
+
+    >>> respondent = Respondent()
+    >>> question = QualitativeQuestion(prompt='How is the weather?')
+    >>> comment = Comment(question=question, respondent=respondent,
+    ...                   language='ENG', message='Not raining.')
+    >>> comment.message
+    'Not raining.'
+    >>> comment.word_count
+    2
+    """
+    question = models.ForeignKey('QualitativeQuestion',
+                                 on_delete=models.CASCADE)
+    language = models.CharField(max_length=3, choices=LANGUAGES)
+    message = models.TextField(blank=True)
+    flagged = models.BooleanField(default=False)
+    tag = models.CharField(max_length=256, blank=True, default='')
+
+    def __unicode__(self):
+        return '{0}: "{1}"'.format(self.id, self.message)
+
+    @property
+    def word_count(self):
+        return len(self.message.split())
+
+    class Meta:
+        unique_together = ('respondent', 'question')
+
+
 class Question(models.Model):
     """
     A `Question` models a prompt presented to the user that requires a
@@ -177,47 +262,15 @@ class QualitativeQuestion(Question):
         return Comment.objects.filter(question=self)
 
 
+@accepts_ratings(QuantitativeQuestionRating, 'question')
 class QuantitativeQuestion(Question):
     """
     A `QuantitativeQuestion` is a `Question` that asks for a numeric rating.
-
-    Attributes:
-        mean_score: The mean score given to this `QuantitativeQuestion`.
-        num_ratings: The number times respondents have rated this question.
     """
     # pylint: disable=model-no-explicit-unicode
 
     class Meta:
         proxy = True
-
-    def select_ratings(self, answered=True):
-        """
-        Select `QuantitativeQuestionRating` instances attached to this
-        question.
-
-        Args:
-            answered: When `True`, select only `QuantitativeQuestionRating`s
-                      where the respondent did not skip this question (whether
-                      intentionally or not). When `True`, the scores of the
-                      ratings returned are guaranteed to be nonnegative.
-
-        Returns:
-            A Django `QuerySet` containing this question's ratings.
-        """
-        query = QuantitativeQuestionRating.objects.filter(question=self)
-        if answered:
-            excluded_ratings = [Rating.NOT_RATED, Rating.SKIPPED]
-            return query.exclude(score__in=excluded_ratings)
-        return query
-
-    @property
-    def mean_score(self):
-        scores = self.select_ratings().values_list('score', flat=True)
-        return sum(scores)/len(scores)
-
-    @property
-    def num_ratings(self):
-        return self.select_ratings().count()
 
 
 class Respondent(models.Model):

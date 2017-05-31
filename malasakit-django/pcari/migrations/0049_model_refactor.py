@@ -121,6 +121,7 @@ def standardize_comment_messages_forward(apps, schema_editor):
 
     with open('comment-translations.json', 'w+') as json_file:
         json_file.write(json.dumps(translations).encode('utf-8'))
+        json_file.write('\n')
 
 
 def populate_comment_respondent_forward(apps, schema_editor):
@@ -235,6 +236,7 @@ class Migration(migrations.Migration):
                               models.CharField(max_length=256, blank=True, default='')),
         migrations.RemoveField('Comment', 'original_language'),
         migrations.RemoveField('Comment', 'se'),
+        migrations.AlterUniqueTogether('Comment', ('respondent', 'question')),
 
         # Renaming `Rating` to `QuantitativeQuestionRating` is broken
         migrations.CreateModel('QuantitativeQuestionRating', [
@@ -259,6 +261,7 @@ class Migration(migrations.Migration):
         migrations.AlterField('CommentRating', 'score', models.SmallIntegerField(default=-2)),
         migrations.RenameField('CommentRating', 'date', 'timestamp'),
         migrations.RemoveField('CommentRating', 'accounted'),
+        migrations.AlterUniqueTogether('CommentRating', ('respondent', 'comment')),
 
         migrations.RemoveField('Respondent', 'user'),
     ]
