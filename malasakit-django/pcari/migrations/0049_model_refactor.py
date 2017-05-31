@@ -134,12 +134,8 @@ def populate_comment_respondent_forward(apps, schema_editor):
     db_alias = schema_editor.connection.alias
 
     for comment in Comment.objects.using(db_alias).all():
-        try:
-            comment.respondent = Respondent.objects.get(id=comment.user_id)
-            comment.save()
-        except Respondent.DoesNotExist:
-            print('Error')
-            comment.delete()
+        comment.respondent = Respondent.objects.get(user_id=comment.user_id)
+        comment.save()
 
 
 class Migration(migrations.Migration):
@@ -157,13 +153,11 @@ class Migration(migrations.Migration):
             ('tag', models.CharField(max_length=64, blank=True, default=''))
         ]),
         migrations.RunPython(populate_questions_forward),
-        # TODO: add user suggestion question
         migrations.DeleteModel('QuantitativeQuestion'),
         migrations.DeleteModel('QualitativeQuestion'),
         migrations.CreateModel('QuantitativeQuestion', [], {'proxy': True}, ['pcari.Question']),
         migrations.CreateModel('QualitativeQuestion', [], {'proxy': True}, ['pcari.Question']),
 
-        # TODO: conver `user_id` into `id`
         migrations.RunPython(convert_missing_age_forward),
         migrations.AlterField('UserData', 'age',
                               models.PositiveSmallIntegerField(default=None, null=True, blank=True)),
@@ -179,7 +173,6 @@ class Migration(migrations.Migration):
         migrations.AddField('UserData', 'completed_survey',
                             models.BooleanField(default=False)),
         migrations.RunPython(populate_respondent_progress_forward),
-        migrations.RemoveField('UserData', 'user'),
         migrations.RenameModel('UserData', 'Respondent'),
         migrations.DeleteModel('UserProgression'),
 
@@ -204,4 +197,5 @@ class Migration(migrations.Migration):
                               models.CharField(max_length=256, blank=True, default='')),
         migrations.RemoveField('Comment', 'original_language'),
         migrations.RemoveField('Comment', 'se'),
+        migrations.RemoveField('Respondent', 'user'),
     ]
