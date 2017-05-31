@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.template import loader
-from pcari.models import  QuantitativeQuestion, QualitativeQuestion, Rating, UserProgression, Comment, CommentRating, GeneralSetting, UserData
+# from pcari.models import  QuantitativeQuestion, QualitativeQuestion, Rating, UserProgression, Comment, CommentRating, GeneralSetting, UserData
 from django.views import generic
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login

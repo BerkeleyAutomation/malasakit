@@ -6,6 +6,17 @@ from django.db import models
 from django.db import migrations
 
 
+LANGUAGES = (
+    ('ENG', 'English'),
+    ('FIL', 'Filipino')
+)
+
+GENDERS = (
+    ('M', 'Male'),
+    ('F', 'Female'),
+)
+
+
 def populate_questions_forward(apps, schema_editor):
     QuantitativeQuestion = apps.get_model('pcari', 'QuantitativeQuestion')
     QualitativeQuestion = apps.get_model('pcari', 'QualitativeQuestion')
@@ -20,6 +31,31 @@ def populate_questions_forward(apps, schema_editor):
         Question(prompt=question.question)
         for question in QualitativeQuestion.objects.all()
     ])
+
+
+def populate_respondent_language_forward(apps, schema_editor):
+    UserData = apps.get_model('pcari', 'UserData')
+    db_alias = schema_editor.connection.alias
+
+    for user_data in UserData.objects.using(db_alias).all():
+        if user_data.language == 'Filipino':
+            user_data.language = 'FIL'
+        elif user_data.language == 'English':
+            user_data.language = 'ENG'
+        else:
+            raise ValueError('invalid language choice: "{0}"'.format(user_data.language))
+        user_data.save()
+
+
+def populate_respondent_progress_forward(apps, schema_editor):
+    UserData = apps.get_model('pcari', 'UserData')
+    UserProgression = apps.get_model('pcari', 'UserProgression')
+    db_alias = schema_editor.connection.alias
+
+    for user_data in UserData.objects.using(db_alias).all():
+        progression = UserProgression.objects.get(user=user_data.user)
+        user_data.submitted_personal_data = progression.personal_data
+        user_data.completed_survey = progression.logout
 
 
 class Migration(migrations.Migration):
@@ -37,6 +73,26 @@ class Migration(migrations.Migration):
             ('tag', models.CharField(max_length=64, blank=True, default=''))
         ]),
         migrations.RunPython(populate_questions_forward),
+        # TODO: add user suggestion question
         migrations.DeleteModel('QuantitativeQuestion'),
         migrations.DeleteModel('QualitativeQuestion'),
+        migrations.CreateModel('QuantitativeQuestion', [], {'proxy': True}, ['pcari.Question']),
+        migrations.CreateModel('QualitativeQuestion', [], {'proxy': True}, ['pcari.Question']),
+        migrations.RemoveField('UserData', 'user'),
+        migrations.AlterField('UserData', 'age',
+                              models.PositiveSmallIntegerField(default=None, null=True, blank=True)),
+        migrations.RenameField('UserData', 'barangay', 'location'),
+        migrations.AlterField('UserData', 'location',
+                              models.CharField(max_length=512, default='', blank=True)),
+        migrations.AlterField('UserData', 'gender',
+                              models.CharField(max_length=1, choices=GENDERS, default='', blank=True)),
+        migrations.RunPython(populate_respondent_language_forward),
+        migrations.AlterField('UserData', 'language', models.CharField(max_length=3, choices=LANGUAGES)),
+        migrations.AddField('UserData', 'submitted_personal_data',
+                            models.BooleanField(default=False)),
+        migrations.AddField('UserData', 'completed_survey',
+                            models.BooleanField(default=False)),
+        migrations.RunPython(populate_respondent_progress_forward),
+        migrations.RenameModel('UserData', 'Respondent'),
+        migrations.DeleteModel('UserProgression'),
     ]

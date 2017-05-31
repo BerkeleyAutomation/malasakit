@@ -255,9 +255,9 @@ class Respondent(models.Model):
     )
 
     age = models.PositiveSmallIntegerField(default=None, null=True, blank=True)
-    gender = models.CharField(max_length=1, choices=GENDERS, default=None,
+    gender = models.CharField(max_length=1, choices=GENDERS, default='',
                               blank=True)
-    location = models.CharField(max_length=512, default=None, blank=True)
+    location = models.CharField(max_length=512, default='', blank=True)
     language = models.CharField(max_length=3, choices=LANGUAGES)
     submitted_personal_data = models.BooleanField(default=False)
     completed_survey = models.BooleanField(default=False)
