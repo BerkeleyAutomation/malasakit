@@ -150,6 +150,32 @@ def populate_quantitative_question_ratings(apps, schema_editor):
         new_rating.save()
 
 
+def populate_comment_rating_respondent_forward(apps, schema_editor):
+    CommentRating = apps.get_model('pcari', 'CommentRating')
+    Respondent = apps.get_model('pcari', 'Respondent')
+    db_alias = schema_editor.connection.alias
+
+    for comment_rating in CommentRating.objects.using(db_alias).all():
+        comment_rating.respondent = Respondent.objects.get(user_id=comment_rating.user_id)
+        comment_rating.save()
+
+
+def populate_comment_rating_comment_forward(apps, schema_editor):
+    CommentRating = apps.get_model('pcari', 'CommentRating')
+    Comment = apps.get_model('pcari', 'Comment')
+    db_alias = schema_editor.connection.alias
+
+    for comment_rating in CommentRating.objects.using(db_alias).all():
+        if comment_rating.cid == -1:  # The default value
+            comment_rating.delete()
+        else:
+            try:
+                comment_rating.comment = Comment.objects.get(id=comment_rating.cid)
+                comment_rating.save()
+            except Comment.DoesNotExist:
+                pass
+
+
 class Migration(migrations.Migration):
     dependencies = [
         ('pcari', '0048_auto_20170407_1732'),
@@ -221,6 +247,18 @@ class Migration(migrations.Migration):
         }),
         migrations.RunPython(populate_quantitative_question_ratings),
         migrations.DeleteModel('Rating'),
+
+        migrations.AddField('CommentRating', 'respondent',
+                            models.ForeignKey('Respondent', on_delete=models.CASCADE, default=0), preserve_default=False),
+        migrations.RunPython(populate_comment_rating_respondent_forward),
+        migrations.RemoveField('CommentRating', 'user'),
+        migrations.AddField('CommentRating', 'comment',
+                            models.ForeignKey('Comment', on_delete=models.CASCADE, default=0), preserve_default=False),
+        migrations.RunPython(populate_comment_rating_comment_forward),
+        migrations.RemoveField('CommentRating', 'cid'),
+        migrations.AlterField('CommentRating', 'score', models.SmallIntegerField(default=-2)),
+        migrations.RenameField('CommentRating', 'date', 'timestamp'),
+        migrations.RemoveField('CommentRating', 'accounted'),
 
         migrations.RemoveField('Respondent', 'user'),
     ]
