@@ -26,7 +26,7 @@ def populate_questions_forward(apps, schema_editor):
     db_alias = schema_editor.connection.alias
 
     Question.objects.using(db_alias).bulk_create([
-        Question(prompt=question.question, tag=question.tag)
+        Question(id=question.qid, prompt=question.question, tag=question.tag)
         for question in QuantitativeQuestion.objects.all()
     ])
     Question.objects.using(db_alias).bulk_create([
@@ -73,13 +73,8 @@ def populate_respondent_progress_forward(apps, schema_editor):
     db_alias = schema_editor.connection.alias
 
     for user_data in UserData.objects.using(db_alias).all():
-        try:
-            progression = UserProgression.objects.get(user_id=user_data.user_id)
-        except UserProgression.DoesNotExist:
-            continue
-
-        user_data.submitted_personal_data = progression.personal_data
-        user_data.completed_survey = progression.logout
+        user_data.submitted_personal_data = True
+        user_data.completed_survey = True
         user_data.save()
 
 
@@ -138,6 +133,23 @@ def populate_comment_respondent_forward(apps, schema_editor):
         comment.save()
 
 
+def populate_quantitative_question_ratings(apps, schema_editor):
+    Rating = apps.get_model('pcari', 'Rating')
+    QuantitativeQuestionRating = apps.get_model('pcari', 'QuantitativeQuestionRating')
+    Respondent = apps.get_model('pcari', 'Respondent')
+    QuantitativeQuestion = apps.get_model('pcari', 'QuantitativeQuestion')
+    db_alias = schema_editor.connection.alias
+
+    for rating in Rating.objects.using(db_alias).all():
+        new_rating = QuantitativeQuestionRating(
+            respondent=Respondent.objects.get(user_id=rating.user_id),
+            timestamp=rating.date,
+            score=rating.score,
+            question=QuantitativeQuestion.objects.get(id=rating.qid),
+        )
+        new_rating.save()
+
+
 class Migration(migrations.Migration):
     dependencies = [
         ('pcari', '0048_auto_20170407_1732'),
@@ -184,7 +196,7 @@ class Migration(migrations.Migration):
         migrations.AddField('Comment', 'message', models.TextField(blank=True)),
         migrations.RunPython(standardize_comment_messages_forward),
         migrations.AddField('Comment', 'respondent',
-                            models.ForeignKey('Respondent', on_delete=models.CASCADE, default=-1), preserve_default=False),
+                            models.ForeignKey('Respondent', on_delete=models.CASCADE, default=0), preserve_default=False),
         migrations.RunPython(populate_comment_respondent_forward),
         migrations.AddField('Comment', 'flagged', models.BooleanField(default=False)),
         migrations.RemoveField('Comment', 'user'),
@@ -197,5 +209,18 @@ class Migration(migrations.Migration):
                               models.CharField(max_length=256, blank=True, default='')),
         migrations.RemoveField('Comment', 'original_language'),
         migrations.RemoveField('Comment', 'se'),
+
+        # Renaming `Rating` to `QuantitativeQuestionRating` is broken
+        migrations.CreateModel('QuantitativeQuestionRating', [
+            ('respondent', models.ForeignKey('Respondent', on_delete=models.CASCADE)),
+            ('timestamp', models.DateTimeField(auto_now_add=True)),
+            ('score', models.SmallIntegerField(default=-2)),
+            ('question', models.ForeignKey('QuantitativeQuestion', on_delete=models.CASCADE)),
+        ], {
+            'unique_together': ('respondent', 'question')
+        }),
+        migrations.RunPython(populate_quantitative_question_ratings),
+        migrations.DeleteModel('Rating'),
+
         migrations.RemoveField('Respondent', 'user'),
     ]

@@ -90,4 +90,5 @@ ENV/
 
 # Data
 *.sqlite3
+*.sqlite3-journal
 *.json
