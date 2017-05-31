@@ -18,25 +18,14 @@ GENDERS = (
 )
 
 
-def populate_questions_forward(apps, schema_editor):
-    QuantitativeQuestion = apps.get_model('pcari', 'QuantitativeQuestion')
+def populate_qualitative_questions_forward(apps, schema_editor):
     QualitativeQuestion = apps.get_model('pcari', 'QualitativeQuestion')
-    Question = apps.get_model('pcari', 'Question')
     db_alias = schema_editor.connection.alias
 
-    Question.objects.using(db_alias).bulk_create([
-        Question(id=question.qid, prompt=question.question, tag=question.tag)
-        for question in QuantitativeQuestion.objects.all()
-    ])
-    Question.objects.using(db_alias).bulk_create([
-        Question(prompt=question.question)
-        for question in QualitativeQuestion.objects.all()
-    ])
-
     prompt = 'How could your Barangay help you better prepare for a disaster?'
-    count = Question.objects.using(db_alias).filter(prompt=prompt).count()
+    count = QualitativeQuestion.objects.using(db_alias).filter(prompt=prompt).count()
     if count == 0:
-        Question(prompt=prompt, tag='Preparedness Suggestion').save()
+        QualitativeQuestion(prompt=prompt, tag='Preparedness Suggestion').save()
     elif count > 1:
         raise ValueError('duplicate question')
 
@@ -204,15 +193,21 @@ class Migration(migrations.Migration):
         migrations.DeleteModel('Progression'),
         migrations.DeleteModel('FlaggedComment'),
 
-        migrations.CreateModel('Question', [
-            ('prompt', models.TextField(blank=True)),
-            ('tag', models.CharField(max_length=64, blank=True, default=''))
-        ]),
-        migrations.RunPython(populate_questions_forward),
-        migrations.DeleteModel('QuantitativeQuestion'),
-        migrations.DeleteModel('QualitativeQuestion'),
-        migrations.CreateModel('QuantitativeQuestion', [], {'proxy': True}, ['pcari.Question']),
-        migrations.CreateModel('QualitativeQuestion', [], {'proxy': True}, ['pcari.Question']),
+        migrations.RenameField('QuantitativeQuestion', 'qid', 'id'),
+        migrations.RenameField('QuantitativeQuestion', 'question', 'prompt'),
+        migrations.AlterField('QuantitativeQuestion', 'prompt', models.TextField(blank=True)),
+        migrations.RemoveField('QuantitativeQuestion', 'average_score'),
+        migrations.RemoveField('QuantitativeQuestion', 'number_rated'),
+        migrations.AlterField('QuantitativeQuestion', 'tag', models.CharField(max_length=64, blank=True, default='')),
+        migrations.RemoveField('QuantitativeQuestion', 'filipino_tag'),
+        migrations.RemoveField('QuantitativeQuestion', 'filipino_question'),
+
+        migrations.RenameField('QualitativeQuestion', 'qid', 'id'),
+        migrations.RenameField('QualitativeQuestion', 'question', 'prompt'),
+        migrations.AlterField('QualitativeQuestion', 'prompt', models.TextField(blank=True)),
+        migrations.RemoveField('QualitativeQuestion', 'filipino_question'),
+        migrations.AddField('QualitativeQuestion', 'tag', models.CharField(max_length=64, blank=True, default='')),
+        migrations.RunPython(populate_qualitative_questions_forward),
 
         migrations.RunPython(convert_missing_age_forward),
         migrations.AlterField('UserData', 'age',

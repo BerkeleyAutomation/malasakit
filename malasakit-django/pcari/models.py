@@ -240,6 +240,9 @@ class Question(models.Model):
     def __unicode__(self):
         return '{0}: "{1}"'.format(self.id, self.prompt)
 
+    class Meta:
+        abstract = True
+
 
 class QualitativeQuestion(Question):
     """
@@ -250,9 +253,6 @@ class QualitativeQuestion(Question):
                   question.
     """
     # pylint: disable=model-no-explicit-unicode
-
-    class Meta:
-        proxy = True
 
     @property
     def comments(self):
@@ -265,9 +265,6 @@ class QuantitativeQuestion(Question):
     A `QuantitativeQuestion` is a `Question` that asks for a numeric rating.
     """
     # pylint: disable=model-no-explicit-unicode
-
-    class Meta:
-        proxy = True
 
 
 class Respondent(models.Model):
