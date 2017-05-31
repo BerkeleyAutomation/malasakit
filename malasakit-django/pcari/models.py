@@ -224,9 +224,6 @@ class Comment(Response):
     def word_count(self):
         return len(self.message.split())
 
-    class Meta:
-        unique_together = ('respondent', 'question')
-
 
 class Question(models.Model):
     """

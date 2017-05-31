@@ -4,8 +4,7 @@ from __future__ import unicode_literals
 
 import json
 
-from django.db import models
-from django.db import migrations
+from django.db import models, migrations, IntegrityError
 
 
 LANGUAGES = (
@@ -84,7 +83,7 @@ def populate_comment_question_forward(apps, schema_editor):
     db_alias = schema_editor.connection.alias
 
     for comment in Comment.objects.using(db_alias).all():
-        comment.question = QualitativeQuestion.objects.get(tag='Preparedness Suggestion')
+        comment.question = QualitativeQuestion.objects.using(db_alias).get(tag='Preparedness Suggestion')
         comment.save()
 
 
@@ -116,11 +115,11 @@ def standardize_comment_messages_forward(apps, schema_editor):
                 translated_comment, other_language = comment.comment, 'ENG'
             else:
                 translated_comment, other_language = comment.filipino_comment, 'FIL'
-            translations[int(comment.id)] = {'language': other_language,
-                                             'message': translated_comment}
+            translations[comment.id] = {'language': other_language,
+                                        'message': translated_comment}
 
     with open('comment-translations.json', 'w+') as json_file:
-        json_file.write(json.dumps(translations).encode('utf-8'))
+        json_file.write(json.dumps(translations, indent=4).encode('utf-8'))
         json_file.write('\n')
 
 
@@ -130,7 +129,7 @@ def populate_comment_respondent_forward(apps, schema_editor):
     db_alias = schema_editor.connection.alias
 
     for comment in Comment.objects.using(db_alias).all():
-        comment.respondent = Respondent.objects.get(user_id=comment.user_id)
+        comment.respondent = Respondent.objects.using(db_alias).get(user_id=comment.user_id)
         comment.save()
 
 
@@ -143,10 +142,10 @@ def populate_quantitative_question_ratings(apps, schema_editor):
 
     for rating in Rating.objects.using(db_alias).all():
         new_rating = QuantitativeQuestionRating(
-            respondent=Respondent.objects.get(user_id=rating.user_id),
+            respondent=Respondent.objects.using(db_alias).get(user_id=rating.user_id),
             timestamp=rating.date,
             score=rating.score,
-            question=QuantitativeQuestion.objects.get(id=rating.qid),
+            question=QuantitativeQuestion.objects.using(db_alias).get(id=rating.qid),
         )
         new_rating.save()
 
@@ -157,7 +156,7 @@ def populate_comment_rating_respondent_forward(apps, schema_editor):
     db_alias = schema_editor.connection.alias
 
     for comment_rating in CommentRating.objects.using(db_alias).all():
-        comment_rating.respondent = Respondent.objects.get(user_id=comment_rating.user_id)
+        comment_rating.respondent = Respondent.objects.using(db_alias).get(user_id=comment_rating.user_id)
         comment_rating.save()
 
 
@@ -174,7 +173,25 @@ def populate_comment_rating_comment_forward(apps, schema_editor):
                 comment_rating.comment = Comment.objects.get(id=comment_rating.cid)
                 comment_rating.save()
             except Comment.DoesNotExist:
-                pass
+                comment_rating.delete()
+
+
+def delete_duplicate_comment_ratings_forward(apps, schema_editor):
+    CommentRating = apps.get_model('pcari', 'CommentRating')
+    db_alias = schema_editor.connection.alias
+
+    id_pairs = list(CommentRating.objects.using(db_alias).values_list('respondent_id', 'comment_id'))
+    duplicate_id_pairs = [id_pair for id_pair in id_pairs if id_pairs.count(id_pair) > 1]
+
+    for respondent_id, comment_id in set(duplicate_id_pairs):
+        query = CommentRating.objects.using(db_alias)
+        query = query.filter(respondent_id=respondent_id, comment_id=comment_id)
+        assert query.count() > 1
+
+        rating_to_keep = query.first()
+        for rating in query.exclude(id=rating_to_keep.id).all():
+            print('=> Deleting duplicate comment rating')
+            rating.delete()
 
 
 class Migration(migrations.Migration):
@@ -236,7 +253,6 @@ class Migration(migrations.Migration):
                               models.CharField(max_length=256, blank=True, default='')),
         migrations.RemoveField('Comment', 'original_language'),
         migrations.RemoveField('Comment', 'se'),
-        migrations.AlterUniqueTogether('Comment', ('respondent', 'question')),
 
         # Renaming `Rating` to `QuantitativeQuestionRating` is broken
         migrations.CreateModel('QuantitativeQuestionRating', [
@@ -261,6 +277,8 @@ class Migration(migrations.Migration):
         migrations.AlterField('CommentRating', 'score', models.SmallIntegerField(default=-2)),
         migrations.RenameField('CommentRating', 'date', 'timestamp'),
         migrations.RemoveField('CommentRating', 'accounted'),
+
+        migrations.RunPython(delete_duplicate_comment_ratings_forward),
         migrations.AlterUniqueTogether('CommentRating', ('respondent', 'comment')),
 
         migrations.RemoveField('Respondent', 'user'),
