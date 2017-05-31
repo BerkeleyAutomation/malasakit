@@ -69,7 +69,7 @@ class Comment(Response):
     language = models.CharField(max_length=3, choices=LANGUAGES)
     message = models.TextField(blank=True)
     flagged = models.BooleanField(default=False)
-    tag = models.CharField(max_length=64, blank=True, default='')
+    tag = models.CharField(max_length=256, blank=True, default='')
 
     def __unicode__(self):
         return '{0}: "{1}"'.format(self.id, self.message)
@@ -77,6 +77,9 @@ class Comment(Response):
     @property
     def word_count(self):
         return len(self.message.split())
+
+    # TODO: add mean rating, number rated, and standard error (i.e., the old
+    #       SE field) using the `property decorator`
 
     class Meta:
         unique_together = ('respondent', 'question')
@@ -150,7 +153,7 @@ class Question(models.Model):
         tag: A short string that summarizes the prompt.
     """
     prompt = models.TextField(blank=True)
-    tag = models.CharField(max_length=64, blank=True, default='')
+    tag = models.CharField(max_length=256, blank=True, default='')
 
     def __unicode__(self):
         return '{0}: "{1}"'.format(self.id, self.prompt)
