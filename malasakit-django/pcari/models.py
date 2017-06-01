@@ -96,7 +96,7 @@ def accepts_ratings(ratings_model, keyword):
             return self.select_ratings().count()
 
         def standard_error(self):
-            # pylint: disable=missing-docstring
+            """ Computes the statistical standard error. """
             scores = self.select_ratings().values_list('score', flat=True)
             mean_score = float(sum(scores))/len(scores)
             variance = sum(pow(score - mean_score, 2)/len(scores) for score in scores)
