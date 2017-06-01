@@ -5,7 +5,7 @@ LINT_CMD=pylint
 LINT_OPTIONS=--output-format=colorized --rcfile=.pylintrc
 LINT_TARGETS=pcari/models.py
 
-all: lint  # TODO: readd `test`
+all: lint test
 
 test:
 	cd $(DJANGO_PROJECT_ROOT) && python manage.py test

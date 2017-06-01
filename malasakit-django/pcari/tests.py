@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+import random
 
 from django.db import IntegrityError
 from django.test import TestCase
@@ -40,6 +41,20 @@ class UserFeedbackTestCase(TestCase):
         self.assertEqual(self.quant_question.num_ratings, 3)
         self.assertAlmostEqual(self.quant_question.mean_score, 4.0/3)
 
+    def test_quantitative_question_rating_uniqueness(self):
+        prev_respondents = [rating.respondent for rating in
+                            QuantitativeQuestionRating.objects.all()]
+        prev_respondent = random.sample(prev_respondents, 1)[0]
+        with self.assertRaises(IntegrityError):
+            QuantitativeQuestionRating(respondent=prev_respondent, score=2,
+                                       question=self.quant_question).save()
+
+    def test_quantitative_question_rating_timestamp_order(self):
+        timestamps = [rating.timestamp for rating in
+                      QuantitativeQuestionRating.objects.all()]
+        for first, second in zip(timestamps[:-1], timestamps[1:]):
+            self.assertLess(first, second)
+
     def test_comment_retrieval(self):
         comments = self.qual_question.comments
         self.assertEqual(comments.count(), 2)
@@ -49,9 +64,3 @@ class UserFeedbackTestCase(TestCase):
     def test_comment_word_count(self):
         self.assertEqual(Comment.objects.get(id=0).word_count, 1)
         self.assertEqual(Comment.objects.get(id=1).word_count, 2)
-
-    def test_quantitative_question_rating_uniqueness(self):
-        already_responded = QuantitativeQuestionRating.objects.first().respondent
-        with self.assertRaises(IntegrityError):
-            QuantitativeQuestionRating(respondent=already_responded, score=2,
-                                       question=self.quant_question).save()
