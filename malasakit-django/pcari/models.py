@@ -237,9 +237,6 @@ class Question(models.Model):
     prompt = models.TextField(blank=True)
     tag = models.CharField(max_length=256, blank=True, default='')
 
-    def __unicode__(self):
-        return '{0}: "{1}"'.format(self.id, self.prompt)
-
     class Meta:
         abstract = True
 
@@ -252,7 +249,8 @@ class QualitativeQuestion(Question):
         comments: A Django `QuerySet` of `Comment`s in response to this
                   question.
     """
-    # pylint: disable=model-no-explicit-unicode
+    def __unicode__(self):
+        return 'QualitativeQuestion {0}: "{1}"'.format(self.id, self.prompt)
 
     @property
     def comments(self):
@@ -264,7 +262,8 @@ class QuantitativeQuestion(Question):
     """
     A `QuantitativeQuestion` is a `Question` that asks for a numeric rating.
     """
-    # pylint: disable=model-no-explicit-unicode
+    def __unicode__(self):
+        return 'QuantitativeQuestion {0}: "{1}"'.format(self.id, self.prompt)
 
 
 class Respondent(models.Model):

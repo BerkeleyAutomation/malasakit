@@ -107,9 +107,9 @@ def standardize_comment_messages_forward(apps, schema_editor):
             translations[comment.id] = {'language': other_language,
                                         'message': translated_comment}
 
-    with open('comment-translations.json', 'w+') as json_file:
-        json_file.write(json.dumps(translations, indent=4).encode('utf-8'))
-        json_file.write('\n')
+    # with open('comment-translations.json', 'w+') as json_file:
+    #     json_file.write(json.dumps(translations, indent=4).encode('utf-8'))
+    #     json_file.write('\n')
 
 
 def populate_comment_respondent_forward(apps, schema_editor):
