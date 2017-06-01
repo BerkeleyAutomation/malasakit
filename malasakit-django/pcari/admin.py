@@ -1,18 +1,15 @@
-from django.contrib import admin
-
-from django.http import HttpResponse
-from django.core import serializers
-from django.contrib.contenttypes.models import ContentType
-from django.http import HttpResponseRedirect
-
 import csv
-from django.utils.encoding import smart_str
 import openpyxl
+
+from django.contrib import admin
+from django.http import HttpResponse
+from django.utils.encoding import smart_str
 try:
     from openpyxl.cell import get_column_letter
 except ImportError:
     from openpyxl.utils import get_column_letter
 
+"""
 # Register your models here.
 from pcari.models import QuantitativeQuestion, QualitativeQuestion, Rating, Comment, UserProgression, GeneralSetting, FlaggedComment, UserData, CommentRating
 
@@ -66,16 +63,16 @@ def dump_comment_ratings_csv(modeladmin, request, queryset):
         # except:
         #     c = Empty()
         writer.writerow([
-                smart_str(comment.user),
-                smart_str(u.age),
-                smart_str(u.barangay),
-                smart_str(u.gender),
-                smart_str(comment.number_rated),
-                smart_str(comment.average_score),
-                smart_str(comment.se),
-                smart_str(c),
-                smart_str(comment.date),
-            ])
+            smart_str(comment.user),
+            smart_str(u.age),
+            smart_str(u.barangay),
+             smart_str(u.gender),
+            smart_str(comment.number_rated),
+            smart_str(comment.average_score),
+            smart_str(comment.se),
+            smart_str(c),
+            smart_str(comment.date),
+        ])
     return response
 
 dump_comment_ratings_csv.short_description = u"Dump comment ratings as CSV"
@@ -264,34 +261,34 @@ admin.site.register(GeneralSetting, GeneralSettingAdmin)
 
 
 def flag_comment(modeladmin, request, queryset):
-	for obj in queryset:
-		f = FlaggedComment(user=obj.user,comment=obj.comment,filipino_comment=obj.filipino_comment,date=obj.date,average_score=obj.average_score,number_rated=obj.number_rated,tag=obj.tag)
-		f.save()
-		obj.delete()
+    for obj in queryset:
+        f = FlaggedComment(user=obj.user,comment=obj.comment,filipino_comment=obj.filipino_comment,date=obj.date,average_score=obj.average_score,number_rated=obj.number_rated,tag=obj.tag)
+        f.save()
+        obj.delete()
 
 flag_comment.short_description = u"Flag Comment"
 
 def unflag_comment(modeladmin, request, queryset):
-	for obj in queryset:
-		c = Comment(user=obj.user,comment=obj.comment,filipino_comment=obj.filipino_comment,date=obj.date,average_score=obj.average_score,number_rated=obj.number_rated,tag=obj.tag)
-		c.save()
-		obj.delete()
+    for obj in queryset:
+        c = Comment(user=obj.user, comment=obj.comment, filipino_comment=obj.filipino_comment, date=obj.date, average_score=obj.average_score, number_rated=obj.number_rated, tag=obj.tag)
+        c.save()
+        obj.delete()
 
 unflag_comment.short_description = u"Unflag Comment"
 
 
 class CommentAdmin(admin.ModelAdmin):
     list_display = ['user', 'comment', 'filipino_comment', 'average_score', 'number_rated', 'se', 'tag', 'original_language']
-    list_editable = ['comment','filipino_comment']
+    list_editable = ['comment', 'filipino_comment']
     ordering = ['user']
-    actions = [flag_comment,dump_comment_ratings_csv]#, export_comment_xlsx]
+    actions = [flag_comment, dump_comment_ratings_csv]#, export_comment_xlsx]
 
 admin.site.register(Comment, CommentAdmin)
 
 class FlaggedCommentAdmin(admin.ModelAdmin):
     list_display = ['user', 'comment', 'filipino_comment', 'average_score', 'number_rated', 'tag']
     ordering = ['user']
-    actions = [unflag_comment,export_comment_csv]#, export_comment_xlsx]
+    actions = [unflag_comment, export_comment_csv]#, export_comment_xlsx]
 
 admin.site.register(FlaggedComment, FlaggedCommentAdmin)
 
@@ -313,3 +310,4 @@ class UserDataAdmin(admin.ModelAdmin):
 
 admin.site.register(UserData,UserDataAdmin)
 # admin.site.register(UserProgression, UserProgressionAdmin)
+"""
