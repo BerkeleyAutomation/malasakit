@@ -92,3 +92,6 @@ ENV/
 *.sqlite3
 *.sqlite3-journal
 *.json
+
+# macOS file finder files
+*.DS_Store
