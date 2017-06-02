@@ -2,19 +2,24 @@
 This module defines the application's views, which are needed to render pages.
 """
 
+# Standard library
+import logging
 import random
+import time
 
-from django.http import HttpResponseBadRequest
+# Third-party libraries
+import numpy as np
+from django.http import JsonResponse, HttpResponseBadRequest
+from django.views.decorators.http import require_GET, require_POST
 
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render, redirect
-from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, HttpResponseBadRequest, HttpResponseNotAllowed
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.template import loader
 from django.views import generic
-from django.views.decorators.http import require_GET, require_POST
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.utils import timezone
@@ -23,10 +28,25 @@ from django.contrib.auth import logout
 from django.db import IntegrityError
 from django.contrib.auth import authenticate, login, logout
 
-from pcari.models import Respondent
-from pcari.models import LANGUAGES
-from pcari.models import QuantitativeQuestion, QualitativeQuestion
-from pcari.models import Comment, CommentRating, QuantitativeQuestionRating
+# Application models
+from .models import Respondent
+from .models import LANGUAGES
+from .models import QuantitativeQuestion, QualitativeQuestion
+from .models import Comment, CommentRating, QuantitativeQuestionRating
+
+logger = logging.Logger(__name__)
+
+
+def profile(function):  # TODO: clean up
+    def view_wrapper(*args, **kwargs):
+        start = time.time()
+        result = function(*args, **kwargs)
+        end = time.time()
+        time_elapsed = end - start
+        message = ':: Call to "{}" took {:.3f} seconds'
+        print(message.format(function.__name__, time_elapsed))
+        return result
+    return view_wrapper
 
 
 def select_questions(question_model, number, method):
@@ -45,6 +65,7 @@ def select_questions(question_model, number, method):
 
 
 def make_question_retrieval_view(question_model):
+    @profile
     @require_GET
     def get_questions(request):
         number_to_fetch = request.GET.get('number', None)
@@ -61,7 +82,7 @@ def make_question_retrieval_view(question_model):
             'questions': [
                 {
                     'id': question.id,
-                    'message': question.prompt
+                    'prompt': question.prompt
                 } for question in questions
             ]
         })
@@ -73,16 +94,51 @@ get_quantitative_questions = make_question_retrieval_view(QuantitativeQuestion)
 get_qualitative_questions = make_question_retrieval_view(QualitativeQuestion)
 
 
-@require_POST
-def save_quantitative_question_ratings(request):
+@profile
+def generate_quantitative_question_ratings_matrix():
     """
-    Save ratings
+    Fetches quantitative question ratings in the form of a numpy matrix.
+
+    Each row corresponds to one respondent and each column corresponds to one
+    question. Missing values are filled in with `np.nan`.
+
+    Because we only pull ID numbers, this function runs in milliseconds.
     """
+    respondent_ids = Respondent.objects.values_list('id', flat=True)
+    question_ids = QuantitativeQuestion.objects.values_list('id', flat=True)
+    respondents_id_map = {key: index for index, key in enumerate(respondent_ids)}
+    questions_id_map = {key: index for index, key in enumerate(question_ids)}
+
+    shape = (len(respondents_id_map), len(questions_id_map))
+    ratings_matrix = np.full(shape, np.nan)
+
+    features = 'respondent_id', 'question_id', 'score'
+    values = QuantitativeQuestionRating.objects.values_list(*features)
+    for respondent_id, question_id, score in values:
+        row_index = respondents_id_map[respondent_id]
+        column_index = questions_id_map[question_id]
+        ratings_matrix[row_index, column_index] = score
+    return ratings_matrix
+
+
+def select_comments(respondent, threshold=10):
+    """
+    TODO: finalize an algorithm for doing this (discuss) [PCA?]
+    """
+    data = generate_quantiative_question_ratings_matrix()
+    mean_responses = data.nanmean(axis=0)
+    data -= mean_responses  # Remove bias
+    respondent = Respondent.objects
 
 
 @require_GET
 def get_comments(request):
-    pass  # TODO
+    pass
+
+
+@require_POST
+def save_quantitative_question_ratings(request):
+    request.POST.get('')
 
 
 def translate(language):
