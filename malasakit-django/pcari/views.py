@@ -1,10 +1,10 @@
 import random
 
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.template import loader
-# from pcari.models import  QuantitativeQuestion, QualitativeQuestion, Rating, UserProgression, Comment, CommentRating, GeneralSetting, UserData
+from pcari.models import *
 from django.views import generic
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
@@ -69,111 +69,111 @@ def switch_language(request):
     # return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 def init_text_cookie(request):
-<<<<<<< HEAD
-	if 'TEXT' not in request.session:
-		request.session['language'] = 'Filipino'
-		general_settings = GeneralSetting.objects.first()
-		request.session['TEXT'] = general_settings.get_text(request.session['language'])
+    if 'TEXT' not in request.session:
+        request.session['language'] = 'Filipino'
+        general_settings = GeneralSetting.objects.first()
+        request.session['TEXT'] = general_settings.get_text(request.session['language'])
 
 
 def landing(request):
-	user = request.user
-	if user.is_authenticated():
-		logout(request)
+    user = request.user
+    if user.is_authenticated():
+        logout(request)
 
-	init_text_cookie(request)
-	TEXT = request.session['TEXT']
+    init_text_cookie(request)
+    TEXT = request.session['TEXT']
 
-	description = TEXT['landing_description'] % len(User.objects.all())
-	context = {
-		'translate': TEXT['translate'],
-		'landing_description': description,
-		'more_info': TEXT['more_info'],
-		'short_description': TEXT['short_description'],
-		'begin': TEXT['begin_button']
-	}
-	return render(request, 'landing.html', context)
+    description = TEXT['landing_description'] % len(User.objects.all())
+    context = {
+        'translate': TEXT['translate'],
+        'landing_description': description,
+        'more_info': TEXT['more_info'],
+        'short_description': TEXT['short_description'],
+        'begin': TEXT['begin_button']
+    }
+    return render(request, 'landing.html', context)
 
 
 def create_user(request, is_new=True):
-	init_text_cookie(request)
+    init_text_cookie(request)
 
-	if is_new:
-		uid = int(User.objects.last().username) + 1
-		username, email, password = str(uid), str(uid) + '@example.com', str(uid)
+    if is_new:
+        uid = int(User.objects.last().username) + 1
+        username, email, password = str(uid), str(uid) + '@example.com', str(uid)
 
-		# TODO: come up with a better scheme for handling errors (e.g. redirect)
-		message = 'Username `{0}` already exists'.format(username)
-		assert not User.objects.filter(username__iexact=username).exists(), message
+        # TODO: come up with a better scheme for handling errors (e.g. redirect)
+        message = 'Username `{0}` already exists'.format(username)
+        assert not User.objects.filter(username__iexact=username).exists(), message
 
-		new_user = User.objects.create_user(username, email, password)
-		new_user.save()
+        new_user = User.objects.create_user(username, email, password)
+        new_user.save()
 
-		user = authenticate(username=username, password=password)
-		login(request, user)
+        user = authenticate(username=username, password=password)
+        login(request, user)
 
-		progression = UserProgression(user=user, landing=True)
-		progression.save()
+        progression = UserProgression(user=user, landing=True)
+        progression.save()
 
-		TEXT = request.session['TEXT']
-		user_data = UserData(user=user, language=translate(TEXT['translate']))
-		user_data.save()
+        TEXT = request.session['TEXT']
+        user_data = UserData(user=user, language=translate(TEXT['translate']))
+        user_data.save()
 
-	return redirect(reverse('pcari:questions'))
+    return redirect(reverse('pcari:questions'))
 
 
 def questions(request):
-	init_text_cookie(request)
-	user = request.user
-	if not user.is_authenticated():
-		return redirect(reverse('pcari:create_user'))
+    init_text_cookie(request)
+    user = request.user
+    if not user.is_authenticated():
+        return redirect(reverse('pcari:create_user'))
 
-	return render(request, 'questions.html')
+    return render(request, 'questions.html')
 
 
-@require_GET
 def get_question_ids(request):
-	question_data = QuantitativeQuestion.objects.values('qid')
-	return JsonResponse({'qids': [question['qid'] for question in question_data]})
+    question_data = QuantitativeQuestion.objects.values('id')
+    return JsonResponse({'qids': [question['id'] for question in question_data]})
 
 
-@require_GET
 def get_question(request, qid):
-	question = QuantitativeQuestion.objects.get(qid=qid)
-	return JsonResponse(question.get_question(request.session['language']))
+    try:
+        question = QuantitativeQuestion.objects.get(id=qid)
+        response = {'qid': question.id, 'question': question.prompt}
+    except QuantitativeQuestion.DoesNotExist:
+        raise Http404("No such question exists.")
+    return JsonResponse(response)
 
 
-@require_POST
+
 def save_answer(request):
-	init_text_cookie(request)
-	user = request.user
-	if not user.is_authenticated():
-		pass  # TODO: send back an error
+    init_text_cookie(request)
+    user = request.user
+    if not user.is_authenticated():
+        pass  # TODO: send back an error
 
-	try:
-		qid, choice = request.POST['qid'], request.POST['choice']
-		rating = Rating(user=user, qid=qid)
-		rating.save()
-	except IntegrityError:
-		rating = Rating.objects.get(user=user, qid=qid)
-	except KeyError:
-		return HttpResponseBadRequest()
+    try:
+        qid, choice = request.POST['qid'], request.POST['choice']
+        rating = Rating(user=user, qid=qid)
+        rating.save()
+    except IntegrityError:
+        rating = Rating.objects.get(user=user, qid=qid)
+    except KeyError:
+        return HttpResponseBadRequest()
 
-	rating.score = int(choice)
-	rating.save()
+    rating.score = int(choice)
+    rating.save()
 
-	# TODO: remove this debug code
-	question = QuantitativeQuestion.objects.get(qid=qid).get_question(request.session['language'])
-	print(u'User {0} assigned the rating {1} to the statement "{2}"'.format(user.username, rating.score, question['question']))
+    # TODO: remove this debug code
+    question = QuantitativeQuestion.objects.get(qid=qid).get_question(request.session['language'])
+    print(u'User {0} assigned the rating {1} to the statement "{2}"'.format(user.username, rating.score, question['question']))
 
-	progression = UserProgression.objects.get(user=user)
-	progression.rating = True
-	progression.num_rated = Rating.objects.filter(user=user).count()
-	progression.save()
+    progression = UserProgression.objects.get(user=user)
+    progression.rating = True
+    progression.num_rated = Rating.objects.filter(user=user).count()
+    progression.save()
 
-	return HttpResponse()
+    return HttpResponse()
 
-=======
     if 'TEXT' not in request.session:
         request.session['TEXT'] = GeneralSetting.objects.all()[0].get_text('Filipino')
         request.session['language'] = 'Filipino'
@@ -363,7 +363,7 @@ def rate(request, qid):
     }
 
     return render(request, 'rating.html', context)
->>>>>>> f567bb45697581e7e2c4bc26f1181aee9c60c138
+
 
 def personal(request):
     init_text_cookie(request)
