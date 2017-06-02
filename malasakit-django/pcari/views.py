@@ -1,14 +1,18 @@
-from django.http import Http404
-from django.shortcuts import get_object_or_404, render, redirect
+"""
+This module defines the application's views, which are needed to render pages.
+"""
 
-from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, HttpResponseBadRequest, HttpResponseNotAllowed
 import random
 
+from django.http import HttpResponseBadRequest
+
+from django.http import Http404
+from django.shortcuts import get_object_or_404, render, redirect
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, HttpResponseBadRequest, HttpResponseNotAllowed
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.template import loader
-# from pcari.models import  QuantitativeQuestion, QualitativeQuestion, Rating, UserProgression, Comment, CommentRating, GeneralSetting, UserData
 from django.views import generic
 from django.views.decorators.http import require_GET, require_POST
 from django.contrib.auth.models import User
@@ -19,7 +23,32 @@ from django.contrib.auth import logout
 from django.db import IntegrityError
 from django.contrib.auth import authenticate, login, logout
 
-from django.utils.datastructures import MultiValueDictKeyError
+from pcari.models import Respondent
+from pcari.models import LANGUAGES
+from pcari.models import QuantitativeQuestion, QuantitativeQuestionRating
+from pcari.models import Comment, CommentRating, QuantitativeQuestionRating
+
+
+@require_GET
+def get_quantitative_questions(request):
+    """
+    Fetch quantitative questions as JSON data.
+    """
+    questions = QuantitativeQuestion.objects.all()
+    return JsonResponse({
+        'questions': [
+            {
+                'id': question.id,
+                'message': question.prompt,
+                'tag': question.tag
+            } for question in questions
+        ]
+    })
+
+
+@require_GET
+def get_comments(request):
+    pass  # TODO
 
 
 def translate(language):

@@ -12,7 +12,8 @@ from __future__ import unicode_literals
 
 # Public-facing models (parent models are excluded)
 __all__ = ['Comment', 'QuantitativeQuestionRating', 'CommentRating',
-           'QualitativeQuestion', 'QuantitativeQuestion', 'Respondent']
+           'QualitativeQuestion', 'QuantitativeQuestion', 'Respondent',
+           'LANGUAGES']
 
 from django.db import models
 

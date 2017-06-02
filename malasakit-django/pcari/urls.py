@@ -3,7 +3,7 @@ from django.conf.urls import url
 from . import views
 
 app_name = 'pcari'
-urlpatterns = [ 
+urlpatterns = [
     url(r'^$', views.landing, name='landing'),
     url(r'^create-user/$', views.create_user, name='create_user'),
     url(r'^create-user/(?P<is_new>[0-9]+)/$', views.create_user, name='create_user'),
@@ -20,5 +20,7 @@ urlpatterns = [
     url(r'^switch/$', views.switch_language, name='switch_language'),
     url(r'^personal/$', views.switch_language, name='personal'),
     url(r'^about/$', views.about, name='about'),
-    url(r'^logout/$', views.logout_view, name='logout')
+    url(r'^logout/$', views.logout_view, name='logout'),
+
+    url(r'^get-quantitative-questions', views.get_quantitative_questions, name='get-quantitative-questions'),
 ]
