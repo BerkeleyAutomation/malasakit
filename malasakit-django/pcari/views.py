@@ -25,25 +25,59 @@ from django.contrib.auth import authenticate, login, logout
 
 from pcari.models import Respondent
 from pcari.models import LANGUAGES
-from pcari.models import QuantitativeQuestion, QuantitativeQuestionRating
+from pcari.models import QuantitativeQuestion, QualitativeQuestion
 from pcari.models import Comment, CommentRating, QuantitativeQuestionRating
 
 
-@require_GET
-def get_quantitative_questions(request):
+def select_questions(question_model, number, method):
+    questions = list(question_model.objects.all())
+    if number is None:
+        number = len(questions)
+    assert 0 <= number <= len(questions)
+    if method == 'first':
+        return questions[:number]
+    elif method == 'last':
+        return questions[-number:]
+    elif method == 'random':
+        return random.sample(questions, number)
+    else:
+        raise ValueError('no such method: "{0}"'.format(method))
+
+
+def make_question_retrieval_view(question_model):
+    @require_GET
+    def get_questions(request):
+        number_to_fetch = request.GET.get('number', None)
+        method = request.GET.get('method', 'first')
+
+        try:
+            if number_to_fetch is not None:
+                number_to_fetch = int(number_to_fetch)
+            questions = select_questions(question_model, number_to_fetch, method)
+        except (ValueError, AssertionError) as error:
+            return HttpResponseBadRequest(str(error))
+
+        return JsonResponse({
+            'questions': [
+                {
+                    'id': question.id,
+                    'message': question.prompt
+                } for question in questions
+            ]
+        })
+
+    return get_questions
+
+
+get_quantitative_questions = make_question_retrieval_view(QuantitativeQuestion)
+get_qualitative_questions = make_question_retrieval_view(QualitativeQuestion)
+
+
+@require_POST
+def save_quantitative_question_ratings(request):
     """
-    Fetch quantitative questions as JSON data.
+    Save ratings
     """
-    questions = QuantitativeQuestion.objects.all()
-    return JsonResponse({
-        'questions': [
-            {
-                'id': question.id,
-                'message': question.prompt,
-                'tag': question.tag
-            } for question in questions
-        ]
-    })
 
 
 @require_GET
@@ -154,18 +188,6 @@ def questions(request):
 		return redirect(reverse('pcari:create_user'))
 
 	return render(request, 'questions.html')
-
-
-@require_GET
-def get_question_ids(request):
-	question_data = QuantitativeQuestion.objects.values('qid')
-	return JsonResponse({'qids': [question['qid'] for question in question_data]})
-
-
-@require_GET
-def get_question(request, qid):
-	question = QuantitativeQuestion.objects.get(qid=qid)
-	return JsonResponse(question.get_question(request.session['language']))
 
 
 @require_POST
