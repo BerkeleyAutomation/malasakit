@@ -6,7 +6,6 @@ from django.core.urlresolvers import reverse
 from django.template import loader
 # from pcari.models import  QuantitativeQuestion, QualitativeQuestion, Rating, UserProgression, Comment, CommentRating, GeneralSetting, UserData
 from django.views import generic
-from django.views.decorators.http import require_GET, require_POST
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 
