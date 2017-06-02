@@ -3,7 +3,9 @@ import random
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
-from pcari.models import  QuantitativeQuestion, QualitativeQuestion, Rating, UserProgression, Comment, CommentRating, GeneralSetting, UserData
+from django.template import loader
+# from pcari.models import  QuantitativeQuestion, QualitativeQuestion, Rating, UserProgression, Comment, CommentRating, GeneralSetting, UserData
+from django.views import generic
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 

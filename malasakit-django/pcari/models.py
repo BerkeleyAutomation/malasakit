@@ -1,278 +1,328 @@
+"""
+This module defines the structure of the data.
+
+Attributes:
+    LANGUAGES: A tuple of pairs (tuples of size two), each of which has a
+               language code as the first entry and the language name as
+               the second. The three-letter language code should be taken
+               from the ISO 639-2 standard.
+"""
+
 from __future__ import unicode_literals
 
+# Public-facing models (parent models are excluded)
+__all__ = ['Comment', 'QuantitativeQuestionRating', 'CommentRating',
+           'QualitativeQuestion', 'QuantitativeQuestion', 'Respondent']
+
 from django.db import models
-from django.contrib.auth.models import User
-
-# IMPORTANT: Create only one instance
-class GeneralSetting(models.Model):
-    LANGUAGE_CHOICES = (
-        ('English', 'English'),
-        ('Filipino', 'Filipino'),
-    )
-
-    default_language = models.CharField(max_length=15, choices=LANGUAGE_CHOICES, default="English")
-
-    english_landing_description = models.CharField(max_length=500, default="How prepared are you in times of disaster? %d barangay citizens have responded. Join them! It only takes a minute.")
-    filipino_landing_description = models.CharField(max_length=500, default="Gaano ka kahanda sa panahon ng kalamidad? %d na ang nag MALASAKIT. Sali na! Isang minuto lamang ang kailangan.")
-
-    english_question_description = models.CharField(max_length=500, default="Please select how strongly you agree with the following statement")
-    filipino_question_description = models.CharField(max_length=500, default="Paki pili kung gaano kayo sumasang-ayon sa mga sumusunod na pangungusap")
-
-    english_graph_description = models.CharField(max_length=500, default="The plots below show the average trend of the ratings.")
-    filipino_graph_description = models.CharField(max_length=500, default="Ang talaguhitan sa ibaba ay nagpapakita ng madalas na sagot ng ibang tao.")
-
-    english_peer_evaluation_description = models.CharField(max_length=500, default="How helpful is this suggestion? ")
-    filipino_peer_evaluation_description = models.CharField(max_length=500, default="Gaano ka halaga ang mungkahing ito?")
-
-    english_comment_description = models.CharField(max_length=500, default="How could your Barangay help you better prepare for a disaster?")
-    filipino_comment_description = models.CharField(max_length=500, default="Sa papaanong pamamaraan makakatulong ang inyong barangay upang higit na maging handa ka para sa isang kalamidad")
-
-    english_feedback_description = models.CharField(max_length=500, default="At the end you'll have a chance to give us more feedback")
-    filipino_feedback_description = models.CharField(max_length=500, default="Sa dulo, mabibigyan ka ng pagkakataon na magbigay ng iyong mungkahing ideya")
-
-    english_bloom_description = models.CharField(max_length=500, default="Each sphere below represents an idea proposed by another user. Click on the sphere to rate an idea.")
-    filipino_bloom_description = models.CharField(max_length=500, default="Kumakatawan sa mungkahing ideya ng ibang tao ang bawat bilog sa ibaba. Pindutin ang isang bilog sa ibaba para magsimula.")
-
-    english_begin_button = "Begin"
-    english_skip_button = "Skip"
-    english_next_button = "Next"
-    english_post_button = "Post"
-    english_submit_button = "Submit"
-
-    filipino_begin_button = models.CharField(max_length=20, default="Simulan")
-    filipino_skip_button = models.CharField(max_length=20, default="Laktawan")
-    filipino_next_button = models.CharField(max_length=20, default="Susunod")
-    filipino_post_button = models.CharField(max_length=20, default="Ipasa")
-    filipino_submit_button = models.CharField(max_length=20, default="Isumite")
-
-    english_question_of = "Question %d of %d"
-    filipino_question_of = "Ika-%d ng %d katanungan"
-
-    english_about_pcari = models.CharField(max_length=30, default="About PCARI")
-    filipino_about_pcari = models.CharField(max_length=30, default="Tungkol sa PCARI")
-
-    english_rate_more_ideas = models.CharField(max_length=50, default="Rate More Ideas")
-    filipino_rate_more_ideas = models.CharField(max_length=50, default="Bigyan ng grado ang iba pang ideya")
-
-    english_exit = models.CharField(max_length=30, default="Exit")
-    filipino_exit = models.CharField(max_length=30, default="Lumabas")
-
-    english_more_info = models.CharField(max_length=30, default="More Information")
-    filipino_more_info = models.CharField(max_length=30, default="Iba pang impormasyon")
-
-    english_suggest_own = models.CharField(max_length=50, default="Suggest Your Own Idea")
-    filipino_suggest_own = models.CharField(max_length=50, default="Magmungkahi ng iyong sariling ideya")
-
-    english_share_description = models.CharField(max_length=300, default="Thank you for participating. Please share Malasakit with your friends and family")
-    filipino_share_description = models.CharField(max_length=300, default="Maraming salamat. Paki bahagi ang Malasakit sa inyong mga kaibigan at pamilya")
-
-    english_learn_more = models.CharField(max_length=300, default="Learn more about how to be prepared for a disaster")
-    filipino_learn_more = models.CharField(max_length=300, default="Alamin ang iba pang impormasyon kung paano magiging handa sa isang sakuna")
-
-    english_short_description = models.CharField(max_length=300, default="A project by the CITRIS Connected Communities Initiative at UC Berkeley and the Philippine Commission on Higher Education through the Philippine-California Advanced Research Institutes Project.")
-    filipino_short_description = models.CharField(max_length=300, default="Isang proyekto ng CITRIS Connected Communities Initiative ng UC Berkeley, at ng Commission on Higher Education ng Pilipinas sa pamamagitan ng Philippine-California Advanced Research Institutes Project")
-
-    english_scale_description = models.CharField(max_length=300, default="0 (strongly disagree) to 9 (strongly agree)")
-    filipino_scale_description = models.CharField(max_length=300, default="Mula 0 (hinding-hindi ako sumasang-ayon) hanggang 9 (lubos akong sumasang-ayon)")
-
-    english_age = models.CharField(max_length=30, default="Age")
-    filipino_age = models.CharField(max_length=30, default="Edad")
-
-    english_gender = models.CharField(max_length=30, default="Gender")
-    filipino_gender = models.CharField(max_length=30, default="Kasarian")
-
-    english_select = models.CharField(max_length=30, default="Select")
-    filipino_select = models.CharField(max_length=30, default="Pili ng kasarian")
-
-    english_male = models.CharField(max_length=30, default="Male")
-    filipino_male = models.CharField(max_length=30, default="Lalaki")
-
-    english_female = models.CharField(max_length=30, default="Female")
-    filipino_female = models.CharField(max_length=30, default="Babae")
-
-    english_error = models.CharField(max_length=300, default="Please enter the following fields")
-    filipino_error = models.CharField(max_length=300, default="Paki sagutan ang mga sumusunod para maikumpara ang iyong sagot sa iba")
-
-    english_personal = models.CharField(max_length=300, default="Please enter the following to see how you compare with others")
-    filipino_personal = models.CharField(max_length=300, default="Paki sagutan ang mga sumusunod para maikumpara ang iyong sagot sa iba")
 
 
-    def get_text(self, language=None):
-        if language is None:
-            language = "Filipino"
+LANGUAGES = (
+    ('ENG', 'English'),
+    ('FIL', 'Filipino')
+)
 
-        translate = {"English":"Filipino", "Filipino":"English"}[language]
 
-        if language == "English":
-            return {
-                'translate' : translate,
-                'landing_description' : self.english_landing_description,
-                'question_description' : self.english_question_description,
-                'graph_description' : self.english_graph_description,
-                'peer_evaluation_description' : self.english_peer_evaluation_description,
-                'comment_description' : self.english_comment_description,
-                'feedback_description' : self.english_feedback_description,
-                'bloom_description' : self.english_bloom_description,
-                'begin_button' : self.english_begin_button,
-                'skip_button' : self.english_skip_button,
-                'next_button' : self.english_next_button,
-                'post_button' : self.english_post_button,
-                'submit_button' : self.english_submit_button,
-                'about': self.english_about_pcari,
-                'more_info': self.english_more_info,
-                'short_description': self.english_short_description,
-                'scale_description': self.english_scale_description,
-                'suggest_own': self.english_suggest_own,
-                'exit': self.english_exit,
-                'rate_more': self.english_rate_more_ideas,
-                'share_description': self.english_share_description,
-                'learn_more': self.english_learn_more,
-                "age": self.english_age,
-                "gender": self.english_gender,
-                "select": self.english_select,
-                "male": self.english_male,
-                "female": self.english_female,
-                "error": self.english_error,
-                "personal": self.english_personal,
-                'question_of' : self.english_question_of
-            }
+def accepts_ratings(ratings_model, keyword):
+    """
+    A higher-order decorator that attaches properties to a model that is able
+    to be rated.
 
-        return {
-            'translate':translate,
-            'landing_description' : self.filipino_landing_description,
-            'question_description' : self.filipino_question_description,
-            'graph_description' : self.filipino_graph_description,
-            'peer_evaluation_description' : self.filipino_peer_evaluation_description,
-            'comment_description' : self.filipino_comment_description,
-            'feedback_description' : self.filipino_feedback_description,
-            'bloom_description' : self.filipino_bloom_description,
-            'begin_button' : self.filipino_begin_button,
-            'skip_button' : self.filipino_skip_button,
-            'next_button' : self.filipino_next_button,
-            'post_button' : self.filipino_post_button,
-            'submit_button' : self.filipino_submit_button,
-            'about': self.filipino_about_pcari,
-            'more_info': self.filipino_more_info,
-            'short_description': self.filipino_short_description,
-            'scale_description': self.filipino_scale_description,
-            'suggest_own': self.filipino_suggest_own,
-            'exit': self.filipino_exit,
-            'rate_more': self.filipino_rate_more_ideas,
-            'share_description': self.filipino_share_description,
-            'learn_more': self.filipino_learn_more,
-            "age": self.filipino_age,
-            "gender": self.filipino_gender,
-            "select": self.filipino_select,
-            "male": self.filipino_male,
-            "female": self.filipino_female,
-            "error": self.filipino_error,
-            "personal": self.filipino_personal,
-            'question_of' : self.filipino_question_of
-        }
+    In particular, these properties compute descriptive statistics of the
+    ratings dynamically by pulling records from other models on-the-fly.
+    These statistics include:
+      * the number of ratings,
+      * the mean rating, and
+      * the standard error of the ratings.
 
-class QuantitativeQuestion(models.Model):
-    qid = models.AutoField(primary_key=True)
-    question = models.CharField(max_length=500, default="")
-    average_score = models.FloatField(default=0)
-    number_rated = models.IntegerField(default=0)
-    tag = models.CharField(max_length=50, default="")
-    filipino_tag = models.CharField(max_length=50, default="")
-    filipino_question = models.CharField(max_length=500, default="walang filipino pagsasalin")
-    def get_question(self, language=None):
-        # print "what comes into get Q " + language 
-        if language == "English":
-            q = self.question
-        else:
-            # print "in model filipno"
-            q = self.filipino_question
-        return {'qid':self.qid, 'question':q}
+    Args:
+        ratings_model: The model containing the ratings. This model should
+                       subclass the abstract `Rating`s model, but at a minimum,
+                       the `ratings_model` should have a `score` attribute
+                       that obeys the convention of `Rating.NOT_RATED` and
+                       `Rating.SKIPPED`.
+        keyword: The name of the field of the `ratings_model` that refers to
+                 `target_model` being rated (that is, the model this decorator
+                 is used on).
 
-class QualitativeQuestion(models.Model):
-    qid = models.AutoField(primary_key=True)
-    question = models.CharField(max_length=500, default="")
-    filipino_question = models.CharField(max_length=500, default="walang filipino pagsasalin")
+    Example usage:
 
-class UserData(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE,)
-    age = models.IntegerField(default=0, null=True, blank=True)
-    barangay = models.CharField(max_length=500, default="", null=True, blank=True)
-    GENDER_CHOICES = (
-        ('M', 'Male'),
-        ('F', 'Female'),
-    )
-    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True, blank=True)
-    LANGUAGE_CHOICES = (
-    ('English', 'English'),
-    ('Filipino', 'Filipino'),
-    )
-    language = models.CharField(max_length=15, choices=LANGUAGE_CHOICES, default="Filipino")
+    >>> class FeedbackRating(Rating):
+    ...     feedback = models.ForeignKey('Feedback', on_delete=models.CASCADE)
+    ...
+    >>> @accepts_ratings(FeedbackRating, 'feedback')
+    ... class Feedback(models.Model):
+    ...     pass
+    ...
+    >>> respondent = Respondent()
+    >>> respondent.save()
+    >>> feedback = Feedback()
+    >>> feedback.save()
+    >>> FeedbackRating(respondent=respondent, feedback=feedback, score=1).save()
+    >>> FeedbackRating(respondent=respondent, feedback=feedback, score=3).save()
+    >>> FeedbackRating(respondent=respondent, feedback=feedback, score=4).save()
+    >>> feedback.num_ratings
+    3
+    >>> abs(feedback.mean_score - 8/3.0) < 1e-9  # (1 + 3 + 4)/3 = 8/3
+    True
+    """
+    def ratings_aggregator(target_model):
+        """ The decorator itself. """
+        def select_ratings(self, answered=True):
+            """
+            Select ratings attached to this target model instance.
 
-# If a user does not rate a question, the score will be -2.
-# If they choose to skip a question, the score will be -1.
-# For qualitative questions, the score will remain -2.
-class Rating(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True)
-    qid = models.IntegerField(default=-1)
-    date = models.DateTimeField(auto_now_add=True)
-    score = models.IntegerField(default=-2)
-    response = models.CharField(max_length=1000, default="")
-    accounted = models.BooleanField(default=False)
+            Args:
+                answered: When `True`, select only ratings where the respondent
+                          did not skip this question or comment (whether
+                          intentionally or not). When `True`, the scores of the
+                          ratings returned are guaranteed to be nonnegative.
+
+            Returns:
+                A Django `QuerySet` containing this question's or comment's
+                ratings.
+            """
+            query = ratings_model.objects.filter(**{keyword: self})
+            if answered:
+                excluded_ratings = [Rating.NOT_RATED, Rating.SKIPPED]
+                return query.exclude(score__in=excluded_ratings)
+            return query
+
+        def mean_score(self):
+            scores = self.select_ratings().values_list('score', flat=True)
+            return float(sum(scores))/len(scores)
+
+        def num_ratings(self):
+            return self.select_ratings().count()
+
+        def standard_error(self):
+            """ Computes the statistical standard error. """
+            scores = self.select_ratings().values_list('score', flat=True)
+            mean_score = float(sum(scores))/len(scores)
+            variance = sum(pow(score - mean_score, 2)/len(scores) for score in scores)
+            return variance**0.5/len(scores)**2
+
+        target_model.select_ratings = select_ratings
+        target_model.mean_score = property(mean_score)
+        target_model.num_ratings = property(num_ratings)
+        target_model.standard_error = property(standard_error)
+        return target_model
+    return ratings_aggregator
+
+
+class Response(models.Model):
+    """
+    A `Response` is an abstract model of user-generated data.
+
+    Attributes:
+        respondent: A reference to the user who made this `Response`.
+        timestamp: The date and time at which this `Response` was made.
+    """
+    respondent = models.ForeignKey('Respondent', on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = (('user', 'qid'),)
+        abstract = True
 
-class Comment(models.Model):
-    LANGUAGE_CHOICES = (
-        ('English', 'English'),
-        ('Filipino', 'Filipino'),
+
+class Rating(Response):
+    """
+    A `Rating` is an abstract model of a numeric response.
+
+    Attributes:
+        NOT_RATED: A sentinel value assigned to a `Rating` that the user never
+                   submitted (that is, a default value).
+        SKIPPED: A sentinel value assigned to a `Rating` where the user
+                 intentionally chose to decline rating a question or a comment.
+        score: An integer that quantifies a rating. (No scale is provided, by
+               design. Interpreting the `score` is the responsibility of
+               clients of this model.)
+    """
+    NOT_RATED = -2
+    SKIPPED = -1
+
+    score = models.SmallIntegerField(default=NOT_RATED)
+
+    class Meta:
+        abstract = True
+
+
+class QuantitativeQuestionRating(Rating):
+    """
+    A `QuantitativeQuestionRating` is a numeric response to a
+    `QuantitativeQuestion`.
+
+    Attributes:
+        question: A reference to the `QuantitativeQuestion` this rating is in
+                  response to.
+    """
+    question = models.ForeignKey('QuantitativeQuestion',
+                                 on_delete=models.CASCADE)
+
+    def __unicode__(self):
+        template = 'QuantitativeQuestion {0}: {1}'
+        return template.format(self.question_id, self.score)
+
+    class Meta:
+        unique_together = ('respondent', 'question')
+
+
+class CommentRating(Rating):
+    """
+    A `CommentRating` is a numeric response to a `Comment`.
+
+    Attributes:
+        comment: A reference to the `Comment` this comment is in response to.
+    """
+    comment = models.ForeignKey('Comment', on_delete=models.CASCADE)
+
+    def __unicode__(self):
+        return 'Comment {0}: {1}'.format(self.comment_id, self.score)
+
+    class Meta:
+        unique_together = ('respondent', 'comment')
+
+
+@accepts_ratings(CommentRating, 'comment')
+class Comment(Response):
+    """
+    A `Comment` is an open-ended text response to a `QualitativeQuestion`.
+
+    Attributes:
+        question: A reference to a `QualitativeQuestion`.
+        language: A language code (see this module's `LANGAUGES` attribute).
+        message: The text itself written in `language`.
+        flagged: A boolean indicating whether this comment was flagged for
+                 further inspection.
+        tag: A short string that summarizes this comment's message. (This field
+             is not user-generated.)
+        word_count: The number of words in the `message` (words are delimited
+                    with contiguous whitespace).
+
+    Example usage:
+
+    >>> respondent = Respondent()
+    >>> question = QualitativeQuestion(prompt='How is the weather?')
+    >>> comment = Comment(question=question, respondent=respondent,
+    ...                   language='ENG', message='Not raining.')
+    >>> comment.message
+    'Not raining.'
+    >>> comment.word_count
+    2
+    """
+    question = models.ForeignKey('QualitativeQuestion',
+                                 on_delete=models.CASCADE)
+    language = models.CharField(max_length=3, choices=LANGUAGES)
+    message = models.TextField(blank=True)
+    flagged = models.BooleanField(default=False)
+    tag = models.CharField(max_length=256, blank=True, default='')
+
+    def __unicode__(self):
+        return '{0}: "{1}"'.format(self.id, self.message)
+
+    @property
+    def word_count(self):
+        return len(self.message.split())
+
+
+class Question(models.Model):
+    """
+    A `Question` models a prompt presented to the user that requires a
+    response.
+
+    Attributes:
+        prompt: The prompt in the primary language of the application.
+        tag: A short string that summarizes the prompt.
+    """
+    prompt = models.TextField(blank=True)
+    tag = models.CharField(max_length=256, blank=True, default='')
+
+    class Meta:
+        abstract = True
+
+
+class QualitativeQuestion(Question):
+    """
+    A `QualitativeQuestion` is a `Question` that asks for a comment.
+
+    Attributes:
+        comments: A Django `QuerySet` of `Comment`s in response to this
+                  question.
+    """
+    def __unicode__(self):
+        return 'QualitativeQuestion {0}: "{1}"'.format(self.id, self.prompt)
+
+    @property
+    def comments(self):
+        return Comment.objects.filter(question=self)
+
+
+@accepts_ratings(QuantitativeQuestionRating, 'question')
+class QuantitativeQuestion(Question):
+    """
+    A `QuantitativeQuestion` is a `Question` that asks for a numeric rating.
+    """
+    def __unicode__(self):
+        return 'QuantitativeQuestion {0}: "{1}"'.format(self.id, self.prompt)
+
+
+class Respondent(models.Model):
+    """
+    A `Respondent` represents a one-time participant in a survey.
+
+    Attributes:
+        GENDERS: Choices for the `gender` field. This attribute is a tuple of
+                 pairs of strings, of which the second entry is the full gender
+                 name and the first is a single-letter abbreviation.
+        age: The age of the respondent in years.
+        gender: The gender of the respondent, as selected from `GENDERS`.
+        location: An open text field that describes the `respondent`'s
+                  residence. (In the particular context of the PCARI project,
+                  this field should contain the name of the `Respondent`'s
+                  barangay.)
+        language: The language preferred by this respondent.
+        submitted_personal_data: A boolean indicating whether the user
+                                 completed the form asking for `age`, `gender`,
+                                 and `location`. Because this form is entirely
+                                 optional, there is no other way to infer the
+                                 `Respondent`'s progression through this stage.
+        completed_survey: A boolean indicating whether the user completed the
+                          entire survey.
+        num_questions_rated: The number of `QuantitativeQuestion`'s answered by
+                             this `Respondent`. From this number, we can infer
+                             whether this `Respondent` reached the rating stage
+                             of the survey.
+        num_comments_rated: The number of `Comment`'s reviewed by this
+                            `Respondent`. Similarly, we can infer user
+                            progression from this attribute.
+        comments_made: A Django `QuerySet` of all comments attached to this
+                       `Respondent`.
+    """
+    GENDERS = (
+        ('M', 'Male'),
+        ('F', 'Female')
     )
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True)
-    comment = models.CharField(max_length=1000, default="", null=True, blank=True)
-    filipino_comment = models.CharField(max_length=1000, default="", null=True, blank=True)
-    date = models.DateTimeField(auto_now_add=True)
-    average_score = models.FloatField(default=0)
-    number_rated = models.IntegerField(default=0)
-    tag = models.CharField(max_length=200, default="", null=True)
-    original_language = models.CharField(max_length=15, choices=LANGUAGE_CHOICES, null=True, blank=True)
-    se = models.FloatField(default=0, null=True, blank=True)
+    age = models.PositiveSmallIntegerField(default=None, null=True, blank=True)
+    gender = models.CharField(max_length=1, choices=GENDERS, default='',
+                              blank=True)
+    location = models.CharField(max_length=512, default='', blank=True)
+    language = models.CharField(max_length=3, choices=LANGUAGES)
+    submitted_personal_data = models.BooleanField(default=False)
+    completed_survey = models.BooleanField(default=False)
 
-class CommentRating(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True)
-    cid = models.IntegerField(default=-1)
-    score = models.IntegerField(default=0)
-    date = models.DateTimeField(auto_now_add=True)
-    accounted = models.BooleanField(default=False)
+    def __unicode__(self):
+        return '{0}'.format(self.id)
 
-class UserProgression(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE,)
-    date = models.DateTimeField(auto_now_add=True)
-    landing = models.BooleanField(default=False)
-    rating = models.BooleanField(default=False)
-    num_rated = models.IntegerField(default=0)
-    review = models.BooleanField(default=False)
-    bloom = models.BooleanField(default=False)
-    peer_rating = models.BooleanField(default=False)
-    num_peer_rated = models.IntegerField(default=0)
-    personal_data = models.NullBooleanField(default=False, null=True)
-    comment = models.BooleanField(default=False)
-    logout = models.BooleanField(default=False)
-    completion_rate = models.IntegerField(default=0)
+    @property
+    def num_questions_rated(self):
+        questions = QuantitativeQuestionRating.objects.filter(respondent=self)
+        return questions.count()
 
-class Progression(models.Model):
-    landing = models.FloatField(default=0)
-    rating = models.FloatField(default=0)
-    review = models.FloatField(default=0)
-    bloom = models.FloatField(default=0)
-    peer_rating = models.FloatField(default=0)
-    comment = models.FloatField(default=0)
-    logout = models.FloatField(default=0)
+    @property
+    def num_comments_rated(self):
+        return CommentRating.objects.filter(respondent=self).count()
 
-class FlaggedComment(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True)
-    comment = models.CharField(max_length=1000, default="", null=True)
-    filipino_comment = models.CharField(max_length=1000, default="", null=True)
-    date = models.DateTimeField(auto_now_add=False)
-    average_score = models.FloatField(default=0)
-    number_rated = models.IntegerField(default=0)
-    tag = models.CharField(max_length=200, default="", null=True)
+    @property
+    def comments_made(self):
+        return Comment.objects.filter(respondent=self).all()
