@@ -88,5 +88,10 @@ ENV/
 # Rope project settings
 .ropeproject
 
-# SQLite files
+# Data
 *.sqlite3
+*.sqlite3-journal
+*.json
+
+# macOS file finder files
+*.DS_Store
