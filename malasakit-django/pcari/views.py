@@ -5,13 +5,18 @@ This module defines the application's views, which are needed to render pages.
 # Standard library
 import logging
 import random
+import sys
 import time
 
 # Third-party libraries
 import numpy as np
+from django.conf import settings
 from django.http import JsonResponse, HttpResponseBadRequest
+from django.shortcuts import render
 from django.views.decorators.http import require_GET, require_POST
+from django.utils import translation
 
+"""
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, HttpResponseBadRequest
@@ -27,14 +32,24 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.auth import logout
 from django.db import IntegrityError
 from django.contrib.auth import authenticate, login, logout
+"""
 
-# Application models
+# Local modules and models
 from .models import Respondent
 from .models import LANGUAGES
 from .models import QuantitativeQuestion, QualitativeQuestion
 from .models import Comment, CommentRating, QuantitativeQuestionRating
 
+DEFAULT_LANGUAGE = settings.LANGUAGE_CODE
+
 logger = logging.Logger(__name__)
+logger.setLevel(logging.DEBUG)
+formatter = logging.Formatter('[%(asctime)s] %(levelname)s :: %(message)s')
+
+console_handler = logging.StreamHandler(sys.stdout)
+console_handler.setLevel(logging.DEBUG)
+console_handler.setFormatter(formatter)
+logger.addHandler(console_handler)
 
 
 def profile(function):  # TODO: clean up
@@ -118,7 +133,7 @@ def generate_quantitative_question_ratings_matrix():
         row_index = respondents_id_map[respondent_id]
         column_index = questions_id_map[question_id]
         ratings_matrix[row_index, column_index] = score
-    return ratings_matrix
+    return question_ids, ratings_matrix
 
 
 def select_comments(respondent, threshold=10):
@@ -126,9 +141,9 @@ def select_comments(respondent, threshold=10):
     TODO: finalize an algorithm for doing this (discuss) [PCA?]
     """
     data = generate_quantiative_question_ratings_matrix()
+    question_ids_map, ratings_matrix = data
     mean_responses = data.nanmean(axis=0)
     data -= mean_responses  # Remove bias
-    respondent = Respondent.objects
 
 
 @require_GET
@@ -138,9 +153,19 @@ def get_comments(request):
 
 @require_POST
 def save_quantitative_question_ratings(request):
-    request.POST.get('')
+    pass
 
 
+def landing(request):
+    if 'respondent-id' not in request.session:
+        respondent = Respondent(language=request.session.get(
+            translation.LANGUAGE_SESSION_KEY, DEFAULT_LANGUAGE))
+        respondent.save()
+        request.session['respondent-id'] = respondent.id
+    return render(request, 'landing.html', {})
+
+
+"""
 def translate(language):
     return {"English":"Filipino", "Filipino":"English"}[language]
 
@@ -686,3 +711,4 @@ def clean_empty():
     for c in comments:
         if c == "":
             c.delete()
+"""
