@@ -1,167 +1,50 @@
 import random
-
-from django.http import Http404, HttpResponseRedirect, JsonResponse
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.template import loader
-from pcari.models import *
+from pcari.models import QualitativeQuestion, QuantitativeQuestion
+from pcari.models import Comment, QuantitativeQuestionRating, CommentRating
+from pcari.models import Respondent
 from django.views import generic
+from django.utils import translation
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
-
 from django.utils.datastructures import MultiValueDictKeyError
 
-# !IMPORTANT! YOU MUST COMMENT OUT THE FOLLOWING GLOBAL VARIABLES
-# IF YOU MAKE CHANGES TO models.py
-# QUAN_QUESTIONS = list(QuantitativeQuestion.objects.all())
-# QUAL_QUESTIONS = list(QualitativeQuestion.objects.all())
-# QUAN_COUNT = QuantitativeQuestion.objects.all().count()
-# QUAL_COUNT = QualitativeQuestion.objects.all().count()
-
-# Q_COUNT = QUAN_COUNT
-
-# random.shuffle(QUAN_QUESTIONS)
-# random.shuffle(QUAL_QUESTIONS)
-
-#TEXT = GeneralSetting.objects.all()[0].get_text()
-
-def translate(language):
-    return {"English":"Filipino", "Filipino":"English"}[language]
-
-
-# Should be rendered obsolete by Justin's built-in Django translations
-def switch_language(request):
-    url = request.META.get('HTTP_REFERER').split("/")
-
-    user = request.user
-    TEXT = request.session['TEXT']
-    if user.is_authenticated():
-        user_data = UserData.objects.all().filter(user=user)[0]
-        user_data.language = translate(user_data.language)
-        user_data.save()
-        request.session['language'] = user_data.language
-        request.session['TEXT'] = GeneralSetting.objects.all()[0].get_text(translate(user_data.language))
-    else:
-        request.session['TEXT'] = GeneralSetting.objects.all()[0].get_text(TEXT['translate'])
-        request.session['language'] = TEXT['translate']
-
-    if "questions" in url:
-        return HttpResponseRedirect(reverse('pcari:create_user', args=(0,)))
-    elif "comparison" in url:
-        return HttpResponseRedirect(reverse('pcari:rate', args=(url[-2],)))
-    elif "personal" in url:
-        return HttpResponseRedirect(reverse('pcari:personal', args=(url[-2],)))
-    elif "review" in url:
-        return HttpResponseRedirect(reverse('pcari:review'))
-    elif "rate" in url:
-        return HttpResponseRedirect(reverse('pcari:get_comment', args=(url[-2],)))
-    elif "peerevaluation" in url or "bloom" in url:
-        return HttpResponseRedirect(reverse('pcari:bloom'))
-    elif "comment" in url:
-        return HttpResponseRedirect(reverse('pcari:comment'))
-    elif "help" in url:
-        return HttpResponseRedirect(reverse('pcari:help'))
-    elif "about" in url:
-        return HttpResponseRedirect(reverse('pcari:about'))
-    elif "logout" in url:
-        return HttpResponseRedirect(reverse('pcari:logout'))
-    return HttpResponseRedirect(reverse('pcari:landing'))
-
-    # return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
-def init_text_cookie(request):
-    if 'TEXT' not in request.session:
-        request.session['language'] = 'Filipino'
-        general_settings = GeneralSetting.objects.first()
-        request.session['TEXT'] = general_settings.get_text(request.session['language'])
-
 
 def landing(request):
-    user = request.user
-    if user.is_authenticated():
-        logout(request)
-
-    init_text_cookie(request)
-    TEXT = request.session['TEXT']
-
-    description = TEXT['landing_description'] % len(User.objects.all())
+    # for testing porpoises only # # # # # # # # # # # # # # # # # # # # # # #
+    user_language = 'tl' # 'en' or 'tl'
+    translation.activate(user_language)
+    request.session[translation.LANGUAGE_SESSION_KEY] = user_language
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     context = {
-        'translate': TEXT['translate'],
-        'landing_description': description,
-        'more_info': TEXT['more_info'],
-        'short_description': TEXT['short_description'],
-        'begin': TEXT['begin_button']
+        'num_responses': str(Respondent.objects.count())
     }
     return render(request, 'landing.html', context)
 
 
-def questions(request):
-    return render(request, 'questions.html')
-
-
-def get_question_ids(request):
-    question_data = QuantitativeQuestion.objects.values('id')
-    return JsonResponse({'qids': [question['id'] for question in question_data]})
-
-
-def get_question(request, qid):
-    try:
-        question = QuantitativeQuestion.objects.get(id=qid)
-        response = {'qid': question.id, 'question': question.prompt}
-    except QuantitativeQuestion.DoesNotExist:
-        raise Http404("No such question exists.")
-    return JsonResponse(response)
-
-
-def save_answer(request):
-    # TODO: Figure out from Jonathan how to get a respondent's ID from a session
-    # and how to assign it to the Respondent model. Until then, this code will
-    # not work properly as it creates a new Respondent for each request it gets.
-    respondent = Respondent()
-
-    try:
-        qid, choice = request.POST['qid'], request.POST['choice']
-        question = QuantitativeQuestion.objects.get(id=qid)
-        rating = QuantitativeQuestionRating(respondent=respondent,
-                                            score=int(choice),
-                                            question=question)
-        rating.save()
-    except IntegrityError:
-        # TODO: clarify what this means
-        rating = QuantiativeQuestionRating(respondent=respondent,
-                                            question=question)
-    except KeyError:
-        return HttpResponseBadRequest()
-
-    # TODO: remove this debug code
-    # question = QuantitativeQuestion.objects.get(qid=qid).get_question(request.session['language'])
-    # print(u'User {0} assigned the rating {1} to the statement "{2}"'.format(user.username, rating.score, question['question']))
-
-    return HttpResponse()
-
-# TODO: Again, waiting to see how anonymous sessions is going to change this
-# def init_question_cookie(request, language):
-#     l = []
-#     Q = QuantitativeQuestion.objects.all()
-#     for q in Q:
-#         l.append(q.get_question(language))
-#     request.session['QUESTION'] = l
-#     request.session['Q_COUNT'] = Q.count()
-
-
-def landing(request):
-    # init_text_cookie(request)
-    TEXT = request.session['TEXT']
-
-    description = TEXT['landing_description'] % len(Respondent.objects.all())
+def quantitative_questions(request):
+    questions = []
+    i = 1
+    for q in QuantitativeQuestion.objects.all():
+        questions.append([str(i) + ". " + q.prompt, q.left_text, q.right_text])
+        i += 1
     context = {
-        'translate':TEXT['translate'],
-        'landing_description':description,
-        'more_info':TEXT['more_info'],
-        'short_description':TEXT['short_description'],
-        'begin':TEXT['begin_button']
+        'questions': questions
     }
-    return render(request, 'landing.html', context)
+    return render(request, 'quantitative_questions.html', context)
+
+
+def rate_suggestions(request):
+    context = { # TODO (much the same as how quantitative_questions works)
+    }
+    return render(request, 'rate_suggestions.html', context)
+
+
+def end(request):
+    return render(request, 'end.html')
 
 def create_user(request, is_new=1):
 
@@ -229,7 +112,6 @@ def create_user(request, is_new=1):
     }
 
     return render(request, 'rating.html', context)
-
 
 def rate(request, qid):
     """Assigns a rating for a quantitative question."""
