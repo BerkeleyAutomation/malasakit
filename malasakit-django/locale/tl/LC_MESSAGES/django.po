@@ -1,0 +1,49 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-06-04 13:38-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: cafe/settings.py:109
+msgid "English"
+msgstr ""
+
+#: cafe/settings.py:110
+msgid "Filipino"
+msgstr ""
+
+#: pcari/templates/landing.html:45
+#, python-format
+msgid ""
+"How prepared are you in times of disaster?<br/>%(num_responses)s barangay "
+"citizens have responded. Join them!"
+msgstr ""
+"Gaano ka kahanda sa panahon ng kalamidad?<br/>%(num_responses)s na ang nag "
+"Malasakit. Sali na!"
+
+#: pcari/templates/landing.html:52
+msgid "BEGIN"
+msgstr "SIMULAN"
+
+#: pcari/templates/landing.html:58
+msgid ""
+"A project by the CITRIS Connected Communities Initiative at UC Berkeley and "
+"National University, Philippines through the Philippine-California Advanced "
+"Research Institutes Project."
+msgstr ""
+"Isang proyekto ng CITRIS Connected Communities Initiative ng UC Berkeley, at "
+"ng National University, Philippines sa pamamagitan ng Philippine-California "
+"Advanced Research Institutes Project."

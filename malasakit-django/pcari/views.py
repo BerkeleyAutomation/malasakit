@@ -4,7 +4,9 @@ from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.template import loader
-# from pcari.models import  QuantitativeQuestion, QualitativeQuestion, Rating, UserProgression, Comment, CommentRating, GeneralSetting, UserData
+from pcari.models import QualitativeQuestion, QuantitativeQuestion
+from pcari.models import Comment, QuantitativeQuestionRating, CommentRating
+from pcari.models import Respondent
 from django.views import generic
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
@@ -23,7 +25,7 @@ from django.utils.datastructures import MultiValueDictKeyError
 # random.shuffle(QUAN_QUESTIONS)
 # random.shuffle(QUAL_QUESTIONS)
 
-#TEXT = GeneralSetting.objects.all()[0].get_text()
+# TEXT = GeneralSetting.objects.all()[0].get_text()
 
 def translate(language):
     return {"English":"Filipino", "Filipino":"English"}[language]
@@ -68,10 +70,12 @@ def switch_language(request):
 
     # return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
 def init_text_cookie(request):
     if 'TEXT' not in request.session:
         request.session['TEXT'] = GeneralSetting.objects.all()[0].get_text('Filipino')
         request.session['language'] = 'Filipino'
+
 
 def init_question_cookie(request, language):
     l = []
@@ -81,23 +85,17 @@ def init_question_cookie(request, language):
     request.session['QUESTION'] = l
     request.session['Q_COUNT'] = Q.count()
 
+
 def landing(request):
-    user = request.user
-    if user.is_authenticated():
-        logout(request)
-
-    init_text_cookie(request)
-    TEXT = request.session['TEXT']
-
-    description = TEXT['landing_description'] % len(User.objects.all())
+    from django.utils import translation
+    user_language = 'tl' # 'en' or 'tl'
+    translation.activate(user_language)
+    request.session[translation.LANGUAGE_SESSION_KEY] = user_language
     context = {
-        'translate':TEXT['translate'],
-        'landing_description':description,
-        'more_info':TEXT['more_info'],
-        'short_description':TEXT['short_description'],
-        'begin':TEXT['begin_button']
+        'num_responses': str(Respondent.objects.count())
     }
     return render(request, 'landing.html', context)
+
 
 def create_user(request, is_new=1):
     init_text_cookie(request)
@@ -162,6 +160,18 @@ def create_user(request, is_new=1):
     }
 
     return render(request, 'rating.html', context)
+
+
+def quantitative_questions(request):
+    questions = []
+    i = 1
+    for q in QuantitativeQuestion.objects.all():
+        questions.append([str(i) + ". " + q.prompt, q.left_text, q.right_text])
+        i += 1
+    context = {
+        'questions': questions
+    }
+    return render(request, 'quantitative_questions.html', context)
 
 
 def rate(request, qid):

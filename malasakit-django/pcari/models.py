@@ -262,6 +262,9 @@ class QuantitativeQuestion(Question):
     """
     A `QuantitativeQuestion` is a `Question` that asks for a numeric rating.
     """
+    left_text = models.TextField(blank=True)
+    right_text = models.TextField(blank=True)
+
     def __unicode__(self):
         return 'QuantitativeQuestion {0}: "{1}"'.format(self.id, self.prompt)
 
