@@ -5,16 +5,15 @@ This module defines the application's views, which are needed to render pages.
 # Standard library
 import logging
 import random
-import sys
 import time
 
 # Third-party libraries
-import numpy as np
 from django.conf import settings
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render
 from django.views.decorators.http import require_GET, require_POST
 from django.utils import translation
+import numpy as np
 
 """
 from django.http import Http404
@@ -41,71 +40,19 @@ from .models import QuantitativeQuestion, QualitativeQuestion
 from .models import Comment, CommentRating, QuantitativeQuestionRating
 
 DEFAULT_LANGUAGE = settings.LANGUAGE_CODE
-
-logger = logging.Logger(__name__)
-logger.setLevel(logging.DEBUG)
-formatter = logging.Formatter('[%(asctime)s] %(levelname)s :: %(message)s')
-
-console_handler = logging.StreamHandler(sys.stdout)
-console_handler.setLevel(logging.DEBUG)
-console_handler.setFormatter(formatter)
-logger.addHandler(console_handler)
+LOGGER = logging.getLogger('pcari')
 
 
-def profile(function):  # TODO: clean up
-    def view_wrapper(*args, **kwargs):
+def profile(function):
+    def wrapper(*args, **kwargs):
         start = time.time()
         result = function(*args, **kwargs)
         end = time.time()
         time_elapsed = end - start
-        message = ':: Call to "{}" took {:.3f} seconds'
-        print(message.format(function.__name__, time_elapsed))
+        message = logging.INFO, 'Call to {} took {:.3f} seconds'
+        LOGGER.log(message.format(function.__name__, time_elapsed))
         return result
-    return view_wrapper
-
-
-def select_questions(question_model, number, method):
-    questions = list(question_model.objects.all())
-    if number is None:
-        number = len(questions)
-    assert 0 <= number <= len(questions)
-    if method == 'first':
-        return questions[:number]
-    elif method == 'last':
-        return questions[-number:]
-    elif method == 'random':
-        return random.sample(questions, number)
-    else:
-        raise ValueError('no such method: "{0}"'.format(method))
-
-
-def make_question_retrieval_endpoint(question_model):
-    @require_GET
-    def get_questions(request):
-        number_to_fetch = request.GET.get('number', None)
-        method = request.GET.get('method', 'first')
-
-        try:
-            if number_to_fetch is not None:
-                number_to_fetch = int(number_to_fetch)
-            questions = select_questions(question_model, number_to_fetch, method)
-        except (ValueError, AssertionError) as error:
-            return HttpResponseBadRequest(str(error))
-
-        return JsonResponse({
-            'questions': [
-                {
-                    'id': question.id,
-                    'prompt': question.prompt
-                } for question in questions
-            ]
-        })
-
-    return get_questions
-
-
-get_quantitative_questions = make_question_retrieval_endpoint(QuantitativeQuestion)
-get_qualitative_questions = make_question_retrieval_endpoint(QualitativeQuestion)
+    return wrapper
 
 
 @profile

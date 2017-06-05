@@ -9,8 +9,4 @@ urlpatterns = [
     url(r'^quantitative-questions', views.present_quantitative_questions,
         name='present-quantitative-questions'),
     # AJAX endpoints
-    url(r'^get/quantitative-questions', views.get_quantitative_questions,
-        name='get-quantitative-questions'),
-    url(r'^get/qualitative-questions', views.get_qualitative_questions,
-        name='get-quantitative-questions'),
 ]

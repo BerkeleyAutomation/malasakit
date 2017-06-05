@@ -22,9 +22,13 @@ function loadQuestion(question) {
   $('#answer').val(3);
 }
 
+function saveAnswerLocally(choice) {
+}
+
 function submitAnswer(choice) {
   if (index < questions.length) {
     console.log(choice);
+    saveAnswerLocally(choice);
     /*$.post('/pcari/save-answer/', {
       qid: qids[index],
       choice: choice
