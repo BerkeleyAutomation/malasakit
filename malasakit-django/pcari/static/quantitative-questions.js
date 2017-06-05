@@ -17,37 +17,31 @@ function csrfSafeMethod(method) {
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
 }
 
-function loadNextQuestion(qid) {
-  $.getJSON('/pcari/get-question/' + qid + '/', function(data) {
-    $('#question').text(data['question']);
-    $('#answer').val(3);
-  });
+function loadQuestion(question) {
+  $('#question').text(question['prompt']);
+  $('#answer').val(3);
 }
-
-var qids;
-var index = 0;
-$.getJSON('/pcari/get-question-ids/', function(data) {
-  qids = data['qids'];
-  loadNextQuestion(qids[index]);
-});
 
 function submitAnswer(choice) {
-  if (index < qids.length) {
-    $.post('/pcari/save-answer/', {
+  if (index < questions.length) {
+    console.log(choice);
+    /*$.post('/pcari/save-answer/', {
       qid: qids[index],
       choice: choice
-    });
+    });*/
     // TODO: check that the response code is 200
   }
-  
+
   index++;
-  if (index >= qids.length) {
+  if (index >= questions.length) {
     $('#question').text('All questions answered.');
   } else {
-    loadNextQuestion(qids[index]);
+    loadQuestion(questions[index]);
   }
 }
 
+var questions;
+var index = 0;
 $(document).ready(function() {
   $.ajaxSetup({
       beforeSend: function(xhr, settings) {
@@ -56,6 +50,11 @@ $(document).ready(function() {
               xhr.setRequestHeader("X-CSRFToken", csrftoken);
           }
       }
+  });
+
+  $.getJSON('/pcari/get/quantitative-questions/', function(data) {
+    questions = data['questions'];
+    loadQuestion(questions[index]);
   });
 
   $('#submit').click(function(event) {

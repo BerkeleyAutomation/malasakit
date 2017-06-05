@@ -130,4 +130,4 @@ CELERY_TIMEZONE = 'Africa/Nairobi'
 # STATIC_URL = '/static/'
 
 URL_ROOT = 'http://opinion.berkeley.edu'
-STATIC_URL = URL_ROOT + '/pcari/static/'
+STATIC_URL = '/pcari/static/'

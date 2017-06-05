@@ -79,8 +79,7 @@ def select_questions(question_model, number, method):
         raise ValueError('no such method: "{0}"'.format(method))
 
 
-def make_question_retrieval_view(question_model):
-    @profile
+def make_question_retrieval_endpoint(question_model):
     @require_GET
     def get_questions(request):
         number_to_fetch = request.GET.get('number', None)
@@ -105,8 +104,8 @@ def make_question_retrieval_view(question_model):
     return get_questions
 
 
-get_quantitative_questions = make_question_retrieval_view(QuantitativeQuestion)
-get_qualitative_questions = make_question_retrieval_view(QualitativeQuestion)
+get_quantitative_questions = make_question_retrieval_endpoint(QuantitativeQuestion)
+get_qualitative_questions = make_question_retrieval_endpoint(QualitativeQuestion)
 
 
 @profile
@@ -163,6 +162,10 @@ def landing(request):
         respondent.save()
         request.session['respondent-id'] = respondent.id
     return render(request, 'landing.html', {})
+
+
+def present_quantitative_questions(request):
+    return render(request, 'quantitative-questions.html', {})
 
 
 """
