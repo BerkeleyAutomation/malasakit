@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-04 13:38-0700\n"
+"POT-Creation-Date: 2017-06-05 13:53-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -47,3 +47,47 @@ msgstr ""
 "Isang proyekto ng CITRIS Connected Communities Initiative ng UC Berkeley, at "
 "ng National University, Philippines sa pamamagitan ng Philippine-California "
 "Advanced Research Institutes Project."
+
+#: pcari/templates/quantitative_questions.html:186
+msgid "QUESTIONS"
+msgstr ""
+
+#: pcari/templates/quantitative_questions.html:203
+msgid "PROFILE"
+msgstr ""
+
+#: pcari/templates/quantitative_questions.html:207
+msgid "Age"
+msgstr "Edad"
+
+#: pcari/templates/quantitative_questions.html:210
+msgid "Select Age"
+msgstr ""
+
+#: pcari/templates/quantitative_questions.html:224
+msgid "Gender"
+msgstr ""
+
+#: pcari/templates/quantitative_questions.html:227
+msgid "Select Gender"
+msgstr "Piliin ang Kasarian"
+
+#: pcari/templates/quantitative_questions.html:228
+msgid "Male"
+msgstr "Lalaki"
+
+#: pcari/templates/quantitative_questions.html:229
+msgid "Female"
+msgstr "Babae"
+
+#: pcari/templates/quantitative_questions.html:234
+msgid "Province"
+msgstr ""
+
+#: pcari/templates/quantitative_questions.html:237
+msgid "Select Province"
+msgstr ""
+
+#: pcari/templates/quantitative_questions.html:331
+msgid "SUBMIT"
+msgstr ""

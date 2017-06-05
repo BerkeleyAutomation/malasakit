@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load static %}
 <html>
     
     <head>
@@ -45,9 +46,9 @@
                 <p class="subtitle">{% blocktrans %}How prepared are you in times of disaster?<br/>{{num_responses}} barangay citizens have responded. Join them!{% endblocktrans %}</p>
             </center>
             
-            <!-- Image -->
+            <!-- Image & Submit Button -->
             <center>
-                <div><img src="landing1.jpg" width="620" height="324"></div>
+                <div><img src="{% static "img/landing1.jpg" %}" width="620" height="324"></div>
                 <br/>
                 <a href="{% url 'pcari:quantitative_questions'%}"><button class="button">{% blocktrans %}BEGIN{% endblocktrans %}</button></a>
             </center>

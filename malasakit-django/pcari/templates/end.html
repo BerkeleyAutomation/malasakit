@@ -1,3 +1,4 @@
+{% load i18n %}
 <link rel="stylesheet/less" type="text/css" href="styles.less" />
 <script src="less.js" type="text/javascript"></script>
 <html>
@@ -183,13 +184,13 @@
             
             <!-- Header -->
             <center>
-                <p class="header"><u>THANK YOU</u></p>
-                <p class="q">We appreciate your participation in the Malasakit program.</p>
+                <p class="header"><u>{% blocktrans %}THANK YOU{% endblocktrans %}</u></p>
+                <p class="q">{% blocktrans %}We appreciate your participation in the Malasakit program.{% endblocktrans %}</p>
             </center>
 
             <!-- Home Button -->
             <br/><br/>
-            <center><a href="landing.html"><button class="submit">HOME</button></a></center>
+            <center><a href="{% url 'pcari:landing'%}"><button class="submit">{% blocktrans %}HOME{% endblocktrans %}</button></a></center>
             
         </div>
         

@@ -183,7 +183,7 @@
         <div class="questions">
             
             <!-- Header -->
-            <center><p class="header"><u>QUESTIONS</u></p></center>
+            <center><p class="header"><u>{% blocktrans %}QUESTIONS{% endblocktrans %}</u></p></center>
             
             <!-- Questions -->
             <div>
@@ -200,14 +200,14 @@
         <div class="info">
             
             <!-- Info -->
-            <center><p class="header"><u>PROFILE</u></p></center>
+            <center><p class="header"><u>{% blocktrans %}PROFILE{% endblocktrans %}</u></p></center>
             <br/>
             <table>
                 <tr>
-                    <td class="q"><b>Age:</b></td>
+                    <td class="q"><b>{% blocktrans %}Age{% endblocktrans %}:</b></td>
                     <td>
                         <select class="styled-select">
-                            <option value="">Select Age</option>
+                            <option value="">{% blocktrans %}Select Age{% endblocktrans %}</option>
                             <option value="0-19">0-19</option>
                             <option value="20-29">20-29</option>
                             <option value="30-39">30-39</option>
@@ -221,20 +221,20 @@
                     </td>
                 </tr>
                 <tr>
-                    <td class="q"><b>Gender:</b></td>
+                    <td class="q"><b>{% blocktrans %}Gender{% endblocktrans %}:</b></td>
                     <td>
                         <select class="styled-select">
-                            <option value="">Select Gender</option>
-                            <option value="M">Male</option>
-                            <option value="F">Female</option>
+                            <option value="">{% blocktrans %}Select Gender{% endblocktrans %}</option>
+                            <option value="M">{% blocktrans %}Male{% endblocktrans %}</option>
+                            <option value="F">{% blocktrans %}Female{% endblocktrans %}</option>
                         </select>
                     </td>
                 </tr>
                 <tr>
-                    <td class="q"><b>Province:</b></td>
+                    <td class="q"><b>{% blocktrans %}Province{% endblocktrans %}:</b></td>
                     <td>
                         <select class="styled-select">
-                            <option value="">Select Province</option>
+                            <option value="">{% blocktrans %}Select Province{% endblocktrans %}</option>
                             <option value="ABR">Abra</option>
                             <option value="AGN">Agusan del Norte</option>
                             <option value="AGS">Agusan del Sur</option>
@@ -328,7 +328,7 @@
             
             <!-- Submit Button -->
             <br/><br/>
-            <center><a href="rate_suggestions.html"><button class="submit">SUBMIT</button></a></center>
+            <center><a href="{% url 'pcari:rate_suggestions'%}"><button class="submit">{% blocktrans %}SUBMIT{% endblocktrans %}</button></a></center>
             
         </div>
         

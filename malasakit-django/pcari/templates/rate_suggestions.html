@@ -1,3 +1,4 @@
+{% load i18n %}
 <link rel="stylesheet/less" type="text/css" href="styles.less" />
 <script src="less.js" type="text/javascript"></script>
 <html>
@@ -182,8 +183,8 @@
         <div class="questions">
             
             <!-- Header -->
-            <center><p class="header"><u>SUGGESTIONS</u></p></center>
-            <p class="q">These are some suggestions made by other people living in barangays across the Phillippines. Read each one, and rate how helpful it is.</p>
+            <center><p class="header"><u>{% blocktrans %}SUGGESTIONS{% endblocktrans %}</u></p></center>
+            <p class="q">{% blocktrans %}These are some suggestions made by other people living in barangays across the Phillippines. Read each one, and rate how helpful it is.{% endblocktrans %}</p>
             
             <!-- S1 -->
             <p class="q"><b>1. Suggestion 1</b></p>
@@ -205,11 +206,11 @@
             
             <!-- User Suggestion -->
             <p class="q"><b>4. How could your barangay help you better prepare for a disaster?</b></p>
-            <textarea name="suggestion" class="q" rows="5" cols="75" wrap="soft" style="border: 1px solid goldenrod"> </textarea>
+            <textarea name="suggestion" class="q" rows="5" cols="75" wrap="soft" style="border: 1px solid goldenrod; resize:none"> </textarea>
             
             <!-- Submit Button -->
             <br/><br/>
-            <center><a href="end.html"><button class="submit">SUBMIT</button></a></center>
+            <center><a href="{% url 'pcari:end'%}"><button class="submit">{% blocktrans %}SUBMIT{%endblocktrans%}</button></a></center>
             
         </div>
         
