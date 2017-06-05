@@ -9,10 +9,10 @@
 <!-- Questions -->
 <div>
     {% for question in questions %}
-    <p class="q"><b>{{ question.0 }}</b></p>
-    <span class="leftlabel">{{ question.1 }}</span>
+    <p class="q" qid={{question.0}}><b>{{ question.1 }}</b></p>
+    <span class="leftlabel">{{ question.2 }}</span>
     <input type="range" value="0" min=1 max=10 />
-    <span class="rightlabel">{{ question.2 }}</span>
+    <span class="rightlabel">{{ question.3 }}</span>
     {% endfor %}
 </div>
 <!-- Info -->
@@ -21,7 +21,7 @@
     <br/>
     <table>
         <tr>
-            <td class="q"><b>{% blocktrans %}Age{% endblocktrans %}:</b></td>
+            <td class="q" qid="age"><b>{% blocktrans %}Age{% endblocktrans %}:</b></td>
             <td>
                 <select class="styled-select">
                     <option value="">{% blocktrans %}Select Age{% endblocktrans %}</option>
@@ -40,7 +40,7 @@
         <tr>
             <td class="q"><b>{% blocktrans %}Gender{% endblocktrans %}:</b></td>
             <td>
-                <select class="styled-select">
+                <select class="styled-select" qid="gender">
                     <option value="">{% blocktrans %}Select Gender{% endblocktrans %}</option>
                     <option value="M">{% blocktrans %}Male{% endblocktrans %}</option>
                     <option value="F">{% blocktrans %}Female{% endblocktrans %}</option>
@@ -50,7 +50,7 @@
         <tr>
             <td class="q"><b>{% blocktrans %}Province{% endblocktrans %}:</b></td>
             <td>
-                <select class="styled-select">
+                <select class="styled-select" qid="city">
                     <option value="">{% blocktrans %}Select Province{% endblocktrans %}</option>
                     <option value="ABR">Abra</option>
                     <option value="AGN">Agusan del Norte</option>
@@ -138,7 +138,7 @@
             </td>
         </tr>
         <tr>
-            <td class="q"><b>Barangay:</b></td>
+            <td class="q" qid="barangay"><b>Barangay:</b></td>
             <td><input type="text" name="barangay" class="q" style="border: 1px solid goldenrod; width: 240" /></td>
         </tr>
     </table>
