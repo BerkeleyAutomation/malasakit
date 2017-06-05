@@ -1,0 +1,207 @@
+<link rel="stylesheet/less" type="text/css" href="styles.less" />
+<script src="less.js" type="text/javascript"></script>
+<html>
+    
+    <head>
+        
+        <!-- Format -->
+        <title>Malasakit</title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet" />
+        <style>
+
+            .a:link, a:visited, a:hover, a:active {color: black;}
+    
+            .header {
+                font-size: 250%;
+                margin-bottom: 0;
+                font-family: 'Quicksand',sans-serif;
+            }
+
+            .subtitle {
+                font-size: medium;
+                font-family: 'Quicksand',sans-serif;
+                text-align: center;
+            }
+
+            .footnote {
+                font-size:x-small;
+                font-family:'Quicksand',sans-serif;
+            }
+
+            .q {
+                font-size: medium;
+                font-family: 'Quicksand',sans-serif;
+            }
+
+            .styled-select {
+                width: 240px;
+                height: 34px;
+                overflow: hidden;
+                background: solid white;
+                border: 1px solid goldenrod;
+                font-size: medium;
+                font-family: 'Quicksand',sans-serif;
+            }
+
+            .leftlabel, .rightlabel {
+                display: inline-table;
+                vertical-align: middle;
+                width: 150px;
+                padding: 2px;
+                font-family: 'Quicksand',sans-serif;
+            }
+
+            .leftlabel {
+                text-align: right;
+            }
+
+            .rightlabel {
+                text-align: left;
+            }
+
+            input[type=range] {
+                -webkit-appearance: none;
+                border: 1px solid white;
+                width: 400px;
+            }
+
+            input[type=range]::-webkit-slider-runnable-track {
+                width: 300px;
+                height: 5px;
+                background: #ddd;
+                border: none;
+                border-radius: 3px;
+            }
+
+            input[type=range]::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                border: none;
+                height: 16px;
+                width: 16px;
+                border-radius: 50%;
+                background: goldenrod;
+                margin-top: -5px;
+            }
+
+            input[type=range]:focus {
+                outline: none;
+            }
+
+            input[type=range]:focus::-webkit-slider-runnable-track {
+                background: #ccc;
+            }
+
+            input[type=range]::-moz-range-track {
+                width: 300px;
+                height: 5px;
+                background: #ddd;
+                border: none;
+                border-radius: 3px;
+            }
+
+            input[type=range]::-moz-range-thumb {
+                border: none;
+                height: 16px;
+                width: 16px;
+                border-radius: 50%;
+                background: goldenrod;
+            }
+
+            input[type=range]:-moz-focusring {
+                outline: 1px solid white;
+                outline-offset: -1px;
+            }
+
+            input[type=range]::-ms-track {
+                width: 300px;
+                height: 5px;
+                background: transparent;
+                border-color: transparent;
+                border-width: 6px 0;
+                color: transparent;
+            }
+
+            input[type=range]::-ms-fill-lower {
+                background: #777;
+                border-radius: 10px;
+            }
+
+            input[type=range]::-ms-fill-upper {
+                background: #ddd;
+                border-radius: 10px;
+            }
+
+            input[type=range]::-ms-thumb {
+                border: none;
+                height: 16px;
+                width: 16px;
+                border-radius: 50%;
+                background: goldenrod;
+            }
+
+            input[type=range]:focus::-ms-fill-lower {
+                background: #888;
+            }
+
+            input[type=range]:focus::-ms-fill-upper {
+                background: #ccc;
+            }
+
+            .button {
+                display: inline-box;
+                background-color: white;
+                color: goldenrod;
+                padding: 16px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+                margin: 4px 2px;
+                -webkit-transition-duration: 0.4s;
+                transition-duration: 0.4s;
+                cursor: pointer;
+                border: 2px solid black;
+            }
+
+            .button:hover {
+                background-color: goldenrod;
+                color: black;
+            }
+
+            .body {
+                width: 70%;
+                margin-left: auto;
+                margin-right: auto;
+                position: relative;
+            }
+
+        </style>
+        
+    </head>
+    
+    <body class="body">
+        
+        <div class="questions">
+            
+            <!-- Header -->
+            <center><p class="header"><u>{% block header %}{% endblock %}</u></p></center>
+            <p class="subtitle">{% block subtitle %}{% endblock %}</p>
+
+            <!-- Content -->
+            {% block content %}{% endblock %}
+
+            <!-- Button -->
+            <br/>
+            <center><a href={% block link %}{% endblock %}><button class="button">{% block button %}{% endblock %}</button></a></center>
+            <br/>
+            
+            <!-- Footnote -->
+            <center><p class="footnote">{% block footnote %}{% endblock %}</p><center>
+            
+        </div>
+        
+    </body>
+    
+</html>

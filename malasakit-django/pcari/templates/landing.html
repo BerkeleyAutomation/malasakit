@@ -1,66 +1,23 @@
+{% extends 'parent.html' %}
+
 {% load i18n %}
 {% load static %}
-<html>
-    
-    <head>
-        
-        <!-- Format -->
-        <title>Malasakit</title>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-            <link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet" />
-            <style>
-                .a:link, a:visited, a:hover, a:active {color: black}
-                .header {font-size:250%; margin-bottom:0; font-family:'Quicksand',sans-serif;}
-                .subtitle {font-size:medium; font-family:'Quicksand',sans-serif;}
-                .footnote {font-size:x-small; font-family:'Quicksand',sans-serif;}
-                .button {
-                    background-color: white;
-                    color: goldenrod;
-                    padding: 16px 32px;
-                    text-align: center;
-                    text-decoration: none;
-                    display: inline-block;
-                    font-size: 16px;
-                    margin: 4px 2px;
-                    -webkit-transition-duration: 0.4s;
-                    transition-duration: 0.4s;
-                    cursor: pointer;
-                    border: 2px solid #555555;
-                }
-            .button:hover {
-                background-color: goldenrod;
-                color: #555555;
-            }
-            </style>
-            
-    </head>
-    
-    <body>
-        
-        <div style="max-width:1600px">
-            
-            <!-- Header -->
-            <center>
-                <p class="header"><u>MALASAKIT</u></p>
-                <p class="subtitle">{% blocktrans %}How prepared are you in times of disaster?<br/>{{num_responses}} barangay citizens have responded. Join them!{% endblocktrans %}</p>
-            </center>
-            
-            <!-- Image & Submit Button -->
-            <center>
-                <div><img src="{% static "img/landing1.jpg" %}" width="620" height="324"></div>
-                <br/>
-                <a href="{% url 'pcari:quantitative_questions'%}"><button class="button">{% blocktrans %}BEGIN{% endblocktrans %}</button></a>
-            </center>
-            <br/>
-            
-            <!-- Disclaimer -->
-            <center><p class="footnote">
-                {% blocktrans %}A project by the CITRIS Connected Communities Initiative at UC Berkeley and National University, Philippines through the Philippine-California Advanced Research Institutes Project.{% endblocktrans %}
-            </p></center>
-            
-        </div>
-        
-    </body>
-    
-</html>
+
+{% block header %}MALASAKIT{% endblock %}
+
+{% block subtitle %}
+{% blocktrans %}How prepared are you in times of disaster?<br/>{{num_responses}} barangay citizens have responded. Join them!{% endblocktrans %}
+{% endblock %}
+
+{% block content %}
+<center><img src="{% static "img/landing1.jpg" %}" width="620" height="324"></center>
+<br/>
+{% endblock %}
+
+{% block link %}"{% url 'pcari:quantitative_questions'%}"{% endblock %}
+
+{% block button %}{% blocktrans %}BEGIN{% endblocktrans %}{% endblock %}
+
+{% block footnote %}
+{% blocktrans %}A project by the CITRIS Connected Communities Initiative at UC Berkeley and National University, Philippines through the Philippine-California Advanced Research Institutes Project.{% endblocktrans %}
+{% endblock %}
