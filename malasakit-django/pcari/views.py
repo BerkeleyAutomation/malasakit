@@ -205,25 +205,28 @@ def save_response(request):
     return HttpResponse()
 
 
-def landing(request):
-    if 'respondent-id' not in request.session:
-        respondent = Respondent(language=request.session.get(
-            translation.LANGUAGE_SESSION_KEY, DEFAULT_LANGUAGE))
-        respondent.save()
-        request.session['respondent-id'] = respondent.id
-    return render(request, 'landing.html', {})
+def supported_languages():
+    return [code for code, name in settings.LANGUAGES]
+
+
+def language_selectable(view):
+    def view_wrapper(request, *args, **kwargs):
+        language_code = request.GET.get('lang')
+        if language_code in supported_languages():
+            translation.activate(language_code)
+            request.session[translation.LANGUAGE_SESSION_KEY] = language_code
+        return view(request, *args, **kwargs)
+    return view_wrapper
 
 
 def index(request):
     return redirect(reverse('pcari:landing'))
 
 
+# @language_selectable
 def landing(request):
-    # for testing porpoises only # # # # # # # # # # # # # # # # # # # # # # #
-    user_language = 'tl' # 'en' or 'tl'
-    translation.activate(user_language)
-    request.session[translation.LANGUAGE_SESSION_KEY] = user_language
-    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    translation.activate('tl')
+    request.session[translation.LANGUAGE_SESSION_KEY] = 'tl'
     context = {'num_responses': str(Respondent.objects.count())}
     return render(request, 'landing.html', context)
 

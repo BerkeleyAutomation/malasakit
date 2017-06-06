@@ -3,10 +3,12 @@
 {% load i18n %}
 {% load static %}
 
-{% block header %}THANK YOU{% endblock %}
+{% block header %}
+  {% trans 'Thank you' %}
+{% endblock %}
 
 {% block subtitle %}
-{% blocktrans %}We appreciate your participation in the Malasakit program.{% endblocktrans %}
+  {% trans 'We appreciate your participation in the Malasakit program.' %}
 {% endblock %}
 
 {% block link %}"{% url 'pcari:landing'%}"{% endblock %}
