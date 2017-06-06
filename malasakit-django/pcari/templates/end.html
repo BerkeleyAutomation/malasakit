@@ -1,0 +1,14 @@
+{% extends 'parent.html' %}
+
+{% load i18n %}
+{% load static %}
+
+{% block header %}THANK YOU{% endblock %}
+
+{% block subtitle %}
+{% blocktrans %}We appreciate your participation in the Malasakit program.{% endblocktrans %}
+{% endblock %}
+
+{% block link %}"{% url 'pcari:landing'%}"{% endblock %}
+
+{% block button %}{% blocktrans %}HOME{% endblocktrans %}{% endblock %}

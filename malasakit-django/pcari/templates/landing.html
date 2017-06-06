@@ -1,5 +1,23 @@
+{% extends 'parent.html' %}
+
 {% load i18n %}
-{% load staticfiles %}
-<html>
-  <a href='/pcari/quantitative-questions/'>Begin survey</a>
-</html>
+{% load static %}
+
+{% block header %}MALASAKIT{% endblock %}
+
+{% block subtitle %}
+{% blocktrans %}How prepared are you in times of disaster?<br/>{{num_responses}} barangay citizens have responded. Join them!{% endblocktrans %}
+{% endblock %}
+
+{% block content %}
+<center><img src="{% static "img/landing1.jpg" %}" width=100%></center>
+<br/>
+{% endblock %}
+
+{% block link %}"{% url 'pcari:quantitative_questions'%}"{% endblock %}
+
+{% block button %}{% blocktrans %}BEGIN{% endblocktrans %}{% endblock %}
+
+{% block footnote %}
+{% blocktrans %}A project by the CITRIS Connected Communities Initiative at UC Berkeley and National University, Philippines through the Philippine-California Advanced Research Institutes Project.{% endblocktrans %}
+{% endblock %}

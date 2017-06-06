@@ -12,28 +12,11 @@ import time
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.decorators.http import require_GET, require_POST
 from django.utils import translation
+from django.urls import reverse
 import numpy as np
-
-"""
-from django.http import Http404
-from django.shortcuts import get_object_or_404, render, redirect
-from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, HttpResponseBadRequest
-from django.http import Http404, HttpResponseRedirect
-from django.shortcuts import render
-from django.core.urlresolvers import reverse
-from django.template import loader
-from django.views import generic
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login
-from django.utils import timezone
-from django.views.decorators.csrf import ensure_csrf_cookie
-from django.contrib.auth import logout
-from django.db import IntegrityError
-from django.contrib.auth import authenticate, login, logout
-"""
 
 # Local modules and models
 from .models import Respondent
@@ -231,5 +214,111 @@ def landing(request):
     return render(request, 'landing.html', {})
 
 
-def present_quantitative_questions(request):
-    return render(request, 'quantitative-questions.html', {})
+def index(request):
+    return redirect(reverse('pcari:landing'))
+
+
+def landing(request):
+    # for testing porpoises only # # # # # # # # # # # # # # # # # # # # # # #
+    user_language = 'tl' # 'en' or 'tl'
+    translation.activate(user_language)
+    request.session[translation.LANGUAGE_SESSION_KEY] = user_language
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    context = {'num_responses': str(Respondent.objects.count())}
+    return render(request, 'landing.html', context)
+
+
+def quantitative_questions(request):
+    questions = []
+    i = 1
+    for q in QuantitativeQuestion.objects.all():
+        questions.append([i, str(i) + ". " + q.prompt, q.left_text, q.right_text])
+        i += 1
+    context = {'questions': questions}
+    return render(request, 'quantitative_questions.html', context)
+
+
+def rate_suggestions(request):
+    ratings = [] # TODO (much the same as how quantitative_questions works)
+    context = {'ratings': ratings}
+    return render(request, 'rate_suggestions.html', context)
+
+
+def end(request):
+    return render(request, 'end.html')
+
+def create_user(request, is_new=1):
+    init_text_cookie(request)
+    #User Authentication
+
+
+    if is_new == 1:
+        uid = int(list(User.objects.all())[-1].username) + 1
+        new_user = User.objects.create_user('%d' % uid, '%d@example.com' % uid, '%d' % uid)
+        new_user.save()
+
+        user = authenticate(username=new_user.username, password=new_user.username)
+
+        login(request, user)
+
+        #Data Initialization
+        progression = UserProgression(user=user)
+        progression.landing = True
+        progression.save()
+
+        init_text_cookie(request)
+        TEXT = request.session['TEXT']
+        user_data = UserData(user=user, language=translate(TEXT['translate']))
+        user_data.save()
+    else:
+        user = request.user
+        user_data = UserData.objects.all().filter(user=user)[0]
+
+    # data = {
+ #        'is_taken': User.objects.filter(username__iexact=username).exists()
+ #    }
+    # print JsonResponse(context
+    user_data = UserData.objects.all().filter(user=request.user)[0]
+    request.session['TEXT'] = GeneralSetting.objects.all()[0].get_text(user_data.language)
+    TEXT = GeneralSetting.objects.all()[0].get_text(user_data.language)
+
+    init_question_cookie(request, user_data.language)
+    QUAN_QUESTIONS = request.session['QUESTION']
+    Q_COUNT = request.session['Q_COUNT']
+
+    q = QUAN_QUESTIONS[0]
+
+    question_of = TEXT['question_of'] % (QUAN_QUESTIONS.index(q)+1, Q_COUNT)
+
+    if q["qid"] == 5:
+        scale_description = "0 (less than one day) to 9 (or more)" if TEXT['translate'] == "Filipino" else "Mula 0 (mas mababa sa isang araw) hanggang 9 (o mas mataas pa)"
+    elif q["qid"] == 8:
+        scale_description = "0 (less than one week) to 9 (or more)" if TEXT['translate'] == "Filipino" else "Mula 0 (mas mababa sa isang linggo) hanggang 9 (o mas mataas pa)"
+    else:
+        scale_description = TEXT['scale_description']
+
+    context = {
+        'translate':TEXT['translate'],
+        'question_description':TEXT['question_description'],
+        'feedback_description':TEXT['feedback_description'],
+        'skip':TEXT['skip_button'],
+        'question_of':question_of,
+        'question': q["question"],# if TEXT['translate'] == "Filipino" else q.filipino_question,
+        'scale_description':TEXT['scale_description'],
+        'qid': q["qid"],
+        'rating':True
+    }
+
+    return render(request, 'rating.html', context)
+
+def rate(request, qid):
+    init_text_cookie(request)
+    user = request.user
+    if not user.is_authenticated():
+        return landing(request)
+
+    user_data = UserData.objects.all().filter(user=user)[0]
+
+    # print request.POST
+
+    init_question_cookie(request, user_data.language)

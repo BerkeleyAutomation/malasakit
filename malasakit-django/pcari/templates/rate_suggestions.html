@@ -1,0 +1,38 @@
+{% extends 'parent.html' %}
+
+{% load i18n %}
+{% load static %}
+
+{% block header %}{% blocktrans %}SUGGESTIONS{% endblocktrans %}{% endblock %}
+
+{% block subtitle %}
+{% blocktrans %}These are some suggestions made by other people living in barangays across the Phillippines. Read each one, and rate how helpful it is.{% endblocktrans %}
+{% endblock %}
+
+{% block content %}
+<!-- S1 -->
+<p class="q"><b>1. Suggestion 1</b></p>
+<span class="leftlabel">Very unhelpful.</span>
+<input type="range" value="0" min=1 max=10 />
+<span class="rightlabel">Very helpful.</span>
+
+<!-- S2 -->
+<p class="q"><b>2. Suggestion 2</b></p>
+<span class="leftlabel">Very unhelpful.</span>
+<input type="range" value="0" min=1 max=10 />
+<span class="rightlabel">Very helpful.</span>
+
+<!-- S3 -->
+<p class="q"><b>3. Suggestion 3</b></p>
+<span class="leftlabel">Very unhelpful.</span>
+<input type="range" value="0" min=1 max=10 />
+<span class="rightlabel">Very helpful.</span>
+
+<!-- User Suggestion -->
+<p class="q" qid="suggestion"><b>4. How could your barangay help you better prepare for a disaster?</b></p>
+<textarea name="suggestion" class="q" rows="5" cols="75" wrap="soft" style="border: 1px solid goldenrod; resize:none"></textarea>
+{% endblock %}
+
+{% block link %}"{% url 'pcari:end'%}"{% endblock %}
+
+{% block button %}{% blocktrans %}SUBMIT{% endblocktrans %}{% endblock %}
