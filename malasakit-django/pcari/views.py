@@ -84,6 +84,28 @@ def generate_quantitative_question_ratings_matrix():
     return question_ids, ratings_matrix
 
 
+def return_principal_components(n=2):
+    """
+    Calculates and returns the first n principal components of the quantitative
+    question ratings matrix.
+
+    Args:
+        n: number of principal components to return .
+
+    Returns:
+        A q x n Numpy matrix where q is number of questions. Each row is a
+        principal component.
+    """
+    qids, ratings = generate_quantitative_question_ratings_matrix() # dim r x q
+    # subtract means
+    means = np.nanmean(ratings, axis=1)
+    ratings = (ratings.T - means).T # broadcasting rules for numpy
+    ratings = np.nan_to_num(ratings) # replace unanswered questions with mean
+
+    U, s, VT = np.linalg.svd(ratings) # U is r x r, VT is q x q
+    return VT[:n,:] # return first n rows
+
+
 def select_comments(respondent, threshold=10):
     """
     TODO: finalize an algorithm for doing this (discuss) [PCA?]
