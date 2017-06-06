@@ -214,6 +214,7 @@ def save_response(request):
         for model_generator in model_generator_functions:
             model_instances.extend(model_generator(respondent, responses))
     except (KeyError, ValueError, ObjectDoesNotExist) as error:
+        respondent.delete()
         return HttpResponseBadRequest(str(error))
 
     for instance in model_instances:

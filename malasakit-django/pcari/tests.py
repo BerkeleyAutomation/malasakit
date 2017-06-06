@@ -46,7 +46,7 @@ class UserFeedbackTestCase(TestCase):
         self.assertEqual(Comment.objects.get(id=2).word_count, 2)
 
 
-class DataSaveTestCase(TestCase):
+class ResponseSaveTestCase(TestCase):
     fixtures = ['questions.yaml']
 
     def setUp(self):
@@ -72,6 +72,8 @@ class DataSaveTestCase(TestCase):
         comment = Comment(respondent=respondent, question_id=1,
                           message='hello world', language='ENG')
         comment.save()
+
+        self.assertEqual(QuantitativeQuestionRating.objects.count(), 0)
 
         http_response = self.push({
             'quantitative-question-ratings': [
@@ -102,3 +104,16 @@ class DataSaveTestCase(TestCase):
         self.assertEqual(Comment.objects.count(), 2)
         self.assertEqual(CommentRating.objects.count(), 1)
         self.assertEqual(Respondent.objects.count(), 2)
+
+        self.assertEqual(Comment.objects.last().message, 'hello world')
+
+    def test_invalid_data_save(self):
+        http_response = self.push({
+            'quantitative-question-ratings': [
+                {}
+            ]
+        })
+
+        self.assertEqual(http_response.status_code, 400)
+        self.assertEqual(QuantitativeQuestionRating.objects.count(), 0)
+        self.assertEqual(Respondent.objects.count(), 0)
