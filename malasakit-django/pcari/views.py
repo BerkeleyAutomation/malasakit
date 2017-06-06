@@ -127,7 +127,8 @@ def make_quantitative_question_ratings(respondent, responses):
 def make_comments(respondent, responses):
     for comment_object in responses.get('comments', []):
         question = QualitativeQuestion(id=comment_object['question-id'])
-        yield Comment(question=question, language=respondent.language,
+        yield Comment(respondent=respondent, question=question,
+                      language=respondent.language,
                       message=comment_object['message'])
 
 
@@ -140,7 +141,8 @@ def make_comment_ratings(respondent, responses):
 
 def make_respondent_data(respondent, responses):
     respondent_data = responses.get('respondent-data', {})
-    attributes = 'age', 'gender', 'location', 'submitted_personal_data', 'completed_survey'
+    attributes = ['age', 'gender', 'location', 'language',
+                  'submitted_personal_data', 'completed_survey']
     for attribute in attributes:
         serialized_name = attribute.replace('_', '-')
         if serialized_name in respondent_data:
@@ -212,7 +214,6 @@ def save_response(request):
         for model_generator in model_generator_functions:
             model_instances.extend(model_generator(respondent, responses))
     except (KeyError, ValueError, ObjectDoesNotExist) as error:
-        respondent.delete()
         return HttpResponseBadRequest(str(error))
 
     for instance in model_instances:

@@ -1,8 +1,9 @@
 from __future__ import unicode_literals
+import json
 import random
 
 from django.db import IntegrityError
-from django.test import TestCase
+from django.test import TestCase, Client
 
 from .models import Respondent
 from .models import QuantitativeQuestion, QualitativeQuestion
@@ -10,32 +11,11 @@ from .models import Comment, QuantitativeQuestionRating, CommentRating
 
 
 class UserFeedbackTestCase(TestCase):
+    fixtures = ['questions.yaml', 'user-generated.yaml']
+
     def setUp(self):
-        self.quant_question = QuantitativeQuestion(
-            prompt='What number am I thinking of?',
-            tag='test-quant-question'
-        )
-        self.qual_question = QualitativeQuestion(
-            prompt='List a palindrome.',
-            tag='test-qual-question'
-        )
-
-        self.quant_question.save()
-        self.qual_question.save()
-
-        quant_question_scores = [3, 0, 1, QuantitativeQuestionRating.NOT_RATED,
-                                 QuantitativeQuestionRating.SKIPPED]
-        for score in quant_question_scores:
-            respondent = Respondent()
-            respondent.save()
-            QuantitativeQuestionRating(respondent=respondent, score=score,
-                                       question=self.quant_question).save()
-
-        for key, comment in enumerate(['bob', 'race car']):
-            respondent = Respondent()
-            respondent.save()
-            Comment(id=key, respondent=respondent, question=self.qual_question,
-                    language='ENG', message=comment).save()
+        self.quant_question = QuantitativeQuestion.objects.first()
+        self.qual_question = QualitativeQuestion.objects.first()
 
     def test_quantitative_question_statistics(self):
         self.assertEqual(self.quant_question.num_ratings, 3)
@@ -53,7 +33,7 @@ class UserFeedbackTestCase(TestCase):
         timestamps = [rating.timestamp for rating in
                       QuantitativeQuestionRating.objects.all()]
         for first, second in zip(timestamps[:-1], timestamps[1:]):
-            self.assertLess(first, second)
+            self.assertLessEqual(first, second)
 
     def test_comment_retrieval(self):
         comments = self.qual_question.comments
@@ -62,5 +42,63 @@ class UserFeedbackTestCase(TestCase):
         self.assertEqual(messages, ['bob', 'race car'])
 
     def test_comment_word_count(self):
-        self.assertEqual(Comment.objects.get(id=0).word_count, 1)
-        self.assertEqual(Comment.objects.get(id=1).word_count, 2)
+        self.assertEqual(Comment.objects.get(id=1).word_count, 1)
+        self.assertEqual(Comment.objects.get(id=2).word_count, 2)
+
+
+class DataSaveTestCase(TestCase):
+    fixtures = ['questions.yaml']
+
+    def setUp(self):
+        self.client = Client()
+
+    def push(self, responses):
+        http_response = self.client.post('/pcari/save-response',
+                                         data=json.dumps(responses),
+                                         content_type='application/json')
+        return http_response
+
+    def test_empty_save(self):
+        self.push({})
+        self.assertEqual(QuantitativeQuestionRating.objects.count(), 0)
+        self.assertEqual(Comment.objects.count(), 0)
+        self.assertEqual(CommentRating.objects.count(), 0)
+        self.assertEqual(Respondent.objects.count(), 1)
+
+    def test_valid_data_save(self):
+        respondent = Respondent(id=100)
+        respondent.save()
+
+        comment = Comment(respondent=respondent, question_id=1,
+                          message='hello world', language='ENG')
+        comment.save()
+
+        http_response = self.push({
+            'quantitative-question-ratings': [
+                {
+                    'question-id': 1,
+                    'score': 4
+                }
+            ],
+            'comments': [
+                {
+                    'question-id': 1,
+                    'message': 'hello world'
+                }
+            ],
+            'comment-ratings': [
+                {
+                    'comment-id': comment.id,
+                    'score': 2
+                }
+            ],
+            'respondent-data': {
+                'language': 'FIL'
+            }
+        })
+
+        self.assertEqual(http_response.status_code, 200)
+        self.assertEqual(QuantitativeQuestionRating.objects.count(), 1)
+        self.assertEqual(Comment.objects.count(), 2)
+        self.assertEqual(CommentRating.objects.count(), 1)
+        self.assertEqual(Respondent.objects.count(), 2)
