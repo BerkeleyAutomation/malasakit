@@ -19,9 +19,7 @@ def landing(request):
     translation.activate(user_language)
     request.session[translation.LANGUAGE_SESSION_KEY] = user_language
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-    context = {
-        'num_responses': str(Respondent.objects.count())
-    }
+    context = {'num_responses': str(Respondent.objects.count())}
     return render(request, 'landing.html', context)
 
 
@@ -29,17 +27,15 @@ def quantitative_questions(request):
     questions = []
     i = 1
     for q in QuantitativeQuestion.objects.all():
-        questions.append([str(i) + ". " + q.prompt, q.left_text, q.right_text])
+        questions.append([i, str(i) + ". " + q.prompt, q.left_text, q.right_text])
         i += 1
-    context = {
-        'questions': questions
-    }
+    context = {'questions': questions}
     return render(request, 'quantitative_questions.html', context)
 
 
 def rate_suggestions(request):
-    context = { # TODO (much the same as how quantitative_questions works)
-    }
+    ratings = [] # TODO (much the same as how quantitative_questions works)
+    context = {'ratings': ratings}
     return render(request, 'rate_suggestions.html', context)
 
 
