@@ -231,6 +231,10 @@ class Question(models.Model):
     A `Question` models a prompt presented to the user that requires a
     response.
 
+    Note that question prompts and other text needed to render a question will
+    not be detected by Django's `makemessages` utility. The translation entries
+    will need to be created manually.
+
     Attributes:
         prompt: The prompt in the primary language of the application.
         tag: A short string that summarizes the prompt.
@@ -262,6 +266,10 @@ class QualitativeQuestion(Question):
 class QuantitativeQuestion(Question):
     """
     A `QuantitativeQuestion` is a `Question` that asks for a numeric rating.
+
+    Attributes:
+        left_text: The text that is rendered on the left end of the slider.
+        right_text: The text that is rendered on the right end of the slider.
     """
     left_text = models.TextField(blank=True)
     right_text = models.TextField(blank=True)

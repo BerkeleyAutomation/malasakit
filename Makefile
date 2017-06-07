@@ -3,7 +3,7 @@
 DJANGO_PROJECT_ROOT=malasakit-django
 LINT_CMD=pylint
 LINT_OPTIONS=--output-format=colorized --rcfile=.pylintrc
-LINT_TARGETS=pcari/models.py
+LINT_TARGETS=pcari/models.py pcari/urls.py
 
 all: lint test
 
