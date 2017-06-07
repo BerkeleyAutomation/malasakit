@@ -5,7 +5,7 @@
 function main() {
     if ("serviceWorker" in navigator) {
         // TODO: Address hardcoded urls
-        navigator.serviceWorker.register('/pcari/static/js/sw.js')
+        navigator.serviceWorker.register('/pcari/sw.js')
             .then(function(registration) {
             // Registration successful
             console.log("Registration successful, SW scope: ",
