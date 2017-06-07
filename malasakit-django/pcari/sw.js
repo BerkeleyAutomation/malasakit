@@ -25,6 +25,16 @@ function fetchEvent(event) {
     event.respondWith(
         caches.match(event.request)
             .then(function(response) {
+                console.log("Received request for url:");
+                console.log(event.request.url);
+
+                caches.open(CACHE_NAME).then(function(cache) {
+                    cache.keys().then(function (keys) {
+                        console.log("Urls in cache:");
+                        console.log(keys);
+                    })
+                });
+
                 if (response) {
                     console.log('found response in cache');
                     return response;
