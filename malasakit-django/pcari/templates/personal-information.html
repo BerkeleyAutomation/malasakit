@@ -29,12 +29,26 @@
       </td>
     </tr>
     <tr>
-      <td>{% trans 'Barangay' %}</td>
       <td>
-        <select name="barangay">
-          <option selected>{% trans 'Select barangay' %}</option>
+        {% trans 'Province' %}
+      </td>
+      <td>
+        <select name="province">
+          <option selected>{% trans 'Select province' %}</option>
+          {% for code, name in province_names %}
+            <option value="{{ code }}">{{ name }}</option>
+          {% endfor %}
         </select>
       </td>
     </tr>
+    <tr>
+      <td>{% trans 'Barangay' %}</td>
+      <td>
+        <input name="barangay">
+      </td>
+    </tr>
   </table>
+  <div class="nav-button">
+    <a href="{% url 'pcari:quantitative-questions' %}">{% trans 'Next' %}</a>
+  </div>
 {% endblock %}

@@ -13,7 +13,9 @@ urlpatterns = [
         name='quantitative-questions'),
     url(r'^response-histograms', views.response_histograms,
         name='response-histograms'),
-    # url(r'^rate_suggestions', views.rate_suggestions, name='rate_suggestions'),
+    url(r'^rate-comments', views.rate_comments, name='rate-comments'),
+    url(r'^qualitative-questions', views.qualitative_questions,
+        name='qualitative-questions'),
     url(r'^end', views.end, name='end'),
 
     # AJAX endpoints

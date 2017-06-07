@@ -9,6 +9,7 @@ import random
 import time
 
 # Third-party libraries
+from django.apps import apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
@@ -232,7 +233,10 @@ def landing(request):
 
 
 def personal_information(request):
-    return render(request, 'personal-information.html')
+    config = apps.get_app_config('pcari')
+    context = {'province_names': [(province_name['code'], province_name['name'])
+                                  for province_name in config.province_names]}
+    return render(request, 'personal-information.html', context)
 
 
 def quantitative_questions(request):
@@ -249,10 +253,14 @@ def response_histograms(request):
     pass
 
 
-def rate_suggestions(request):
+def rate_comments(request):
     ratings = [] # TODO (much the same as how quantitative_questions works)
     context = {'ratings': ratings}
     return render(request, 'rate_suggestions.html', context)
+
+
+def qualitative_questions(request):
+    pass
 
 
 def end(request):

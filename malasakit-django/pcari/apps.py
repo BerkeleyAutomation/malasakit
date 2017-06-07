@@ -1,14 +1,17 @@
 from __future__ import unicode_literals
 import logging
+import os
 import sys
 
 from django.apps import AppConfig
+from django.conf import settings
+import yaml
 
 
 class PCARIConfig(AppConfig):
     name = 'pcari'
 
-    def ready(self):
+    def initialize_logger(self):
         logger = logging.getLogger(self.name)
         logger.setLevel(logging.DEBUG)
 
@@ -20,3 +23,21 @@ class PCARIConfig(AppConfig):
         logger.addHandler(console_handler)
 
         logger.log(logging.INFO, 'Logging initialized')
+
+    def read_province_names(self):
+        logger = logging.getLogger(self.name)
+        path = os.path.join(settings.BASE_DIR, PCARIConfig.name,
+                            'config', 'province-names.yaml')
+
+        if os.path.exists(path):
+            with open(path) as names_file:
+                self.province_names = yaml.load(names_file)
+                logger.log(logging.INFO, 'Successfully loaded province names')
+        else:
+            self.province_names = []
+            logger.log(logging.WARNING,
+                       'Could not find province names file at: ' + path)
+
+    def ready(self):
+        self.initialize_logger()
+        self.read_province_names()
