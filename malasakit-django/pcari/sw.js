@@ -6,7 +6,10 @@
 var CACHE_NAME = 'malasakit-cache';
 var urlsToCache = [
     '/pcari/landing',
-    '/pcari/static/img/landing1.jpg' // TODO: Fix hardcoded url issue
+    '/pcari/static/img/landing1.jpg', // TODO: Fix hardcoded url issue
+    '/pcari/quantitative_questions',
+    '/pcari/rate_suggestions',
+    '/pcari/end'
 ];
 
 function installEvent(event) {
@@ -30,8 +33,8 @@ function fetchEvent(event) {
 
                 caches.open(CACHE_NAME).then(function(cache) {
                     cache.keys().then(function (keys) {
-                        console.log("Urls in cache:");
-                        console.log(keys);
+                        // console.log("Urls in cache:");
+                        // console.log(keys);
                     })
                 });
 
