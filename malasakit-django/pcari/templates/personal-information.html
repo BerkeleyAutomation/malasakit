@@ -7,7 +7,7 @@
 {% block main-heading %}{% trans 'Personal Information' %}{% endblock %}
 
 {% block content %}
-  <p id="privacy-disclaimer">
+  <p id="privacy-notice">
     {% blocktrans %}
       All questions on this page are strictly optional.
       Your responses will be anonymous.
@@ -29,9 +29,7 @@
       </td>
     </tr>
     <tr>
-      <td>
-        {% trans 'Province' %}
-      </td>
+      <td>{% trans 'Province' %}</td>
       <td>
         <select name="province">
           <option selected>{% trans 'Select province' %}</option>

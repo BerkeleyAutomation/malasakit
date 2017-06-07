@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load static %}
+
+{% block title %}Malasakit &bullet; Quantitative Questions{% endblock %}
+{% block main-heading %}Quantitative Questions{% endblock %}
+
+{% block content %}
+  <ol>
+    {% for qid, prompt, left_text, right_text in questions %}
+      <li>
+        <p class="prompt">{{ prompt }}</p>
+        <span class="leftlabel">{{ left_text }}</span>
+        <input name="{{ qid }}" type="range" value="5" min="1" max="10">
+        <span class="rightlabel">{{ right_text }}</span>
+      </li>
+    {% endfor %}
+  </ol>
+  <div class="nav-button">
+    <a href="{% url 'pcari:response-histograms' %}">{% trans 'Next' %}</a>
+  </div>
+{% endblock %}

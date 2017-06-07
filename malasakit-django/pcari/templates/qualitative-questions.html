@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load static %}
+
+{% block title %}Malasakit &bullet; Qualitative Questions{% endblock %}
+{% block main-heading %}Qualitative Questions{% endblock %}
+
+{% block content %}
+  <ol>
+    {% for qid, prompt in questions %}
+      <li>
+        <p class="prompt">{{ prompt }}</p>
+      </li>
+    {% endfor %}
+  </ol>
+  <div class="nav-button">
+    <a href="{% url 'pcari:end' %}">{% trans 'Next' %}</a>
+  </div>
+{% endblock %}

@@ -240,27 +240,28 @@ def personal_information(request):
 
 
 def quantitative_questions(request):
-    questions = []
-    i = 1
-    for q in QuantitativeQuestion.objects.all():
-        questions.append([i, str(i) + ". " + q.prompt, q.left_text, q.right_text])
-        i += 1
-    context = {'questions': questions}
-    return render(request, 'quantitative_questions.html', context)
+    questions = QuantitativeQuestion.objects.all()
+    question_text = [(question.id, question.prompt, question.left_text,
+                      question.right_text) for question in questions]
+    context = {'questions': question_text}
+    return render(request, 'quantitative-questions.html', context)
 
 
 def response_histograms(request):
-    pass
+    return render(request, 'response-histograms.html')
 
 
 def rate_comments(request):
     ratings = [] # TODO (much the same as how quantitative_questions works)
     context = {'ratings': ratings}
-    return render(request, 'rate_suggestions.html', context)
+    return render(request, 'rate-comments.html', context)
 
 
 def qualitative_questions(request):
-    pass
+    questions = QualitativeQuestion.objects.all()
+    question_text = [(question.id, question.prompt) for question in questions]
+    context = {'questions': question_text}
+    return render(request, 'qualitative-questions.html', context)
 
 
 def end(request):
