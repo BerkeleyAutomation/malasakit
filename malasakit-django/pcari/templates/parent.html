@@ -1,18 +1,20 @@
+{% load static %}
 <link rel="stylesheet/less" type="text/css" href="styles.less" />
-<script src="less.js" type="text/javascript"></script>
+<!-- <script src="less.js" type="text/javascript"></script> -->
 <html>
-    
+
     <head>
-        
+
         <!-- Format -->
         <title>Malasakit</title>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet" />
+        <script src="{% static 'js/loader.js' %}"></script>
         <style>
 
             .a:link, a:visited, a:hover, a:active {color: black;}
-    
+
             .header {
                 font-size: 250%;
                 margin-bottom: 0;
@@ -178,13 +180,13 @@
             }
 
         </style>
-        
+
     </head>
-    
+
     <body class="body">
-        
+
         <div class="questions">
-            
+
             <!-- Header -->
             <center><p class="header"><u>{% block header %}{% endblock %}</u></p></center>
             <p class="subtitle">{% block subtitle %}{% endblock %}</p>
@@ -196,12 +198,12 @@
             <br/>
             <center><a href={% block link %}{% endblock %}><button class="button">{% block button %}{% endblock %}</button></a></center>
             <br/>
-            
+
             <!-- Footnote -->
             <center><p class="footnote">{% block footnote %}{% endblock %}</p><center>
-            
+
         </div>
-        
+
     </body>
-    
+
 </html>
