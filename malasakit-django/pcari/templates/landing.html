@@ -7,7 +7,7 @@
 
 {% block content %}
   <p>
-    {% blocktrans %}
+    {% blocktrans trimmed %}
       How prepared are you in times of disaster?
       {{ num_responses }} barangay citizens have responded.
       Join them!
@@ -15,6 +15,6 @@
   </p>
   <img src="{% static 'img/landing1.jpg' %}">
   <div class="nav-button">
-    <a href="{% url 'pcari:personal-information' %}">Begin</a>
+    <a href="{% url 'pcari:personal-information' %}">{% trans 'Begin' %}</a>
   </div>
 {% endblock %}

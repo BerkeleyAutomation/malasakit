@@ -176,10 +176,45 @@ hr {
 
 .container {
   max-width: 960px;
-  padding: 0.5rem;
   margin: 0 auto;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 
 table {
   margin: 0 auto;
+}
+
+.comment {
+  width: 90%;
+  height: 10rem;
+}
+
+body {
+  margin: 0;
+}
+
+nav {
+  background-color: black;
+  color: white;
+}
+
+#languages {
+  list-style: none;
+  padding: 0.5rem 0;
+  margin: 0;
+}
+
+#languages > li {
+  display: inline-block;
+  margin-right: 1rem;
+}
+
+#languages > li > a {
+  color: #a0a0a0;
+  text-decoration: none;
+}
+
+#languages > li > a:hover {
+  color: white;
 }

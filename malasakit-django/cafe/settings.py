@@ -111,7 +111,7 @@ HTML_MINIFY = False
 
 LANGUAGES = (
     ('en', _('English')),
-    ('tl', _('Filipino'))
+    ('tl', _('Filipino')),
 )
 
 LOCALE_PATHS = (
@@ -121,7 +121,7 @@ LOCALE_PATHS = (
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en'
 
 TIME_ZONE = 'UTC'
 

@@ -224,14 +224,13 @@ def index(request):
     return redirect(reverse('pcari:landing'))
 
 
-# @language_selectable
+@language_selectable
 def landing(request):
-    translation.activate('tl')
-    request.session[translation.LANGUAGE_SESSION_KEY] = 'tl'
     context = {'num_responses': Respondent.objects.count()}
     return render(request, 'landing.html', context)
 
 
+@language_selectable
 def personal_information(request):
     config = apps.get_app_config('pcari')
     context = {'province_names': [(province_name['code'], province_name['name'])
@@ -239,6 +238,7 @@ def personal_information(request):
     return render(request, 'personal-information.html', context)
 
 
+@language_selectable
 def quantitative_questions(request):
     questions = QuantitativeQuestion.objects.all()
     question_text = [(question.id, question.prompt, question.left_text,
@@ -247,16 +247,19 @@ def quantitative_questions(request):
     return render(request, 'quantitative-questions.html', context)
 
 
+@language_selectable
 def response_histograms(request):
     return render(request, 'response-histograms.html')
 
 
+@language_selectable
 def rate_comments(request):
     ratings = [] # TODO (much the same as how quantitative_questions works)
     context = {'ratings': ratings}
     return render(request, 'rate-comments.html', context)
 
 
+@language_selectable
 def qualitative_questions(request):
     questions = QualitativeQuestion.objects.all()
     question_text = [(question.id, question.prompt) for question in questions]
@@ -264,5 +267,6 @@ def qualitative_questions(request):
     return render(request, 'qualitative-questions.html', context)
 
 
+@language_selectable
 def end(request):
     return render(request, 'end.html')
