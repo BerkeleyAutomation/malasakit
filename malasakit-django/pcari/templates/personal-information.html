@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load static %}
+
+{% block title %}Malasakit &bullet; {% trans 'Personal Information' %}{% endblock %}
+{% block main-heading %}{% trans 'Personal Information' %}{% endblock %}
+
+{% block content %}
+  <p id="privacy-disclaimer">
+    {% blocktrans %}
+      All questions on this page are strictly optional.
+      Your responses will be anonymous.
+    {% endblocktrans %}
+  </p>
+  <table>
+    <tr>
+      <td>{% trans 'Age' %}</td>
+      <td><input type="number" name="age" min="1" max="120"></td>
+    </tr>
+    <tr>
+      <td>{% trans 'Gender' %}</td>
+      <td>
+        <select name="gender">
+          <option selected>{% trans 'Select gender' %}</option>
+          <option value="M">{% trans 'Male' %}</option>
+          <option value="F">{% trans 'Female' %}</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td>{% trans 'Barangay' %}</td>
+      <td>
+        <select name="barangay">
+          <option selected>{% trans 'Select barangay' %}</option>
+        </select>
+      </td>
+    </tr>
+  </table>
+{% endblock %}

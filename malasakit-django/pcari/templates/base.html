@@ -12,24 +12,27 @@
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
 
-    <title>Malasakit</title>
+    <title>{% block title %}Malasakit{% endblock %}</title>
   </head>
-  <body>
-    <div class="questions">
-      <!-- Header -->
-      <center><p class="header"><u>{% block header %}{% endblock %}</u></p></center>
-      <p class="subtitle">{% block subtitle %}{% endblock %}</p>
-
-      <!-- Content -->
-      {% block content %}{% endblock %}
-
-      <!-- Button -->
-      <br/>
-      <center><a href={% block link %}{% endblock %}><button class="button">{% block button %}{% endblock %}</button></a></center>
-      <br/>
-
-      <!-- Footnote -->
-      <center><p class="footnote">{% block footnote %}{% endblock %}</p><center>
-    </div>
+  <body class='container'>
+    <header>
+      <h1 id="main-heading">{% block main-heading %}Malasakit{% endblock %}</h1>
+    </header>
+    <main>
+      {% block content %}
+      {% endblock %}
+    </main>
+    <footer>
+      <hr>
+      <p id="footnote">
+        {% block footnote %}
+          {% blocktrans %}
+            A project by the CITRIS Connected Communities Initiative at
+            UC Berkeley and National University, Philippines through the
+            Philippine-California Advanced Research Institutes Project.
+          {% endblocktrans %}
+        {% endblock footnote %}
+      </div>
+    </footer>
   </body>
 </html>

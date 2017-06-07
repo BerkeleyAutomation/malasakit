@@ -227,8 +227,12 @@ def index(request):
 def landing(request):
     translation.activate('tl')
     request.session[translation.LANGUAGE_SESSION_KEY] = 'tl'
-    context = {'num_responses': str(Respondent.objects.count())}
+    context = {'num_responses': Respondent.objects.count()}
     return render(request, 'landing.html', context)
+
+
+def personal_information(request):
+    return render(request, 'personal-information.html')
 
 
 def quantitative_questions(request):
@@ -239,6 +243,10 @@ def quantitative_questions(request):
         i += 1
     context = {'questions': questions}
     return render(request, 'quantitative_questions.html', context)
+
+
+def response_histograms(request):
+    pass
 
 
 def rate_suggestions(request):

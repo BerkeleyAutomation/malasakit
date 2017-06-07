@@ -1,23 +1,20 @@
-{% extends 'parent.html' %}
+{% extends 'base.html' %}
 
 {% load i18n %}
 {% load static %}
 
-{% block header %}MALASAKIT{% endblock %}
-
-{% block subtitle %}
-{% blocktrans %}How prepared are you in times of disaster?<br/>{{num_responses}} barangay citizens have responded. Join them!{% endblocktrans %}
-{% endblock %}
+{% block main-heading %}Malasakit{% endblock %}
 
 {% block content %}
-<center><img src="{% static "img/landing1.jpg" %}" width=100%></center>
-<br/>
-{% endblock %}
-
-{% block link %}"{% url 'pcari:quantitative_questions'%}"{% endblock %}
-
-{% block button %}{% blocktrans %}BEGIN{% endblocktrans %}{% endblock %}
-
-{% block footnote %}
-{% blocktrans %}A project by the CITRIS Connected Communities Initiative at UC Berkeley and National University, Philippines through the Philippine-California Advanced Research Institutes Project.{% endblocktrans %}
+  <p>
+    {% blocktrans %}
+      How prepared are you in times of disaster?
+      {{ num_responses }} barangay citizens have responded.
+      Join them!
+    {% endblocktrans %}
+  </p>
+  <img src="{% static 'img/landing1.jpg' %}">
+  <div class="nav-button">
+    <a href="{% url 'pcari:personal-information' %}">Begin</a>
+  </div>
 {% endblock %}

@@ -1,35 +1,16 @@
-.a:link, a:visited, a:hover, a:active {color: black;}
+/* */
 
-.header {
-    font-size: 250%;
-    margin-bottom: 0;
-    font-family: 'Quicksand',sans-serif;
+* {
+  font-family: 'Quicksand', sans-serif;
 }
 
-.subtitle {
-    font-size: medium;
-    font-family: 'Quicksand',sans-serif;
-    text-align: center;
-}
-
-.footnote {
-    font-size:x-small;
-    font-family:'Quicksand',sans-serif;
-}
-
-.q {
-    font-size: medium;
-    font-family: 'Quicksand',sans-serif;
-}
-
-.styled-select {
-    width: 240px;
-    height: 34px;
+select {
+    width: 110%;
+    height: 35px;
     overflow: hidden;
     background: solid white;
     border: 1px solid goldenrod;
     font-size: medium;
-    font-family: 'Quicksand',sans-serif;
 }
 
 .leftlabel, .rightlabel {
@@ -136,30 +117,65 @@ input[type=range]:focus::-ms-fill-upper {
     background: #ccc;
 }
 
-.button {
-    display: inline-box;
-    background-color: white;
-    color: goldenrod;
-    padding: 16px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
-    -webkit-transition-duration: 0.4s;
-    transition-duration: 0.4s;
-    cursor: pointer;
-    border: 2px solid black;
+#main-heading {
+  text-decoration: underline;
+  text-align: center;
 }
 
-.button:hover {
-    background-color: goldenrod;
-    color: black;
+#footnote {
+  font-size: 0.7rem;
 }
 
-body {
-    width: 70%;
-    margin-left: auto;
-    margin-right: auto;
-    position: relative;
+#privacy-disclaimer {
+  font-weight: 800;
+}
+
+/* Navigation button style */
+
+.nav-button {
+  display: table;
+  padding: 0.5rem 1rem;
+  margin: 1rem auto;
+  border: 1px solid black;
+  -webkit-transition-duration: 0.4s;
+  transition-duration: 0.4s;
+}
+
+.nav-button:hover {
+  background-color: goldenrod;
+}
+
+.nav-button > a {
+  text-decoration: none;
+  font-size: 1.5rem;
+  color: black;
+}
+
+.nav-button > a:visited {
+  color: black;
+}
+
+.nav-button:hover > a {
+  color: white;
+}
+
+/* Content components */
+
+img {
+  display: block;
+  width: 100%;
+  margin: 0 auto;
+}
+
+hr {
+  margin: 0.5rem 0;
+  border: none;
+  min-height: 1px;
+  background-color: #e0e0e0;
+}
+
+.container {
+  max-width: 960px;
+  padding: 0.5rem;
+  margin: 0 auto;
 }

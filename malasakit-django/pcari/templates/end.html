@@ -1,16 +1,17 @@
-{% extends 'parent.html' %}
+{% extends 'base.html' %}
 
 {% load i18n %}
 {% load static %}
 
-{% block header %}
-  {% trans 'Thank you' %}
+{% block main-heading %}
+  {% trans 'Thank You' %}
 {% endblock %}
 
-{% block subtitle %}
-  {% trans 'We appreciate your participation in the Malasakit program.' %}
+{% block content %}
+  <p>
+    {% trans 'We appreciate your participation in the Malasakit program.' %}
+  </p>
+  <div class="nav-button">
+    <a href="{% url 'pcari:landing' %}">{% trans 'Finish' %}</a>
+  </div>
 {% endblock %}
-
-{% block link %}"{% url 'pcari:landing'%}"{% endblock %}
-
-{% block button %}{% blocktrans %}HOME{% endblocktrans %}{% endblock %}
