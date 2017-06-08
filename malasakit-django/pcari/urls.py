@@ -1,21 +1,15 @@
 from django.conf.urls import url
+from django.conf.urls.static import static
 
 from . import views
 
+import os
+
 app_name = 'pcari'
-urlpatterns = [ 
-    url(r'^$', views.landing, name='landing'),
-    url(r'^questions/$', views.create_user, name='create_user'),
-    url(r'^questions/(?P<is_new>[0-9]+)/$', views.create_user, name='create_user'),
-    url(r'^comparison/(?P<qid>[0-9]+)/$', views.rate, name='rate'),
-    url(r'^review/$', views.review, name='review'),
-    url(r'^peerevaluation/$', views.bloom, name='bloom'),
-    url(r'^rate/(?P<cid>[0-9]+)/$', views.get_comment, name='get_comment'),
-    url(r'^bloom/(?P<cid>[0-9]+)/$', views.rate_comment, name='rate_comment'),
-    url(r'^comment/$', views.comment, name='comment'),
-    url(r'^help/$', views.help, name='help'),
-    url(r'^switch/$', views.switch_language, name='switch_language'),
-    url(r'^personal/$', views.switch_language, name='personal'),
-    url(r'^about/$', views.about, name='about'),
-    url(r'^logout/$', views.logout_view, name='logout')
-]
+urlpatterns = [
+    url(r'^landing', views.landing, name='landing'),
+    url(r'^quantitative_questions', views.quantitative_questions,
+        name='quantitative_questions'),
+    url(r'^rate_suggestions', views.rate_suggestions, name='rate_suggestions'),
+    url(r'^end', views.end, name='end')
+] + static('/', document_root=os.path.join(os.getcwd(), 'pcari'))

@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 import random
 
 from django.db import IntegrityError
+from django.test import Client
 from django.test import TestCase
 
 from .models import Respondent
@@ -64,3 +65,48 @@ class UserFeedbackTestCase(TestCase):
     def test_comment_word_count(self):
         self.assertEqual(Comment.objects.get(id=0).word_count, 1)
         self.assertEqual(Comment.objects.get(id=1).word_count, 2)
+
+
+class ViewTestCase(TestCase):
+    """Test case for methods in views.py.
+
+    Simple sanity checks for some of the methods for now while I'm refactoring.
+    If we decide we want to keep it then we can add more tests later.
+    """
+    def setUp(self):
+        """Setup- throw in some dummy questions
+        TODO: Per Jon's reccomendation, figure out how to keep the dummy db for
+        all tests (address if tests take painfully long)
+        """
+        self.client = Client()
+        self.quant_question = QuantitativeQuestion(
+            prompt='What number am I thinking of?',
+            tag='test-quant-question'
+        )
+        self.qual_question = QualitativeQuestion(
+            prompt='List a palindrome.',
+            tag='test-qual-question'
+        )
+
+        self.quant_question.save()
+        self.qual_question.save()
+
+    def test_get_question_ids(self):
+        """Expecting a dict with key 'qids', value is a list of numbers. In this
+        case the list should be length 1.
+        """
+        response = self.client.get('/pcari/get-question-ids/')
+        self.assertEqual(len(response.json()['qids']), 1)
+
+    def test_get_question(self):
+        """Expecting a dict with keys 'qid' and 'question', values are an int
+        and the text of the question respectively"""
+        response = self.client.get('/pcari/get-question/1/')
+        question = QuantitativeQuestion.objects.get(id=1)
+        self.assertEqual(response.json()['qid'], question.id)
+        self.assertEqual(response.json()['question'], question.prompt)
+
+    def test_get_question_no_exist(self):
+        """Expecting a 404 error because the question does not exist!"""
+        response = self.client.get('/pcari/get-question/2/')
+        self.assertEqual(response.status_code, 404)

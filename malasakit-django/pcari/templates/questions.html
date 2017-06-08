@@ -1,0 +1,31 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    
+    <!-- Social media stuff -->
+    <meta property="og:title" content="California Report Card">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="{% static 'img/cafe/cafe6.png' %}">
+    <meta property="og:url" content="{{ url_root }}/">
+    <meta property="og:description" content="The California Report Card allows visitors to grade issues facing California and to suggest issues for future report cards.">
+    
+    <!-- Static resources -->
+    <link rel="stylesheet" type="text/css" href="{% static 'opinionspace.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'crc-transparent-slider.css' %}">
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Open+Sans">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="{% static 'accounts.js' %}"></script>
+    <script src="{% static 'questions.js' %}"></script>
+    
+    <title>PCARI</title>
+  </head>
+  <body>
+    <!-- TODO: Incorporate Sequoia's UI changes here; this is merely a prototype -->
+    <div id='question'></div>
+    <input id='answer' type='range' min='1' max='5' step='1' value='3'>
+    <button id='submit'>Submit Answer</button>
+    <button id='skip'>Skip</button>
+  </body>
+</html>

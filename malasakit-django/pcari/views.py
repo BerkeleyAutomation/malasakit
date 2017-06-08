@@ -1,140 +1,85 @@
 import random
-
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.template import loader
-# from pcari.models import  QuantitativeQuestion, QualitativeQuestion, Rating, UserProgression, Comment, CommentRating, GeneralSetting, UserData
+from pcari.models import QualitativeQuestion, QuantitativeQuestion
+from pcari.models import Comment, QuantitativeQuestionRating, CommentRating
+from pcari.models import Respondent
 from django.views import generic
+from django.utils import translation
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
-
 from django.utils.datastructures import MultiValueDictKeyError
 
-# !IMPORTANT! YOU MUST COMMENT OUT THE FOLLOWING GLOBAL VARIABLES
-# IF YOU MAKE CHANGES TO models.py
-# QUAN_QUESTIONS = list(QuantitativeQuestion.objects.all())
-# QUAL_QUESTIONS = list(QualitativeQuestion.objects.all())
-# QUAN_COUNT = QuantitativeQuestion.objects.all().count()
-# QUAL_COUNT = QualitativeQuestion.objects.all().count()
-
-# Q_COUNT = QUAN_COUNT
-
-# random.shuffle(QUAN_QUESTIONS)
-# random.shuffle(QUAL_QUESTIONS)
-
-#TEXT = GeneralSetting.objects.all()[0].get_text()
-
-def translate(language):
-    return {"English":"Filipino", "Filipino":"English"}[language]
-
-
-def switch_language(request):
-    url = request.META.get('HTTP_REFERER').split("/")
-
-    user = request.user
-    TEXT = request.session['TEXT']
-    if user.is_authenticated():
-        user_data = UserData.objects.all().filter(user=user)[0]
-        user_data.language = translate(user_data.language)
-        user_data.save()
-        request.session['language'] = user_data.language
-        request.session['TEXT'] = GeneralSetting.objects.all()[0].get_text(translate(user_data.language))
-    else:
-        request.session['TEXT'] = GeneralSetting.objects.all()[0].get_text(TEXT['translate'])
-        request.session['language'] = TEXT['translate']
-
-    if "questions" in url:
-        return HttpResponseRedirect(reverse('pcari:create_user', args=(0,)))
-    elif "comparison" in url:
-        return HttpResponseRedirect(reverse('pcari:rate', args=(url[-2],)))
-    elif "personal" in url:
-        return HttpResponseRedirect(reverse('pcari:personal', args=(url[-2],)))
-    elif "review" in url:
-        return HttpResponseRedirect(reverse('pcari:review'))
-    elif "rate" in url:
-        return HttpResponseRedirect(reverse('pcari:get_comment', args=(url[-2],)))
-    elif "peerevaluation" in url or "bloom" in url:
-        return HttpResponseRedirect(reverse('pcari:bloom'))
-    elif "comment" in url:
-        return HttpResponseRedirect(reverse('pcari:comment'))
-    elif "help" in url:
-        return HttpResponseRedirect(reverse('pcari:help'))
-    elif "about" in url:
-        return HttpResponseRedirect(reverse('pcari:about'))
-    elif "logout" in url:
-        return HttpResponseRedirect(reverse('pcari:logout'))
-    return HttpResponseRedirect(reverse('pcari:landing'))
-
-    # return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
-def init_text_cookie(request):
-    if 'TEXT' not in request.session:
-        request.session['TEXT'] = GeneralSetting.objects.all()[0].get_text('Filipino')
-        request.session['language'] = 'Filipino'
-
-def init_question_cookie(request, language):
-    l = []
-    Q = QuantitativeQuestion.objects.all()
-    for q in Q:
-        l.append(q.get_question(language))
-    request.session['QUESTION'] = l
-    request.session['Q_COUNT'] = Q.count()
 
 def landing(request):
-    user = request.user
-    if user.is_authenticated():
-        logout(request)
-
-    init_text_cookie(request)
-    TEXT = request.session['TEXT']
-
-    description = TEXT['landing_description'] % len(User.objects.all())
-    context = {
-        'translate':TEXT['translate'],
-        'landing_description':description,
-        'more_info':TEXT['more_info'],
-        'short_description':TEXT['short_description'],
-        'begin':TEXT['begin_button']
-    }
+    # for testing porpoises only # # # # # # # # # # # # # # # # # # # # # # #
+    user_language = 'tl' # 'en' or 'tl'
+    translation.activate(user_language)
+    request.session[translation.LANGUAGE_SESSION_KEY] = user_language
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    context = {'num_responses': str(Respondent.objects.count())}
     return render(request, 'landing.html', context)
 
+
+def quantitative_questions(request):
+    questions = []
+    i = 1
+    for q in QuantitativeQuestion.objects.all():
+        questions.append([i, str(i) + ". " + q.prompt, q.left_text, q.right_text])
+        i += 1
+    context = {'questions': questions}
+    return render(request, 'quantitative_questions.html', context)
+
+
+def rate_suggestions(request):
+    ratings = [] # TODO (much the same as how quantitative_questions works)
+    context = {'ratings': ratings}
+    return render(request, 'rate_suggestions.html', context)
+
+
+def end(request):
+    return render(request, 'end.html')
+
 def create_user(request, is_new=1):
-    init_text_cookie(request)
-    #User Authentication
+
+    # TODO: again, figure out appropriate way to do sessions from Jonathan
+    # init_text_cookie(request)
+ #    #User Authentication
 
 
-    if is_new == 1:
-        uid = int(list(User.objects.all())[-1].username) + 1
-        new_user = User.objects.create_user('%d' % uid, '%d@example.com' % uid, '%d' % uid)
-        new_user.save()
+ #    if is_new == 1:
+ #        uid = int(list(User.objects.all())[-1].username) + 1
+ #        new_user = User.objects.create_user('%d' % uid, '%d@example.com' % uid, '%d' % uid)
+ #        new_user.save()
 
-        user = authenticate(username=new_user.username, password=new_user.username)
+ #        user = authenticate(username=new_user.username, password=new_user.username)
 
-        login(request, user)
+ #        login(request, user)
 
-        #Data Initialization
-        progression = UserProgression(user=user)
-        progression.landing = True
-        progression.save()
+ #        #Data Initialization
+ #        progression = UserProgression(user=user)
+ #        progression.landing = True
+ #        progression.save()
 
-        init_text_cookie(request)
-        TEXT = request.session['TEXT']
-        user_data = UserData(user=user, language=translate(TEXT['translate']))
-        user_data.save()
-    else:
-        user = request.user
-        user_data = UserData.objects.all().filter(user=user)[0]
+ #        init_text_cookie(request)
+ #        TEXT = request.session['TEXT']
+ #        user_data = UserData(user=user, language=translate(TEXT['translate']))
+ #        user_data.save()
+ #    else:
+ #        user = request.user
+ #        user_data = UserData.objects.all().filter(user=user)[0]
 
-    # data = {
- #        'is_taken': User.objects.filter(username__iexact=username).exists()
- #    }
-    # print JsonResponse(context
+ #    # data = {
+ # #        'is_taken': User.objects.filter(username__iexact=username).exists()
+ # #    }
+ #    # print JsonResponse(context
     user_data = UserData.objects.all().filter(user=request.user)[0]
     request.session['TEXT'] = GeneralSetting.objects.all()[0].get_text(user_data.language)
     TEXT = GeneralSetting.objects.all()[0].get_text(user_data.language)
 
-    init_question_cookie(request, user_data.language)
+ #    init_question_cookie(request, user_data.language)
     QUAN_QUESTIONS = request.session['QUESTION']
     Q_COUNT = request.session['Q_COUNT']
 
@@ -142,12 +87,13 @@ def create_user(request, is_new=1):
 
     question_of = TEXT['question_of'] % (QUAN_QUESTIONS.index(q)+1, Q_COUNT)
 
-    if q["qid"] == 5:
-        scale_description = "0 (less than one day) to 9 (or more)" if TEXT['translate'] == "Filipino" else "Mula 0 (mas mababa sa isang araw) hanggang 9 (o mas mataas pa)"
-    elif q["qid"] == 8:
-        scale_description = "0 (less than one week) to 9 (or more)" if TEXT['translate'] == "Filipino" else "Mula 0 (mas mababa sa isang linggo) hanggang 9 (o mas mataas pa)"
-    else:
-        scale_description = TEXT['scale_description']
+    # TODO: Eliminate this special case
+    # if q["qid"] == 5:
+    # scale_description = "0 (less than one day) to 9 (or more)" if TEXT['translate'] == "Filipino" else "Mula 0 (mas mababa sa isang araw) hanggang 9 (o mas mataas pa)"
+    # elif q["qid"] == 8:
+    #     scale_description = "0 (less than one week) to 9 (or more)" if TEXT['translate'] == "Filipino" else "Mula 0 (mas mababa sa isang linggo) hanggang 9 (o mas mataas pa)"
+    # else:
+    #     scale_description = TEXT['scale_description']
 
     context = {
         'translate':TEXT['translate'],
@@ -163,41 +109,24 @@ def create_user(request, is_new=1):
 
     return render(request, 'rating.html', context)
 
-
 def rate(request, qid):
-    init_text_cookie(request)
-    user = request.user
-    if not user.is_authenticated():
-        return landing(request)
+    """Assigns a rating for a quantitative question."""
+    # TODO: Link this up with anonymous sessions, atm it creates new user
+    # every time rate(...) is called.
+    respondent = Respondent()
+    question = QuantitativeQuestion.objects.get(id=qid)
+    rating = QuantitativeQuestionRating(respondent=respondent,
+                                        question=question)
 
-    user_data = UserData.objects.all().filter(user=user)[0]
+    # TODO: Error-handling for malformed requests (e.g. no or invalid score)
+    # TODO: Validation for scores
+    # (client should be sending -1 for skip?)
 
-    # print request.POST
+    score = request.POST['choice']
+    rating.score = score
+    rating.save()
 
-    init_question_cookie(request, user_data.language)
-
-    try:
-        rating = Rating(user=user, qid=qid)
-        rating.save()
-    except:
-        rating = Rating.objects.all().filter(user=user, qid=qid)[0]
-        # print "correct"
-
-
-    try:
-        rating.score = request.POST['choice']
-        rating.save()
-    except:
-        pass
-
-    # print rating.score
-
-    if rating.score == "Skip" or rating.score == "Laktawan":
-        rating.score = -1
-        rating.save()
-
-    # if rating.score == "Submit" or rating.score == "Ipasa":
-    #     rating.response = request.POST['comment']
+    # TODO: remove progression stuff
 
     r = Rating.objects.all().filter(user=user)
     rating_list = map(lambda x: x.qid, r)
@@ -213,6 +142,11 @@ def rate(request, qid):
     # 	return personal(request)
 
     # if progression.num_rated < Q_COUNT:
+
+    # TODO: Discuss if this is still necessary. rate() responsible for both
+    # submitting ratings and rendering the next question in sequence. Probably
+    # should be split into two separate endpoints (or just use get_question())
+
 
     QUAN_QUESTIONS = request.session['QUESTION']
     Q_COUNT = request.session['Q_COUNT']
@@ -236,8 +170,6 @@ def rate(request, qid):
     question_of = TEXT['question_of'] % (QUAN_QUESTIONS.index(q)+1, Q_COUNT)
 
 
-
-
     if q["qid"] == 5:
         scale_description = "0 (less than one day) to 9 (or more)" if TEXT['translate'] == "Filipino" else "Mula 0 (mas mababa sa isang araw) hanggang 9 (o mas mataas pa)"
     elif q["qid"] == 8:
@@ -258,6 +190,7 @@ def rate(request, qid):
     }
 
     return render(request, 'rating.html', context)
+
 
 def personal(request):
     init_text_cookie(request)
@@ -288,12 +221,6 @@ def personal(request):
     # return personal(request)
 
 def review(request):
-    init_text_cookie(request)
-
-    user = request.user
-    if not user.is_authenticated():
-        return landing(request)
-
     # print request.GET
 
     try:
@@ -324,7 +251,7 @@ def review(request):
     user_data = UserData.objects.all().filter(user=user)[0]
     TEXT = GeneralSetting.objects.all()[0].get_text(user_data.language)
 
-    user = request.user 
+    user = request.user
 
     q = QuantitativeQuestion.objects.all()
     r = Rating.objects.all().filter(user=user)
@@ -372,12 +299,10 @@ def help(request):
     return render(request, 'help.html', context)
 
 def bloom(request, done = False):
-    init_text_cookie(request)
+    # TODO: Implement PCA
+    # Additionally, should this be split up as well?
 
-    user = request.user
-    if not user.is_authenticated():
-        return landing(request)
-	# try:
+    # try:
     progression = UserProgression.objects.all().filter(user=user)[0]
     progression.bloom = True
     progression.save()
@@ -459,7 +384,7 @@ def comment(request):
     user_data = UserData.objects.all().filter(user=user)[0]
     TEXT = GeneralSetting.objects.all()[0].get_text(user_data.language)
     context = {
-        'translate':TEXT['translate'], 
+        'translate':TEXT['translate'],
         'comment_description':TEXT['comment_description'],
         'post':TEXT['post_button']
 	}
@@ -485,7 +410,7 @@ def logout_view(request):
 
     try:
         c = Comment(user=user)
-		
+
         if TEXT['translate'] == "Filipino":
             c.original_language = "English"
             c.comment = request.POST['comment']
