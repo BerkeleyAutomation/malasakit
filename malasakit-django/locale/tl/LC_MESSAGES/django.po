@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-07 21:32+0000\n"
+"POT-Creation-Date: 2017-06-07 22:55+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,7 +25,7 @@ msgstr ""
 msgid "Filipino"
 msgstr ""
 
-#: pcari/templates/base.html:30
+#: pcari/templates/base.html:46
 msgid ""
 "A project by the CITRIS Connected Communities Initiative at UC Berkeley and "
 "the Philippine Commission on Higher Education through the Philippine-"
@@ -108,7 +108,7 @@ msgid "Barangay"
 msgstr "Barangay"
 
 #: pcari/templates/personal-information.html:50
-#: pcari/templates/qualitative-questions.html:18
+#: pcari/templates/qualitative-questions.html:19
 #: pcari/templates/quantitative-questions.html:21
 #: pcari/templates/response-histograms.html:10
 msgid "Next"

@@ -5,6 +5,20 @@
 
 {% block title %}{% trans 'Welcome' %}{% endblock %}
 
+{% block static-assets %}
+  {{ block.super }}
+  <script>
+    $(document).ready(function() {
+      $("#next").click(function(event) {
+        var timestamp = new Date().getTime();
+        var identifier = timestamp.toString();
+        localStorage.setItem("current", identifier);
+        localStorage.setItem(identifier, JSON.stringify({}));
+      });
+    })
+  </script>
+{% endblock %}
+
 {% block content %}
   <p>
     {% blocktrans trimmed %}
@@ -14,7 +28,7 @@
     {% endblocktrans %}
   </p>
   <img src="{% static 'img/landing1.jpg' %}">
-  <div class="nav-button">
+  <div id="next" class="nav-button">
     <a href="{% url 'pcari:personal-information' %}">{% trans 'Begin' %}</a>
   </div>
 {% endblock %}

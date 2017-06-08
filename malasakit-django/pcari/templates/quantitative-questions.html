@@ -10,10 +10,10 @@
   <ol>
     {% for qid, prompt, left_text, right_text in questions %}
       <li>
-        <p class="prompt">{{ prompt }}</p>
-        <span class="leftlabel">{{ left_text }}</span>
+        <p class="prompt">{% trans prompt %}</p>
+        <span class="leftlabel">{% trans left_text %}</span>
         <input name="{{ qid }}" type="range" value="5" min="1" max="10">
-        <span class="rightlabel">{{ right_text }}</span>
+        <span class="rightlabel">{% trans right_text %}</span>
       </li>
     {% endfor %}
   </ol>
