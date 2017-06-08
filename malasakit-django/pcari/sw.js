@@ -7,6 +7,7 @@ var CACHE_NAME = 'malasakit-cache';
 var urlsToCache = [
     '/pcari/landing',
     '/pcari/static/img/landing1.jpg', // TODO: Fix hardcoded url issue
+    '/pcari/sw.js',
     '/pcari/quantitative_questions',
     '/pcari/rate_suggestions',
     '/pcari/end'
@@ -25,25 +26,27 @@ function installEvent(event) {
 
 function fetchEvent(event) {
     console.log("Fetch event!");
+    // Upon receiving an event
+    // We first attempt to fetch desired resource from server.
+    // fetch(event.request) returns a Promise that may or may not be
+    // fulfilled (i.e., do we get a resource?)
     event.respondWith(
-        caches.match(event.request)
-            .then(function(response) {
-                console.log("Received request for url:");
-                console.log(event.request.url);
-
-                caches.open(CACHE_NAME).then(function(cache) {
-                    cache.keys().then(function (keys) {
-                        // console.log("Urls in cache:");
-                        // console.log(keys);
+        fetch(event.request)
+            .catch(function (err) {
+                // If fetch fails (i.e. no internet connection or server issue)
+                // then attempt to pull resource from cache.
+                console.log("=== FETCH FAILED, LOOKING IN CACHE ===");
+                console.log(err);
+                console.log("======================================");
+                return caches.match(event.request)
+                    .then(function (response) {
+                        if (response) {
+                            console.log('found response in cache');
+                            return response;
+                        }
+                        console.log('NO RESPONSE FOUND, SOMETHING IS WRONG!!!');
+                        return response; // edge case...shouldn't happen
                     })
-                });
-
-                if (response) {
-                    console.log('found response in cache');
-                    return response;
-                }
-                console.log('no response found in cache');
-                return fetch(event.request);
             })
     );
 }
