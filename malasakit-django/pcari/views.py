@@ -101,38 +101,33 @@ def select_comments(respondent, threshold=10):
 
 
 def make_quantitative_question_ratings(respondent, responses):
-    for rating_object in responses.get('quantitative-question-ratings', []):
-        question = QuantitativeQuestion(id=rating_object['question-id'])
-        yield QuantitativeQuestionRating(respondent=respondent,
-                                         question=question,
-                                         score=rating_object['score'])
+    for question_id, score in responses.get('question-ratings', {}).iteritems():
+        question = QuantitativeQuestion(id=int(question_id))
+        yield QuantitativeQuestionRating(respondent=respondent, question=question,
+                                         score=score)
 
 
 def make_comments(respondent, responses):
-    for comment_object in responses.get('comments', []):
-        question = QualitativeQuestion(id=comment_object['question-id'])
+    for question_id, message in responses.get('comments', {}).iteritems():
+        question = QualitativeQuestion(id=int(question_id))
         yield Comment(respondent=respondent, question=question,
-                      language=respondent.language,
-                      message=comment_object['message'])
+                      language=respondent.language, message=message)
 
 
 def make_comment_ratings(respondent, responses):
-    for rating_object in responses.get('comment-ratings', []):
-        comment = Comment.objects.get(id=rating_object['comment-id'])
-        yield CommentRating(respondent=respondent, comment=comment,
-                            score=rating_object['score'])
+    for comment_id, score in responses.get('comment-ratings', {}).iteritems():
+        comment = Comment.objects.get(id=int(comment_id))
+        yield CommentRating(respondent=respondent, comment=comment, score=score)
 
 
 def make_respondent_data(respondent, responses):
     respondent_data = responses.get('respondent-data', {})
-    attributes = ['age', 'gender', 'language',
+    attributes = ['age', 'gender', 'language', 'location',
                   'submitted_personal_data', 'completed_survey']
     for attribute in attributes:
         serialized_name = attribute.replace('_', '-')
         if serialized_name in respondent_data:
             setattr(respondent, attribute, respondent_data[serialized_name])
-    # TODO: store province
-    respondent.location = respondent_data.get('barangay', '')
     yield respondent
 
 

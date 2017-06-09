@@ -29,7 +29,16 @@
       });
     }
 
-    $(document).ready(bindListenerCallbacks);
+    function setLanguage() {
+      updateCurrentResponse(function(response) {
+        response['respondent-data']['language'] = $('html').attr('lang');
+      });
+    }
+
+    $(document).ready(function() {
+      setLanguage();
+      bindListenerCallbacks();
+    });
   </script>
 {% endblock %}
 
