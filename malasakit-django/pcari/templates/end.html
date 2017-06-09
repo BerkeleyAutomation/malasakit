@@ -6,11 +6,13 @@
 {% block title %}{% trans 'Thank You' %}{% endblock %}
 {% block main-heading %}{% trans 'Thank You' %}{% endblock %}
 
-{% block static-assets %}
+{% block scripts %}
   <script>
-    localStorage.setItem("current", "none");
+    $(document).ready(function() {
+      invalidateCurrentID();
+      attemptDataPush();
+    });
   </script>
-  {{ block.super }}
 {% endblock %}
 
 {% block content %}

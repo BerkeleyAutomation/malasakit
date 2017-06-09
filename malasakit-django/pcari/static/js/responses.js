@@ -115,6 +115,20 @@ function editCurrentResponse(callback) {
     localStorage.setItem(currentID, JSON.stringify(response))
 }
 
+function updateRespondentAttribute(name, value) {
+    editCurrentResponse(function(response) {
+        response['respondent-data'][name] = value;
+    });
+}
+
+function deleteRespondentAttribute(name) {
+    editCurrentResponse(function(response) {
+        if (name in response['respondent-data']) {
+            delete response['respondent-data'][name];
+        }
+    });
+}
+
 $(document).ready(function() {
     csrfSetup();
     attemptInvalidateCurrentID();

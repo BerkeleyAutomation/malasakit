@@ -145,24 +145,24 @@ def save_response(request):
     (that is, a Python dictionary) of the following form:
 
         {
-            "quantitative-question-ratings": [
+            "question-ratings": [
                 {
-                    "question-id": ...,
+                    "qid": ...,
                     "score": ...
                 },
                 ...
             ],
             "comments": [
                 {
-                    "question-id": ...,
-                    "message": ...
+                    "qid": ...,
+                    "score": ...
                 },
                 ...
             ],
             "comment-ratings": [
                 {
-                    "comment-id": ...,
-                    "score": ...
+                    "cid": ...,
+                    "msg": ...
                 },
                 ...
             ],
@@ -175,6 +175,10 @@ def save_response(request):
                 "completed-survey": ...
             }
         }
+
+    The full specification is available at:
+        https://github.com/BerkeleyAutomation/malasakit-v1/wiki/
+            Response-Storage-and-Transmission-Specification
 
     In cases where the data were successfully received but the contents of the
     request are syntactically or logically incorrect (for instance, providing
