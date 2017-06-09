@@ -45,10 +45,8 @@ def profile(function):
 def generate_quantitative_question_ratings_matrix():
     """
     Fetches quantitative question ratings in the form of a numpy matrix.
-
     Each row corresponds to one respondent and each column corresponds to one
     question. Missing values are filled in with `np.nan`.
-
     Because we only pull ID numbers, this function runs in milliseconds.
     """
     respondent_ids = Respondent.objects.values_list('id', flat=True)
@@ -72,10 +70,8 @@ def return_principal_components(n=2):
     """
     Calculates and returns the first n principal components of the quantitative
     question ratings matrix.
-
     Args:
         n: number of principal components to return .
-
     Returns:
         A q x n Numpy matrix where q is number of questions. Each row is a
         principal component.
@@ -101,36 +97,34 @@ def select_comments(respondent, threshold=10):
 
 
 def make_quantitative_question_ratings(respondent, responses):
-    for rating_object in responses.get('quantitative-question-ratings', []):
-        question = QuantitativeQuestion(id=rating_object['question-id'])
-        yield QuantitativeQuestionRating(respondent=respondent,
-                                         question=question,
-                                         score=rating_object['score'])
+    for question_id, score in responses.get('question-ratings', {}).iteritems():
+        question = QuantitativeQuestion(id=int(question_id))
+        yield QuantitativeQuestionRating(respondent=respondent, question=question,
+                                         score=score)
 
 
 def make_comments(respondent, responses):
-    for comment_object in responses.get('comments', []):
-        question = QualitativeQuestion(id=comment_object['question-id'])
+    for question_id, message in responses.get('comments', {}).iteritems():
+        question = QualitativeQuestion(id=int(question_id))
         yield Comment(respondent=respondent, question=question,
-                      language=respondent.language,
-                      message=comment_object['message'])
+                      language=respondent.language, message=message)
 
 
 def make_comment_ratings(respondent, responses):
-    for rating_object in responses.get('comment-ratings', []):
-        comment = Comment.objects.get(id=rating_object['comment-id'])
-        yield CommentRating(respondent=respondent, comment=comment,
-                            score=rating_object['score'])
+    for comment_id, score in responses.get('comment-ratings', {}).iteritems():
+        comment = Comment.objects.get(id=int(comment_id))
+        yield CommentRating(respondent=respondent, comment=comment, score=score)
 
 
 def make_respondent_data(respondent, responses):
     respondent_data = responses.get('respondent-data', {})
-    attributes = ['age', 'gender', 'location', 'language',
+    attributes = ['age', 'gender', 'location',
                   'submitted_personal_data', 'completed_survey']
     for attribute in attributes:
         serialized_name = attribute.replace('_', '-')
         if serialized_name in respondent_data:
             setattr(respondent, attribute, respondent_data[serialized_name])
+    respondent.language = respondent_data['language']
     yield respondent
 
 
@@ -138,30 +132,19 @@ def make_respondent_data(respondent, responses):
 def save_response(request):
     """
     Write a single user's responses to the database.
-
     The request body should contain the string representation of a JSON object
     (that is, a Python dictionary) of the following form:
-
         {
-            "quantitative-question-ratings": [
-                {
-                    "question-id": ...,
-                    "score": ...
-                },
+            "question-ratings": {
+                <qid>: <score>,
                 ...
-            ],
+            },
             "comments": [
-                {
-                    "question-id": ...,
-                    "message": ...
-                },
+                <qid>: <message>,
                 ...
             ],
             "comment-ratings": [
-                {
-                    "comment-id": ...,
-                    "score": ...
-                },
+                <cid>: <score>,
                 ...
             ],
             "respondent-data": {
@@ -173,7 +156,9 @@ def save_response(request):
                 "completed-survey": ...
             }
         }
-
+    The full specification is available at:
+        https://github.com/BerkeleyAutomation/malasakit-v1/wiki/
+            Response-Storage-and-Transmission-Specification
     In cases where the data were successfully received but the contents of the
     request are syntactically or logically incorrect (for instance, providing
     the `id` of a question that does not exist, or malformed JSON), no models
@@ -241,19 +226,9 @@ def personal_information(request):
 @language_selectable
 def quantitative_questions(request):
     questions = QuantitativeQuestion.objects.all()
-    range_questions, select_questions, number_questions = [], [], []
-    for q in questions:
-        if q.input_type is 'range':
-            range_questions.append(q.id, q.prompt, q.left_text, q.right_text)
-        elif q.input_type is 'select':
-            select_questions.append(q.id, q.prompt, q.options)
-        elif q.input_type is 'number':
-            number_questions.append(q.id, q.prompt, q.minval, q.maxval)
-    context = {
-        'range-questions': range_questions,
-        'select-questions': select_questoins,
-        'number-questions': number_questions
-    }
+    question_text = [(question.id, question.prompt, question.left_text,
+                      question.right_text) for question in questions]
+    context = {'questions': question_text}
     return render(request, 'quantitative-questions.html', context)
 
 
@@ -264,16 +239,16 @@ def response_histograms(request):
 
 @language_selectable
 def rate_comments(request):
-    comments = [] # TODO (much the same as how quantitative_questions works)
-    context = {'comments': comments}
+    ratings = [] # TODO (much the same as how quantitative_questions works)
+    context = {'ratings': ratings}
     return render(request, 'rate-comments.html', context)
 
 
 @language_selectable
 def qualitative_questions(request):
     questions = QualitativeQuestion.objects.all()
-    question_attrs = [(question.id, question.prompt) for question in questions]
-    context = {'questions': question_attrs}
+    question_text = [(question.id, question.prompt) for question in questions]
+    context = {'questions': question_text}
     return render(request, 'qualitative-questions.html', context)
 
 
