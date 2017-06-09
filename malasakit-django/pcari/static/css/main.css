@@ -4,15 +4,6 @@
   font-family: 'Quicksand', sans-serif;
 }
 
-select {
-    width: 110%;
-    height: 35px;
-    overflow: hidden;
-    background: solid white;
-    border: 1px solid goldenrod;
-    font-size: medium;
-}
-
 .leftlabel, .rightlabel {
     display: inline-table;
     vertical-align: middle;
@@ -27,6 +18,15 @@ select {
 
 .rightlabel {
     text-align: left;
+}
+
+input[type=number], input[type=text-field], select {
+    width: 110%;
+    height: 35px;
+    overflow: hidden;
+    background: solid white;
+    border: 1px solid goldenrod;
+    font-size: medium;
 }
 
 input[type=range] {
@@ -181,6 +181,13 @@ hr {
   padding-right: 0.5rem;
 }
 
+.page-specific-content {
+  max-width: 960px;
+  margin: 0 auto;
+  padding-left: 7.5rem;
+  padding-right: 7.5rem;
+}
+
 table {
   margin: 0 auto;
 }
@@ -188,6 +195,9 @@ table {
 .comment {
   width: 90%;
   height: 10rem;
+  border: 1px solid goldenrod;
+  resize: none;
+  font-size: medium;
 }
 
 body {

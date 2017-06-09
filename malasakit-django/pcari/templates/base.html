@@ -2,7 +2,6 @@
 {% load static %}
 {% get_current_language as language_code %}
 
-<!DOCTYPE html>
 <html lang="{{ language_code }}">
   <head>
     <meta charset="UTF-8">
@@ -28,28 +27,39 @@
         </ul>
       </div>
     </nav>
-    <header>
-      <div class="container">
-        <h1 id="main-heading">{% block main-heading %}Malasakit{% endblock %}</h1>
+    <page-specific-content>
+      <div class="page-specific-content">
+        <header>
+          <h1 id="main-heading">{% block main-heading %}Malasakit{% endblock %}</h1>
+        </header>
+        <page-summary>
+          <center>
+            <p id="page-summary">
+              {% block page-summary %}
+                  {% blocktrans trimmed %}
+                  {% endblocktrans %}
+              {% endblock %}
+          </center>
+        </page-summary>
+        <main>
+          {% block content %}
+          {% endblock %}
+        </main>
       </div>
-    </header>
-    <main>
-      <div class="container">
-        {% block content %}
-        {% endblock %}
-      </div>
-    </main>
+    </page-specific-content>
     <footer>
       <div class="container">
         <hr>
-        <p id="footnote">
-          {% block footnote %}
-            {% blocktrans trimmed %}
-              A project by the CITRIS Connected Communities Initiative at
-              UC Berkeley and the Philippine Commission on Higher Education
-              through the Philippine-California Advanced Research Institutes Project.
-            {% endblocktrans %}
-          {% endblock footnote %}
+          <center>
+          <p id="footnote">
+            {% block footnote %}
+              {% blocktrans trimmed %}
+                A project by the CITRIS Connected Communities Initiative at
+                UC Berkeley and the Philippine Commission on Higher Education
+                through the Philippine-California Advanced Research Institutes Project.
+              {% endblocktrans %}
+            {% endblock %}
+          </center>
         </div>
       </div>
     </footer>

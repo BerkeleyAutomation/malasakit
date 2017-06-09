@@ -271,8 +271,16 @@ class QuantitativeQuestion(Question):
         left_text: The text that is rendered on the left end of the slider.
         right_text: The text that is rendered on the right end of the slider.
     """
+    INPUT_TYPES = [
+        ('select', 'select'),
+        ('range', 'range'),
+        ('number', 'number'),
+    ]
+
     left_text = models.TextField(blank=True)
     right_text = models.TextField(blank=True)
+    input_type = models.CharField(max_length=16, choices=INPUT_TYPES,
+                                  default='range')
 
     def __unicode__(self):
         return 'QuantitativeQuestion {0}: "{1}"'.format(self.id, self.prompt)

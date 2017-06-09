@@ -6,14 +6,16 @@
 {% block title %}{% trans 'Rate Comments by Other Users' %}{% endblock %}
 {% block main-heading %}{% trans 'Rate Comments by Other Users' %}{% endblock %}
 
+{% block page-summary %}
+  {% blocktrans trimmed %}
+    These are some suggestions made by other people living in barangays
+    across the Phillippines.
+    Read each one, and rate how helpful it is.
+  {% endblocktrans %}
+{% endblock %}
+
 {% block content %}
-  <p>
-    {% blocktrans trimmed %}
-      These are some suggestions made by other people living in barangays
-      across the Phillippines.
-      Read each one, and rate how helpful it is.
-    {% endblocktrans %}
-  </p>
+
 <!-- S1 -->
 <p class="q"><b>1. Suggestion 1</b></p>
 <span class="leftlabel">Very unhelpful.</span>

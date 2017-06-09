@@ -11,11 +11,13 @@
     {% for qid, prompt in questions %}
       <li>
         <p class="prompt">{{ prompt }}</p>
-        <textarea class="comment"></textarea>
+        <center>
+          <textarea class="comment"></textarea>
+        </center>
       </li>
     {% endfor %}
   </ol>
   <div class="nav-button">
-    <a href="{% url 'pcari:end' %}">{% trans 'Next' %}</a>
+    <a href="{% url 'pcari:personal-information' %}">{% trans 'Next' %}</a>
   </div>
 {% endblock %}

@@ -12,12 +12,12 @@
       <li>
         <p class="prompt">{% trans prompt %}</p>
         <span class="leftlabel">{% trans left_text %}</span>
-        <input name="{{ qid }}" type="range" value="5" min="1" max="10">
+        <input name="{{ qid }}" type="range" value="0" min="0" max="9">
         <span class="rightlabel">{% trans right_text %}</span>
       </li>
     {% endfor %}
   </ol>
   <div class="nav-button">
-    <a href="{% url 'pcari:response-histograms' %}">{% trans 'Next' %}</a>
+    <a href="{% url 'pcari:rate-comments' %}">{% trans 'Next' %}</a>
   </div>
 {% endblock %}

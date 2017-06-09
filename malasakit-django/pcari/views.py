@@ -254,8 +254,8 @@ def response_histograms(request):
 
 @language_selectable
 def rate_comments(request):
-    ratings = [] # TODO (much the same as how quantitative_questions works)
-    context = {'ratings': ratings}
+    comments = [] # TODO (much the same as how quantitative_questions works)
+    context = {'comments': comments}
     return render(request, 'rate-comments.html', context)
 
 

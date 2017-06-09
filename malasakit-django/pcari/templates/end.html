@@ -6,10 +6,11 @@
 {% block title %}{% trans 'Thank You' %}{% endblock %}
 {% block main-heading %}{% trans 'Thank You' %}{% endblock %}
 
+{% block page-summary %}
+  {% trans 'We appreciate your participation in the Malasakit program.' %}
+{% endblock %}
+
 {% block content %}
-  <p>
-    {% trans 'We appreciate your participation in the Malasakit program.' %}
-  </p>
   <div class="nav-button">
     <a href="{% url 'pcari:landing' %}">{% trans 'Finish' %}</a>
   </div>
