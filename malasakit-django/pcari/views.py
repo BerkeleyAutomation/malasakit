@@ -125,12 +125,14 @@ def make_comment_ratings(respondent, responses):
 
 def make_respondent_data(respondent, responses):
     respondent_data = responses.get('respondent-data', {})
-    attributes = ['age', 'gender', 'location', 'language',
+    attributes = ['age', 'gender', 'language',
                   'submitted_personal_data', 'completed_survey']
     for attribute in attributes:
         serialized_name = attribute.replace('_', '-')
         if serialized_name in respondent_data:
             setattr(respondent, attribute, respondent_data[serialized_name])
+    # TODO: store province
+    respondent.location = respondent_data.get('barangay', '')
     yield respondent
 
 

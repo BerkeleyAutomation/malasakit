@@ -6,36 +6,43 @@
 {% block static-assets %}
   {{ block.super }}
   <script>
-    function getIdentifier() {
-      return localStorage.getItem("current");
-    }
-
     function updateRespondentData(key, value) {
-      if (value === NaN || value === "") {
-        return;
-      }
       var identifier = getIdentifier();
       var data = JSON.parse(localStorage.getItem(identifier));
       if (!('respondent-data' in data)) {
         data['respondent-data'] = {}
       }
-      if (value === NaN || value === "") {
-        delete data['respondent-data']
+      if (isNaN(value) && typeof value === 'number' || value === '') {
+        delete data['respondent-data'][key];
+      } else {
+        data['respondent-data'][key] = value;
       }
-      data['respondent-data'][key] = value;
       localStorage.setItem(identifier, JSON.stringify(data));
     }
 
     $(document).ready(function() {
       $('#age').on('input', function() {
         var age = parseInt($('#age').val());
-        console.log("Updating age to " + age);
+        console.log('Updating age to ' + age);
         updateRespondentData('age', age);
       });
 
       $('#gender').on('input', function() {
         var gender = $('#gender').val();
-        console.log("Updating gender to " + gender);
+        console.log('Updating gender to "' + gender + '"');
+        updateRespondentData('gender', gender);
+      });
+
+      $('#province').on('input', function() {
+        var province = $('#province').val();
+        console.log('Updating province to "' + province + '"');
+        updateRespondentData('province', province);
+      });
+
+      $('#barangay').on('input', function() {
+        var barangay = $('#barangay').val();
+        console.log('Updating barangay to "' + barangay + '"');
+        updateRespondentData('barangay', barangay);
       })
     });
   </script>
@@ -70,7 +77,7 @@
       <td>{% trans 'Province' %}</td>
       <td>
         <select id="province">
-          <option selected>{% trans 'Select province' %}</option>
+          <option value="" selected>{% trans 'Select province' %}</option>
           {% for code, name in province_names %}
             <option value="{{ code }}">{{ name }}</option>
           {% endfor %}

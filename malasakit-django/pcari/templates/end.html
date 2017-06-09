@@ -6,6 +6,13 @@
 {% block title %}{% trans 'Thank You' %}{% endblock %}
 {% block main-heading %}{% trans 'Thank You' %}{% endblock %}
 
+{% block static-assets %}
+  <script>
+    localStorage.setItem("current", "none");
+  </script>
+  {{ block.super }}
+{% endblock %}
+
 {% block content %}
   <p>
     {% trans 'We appreciate your participation in the Malasakit program.' %}
