@@ -6,12 +6,39 @@
 {% block title %}{% trans 'Qualitative Questions' %}{% endblock %}
 {% block main-heading %}{% trans 'Qualitative Questions' %}{% endblock %}
 
+{% block scripts %}
+  <script>
+    const COMMENT_ID_PREFIX = 'comment-';
+    const COMMENT_KEY = 'comments';
+
+    function getQuestionID(idAttr) {
+      return parseInt(idAttr.substring(COMMENT_ID_PREFIX.length));
+    }
+
+    function bindListenerCallbacks() {
+      $('.comment').on('input', function() {
+        var questionID = getQuestionID(this.id);
+        var message = $(this).val().trim();
+        updateCurrentResponse(function(response) {
+          if (message.length > 0) {
+            response[COMMENT_KEY][questionID] = message;
+          } else if (questionID in response[COMMENT_KEY]) {
+            delete response[COMMENT_KEY][questionID];
+          }
+        });
+      });
+    }
+
+    $(document).ready(bindListenerCallbacks);
+  </script>
+{% endblock %}
+
 {% block content %}
   <ol>
     {% for qid, prompt in questions %}
       <li>
         <p class="prompt">{{ prompt }}</p>
-        <textarea class="comment"></textarea>
+        <textarea id="comment-{{ qid }}" class="comment"></textarea>
       </li>
     {% endfor %}
   </ol>

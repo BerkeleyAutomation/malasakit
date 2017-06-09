@@ -145,25 +145,16 @@ def save_response(request):
     (that is, a Python dictionary) of the following form:
 
         {
-            "question-ratings": [
-                {
-                    "qid": ...,
-                    "score": ...
-                },
+            "question-ratings": {
+                <qid>: <score>,
                 ...
-            ],
+            },
             "comments": [
-                {
-                    "qid": ...,
-                    "score": ...
-                },
+                <qid>: <message>,
                 ...
             ],
             "comment-ratings": [
-                {
-                    "cid": ...,
-                    "msg": ...
-                },
+                <cid>: <score>,
                 ...
             ],
             "respondent-data": {

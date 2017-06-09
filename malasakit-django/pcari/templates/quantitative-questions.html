@@ -6,24 +6,42 @@
 {% block title %}{% trans 'Quantitative Questions' %}{% endblock %}
 {% block main-heading %}{% trans 'Quantitative Questions' %}{% endblock %}
 
-{% block static-assets %}
-  {{ block.super }}
+{% block scripts %}
   <script>
-    /*
-    $(document).ready(function() {
-      var rangeElements = $('input[type=range]');
-      for (var index = 0; index < rangeElements.length; index++) {
-        var rangeID = rangeElements[index].id;
-        var questionID = parseInt(rangeID.replace("question-", ""));
-        var rating = $("#" + rangeID).val();
-        console.log("Initializing rating of question " + questionID + " to " + rating);
-      }
+    const RATING_ID_PREFIX = 'rating-';
+    const SKIP_SCORE = -1;
+    const QUESTION_RATING_KEY = 'question-ratings';
 
-      $('input[type=range]').on('input', function() {
-        console.log($(this));
+    function getQuestionID(idAttr) {
+      return parseInt(idAttr.substring(RATING_ID_PREFIX.length));
+    }
+
+    function initializeQuestionRatings() {
+      $.each($('input[type=range]'), function(index, element) {
+        updateCurrentResponse(function(response) {
+          var questionID = getQuestionID(element.id);
+          var score = parseInt($('#' + element.id).val());
+          response[QUESTION_RATING_KEY][questionID] = score;
+        });
       });
+    }
+
+    function bindListenerCallbacks() {
+      $('input[type=range]').on('input', function() {
+        var questionID = getQuestionID(this.id);
+        var score = parseInt($(this).val());
+        updateCurrentResponse(function(response) {
+          response[QUESTION_RATING_KEY][questionID] = score;
+        });
+      });
+    }
+
+    // TODO: implement question skipping
+
+    $(document).ready(function() {
+      initializeQuestionRatings();
+      bindListenerCallbacks();
     });
-    */
   </script>
 {% endblock %}
 
@@ -33,7 +51,7 @@
       <li>
         <p class="prompt">{% trans prompt %}</p>
         <span class="leftlabel">{% trans left_text %}</span>
-        <input id="question-{{ qid }}" type="range" value="5" min="1" max="10">
+        <input id="rating-{{ qid }}" type="range" value="5" min="1" max="10">
         <span class="rightlabel">{% trans right_text %}</span>
       </li>
     {% endfor %}

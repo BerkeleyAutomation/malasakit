@@ -5,10 +5,23 @@
 
 {% block scripts %}
   <script>
+    function locationUpdateCallback() {
+      var province = $('#province').val().trim();
+      var barangay = $('#barangay').val().trim();
+      if (province.length === 0 && barangay.length === 0) {
+        deleteRespondentAttribute('location');
+      } else if (province.length === 0) {
+        updateRespondentAttribute('location', barangay);
+      } else if (barangay.length === 0) {
+        updateRespondentAttribute('location', province);
+      } else {
+        updateRespondentAttribute('location', province + ', ' + barangay);
+      }
+    }
+
     $(document).ready(function() {
       $('#age').on('input', function() {
         var age = parseInt($('#age').val());
-        console.log(age);
         if (!isNaN(age)) {
           updateRespondentAttribute('age', age);
         } else {
@@ -24,20 +37,6 @@
           deleteRespondentAttribute('gender');
         }
       });
-
-      function locationUpdateCallback() {
-        var province = $('#province').val().trim();
-        var barangay = $('#barangay').val().trim();
-        if (province.length === 0 && barangay.length === 0) {
-          deleteRespondentAttribute('location');
-        } else if (province.length === 0) {
-          updateRespondentAttribute('location', barangay);
-        } else if (barangay.length === 0) {
-          updateRespondentAttribute('location', province);
-        } else {
-          updateRespondentAttribute('location', province + ', ' + barangay);
-        }
-      }
 
       $('#province').on('input', locationUpdateCallback);
       $('#barangay').on('input', locationUpdateCallback);

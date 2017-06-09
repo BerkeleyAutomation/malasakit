@@ -16,9 +16,9 @@ const RESPONSE_SAVE_ENDPOINT = '/pcari/save-response';
 const DEFAULT_TIMEOUT = 5000;  // in ms
 
 const EMPTY_RESPONSE = {
-    'question-ratings': [],
-    'comments': [],
-    'comment-ratings': [],
+    'question-ratings': {},
+    'comments': {},
+    'comment-ratings': {},
     'respondent-data': {}
 }
 
@@ -108,7 +108,7 @@ function createNewCurrentID() {
     localStorage.setItem(id, JSON.stringify(EMPTY_RESPONSE));
 }
 
-function editCurrentResponse(callback) {
+function updateCurrentResponse(callback) {
     var currentID = getCurrentID();
     var response = JSON.parse(localStorage.getItem(currentID));
     callback(response);
@@ -116,13 +116,13 @@ function editCurrentResponse(callback) {
 }
 
 function updateRespondentAttribute(name, value) {
-    editCurrentResponse(function(response) {
+    updateCurrentResponse(function(response) {
         response['respondent-data'][name] = value;
     });
 }
 
 function deleteRespondentAttribute(name) {
-    editCurrentResponse(function(response) {
+    updateCurrentResponse(function(response) {
         if (name in response['respondent-data']) {
             delete response['respondent-data'][name];
         }
