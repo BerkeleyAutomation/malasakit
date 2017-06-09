@@ -4,8 +4,8 @@ This module defines the structure of the data.
 Attributes:
     LANGUAGES: A tuple of pairs (tuples of size two), each of which has a
                language code as the first entry and the language name as
-               the second. The three-letter language code should be taken
-               from the ISO 639-2 standard.
+               the second. The two-letter language code should be taken
+               from the ISO 639-1 standard.
 """
 
 from __future__ import unicode_literals
@@ -15,13 +15,10 @@ __all__ = ['Comment', 'QuantitativeQuestionRating', 'CommentRating',
            'QualitativeQuestion', 'QuantitativeQuestion', 'Respondent',
            'LANGUAGES']
 
+from django.conf import settings
 from django.db import models
 
-
-LANGUAGES = (
-    ('ENG', 'English'),
-    ('FIL', 'Filipino')
-)
+LANGUAGES = settings.LANGUAGES
 
 
 def accepts_ratings(ratings_model, keyword):
@@ -213,7 +210,7 @@ class Comment(Response):
     """
     question = models.ForeignKey('QualitativeQuestion',
                                  on_delete=models.CASCADE)
-    language = models.CharField(max_length=3, choices=LANGUAGES)
+    language = models.CharField(max_length=2, choices=LANGUAGES)
     message = models.TextField(blank=True)
     flagged = models.BooleanField(default=False)
     tag = models.CharField(max_length=256, blank=True, default='')
@@ -319,7 +316,7 @@ class Respondent(models.Model):
     gender = models.CharField(max_length=1, choices=GENDERS, default='',
                               blank=True)
     location = models.CharField(max_length=512, default='', blank=True)
-    language = models.CharField(max_length=3, choices=LANGUAGES)
+    language = models.CharField(max_length=2, choices=LANGUAGES)
     submitted_personal_data = models.BooleanField(default=False)
     completed_survey = models.BooleanField(default=False)
 
