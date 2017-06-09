@@ -202,7 +202,7 @@ class Comment(Response):
     >>> respondent = Respondent()
     >>> question = QualitativeQuestion(prompt='How is the weather?')
     >>> comment = Comment(question=question, respondent=respondent,
-    ...                   language='ENG', message='Not raining.')
+    ...                   language='en', message='Not raining.')
     >>> comment.message
     'Not raining.'
     >>> comment.word_count

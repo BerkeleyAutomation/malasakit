@@ -59,7 +59,7 @@ class ResponseSaveTestCase(TestCase):
         return http_response
 
     def test_empty_save(self):
-        self.push({})
+        self.push({'respondent-data': {'language': 'en'}})
         self.assertEqual(QuantitativeQuestionRating.objects.count(), 0)
         self.assertEqual(Comment.objects.count(), 0)
         self.assertEqual(CommentRating.objects.count(), 0)
@@ -70,32 +70,23 @@ class ResponseSaveTestCase(TestCase):
         respondent.save()
 
         comment = Comment(respondent=respondent, question_id=1,
-                          message='hello world', language='ENG')
+                          message='hello world', language='en')
         comment.save()
 
         self.assertEqual(QuantitativeQuestionRating.objects.count(), 0)
 
         http_response = self.push({
-            'quantitative-question-ratings': [
-                {
-                    'question-id': 1,
-                    'score': 4
-                }
-            ],
-            'comments': [
-                {
-                    'question-id': 1,
-                    'message': 'hello world'
-                }
-            ],
-            'comment-ratings': [
-                {
-                    'comment-id': comment.id,
-                    'score': 2
-                }
-            ],
+            'question-ratings': {
+                '1': 4
+            },
+            'comments': {
+                '1': 'hello world',
+            },
+            'comment-ratings': {
+                str(comment.id): 2
+            },
             'respondent-data': {
-                'language': 'FIL'
+                'language': 'tl'
             }
         })
 
@@ -109,7 +100,8 @@ class ResponseSaveTestCase(TestCase):
 
     def test_invalid_data_save(self):
         http_response = self.push({
-            'quantitative-question-ratings': [
+            # Bad format
+            'question-ratings': [
                 {}
             ]
         })
