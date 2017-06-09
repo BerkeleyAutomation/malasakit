@@ -8,7 +8,7 @@
 
 {% block content %}
   <ol>
-    {% for qid, prompt, left_text, right_text in questions %}
+    {% for qid, input_type, prompt, left_text, right_text in questions %}
       <li>
         <p class="prompt">{% trans prompt %}</p>
         <span class="leftlabel">{% trans left_text %}</span>

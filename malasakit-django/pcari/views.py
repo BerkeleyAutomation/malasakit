@@ -241,9 +241,19 @@ def personal_information(request):
 @language_selectable
 def quantitative_questions(request):
     questions = QuantitativeQuestion.objects.all()
-    question_text = [(question.id, question.prompt, question.left_text,
-                      question.right_text) for question in questions]
-    context = {'questions': question_text}
+    range_questions, select_questions, number_questions = [], [], []
+    for q in questions:
+        if q.input_type is 'range':
+            range_questions.append(q.id, q.prompt, q.left_text, q.right_text)
+        elif q.input_type is 'select':
+            select_questions.append(q.id, q.prompt, q.options)
+        elif q.input_type is 'number':
+            number_questions.append(q.id, q.prompt, q.minval, q.maxval)
+    context = {
+        'range-questions': range_questions,
+        'select-questions': select_questoins,
+        'number-questions': number_questions
+    }
     return render(request, 'quantitative-questions.html', context)
 
 
@@ -262,8 +272,8 @@ def rate_comments(request):
 @language_selectable
 def qualitative_questions(request):
     questions = QualitativeQuestion.objects.all()
-    question_text = [(question.id, question.prompt) for question in questions]
-    context = {'questions': question_text}
+    question_attrs = [(question.id, question.prompt) for question in questions]
+    context = {'questions': question_attrs}
     return render(request, 'qualitative-questions.html', context)
 
 
