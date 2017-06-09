@@ -6,6 +6,15 @@
 {% block title %}{% trans 'Thank You' %}{% endblock %}
 {% block main-heading %}{% trans 'Thank You' %}{% endblock %}
 
+{% block scripts %}
+  <script>
+    $(document).ready(function() {
+      invalidateCurrentID();
+      attemptDataPush();
+    });
+  </script>
+{% endblock %}
+
 {% block page-summary %}
   {% trans 'We appreciate your participation in the Malasakit program.' %}
 {% endblock %}

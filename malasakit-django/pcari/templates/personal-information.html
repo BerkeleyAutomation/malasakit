@@ -3,40 +3,43 @@
 {% load i18n %}
 {% load static %}
 
-{% block static-assets %}
-  {{ block.super }}
+{% block scripts %}
   <script>
-    function getIdentifier() {
-      return localStorage.getItem("current");
-    }
-
-    function updateRespondentData(key, value) {
-      if (value === NaN || value === "") {
-        return;
+    function locationUpdateCallback() {
+      var province = $('#province').val().trim();
+      var barangay = $('#barangay').val().trim();
+      if (province.length === 0 && barangay.length === 0) {
+        deleteRespondentAttribute('location');
+      } else if (province.length === 0) {
+        updateRespondentAttribute('location', barangay);
+      } else if (barangay.length === 0) {
+        updateRespondentAttribute('location', province);
+      } else {
+        updateRespondentAttribute('location', province + ', ' + barangay);
       }
-      var identifier = getIdentifier();
-      var data = JSON.parse(localStorage.getItem(identifier));
-      if (!('respondent-data' in data)) {
-        data['respondent-data'] = {}
-      }
-      if (value === NaN || value === "") {
-        delete data['respondent-data']
-      }
-      data['respondent-data'][key] = value;
-      localStorage.setItem(identifier, JSON.stringify(data));
     }
 
     $(document).ready(function() {
       $('#age').on('input', function() {
         var age = parseInt($('#age').val());
-        console.log("Updating age to " + age);
-        updateRespondentData('age', age);
+        if (!isNaN(age)) {
+          updateRespondentAttribute('age', age);
+        } else {
+          deleteRespondentAttribute('age');
+        }
       });
 
       $('#gender').on('input', function() {
         var gender = $('#gender').val();
-        console.log("Updating gender to " + gender);
-      })
+        if (gender) {
+          updateRespondentAttribute('gender', gender);
+        } else {
+          deleteRespondentAttribute('gender');
+        }
+      });
+
+      $('#province').on('input', locationUpdateCallback);
+      $('#barangay').on('input', locationUpdateCallback);
     });
   </script>
 {% endblock %}
