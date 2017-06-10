@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+
+{% block title %}{% trans 'Responses by Other Users' %}{% endblock %}
+{% block main-heading %}{% trans 'Responses by Other Users' %}{% endblock %}
+
+{% block content %}
+  <div class="nav-button">
+    <a href="{% url 'pcari:rate-comments' %}">{% trans 'Next' %}</a>
+  </div>
+{% endblock %}

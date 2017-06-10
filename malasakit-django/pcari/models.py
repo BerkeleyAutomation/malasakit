@@ -4,23 +4,21 @@ This module defines the structure of the data.
 Attributes:
     LANGUAGES: A tuple of pairs (tuples of size two), each of which has a
                language code as the first entry and the language name as
-               the second. The three-letter language code should be taken
-               from the ISO 639-2 standard.
+               the second. The two-letter language code should be taken
+               from the ISO 639-1 standard.
 """
 
 from __future__ import unicode_literals
 
 # Public-facing models (parent models are excluded)
 __all__ = ['Comment', 'QuantitativeQuestionRating', 'CommentRating',
-           'QualitativeQuestion', 'QuantitativeQuestion', 'Respondent']
+           'QualitativeQuestion', 'QuantitativeQuestion', 'Respondent',
+           'LANGUAGES']
 
+from django.conf import settings
 from django.db import models
 
-
-LANGUAGES = (
-    ('ENG', 'English'),
-    ('FIL', 'Filipino')
-)
+LANGUAGES = settings.LANGUAGES
 
 
 def accepts_ratings(ratings_model, keyword):
@@ -204,7 +202,7 @@ class Comment(Response):
     >>> respondent = Respondent()
     >>> question = QualitativeQuestion(prompt='How is the weather?')
     >>> comment = Comment(question=question, respondent=respondent,
-    ...                   language='ENG', message='Not raining.')
+    ...                   language='en', message='Not raining.')
     >>> comment.message
     'Not raining.'
     >>> comment.word_count
@@ -212,7 +210,7 @@ class Comment(Response):
     """
     question = models.ForeignKey('QualitativeQuestion',
                                  on_delete=models.CASCADE)
-    language = models.CharField(max_length=3, choices=LANGUAGES)
+    language = models.CharField(max_length=2, choices=LANGUAGES)
     message = models.TextField(blank=True)
     flagged = models.BooleanField(default=False)
     tag = models.CharField(max_length=256, blank=True, default='')
@@ -229,6 +227,10 @@ class Question(models.Model):
     """
     A `Question` models a prompt presented to the user that requires a
     response.
+
+    Note that question prompts and other text needed to render a question will
+    not be detected by Django's `makemessages` utility. The translation entries
+    will need to be created manually.
 
     Attributes:
         prompt: The prompt in the primary language of the application.
@@ -261,7 +263,14 @@ class QualitativeQuestion(Question):
 class QuantitativeQuestion(Question):
     """
     A `QuantitativeQuestion` is a `Question` that asks for a numeric rating.
+
+    Attributes:
+        left_text: The text that is rendered on the left end of the slider.
+        right_text: The text that is rendered on the right end of the slider.
     """
+    left_text = models.TextField(blank=True)
+    right_text = models.TextField(blank=True)
+
     def __unicode__(self):
         return 'QuantitativeQuestion {0}: "{1}"'.format(self.id, self.prompt)
 
@@ -307,7 +316,7 @@ class Respondent(models.Model):
     gender = models.CharField(max_length=1, choices=GENDERS, default='',
                               blank=True)
     location = models.CharField(max_length=512, default='', blank=True)
-    language = models.CharField(max_length=3, choices=LANGUAGES)
+    language = models.CharField(max_length=2, choices=LANGUAGES)
     submitted_personal_data = models.BooleanField(default=False)
     completed_survey = models.BooleanField(default=False)
 
