@@ -228,11 +228,7 @@ def quantitative_questions(request):
     questions = QuantitativeQuestion.objects.all()
     question_attrs = [(q.id, q.prompt, q.input_type, q.minval, q.maxval,
                 q.left_text, q.right_text) for q in questions]
-    context = {
-        'questions': question_attrs,
-        'range': 'range',
-        'number': 'number'
-    }
+    context = {'questions': question_attrs}
     return render(request, 'quantitative-questions.html', context)
 
 
