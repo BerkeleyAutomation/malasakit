@@ -48,12 +48,14 @@
 {% block main-heading %}{% trans 'Personal Information' %}{% endblock %}
 
 {% block content %}
-  <p id="privacy-notice">
-    {% blocktrans trimmed %}
-      All questions on this page are strictly optional.
-      Your responses will be anonymous.
-    {% endblocktrans %}
-  </p>
+  <div class="container">
+    <div class="center">
+      {% blocktrans trimmed %}
+        All questions on this page are strictly optional.
+        Your responses will be anonymous.
+      {% endblocktrans %}
+    </div>
+  </div>
   <table>
     <tr>
       <td>{% trans 'Age' %}</td>
@@ -82,10 +84,10 @@
     </tr>
     <tr>
       <td>{% trans 'Barangay' %}</td>
-      <td><input id="barangay"></td>
+      <td><input id="barangay" type="text-field"></td>
     </tr>
   </table>
   <div id="next" class="nav-button">
-    <a href="{% url 'pcari:quantitative-questions' %}">{% trans 'Next' %}</a>
+    <a href="{% url 'pcari:end' %}">{% trans 'Next' %}</a>
   </div>
 {% endblock %}

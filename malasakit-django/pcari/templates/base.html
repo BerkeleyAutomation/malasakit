@@ -2,7 +2,8 @@
 {% load static %}
 {% get_current_language as language_code %}
 
-<!DOCTYPE html>
+<!DOCTYPE HTML>
+
 <html lang="{{ language_code }}">
   <head>
     <meta charset="UTF-8">
@@ -44,15 +45,16 @@
     </main>
     <footer>
       <div class="container">
-        <hr>
-        <p id="footnote">
-          {% block footnote %}
-            {% blocktrans trimmed %}
-              A project by the CITRIS Connected Communities Initiative at
-              UC Berkeley and the Philippine Commission on Higher Education
-              through the Philippine-California Advanced Research Institutes Project.
-            {% endblocktrans %}
-          {% endblock footnote %}
+        <div class="center">
+          <hr>
+          <p id="footnote">
+            {% block footnote %}
+              {% blocktrans trimmed %}
+                A project by the CITRIS Connected Communities Initiative at
+                UC Berkeley and the Philippine Commission on Higher Education
+                through the Philippine-California Advanced Research Institutes Project.
+              {% endblocktrans %}
+            {% endblock %}
         </div>
       </div>
     </footer>

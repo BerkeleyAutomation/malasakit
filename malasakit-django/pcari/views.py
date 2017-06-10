@@ -48,7 +48,6 @@ def generate_quantitative_question_ratings_matrix():
 
     Each row corresponds to one respondent and each column corresponds to one
     question. Missing values are filled in with `np.nan`.
-
     Because we only pull ID numbers, this function runs in milliseconds.
     """
     respondent_ids = Respondent.objects.values_list('id', flat=True)
@@ -139,7 +138,6 @@ def save_response(request):
 
     The request body should contain the string representation of a JSON object
     (that is, a Python dictionary) of the following form:
-
         {
             "question-ratings": {
                 <qid>: <score>,
@@ -165,7 +163,7 @@ def save_response(request):
 
     The full specification is available at:
         https://github.com/BerkeleyAutomation/malasakit-v1/wiki/
-            Response-Storage-and-Transmission-Specification
+        Response-Storage-and-Transmission-Specification
 
     In cases where the data were successfully received but the contents of the
     request are syntactically or logically incorrect (for instance, providing
@@ -234,9 +232,10 @@ def personal_information(request):
 @language_selectable
 def quantitative_questions(request):
     questions = QuantitativeQuestion.objects.all()
-    question_text = [(question.id, question.prompt, question.left_text,
-                      question.right_text) for question in questions]
-    context = {'questions': question_text}
+    question_attrs = [(question.id, question.prompt, question.input_type,
+                       question.minval, question.maxval, question.left_text,
+                       question.right_text) for question in questions]
+    context = {'questions': question_attrs}
     return render(request, 'quantitative-questions.html', context)
 
 

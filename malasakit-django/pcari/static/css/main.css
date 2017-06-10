@@ -4,19 +4,10 @@
   font-family: 'Quicksand', sans-serif;
 }
 
-select {
-    width: 110%;
-    height: 35px;
-    overflow: hidden;
-    background: solid white;
-    border: 1px solid goldenrod;
-    font-size: medium;
-}
-
 .leftlabel, .rightlabel {
     display: inline-table;
     vertical-align: middle;
-    width: 150px;
+    width: 20%;
     padding: 2px;
     font-family: 'Quicksand',sans-serif;
 }
@@ -29,10 +20,21 @@ select {
     text-align: left;
 }
 
+input[type=number], input[type=text-field], select {
+    width: 110%;
+    max-width: 200px;
+    height: 35px;
+    overflow: hidden;
+    background: solid white;
+    border: 1px solid goldenrod;
+    font-size: medium;
+}
+
 input[type=range] {
     -webkit-appearance: none;
+    margin: 0 auto;
     border: 1px solid white;
-    width: 400px;
+    width: 50%;
 }
 
 input[type=range]::-webkit-slider-runnable-track {
@@ -174,11 +176,15 @@ hr {
   background-color: #e0e0e0;
 }
 
-.container {
-  max-width: 960px;
+.container, .container-center {
+  max-width: 720px;
   margin: 0 auto;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
+}
+
+.center {
+  text-align: center;
 }
 
 table {
@@ -188,6 +194,9 @@ table {
 .comment {
   width: 90%;
   height: 10rem;
+  border: 1px solid goldenrod;
+  resize: none;
+  font-size: medium;
 }
 
 body {
