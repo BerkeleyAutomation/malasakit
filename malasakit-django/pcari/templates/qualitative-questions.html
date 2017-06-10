@@ -47,9 +47,9 @@
     {% for qid, prompt in questions %}
       <li>
         <p class="prompt">{{ prompt }}</p>
-        <center>
-          <textarea class="comment"></textarea>
-        </center>
+        <div class="center">
+          <textarea id="comment-{{ qid }}" class="comment"></textarea>
+        </div>
       </li>
     {% endfor %}
   </ol>

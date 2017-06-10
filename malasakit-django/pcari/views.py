@@ -45,6 +45,7 @@ def profile(function):
 def generate_quantitative_question_ratings_matrix():
     """
     Fetches quantitative question ratings in the form of a numpy matrix.
+
     Each row corresponds to one respondent and each column corresponds to one
     question. Missing values are filled in with `np.nan`.
     Because we only pull ID numbers, this function runs in milliseconds.
@@ -70,8 +71,10 @@ def return_principal_components(n=2):
     """
     Calculates and returns the first n principal components of the quantitative
     question ratings matrix.
+
     Args:
         n: number of principal components to return .
+
     Returns:
         A q x n Numpy matrix where q is number of questions. Each row is a
         principal component.
@@ -132,6 +135,7 @@ def make_respondent_data(respondent, responses):
 def save_response(request):
     """
     Write a single user's responses to the database.
+
     The request body should contain the string representation of a JSON object
     (that is, a Python dictionary) of the following form:
         {
@@ -156,9 +160,11 @@ def save_response(request):
                 "completed-survey": ...
             }
         }
+
     The full specification is available at:
         https://github.com/BerkeleyAutomation/malasakit-v1/wiki/
-            Response-Storage-and-Transmission-Specification
+        Response-Storage-and-Transmission-Specification
+
     In cases where the data were successfully received but the contents of the
     request are syntactically or logically incorrect (for instance, providing
     the `id` of a question that does not exist, or malformed JSON), no models
@@ -226,8 +232,9 @@ def personal_information(request):
 @language_selectable
 def quantitative_questions(request):
     questions = QuantitativeQuestion.objects.all()
-    question_attrs = [(q.id, q.prompt, q.input_type, q.minval, q.maxval,
-                q.left_text, q.right_text) for q in questions]
+    question_attrs = [(question.id, question.prompt, question.input_type,
+                       question.minval, question.maxval, question.left_text,
+                       question.right_text) for question in questions]
     context = {'questions': question_attrs}
     return render(request, 'quantitative-questions.html', context)
 

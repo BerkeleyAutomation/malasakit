@@ -22,6 +22,7 @@
 
 input[type=number], input[type=text-field], select {
     width: 110%;
+    max-width: 200px;
     height: 35px;
     overflow: hidden;
     background: solid white;
@@ -175,11 +176,15 @@ hr {
   background-color: #e0e0e0;
 }
 
-.container {
+.container, .container-center {
   max-width: 720px;
   margin: 0 auto;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
+}
+
+.center {
+  text-align: center;
 }
 
 table {

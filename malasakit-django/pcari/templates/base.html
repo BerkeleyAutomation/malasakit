@@ -37,18 +37,6 @@
         <h1 id="main-heading">{% block main-heading %}Malasakit{% endblock %}</h1>
       </div>
     </header>
-    <page-summary>
-      <div class="container">
-        <center>
-          <p id="page-summary">
-            {% block page-summary %}
-              {% blocktrans trimmed %}
-              {% endblocktrans %}
-            {% endblock %}
-          </p>
-        </center>
-      </div>
-    </page-summary>
     <main>
       <div class="container">
         {% block content %}
@@ -57,8 +45,8 @@
     </main>
     <footer>
       <div class="container">
-        <hr>
-          <center>
+        <div class="center">
+          <hr>
           <p id="footnote">
             {% block footnote %}
               {% blocktrans trimmed %}
@@ -67,7 +55,6 @@
                 through the Philippine-California Advanced Research Institutes Project.
               {% endblocktrans %}
             {% endblock %}
-          </center>
         </div>
       </div>
     </footer>

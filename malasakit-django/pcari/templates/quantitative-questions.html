@@ -52,11 +52,11 @@
         <p class="prompt">{% trans prompt %}</p>
         <span class="leftlabel">{% trans left_text %}</span>
         {% ifequal type "range" %}
-          <input name="{{ qid }}" type="range" value="{{ minval }}"
+          <input id="rating-{{ qid }}" type="range" value="{{ minval }}"
                  min="{{ minval }}" max="{{ maxval }}">
         {% endifequal %}
         {% ifequal type "number" %}
-          <input name="{{ qid }}" type="number" style="max-width:200px;"
+          <input id="rating-{{ qid }}" type="number" style="max-width:200px;"
                  min="{{ minval }}" max="{{ maxval }}">
         {% endifequal %}
         <span class="rightlabel">{% trans right_text %}</span>

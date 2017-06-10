@@ -13,15 +13,14 @@
   </script>
 {% endblock %}
 
-{% block page-summary %}
-  {% blocktrans trimmed %}
-    How prepared are you in times of disaster?
-    {{ num_responses }} barangay citizens have responded.
-    Join them!
-  {% endblocktrans %}
-{% endblock %}
-
 {% block content %}
+  <p class="center">
+    {% blocktrans trimmed %}
+      How prepared are you in times of disaster?
+      {{ num_responses }} barangay citizens have responded.
+      Join them!
+    {% endblocktrans %}
+  </p>
   <img src="{% static 'img/landing1.jpg' %}">
   <div id="next" class="nav-button">
     <a href="{% url 'pcari:quantitative-questions' %}">{% trans 'Begin' %}</a>
