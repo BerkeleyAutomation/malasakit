@@ -7,7 +7,7 @@
 .leftlabel, .rightlabel {
     display: inline-table;
     vertical-align: middle;
-    width: 150px;
+    width: 20%;
     padding: 2px;
     font-family: 'Quicksand',sans-serif;
 }
