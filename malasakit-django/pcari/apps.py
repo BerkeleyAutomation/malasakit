@@ -1,11 +1,12 @@
 from __future__ import unicode_literals
+
 import logging
 import os
 import sys
+import yaml
 
 from django.apps import AppConfig
 from django.conf import settings
-import yaml
 
 
 class PCARIConfig(AppConfig):
