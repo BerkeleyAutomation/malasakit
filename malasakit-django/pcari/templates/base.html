@@ -32,26 +32,29 @@
         </ul>
       </div>
     </nav>
-    <page-specific-content>
-      <div class="page-specific-content">
-        <header>
-          <h1 id="main-heading">{% block main-heading %}Malasakit{% endblock %}</h1>
-        </header>
-        <page-summary>
-          <center>
-            <p id="page-summary">
-              {% block page-summary %}
-                  {% blocktrans trimmed %}
-                  {% endblocktrans %}
-              {% endblock %}
-          </center>
-        </page-summary>
-        <main>
-          {% block content %}
-          {% endblock %}
-        </main>
+    <header>
+      <div class="container">
+        <h1 id="main-heading">{% block main-heading %}Malasakit{% endblock %}</h1>
       </div>
-    </page-specific-content>
+    </header>
+    <page-summary>
+      <div class="container">
+        <center>
+          <p id="page-summary">
+            {% block page-summary %}
+              {% blocktrans trimmed %}
+              {% endblocktrans %}
+            {% endblock %}
+          </p>
+        </center>
+      </div>
+    </page-summary>
+    <main>
+      <div class="container">
+        {% block content %}
+        {% endblock %}
+      </div>
+    </main>
     <footer>
       <div class="container">
         <hr>

@@ -47,11 +47,18 @@
 
 {% block content %}
   <ol>
-    {% for qid, prompt, left_text, right_text in questions %}
+    {% for qid, prompt, type, minval, maxval, left_text, right_text in questions %}
       <li>
         <p class="prompt">{% trans prompt %}</p>
         <span class="leftlabel">{% trans left_text %}</span>
-        <input name="{{ qid }}" type="range" value="0" min="0" max="9">
+        {% ifequal type "range" %}
+          <input name="{{ qid }}" type="range" value="{{ minval }}"
+                 min="{{ minval }}" max="{{ maxval }}">
+        {% endifequal %}
+        {% ifequal type "number" %}
+          <input name="{{ qid }}" type="number" style="max-width:200px;"
+                 min="{{ minval }}" max="{{ maxval }}">
+        {% endifequal %}
         <span class="rightlabel">{% trans right_text %}</span>
       </li>
     {% endfor %}
