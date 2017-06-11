@@ -65,7 +65,7 @@ def accepts_ratings(ratings_model, keyword):
     True
     """
     def ratings_aggregator(target_model):
-        """ The decorator itself. """
+        """ A decorator that wraps a model that can be rated. """
         def select_ratings(self, answered=True):
             """
             Select ratings attached to this target model instance.
@@ -93,16 +93,21 @@ def accepts_ratings(ratings_model, keyword):
         def num_ratings(self):
             return self.select_ratings().count()
 
-        def standard_error(self):
-            """ Computes the statistical standard error. """
+        def stdev(self):
+            """ Computed the sample standard deviation. """
             scores = self.select_ratings().values_list('score', flat=True)
             mean_score = float(sum(scores))/len(scores)
-            variance = sum(pow(score - mean_score, 2)/len(scores) for score in scores)
-            return variance**0.5/len(scores)**2
+            squared_errors = (pow(score - mean_score, 2) for score in scores)
+            return (sum(squared_errors)/len(scores))**0.5
+
+        def standard_error(self):
+            """ Computes the statistical standard error of the mean. """
+            return self.stdev/self.num_ratings**0.5
 
         target_model.select_ratings = select_ratings
         target_model.mean_score = property(mean_score)
         target_model.num_ratings = property(num_ratings)
+        target_model.stdev = property(stdev)
         target_model.standard_error = property(standard_error)
         return target_model
     return ratings_aggregator
