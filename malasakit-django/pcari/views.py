@@ -132,10 +132,24 @@ def make_respondent_data(respondent, responses):
     yield respondent
 
 
+@require_GET
+def fetch_comments(request):
+    """
+    Fetch a list of comments as JSON.
+    """
+    return JsonResponse({
+        str(comment.id): {
+            'msg': comment.message,
+            'std-err': round(comment.standard_error, 6)
+        }
+        for comment in Comment.objects.all()
+    })
+
+
 @require_POST
 def save_response(request):
     """
-    Write a single user's responses to the database.
+    Write a single user's responses as a JSON object to the database.
 
     The request body should contain the string representation of a JSON object
     (that is, a Python dictionary) of the following form:
@@ -162,10 +176,6 @@ def save_response(request):
                 "completed-survey": ...
             }
         }
-
-    The full specification is available at:
-        https://github.com/BerkeleyAutomation/malasakit-v1/wiki/
-            Response-Storage-and-Transmission-Specification
 
     In cases where the data were successfully received but the contents of the
     request are syntactically or logically incorrect (for instance, providing

@@ -94,15 +94,29 @@ def accepts_ratings(ratings_model, keyword):
             return self.select_ratings().count()
 
         def stdev(self):
-            """ Computed the sample standard deviation. """
+            """
+            Computed the sample standard deviation.
+
+            Returns:
+                `float('nan')` if the number of samples is fewer than two.
+            """
             scores = self.select_ratings().values_list('score', flat=True)
+            if len(scores) < 2:
+                return float('nan')
             mean_score = float(sum(scores))/len(scores)
             squared_errors = (pow(score - mean_score, 2) for score in scores)
-            return (sum(squared_errors)/len(scores))**0.5
+            return (sum(squared_errors)/(len(scores) - 1))**0.5
 
         def standard_error(self):
-            """ Computes the statistical standard error of the mean. """
-            return self.stdev/self.num_ratings**0.5
+            """
+            Computes the statistical standard error of the mean.
+
+            Returns:
+                `float('nan')` if the number of samples is fewer than two.
+            """
+            num_ratings = self.num_ratings
+            return (self.stdev/num_ratings**0.5 if num_ratings > 0
+                    else float('nan'))
 
         target_model.select_ratings = select_ratings
         target_model.mean_score = property(mean_score)

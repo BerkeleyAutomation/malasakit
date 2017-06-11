@@ -24,5 +24,6 @@ urlpatterns = [
     url(r'^end/$', views.end, name='end'),
 
     # AJAX endpoints
+    url(r'^fetch-comments', views.fetch_comments, name='fetch-comments'),
     url(r'^save-response', views.save_response, name='save-response'),
 ]
