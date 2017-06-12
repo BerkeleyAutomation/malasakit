@@ -22,5 +22,5 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
 
     # Regular site
-    url(r'^pcari/', include('pcari.urls')),
+    url(r'^/', include('pcari.urls')),
 ]
