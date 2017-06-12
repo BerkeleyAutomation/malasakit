@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans 'Thank You' %}{% endblock %}
+{% block main-heading %}{% trans 'Thank You' %}{% endblock %}
+
+{% block scripts %}
+  <script>
+    $(document).ready(function() {
+      invalidateCurrentID();
+      attemptDataPush();
+    });
+  </script>
+{% endblock %}
+
+{% block content %}
+  <p>
+    {% trans 'We appreciate your participation in the Malasakit program.' %}
+  </p>
+  <div class="nav-button">
+    <a href="{% url 'pcari:landing' %}">{% trans 'Finish' %}</a>
+  </div>
+{% endblock %}

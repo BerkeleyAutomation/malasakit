@@ -1,76 +1,28 @@
-{% load staticfiles %}
-<html>
-<head>
-  <meta charset="UTF-8" />
-  <!-- Social media stuff -->
-  <meta property="og:title" content="California Report Card"/>
-  <meta property="og:type" content="website"/>
-  <meta property="og:image" content="{% static 'img/cafe/cafe6.png' %}" />
-  <meta property="og:url" content="{{ url_root }}/" />
-  <meta property="og:description" content="The California Report Card allows visitors to grade issues facing California and to suggest issues for future report cards." />
-  <!-- <link rel="stylesheet" type= "text/css" href="{% static 'pcari/pretest_style.css' %}"> -->
-  <link rel="stylesheet" type= "text/css" href="{% static 'opinionspace.css' %}">
-  <script type='text/javascript' src="{% static 'accounts.js' %}"></script>
-  <script type='text/javascript' src="{% static 'd3.v2.min.js' %}"></script>
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
-  <title>PCARI</title>
-</head>
-<body>
- <div class="full-page">
+{% extends 'base.html' %}
 
-  <div class='landing'>
-    <center>
-      <div class="home-btn-dialog-box landing-navigation">
-        <div class="home-btn-title responsive-header">
-          <a href="{% url 'pcari:landing' %}" style="cursor: pointer;cursor: hand;"><span class="landing-page-banner">Malasakit</span></a> 
-        </div>
+{% load i18n %}
+{% load static %}
 
-        <div class="home-btn-wrapper" style="width:35%;display:inline-block;">
-          <a href="{% url 'pcari:switch_language' %}" class="translate-btn">{{translate}}</a>
-          <a href="{% url 'pcari:help' %}"><a href="{% url 'pcari:help' %}"><img width="30px" class='help-btn-dialog' id="help-landing" src="{% static 'img/cafe/CRC_help_bttn_compress.png' %}"></a></a>
-        </div>
+{% block title %}{% trans 'Welcome' %}{% endblock %}
 
-      </div>
-      <img width="100%" src="{% static 'img/cafe/landing-phil2.jpg' %}" style="margin-top:3px;max-width: 620px;">
-      <div class="landing-img-title responsive-body" style="display:none;">
-        {{topic}}
-      </div> 
-        <br/>
+{% block scripts %}
+  <script>
+    $(document).ready(function() {
+      $('#next').click(createNewCurrentID);
+    })
+  </script>
+{% endblock %}
 
-        <div class="landing-img-txt responsive-body">  
-
-          <span class="english">{{landing_description}}</span>
-
-          <!-- <span class="spanish">Únete a los <strong>{{num_users}}</strong> otros para amplificar la inteligencia colectiva de California</span> -->
-        </div>
-
-
-        <div>
-          <form action="{% url 'pcari:create_user'%}" method="POST">
-              {% csrf_token %}
-              <input  class='button-div-red' style="margin-top: 10px;" type="submit" value="{{begin}}" />
-            </form>
-        </div>
-
-        
-
-        <br/><br/><br/>
-
-        <div class="landing-disclaimer">
-          {{short_description}}
-        </div>
-        <div>
-          <!--<span>
-            <a href="http://en.wikipedia.org/wiki/California_Report_Card" target="_blank">{{more_info}}</a>
-          </span>-->
-        </div>
-      </center>
-
-
-
-    </div>
-
-
-  </body>
-  </html>
+{% block content %}
+  <p>
+    {% blocktrans trimmed %}
+      How prepared are you in times of disaster?
+      {{ num_responses }} barangay citizens have responded.
+      Join them!
+    {% endblocktrans %}
+  </p>
+  <img src="{% static 'img/landing1.jpg' %}">
+  <div id="next" class="nav-button">
+    <a href="{% url 'pcari:personal-information' %}">{% trans 'Begin' %}</a>
+  </div>
+{% endblock %}
