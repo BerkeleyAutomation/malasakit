@@ -8,6 +8,7 @@ LINT_TARGETS=pcari/models.py pcari/urls.py
 all: lint test
 
 test:
+	export mysql_pass=''
 	cd $(DJANGO_PROJECT_ROOT) && python2 manage.py test
 
 lint: $(LINT_TARGETS:%.py=$(DJANGO_PROJECT_ROOT)/%.py)
