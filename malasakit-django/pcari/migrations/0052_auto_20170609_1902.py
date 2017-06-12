@@ -34,8 +34,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField('Comment', 'language',
-                              models.CharField(max_length=2, choices=settings.LANGUAGES)),
+                              models.CharField(max_length=25, choices=settings.LANGUAGES)),
         migrations.AlterField('Respondent', 'language',
-                              models.CharField(max_length=2, choices=settings.LANGUAGES)),
+                              models.CharField(max_length=25, choices=settings.LANGUAGES)),
         migrations.RunPython(change_language_code_forward),
     ]
