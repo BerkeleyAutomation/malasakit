@@ -6,5 +6,5 @@ from pcari.models import Comment, User
 u = User.objects.all().filter(username="14")[0]
 
 for c in Comment.objects.all():
-	if c.user == u:
-		c.delete()
+    if c.user == u:
+        c.delete()
