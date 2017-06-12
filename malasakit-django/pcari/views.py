@@ -235,7 +235,6 @@ def quantitative_questions(request):
     context = {'questions': questions}
     return render(request, 'quantitative-questions.html', context)
 
-
 @language_selectable
 def response_histograms(request):
     return render(request, 'response-histograms.html')
