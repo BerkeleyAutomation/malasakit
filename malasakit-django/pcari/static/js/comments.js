@@ -5,7 +5,7 @@ const COMMENTS_KEY = 'comments';
 const COMMENTS_TIMESTAMP_KEY = 'comments-timestamp';
 const COMMENTS_LIFETIME = 24 * 60 * 60 * 1000;  // in ms
 
-const COMMENTS_ENDPOINT = '/pcari/fetch-comments';
+const COMMENTS_ENDPOINT = '/pcari/fetch-comments/';
 
 function commentsExpired() {
     if (!(COMMENTS_TIMESTAMP_KEY in localStorage)) {

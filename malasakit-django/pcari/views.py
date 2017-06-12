@@ -95,16 +95,6 @@ def return_principal_components(n=2):
     return VT[:n,:] # return first n rows
 
 
-def select_comments(respondent, threshold=10):
-    """
-    TODO: finalize an algorithm for doing this (discuss) [PCA?]
-    """
-    data = generate_quantiative_question_ratings_matrix()
-    question_ids_map, ratings_matrix = data
-    mean_responses = data.nanmean(axis=0)
-    data -= mean_responses  # Remove bias
-
-
 def make_quantitative_question_ratings(respondent, responses):
     for question_id, score in responses.get('question-ratings', {}).iteritems():
         question = QuantitativeQuestion(id=int(question_id))
@@ -153,12 +143,14 @@ def fetch_comments(request):
 
     data = {}
     for comment in comments:
-        standard_error = comment.standard_error
-        data[str(comment.id)] = {
-            'msg': comment.message,
-            'sem': round(standard_error if not math.isnan(standard_error)
-                         else DEFAULT_STANDARD_ERROR, STANDARD_ERROR_PRECISION)
-        }
+        if len(comment.message.strip()) > 0:
+            standard_error = comment.standard_error
+            if math.isnan(standard_error):
+                standard_error = DEFAULT_STANDARD_ERROR
+            data[str(comment.id)] = {
+                'msg': comment.message,
+                'sem': round(standard_error, STANDARD_ERROR_PRECISION)
+            }
 
     return JsonResponse(data)
 

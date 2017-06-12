@@ -12,7 +12,7 @@ const CURRENT_ID_KEY = 'current';
 const CURRENT_ID_LIFETIME = 24 * 60 * 60 * 1000;  // in ms
 const NO_CURRENT_ID = 'none';
 
-const RESPONSE_SAVE_ENDPOINT = '/pcari/save-response';
+const RESPONSE_SAVE_ENDPOINT = '/pcari/save-response/';
 const DEFAULT_TIMEOUT = 5000;  // in ms
 
 const EMPTY_RESPONSE = {
@@ -71,6 +71,7 @@ function attemptInvalidateCurrentID() {
         var dateStarted = getTimestampFromID(currentID);
         var now = new Date();
         if (now - dateStarted > CURRENT_ID_LIFETIME) {
+            console.log('Invalidating current ID');
             invalidateCurrentID();
         }
     }

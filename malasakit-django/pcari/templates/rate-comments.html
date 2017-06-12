@@ -6,9 +6,34 @@
 {% block title %}{% trans 'Rate Comments by Other Users' %}{% endblock %}
 {% block main-heading %}{% trans 'Rate Comments by Other Users' %}{% endblock %}
 
+{% block static-assets %}
+  {{ block.super }}
+{% endblock %}
+
 {% block scripts %}
   <script>
-    // TODO: implement this
+    const SELECTED_COMMENTS_KEY = 'selected-comments';
+
+    function selectComments() {
+      if (!(SELECTED_COMMENTS_KEY in localStorage)) {
+        if (!(COMMENTS_KEY in localStorage)) {
+          console.log('=> No comments found');
+          return;
+        }
+
+        var comments = JSON.parse(localStorage.getItem(COMMENTS_KEY));
+        console.log(comments);
+      }
+    }
+
+    function renderComments() {
+      //
+    }
+
+    $(document).ready(function() {
+      selectComments();
+      renderComments();
+    });
   </script>
 {% endblock %}
 
