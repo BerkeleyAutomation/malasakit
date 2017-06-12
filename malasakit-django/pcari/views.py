@@ -5,6 +5,7 @@ This module defines the application's views, which are needed to render pages.
 # Standard library
 import logging
 import json
+import math
 import random
 import time
 
@@ -26,6 +27,10 @@ from .models import QuantitativeQuestion, QualitativeQuestion
 from .models import Comment, CommentRating, QuantitativeQuestionRating
 
 DEFAULT_LANGUAGE = settings.LANGUAGE_CODE
+DEFAULT_COMMENT_LIMIT = 1000  # Default maximum number of comments to send
+DEFAULT_STANDARD_ERROR = 4.5  # For comments with fewer than two ratings
+STANDARD_ERROR_PRECISION = 6  # Number of decimal places
+
 LOGGER = logging.getLogger('pcari')
 
 
@@ -137,13 +142,25 @@ def fetch_comments(request):
     """
     Fetch a list of comments as JSON.
     """
-    return JsonResponse({
-        str(comment.id): {
+    try:
+        limit = int(request.GET.get('limit', str(DEFAULT_COMMENT_LIMIT)))
+    except ValueError as error:
+        return HttpResponseBadRequest(str(error))
+
+    comments = list(Comment.objects.all())
+    if len(comments) > limit:
+        comments = random.sample(comments, limit)
+
+    data = {}
+    for comment in comments:
+        standard_error = comment.standard_error
+        data[str(comment.id)] = {
             'msg': comment.message,
-            'std-err': round(comment.standard_error, 6)
+            'sem': round(standard_error if not math.isnan(standard_error)
+                         else DEFAULT_STANDARD_ERROR, STANDARD_ERROR_PRECISION)
         }
-        for comment in Comment.objects.all()
-    })
+
+    return JsonResponse(data)
 
 
 @require_POST
@@ -182,7 +199,7 @@ def save_response(request):
     the `id` of a question that does not exist, or malformed JSON), no models
     are written to the database, and a general HTTP error code of 400 is
     returned. The error code indicates that the client should not send another
-    request without modifications to the request's contents.
+    request without modifications to the request's body.
     """
     respondent = Respondent()
     respondent.save()
