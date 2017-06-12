@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans 'Rate Comments by Other Users' %}{% endblock %}
+{% block main-heading %}{% trans 'Rate Comments by Other Users' %}{% endblock %}
+
+{% block scripts %}
+  <script>
+    // TODO: implement this
+  </script>
+{% endblock %}
+
+{% block content %}
+  <p>
+    {% blocktrans trimmed %}
+      These are some suggestions made by other people living in barangays
+      across the Phillippines.
+      Read each one, and rate how helpful it is.
+    {% endblocktrans %}
+  </p>
+
+  <!-- TODO: refactor with dynamic client-side comment selection -->
+
+  <!-- S1 -->
+  <p class="q"><b>1. Suggestion 1</b></p>
+  <span class="leftlabel">Very unhelpful.</span>
+  <input type="range" value="0" min=1 max=10 />
+  <span class="rightlabel">Very helpful.</span>
+
+  <!-- S2 -->
+  <p class="q"><b>2. Suggestion 2</b></p>
+  <span class="leftlabel">Very unhelpful.</span>
+  <input type="range" value="0" min=1 max=10 />
+  <span class="rightlabel">Very helpful.</span>
+
+  <!-- S3 -->
+  <p class="q"><b>3. Suggestion 3</b></p>
+  <span class="leftlabel">Very unhelpful.</span>
+  <input type="range" value="0" min=1 max=10 />
+  <span class="rightlabel">Very helpful.</span>
+
+  <div class="nav-button">
+    <a href="{% url 'pcari:qualitative-questions' %}">Next</a>
+  </div>
+{% endblock %}
