@@ -138,6 +138,7 @@ def save_response(request):
 
     The request body should contain the string representation of a JSON object
     (that is, a Python dictionary) of the following form:
+
         {
             "question-ratings": {
                 <qid>: <score>,
@@ -214,7 +215,6 @@ def language_selectable(view):
 def index(request):
     return redirect(reverse('pcari:landing'))
 
-
 @language_selectable
 def landing(request):
     context = {'num_responses': Respondent.objects.count()}
@@ -232,10 +232,7 @@ def personal_information(request):
 @language_selectable
 def quantitative_questions(request):
     questions = QuantitativeQuestion.objects.all()
-    question_attrs = [(question.id, question.prompt, question.input_type,
-                       question.minval, question.maxval, question.left_text,
-                       question.right_text) for question in questions]
-    context = {'questions': question_attrs}
+    context = {'questions': questions}
     return render(request, 'quantitative-questions.html', context)
 
 

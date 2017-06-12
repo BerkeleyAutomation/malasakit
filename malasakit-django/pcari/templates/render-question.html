@@ -1,0 +1,18 @@
+{% load i18n %}
+{% load static %}
+
+{% ifequal q.input_type "number" %}
+  <span class="leftlabel">{% trans q.left_text %}</span>
+  <input id="rating-{{ q.id }}" type='range' value="{{ q.min_val }}"
+         min="{{ q.min_val }}" max="{{ q.max_val }}">
+  <span class="rightlabel">{% trans q.right_text %}</span>
+{% endifequal %}
+
+{% ifequal q.input_type "range" %}
+  <div class="center">
+    <span class="leftlabel">{% trans q.left_text %}</span>
+    <input id="rating-{{ q.id }}" type='number' style="max-width:200px;"
+         min="{{ q.min_val }}" max="{{ q.max_val }}">
+    <span class="rightlabel">{% trans q.right_text %}</span>
+  </div>
+{% endifequal %}

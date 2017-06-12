@@ -108,6 +108,13 @@ def accepts_ratings(ratings_model, keyword):
     return ratings_aggregator
 
 
+def validate_has_input_type(model):
+    if not hasattr(model, 'input_type'):
+        raise AttributeError('Model ' + model.__name__ +
+                             ' must have `input_type` attribute.')
+    return model
+
+
 class Response(models.Model):
     """
     A `Response` is an abstract model of user-generated data.
@@ -243,6 +250,7 @@ class Question(models.Model):
         abstract = True
 
 
+@validate_has_input_type
 class QualitativeQuestion(Question):
     """
     A `QualitativeQuestion` is a `Question` that asks for a comment.
@@ -251,6 +259,8 @@ class QualitativeQuestion(Question):
         comments: A Django `QuerySet` of `Comment`s in response to this
                   question.
     """
+    input_type = 'text-field'
+
     def __unicode__(self):
         return 'QualitativeQuestion {0}: "{1}"'.format(self.id, self.prompt)
 
@@ -259,6 +269,7 @@ class QualitativeQuestion(Question):
         return Comment.objects.filter(question=self)
 
 
+@validate_has_input_type
 @accepts_ratings(QuantitativeQuestionRating, 'question')
 class QuantitativeQuestion(Question):
     """
@@ -267,6 +278,11 @@ class QuantitativeQuestion(Question):
     Attributes:
         left_text: The text that is rendered on the left end of the slider.
         right_text: The text that is rendered on the right end of the slider.
+        min_val: The smallest possible value for any response.
+        max_val: The largest possible value for any response.
+        input_type: `'range'` or `'number'`
+            range: The question displays as a slider.
+            number: The question displays as a number-specific text field.
     """
     INPUT_TYPES = (
         ('range', 'range'),
@@ -275,13 +291,55 @@ class QuantitativeQuestion(Question):
 
     left_text = models.TextField(blank=True)
     right_text = models.TextField(blank=True)
-    minval = models.PositiveSmallIntegerField(default=0, null=True, blank=True)
-    maxval = models.PositiveSmallIntegerField(default=9, null=True, blank=True)
+    min_val = models.PositiveSmallIntegerField(default=0, null=True, blank=True)
+    max_val = models.PositiveSmallIntegerField(default=9, null=True, blank=True)
     input_type = models.CharField(max_length=16, choices=INPUT_TYPES,
                                   default='range', blank=True)
 
     def __unicode__(self):
         return 'QuantitativeQuestion {0}: "{1}"'.format(self.id, self.prompt)
+
+
+@validate_has_input_type
+class OptionQuestion(Question):
+    """
+    An `OptionQuestion` is a `Question` that asks the user to select one option
+    from a pre-defined set of choices.
+
+    Attributes:
+        options: The serialized list of allowed options.
+    """
+    INPUT_TYPES = (
+        ('dropdown', 'dropdown'),
+        ('bubble', 'bubble')
+    )
+
+    options = models.TextField(blank=True)
+    input_type = models.CharField(max_length=16, choices=INPUT_TYPES,
+                                  default='dropdown', blank=True)
+
+    def __unicode__(self):
+        return 'OptionQuestion {0}: "{1}"'.format(self.id, self.prompt)
+
+
+class OptionSelection(Rating):
+    """
+    An `OptionSelection` is a response to an `OptionQuestion`, corresponding to
+    one of the options allowed by the `OptionQuestion`.
+
+    Attributes:
+        question: A reference to the `OptionQuestion` this selection is in
+                  response to.
+    """
+    question = models.ForeignKey('OptionQuestion',
+                                 on_delete=models.CASCADE)
+
+    def __unicode__(self):
+        template = 'QuantitativeQuestion {0}: {1}'
+        return template.format(self.question_id, self.score)
+
+    class Meta:
+        unique_together = ('respondent', 'question')
 
 
 class Respondent(models.Model):

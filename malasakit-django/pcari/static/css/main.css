@@ -9,7 +9,6 @@
     vertical-align: middle;
     width: 20%;
     padding: 2px;
-    font-family: 'Quicksand',sans-serif;
 }
 
 .leftlabel {
@@ -22,7 +21,6 @@
 
 input[type=number], input[type=text-field], select {
     width: 110%;
-    max-width: 200px;
     height: 35px;
     overflow: hidden;
     background: solid white;
