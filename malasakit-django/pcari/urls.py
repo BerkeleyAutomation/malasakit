@@ -5,8 +5,6 @@ This module defines how URLs should route to views.
 from django.conf.urls import url
 from django.views.generic import TemplateView
 
-import os
-
 from . import views
 
 # pylint: disable=invalid-name
@@ -29,7 +27,7 @@ urlpatterns = [
     # ServiceWorker script- special case
     url(r'^sw.js$',
         TemplateView.as_view(template_name='sw.js',
-                                          content_type='application/javascript'),
+                             content_type='application/javascript'),
         name='sw.js'),
 
     # AJAX endpoints
