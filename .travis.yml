@@ -1,9 +1,14 @@
 language: python
 python:
   - '2.7'
-install: 'pip install -r requirements.txt'
-script: 'make all'
 services:
   - mysql
+env:
+  - mysql_pass=''
+install: 'pip install -r requirements.txt'
+before_script:
+  - mysql -e 'CREATE DATABASE pcari;'
+  - python2 manage.py migrate --run-syncdb
+script: 'make all'
 notifications:
   email: false
