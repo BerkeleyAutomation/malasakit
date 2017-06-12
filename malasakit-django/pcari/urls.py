@@ -3,12 +3,16 @@ This module defines how URLs should route to views.
 """
 
 from django.conf.urls import url
+from django.contrib import admin
 
 from . import views
 
 # pylint: disable=invalid-name
 app_name = 'pcari'
 urlpatterns = [
+    # Admin site
+    url(r'^admin/', admin.site.urls),
+
     # User-facing views
     url(r'^$', views.index, name='index'),
     url(r'^landing/$', views.landing, name='landing'),

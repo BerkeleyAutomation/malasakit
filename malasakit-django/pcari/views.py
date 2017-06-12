@@ -5,23 +5,21 @@ This module defines the application's views, which are needed to render pages.
 # Standard library
 import logging
 import json
-import random
 import time
 
 # Third-party libraries
 from django.apps import apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
-from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
-from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.http import require_POST
 from django.utils import translation
 from django.urls import reverse
 import numpy as np
 
 # Local modules and models
 from .models import Respondent
-from .models import LANGUAGES
 from .models import QuantitativeQuestion, QualitativeQuestion
 from .models import Comment, CommentRating, QuantitativeQuestionRating
 
@@ -31,10 +29,10 @@ LOGGER = logging.getLogger('pcari')
 
 def profile(function):
     def wrapper(*args, **kwargs):
-        start = time.time()
+        start_time = time.time()
         result = function(*args, **kwargs)
-        end = time.time()
-        time_elapsed = end - start
+        end_time = time.time()
+        time_elapsed = end_time - start_time
         message = 'Call to {} took {:.3f} seconds'
         LOGGER.log(logging.INFO, message.format(function.__name__, time_elapsed))
         return result
@@ -95,7 +93,6 @@ def select_comments(respondent, threshold=10):
     TODO: finalize an algorithm for doing this (discuss) [PCA?]
     """
     data = generate_quantiative_question_ratings_matrix()
-    question_ids_map, ratings_matrix = data
     mean_responses = data.nanmean(axis=0)
     data -= mean_responses  # Remove bias
 
