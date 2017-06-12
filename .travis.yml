@@ -10,6 +10,7 @@ before_script:
   - mysql -e 'CREATE DATABASE pcari;'
   - cd malasakit-django
   - python2 manage.py migrate --run-syncdb
+  - cd ..
 script: 'make all'
 notifications:
   email: false

@@ -130,8 +130,15 @@ function deleteRespondentAttribute(name) {
     });
 }
 
+function setLanguage() {
+    updateCurrentResponse(function(response) {
+        response['respondent-data']['language'] = $('html').attr('lang');
+    });
+}
+
 $(document).ready(function() {
     csrfSetup();
+    setLanguage();
     attemptInvalidateCurrentID();
     attemptDataPush();
 });
