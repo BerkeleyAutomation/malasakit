@@ -17,6 +17,6 @@ function main() {
     }
 }
 
-window.onload = function() {
+window.onload = function () {
     main();
-}
+};
