@@ -12,7 +12,7 @@ app_name = 'pcari'
 urlpatterns = [
     # Admin site
     url(r'^admin/', admin.site.urls),
-
+    
     # User-facing views
     url(r'^$', views.index, name='index'),
     url(r'^landing/$', views.landing, name='landing'),
