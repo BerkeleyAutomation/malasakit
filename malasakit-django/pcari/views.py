@@ -95,38 +95,6 @@ def return_principal_components(n=2):
     return VT[:n,:] # return first n rows
 
 
-def make_quantitative_question_ratings(respondent, responses):
-    for question_id, score in responses.get('question-ratings', {}).iteritems():
-        question = QuantitativeQuestion(id=int(question_id))
-        yield QuantitativeQuestionRating(respondent=respondent, question=question,
-                                         score=score)
-
-
-def make_comments(respondent, responses):
-    for question_id, message in responses.get('comments', {}).iteritems():
-        question = QualitativeQuestion(id=int(question_id))
-        yield Comment(respondent=respondent, question=question,
-                      language=respondent.language, message=message)
-
-
-def make_comment_ratings(respondent, responses):
-    for comment_id, score in responses.get('comment-ratings', {}).iteritems():
-        comment = Comment.objects.get(id=int(comment_id))
-        yield CommentRating(respondent=respondent, comment=comment, score=score)
-
-
-def make_respondent_data(respondent, responses):
-    respondent_data = responses.get('respondent-data', {})
-    attributes = ['age', 'gender', 'location',
-                  'submitted_personal_data', 'completed_survey']
-    for attribute in attributes:
-        serialized_name = attribute.replace('_', '-')
-        if serialized_name in respondent_data:
-            setattr(respondent, attribute, respondent_data[serialized_name])
-    respondent.language = respondent_data['language']
-    yield respondent
-
-
 @require_GET
 def fetch_comments(request):
     """
@@ -153,6 +121,38 @@ def fetch_comments(request):
             }
 
     return JsonResponse(data)
+
+
+def make_quantitative_question_ratings(respondent, responses):
+    for question_id, scores in responses.get('question-ratings', {}).iteritems():
+        question = QuantitativeQuestion(id=int(question_id))
+        yield QuantitativeQuestionRating(respondent=respondent, question=question,
+                                         score=scores[-1])
+
+
+def make_comments(respondent, responses):
+    for question_id, message in responses.get('comments', {}).iteritems():
+        question = QualitativeQuestion(id=int(question_id))
+        yield Comment(respondent=respondent, question=question,
+                      language=respondent.language, message=message)
+
+
+def make_comment_ratings(respondent, responses):
+    for comment_id, score in responses.get('comment-ratings', {}).iteritems():
+        comment = Comment.objects.get(id=int(comment_id))
+        yield CommentRating(respondent=respondent, comment=comment, score=score[-1])
+
+
+def make_respondent_data(respondent, responses):
+    respondent_data = responses.get('respondent-data', {})
+    attributes = ['age', 'gender', 'location', 'submitted_personal_data',
+                  'completed_survey']
+    for attribute in attributes:
+        serialized_name = attribute.replace('_', '-')
+        if serialized_name in respondent_data:
+            setattr(respondent, attribute, respondent_data[serialized_name])
+    respondent.language = respondent_data['language']
+    yield respondent
 
 
 @require_POST
@@ -211,6 +211,7 @@ def save_response(request):
             model_instances.extend(model_generator(respondent, responses))
     except (KeyError, ValueError, ObjectDoesNotExist) as error:
         respondent.delete()
+        LOGGER.log(logging.ERROR, error)
         return HttpResponseBadRequest(str(error))
 
     for instance in model_instances:

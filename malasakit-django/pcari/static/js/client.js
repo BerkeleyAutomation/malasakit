@@ -75,11 +75,12 @@ function initializeNewResponse() {
 
 function pushResponse(responseKey) {
     var response = localStorage.getItem(responseKey);
+    postprocess(response);
     if (response !== null) {
         $.ajax(RESPONSE_PUSH_ENDPOINT, {
             method: 'POST',
             timeout: RESPONSE_PUSH_TIMEOUT,
-            data: postprocess(response),
+            data: response,
             success: function() {
                 console.log('Successfully pushed data for ' + responseKey);
                 localStorage.removeItem(responseKey);
@@ -174,8 +175,60 @@ function fetchComments() {
     }
 }
 
-function bindListener(element, callback) {
-    element.on('input', function() {
+/** Mid-level API */
+
+function followPath(response, path) {
+    for (var index in path) {
+        var component = path[index];
+        if (component in response) {
+            response = response[component];
+        } else {
+            return null;
+        }
+    }
+    return response;
+}
+
+function getPathRepr(path, separator = ' -> ') {
+    return '[' + path.join(separator) + ']'
+}
+
+function getResponseValue(path) {
+    var value = null;
+    editCurrentResponse(function(response) {
+        value = followPath(response, path);
+    });
+    return value;
+}
+
+function setResponseValue(path, value, verbose = true) {
+    editCurrentResponse(function(response) {
+        var last = path[path.length - 1];
+        var parent = followPath(response, path.slice(0, -1));
+        parent[last] = value;
+
+        if (verbose) {
+            console.log(getPathRepr(path) + ' of current response set to ' + value);
+        }
+    });
+}
+
+function deleteResponseValue(path, verbose = true) {
+    editCurrentResponse(function(response) {
+        var last = path[path.length - 1];
+        var parent = followPath(response, path.slice(0, -1));
+        delete parent[last];
+
+        if (verbose) {
+            console.log('Deleted ' + getPathRepr(path));
+        }
+    });
+}
+
+/** High-level API */
+
+function bindListener(element, eventName, callback) {
+    element.on(eventName, function() {
         var value = $(this).val();
         callback(value);
     });
@@ -183,52 +236,55 @@ function bindListener(element, callback) {
 
 function makeValueStoreCallback(path, preprocess, verbose) {
     console.assert(path.length > 1);
-    var pathRepr = '[' + path.join(' -> ') + ']';
-
     return function(value) {
         value = value.trim();
-        editCurrentResponse(function(response) {
-            var pathFront = path.slice(0, -1), lastComponent = path[path.length - 1];
-            var parentObject = response;
-            pathFront.forEach(function(key) {
-                parentObject = parentObject[key];
-            });
-
-            if (value) {
-                parentObject[lastComponent] = preprocess(value);
-                if (verbose) {
-                    console.log(pathRepr + ' of current response set to ' + value);
-                }
-            } else {
-                delete parentObject[lastComponent];
-                if (verbose) {
-                    console.log('Removed ' + pathRepr + ' of current response');
-                }
-            }
-        });
+        if (value) {
+            setResponseValue(path, preprocess(value), verbose);
+        } else {
+            deleteResponseValue(path, verbose);
+        }
     };
 }
 
-function refillForm(element, path, verbose) {
-    editCurrentResponse(function(response) {
-        for (var index in path) {
-            var component = path[index];
-            if (!(component in response)) {
-                return;
-            }
-            response = response[component];
+function makeHistoryStoreCallback(path, preprocess, verbose) {
+    console.assert(path.length > 1);
+    return function(value) {
+        value = value.trim();
+        var history = getResponseValue(path);
+        if (value) {
+            history.push(preprocess(value));
+        } else {
+            history.push(null);
         }
-        element.val(response);
-        if (verbose) {
-            var pathRepr = '[' + path.join(' -> ') + ']';
-            console.log('Restoring value from ' + pathRepr + ' to ' + response);
+        setResponseValue(path, history);
+    }
+}
+
+function refillElementFromValue(element, path) {
+    var value = getResponseValue(path);
+    if (value !== null) {
+        element.val(value);
+    }
+}
+
+function refillElementFromHistory(element, path) {
+    var history = getResponseValue(path);
+    if (history !== null && history.length > 0) {
+        var last = history[history.length - 1];
+        if (last !== null) {
+            element.val(last);
         }
-    });
+    }
 }
 
 function bindValueStoreListener(element, path, preprocess = x => x, verbose = true) {
-    bindListener(element, makeValueStoreCallback(path, preprocess, verbose));
-    refillForm(element, path, verbose);
+    bindListener(element, 'input', makeValueStoreCallback(path, preprocess, verbose));
+    refillElementFromValue(element, path);
+}
+
+function bindHistoryStoreListener(element, path, preprocess = x => x, verbose = true) {
+    bindListener(element, 'change', makeHistoryStoreCallback(path, preprocess, verbose));
+    refillElementFromHistory(element, path);
 }
 
 function postprocess(response) {
