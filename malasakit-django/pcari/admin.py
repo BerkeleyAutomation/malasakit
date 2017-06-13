@@ -1,7 +1,7 @@
 from django.contrib import admin
 
-from .models import QualitativeQuestion, QuantitativeQuestion, 
-from .models import CommentRating, Comment, 
+from .models import QualitativeQuestion, QuantitativeQuestion
+from .models import CommentRating, Comment
 from .models import QuantitativeQuestionRating, Respondent
 
 admin.site.register(QualitativeQuestion)

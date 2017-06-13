@@ -113,11 +113,10 @@ def make_comments(respondent, responses):
 
         # Replaces empty messages with None so they can show up as placeholders in admin 
         if message == "" or message.isspace():
-            yield Comment(respondent=respondent, question=question,
-                          language=respondent.language, message=None)
-        else:
-            yield Comment(respondent=respondent, question=question,
-                          language=respondent.language, message=message)
+            message = None
+
+        yield Comment(respondent=respondent, question=question,
+                      language=respondent.language, message=message)
 
 
 def make_comment_ratings(respondent, responses):
