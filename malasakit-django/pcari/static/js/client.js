@@ -79,7 +79,7 @@ function pushResponse(responseKey) {
         $.ajax(RESPONSE_PUSH_ENDPOINT, {
             method: 'POST',
             timeout: RESPONSE_PUSH_TIMEOUT,
-            data: response,
+            data: postprocess(response),
             success: function() {
                 console.log('Successfully pushed data for ' + responseKey);
                 localStorage.removeItem(responseKey);
@@ -95,6 +95,11 @@ function pushCompletedResponses() {
     var currentResponseKey = localStorage.getItem(CURRENT_RESPONSE_KEY);
     for (var key in localStorage) {
         if (key.startsWith(RESPONSE_KEY_PREFIX) && key !== currentResponseKey) {
+            editLocalStorageJSON(key, function(response) {
+                console.assert(response !== null);
+                postprocess(response);
+                return response;
+            });
             pushResponse(key);
         }
     }
@@ -176,32 +181,58 @@ function bindListener(element, callback) {
     });
 }
 
-function makeValueStoreCallback(path, preprocess = x => x, verbose = true) {
+function makeValueStoreCallback(path, preprocess, verbose) {
     console.assert(path.length > 1);
     var pathRepr = '[' + path.join(' -> ') + ']';
 
     return function(value) {
         value = value.trim();
         editCurrentResponse(function(response) {
-            var pathFront = path.slice(0, -1), pathLast = path[path.length - 1];
+            var pathFront = path.slice(0, -1), lastComponent = path[path.length - 1];
             var parentObject = response;
             pathFront.forEach(function(key) {
                 parentObject = parentObject[key];
             });
 
             if (value) {
-                parentObject[pathLast] = preprocess(value);
+                parentObject[lastComponent] = preprocess(value);
                 if (verbose) {
                     console.log(pathRepr + ' of current response set to ' + value);
                 }
             } else {
-                delete parentObject[pathLast];
+                delete parentObject[lastComponent];
                 if (verbose) {
                     console.log('Removed ' + pathRepr + ' of current response');
                 }
             }
         });
     };
+}
+
+function refillForm(element, path, verbose) {
+    editCurrentResponse(function(response) {
+        for (var index in path) {
+            var component = path[index];
+            if (!(component in response)) {
+                return;
+            }
+            response = response[component];
+        }
+        element.val(response);
+        if (verbose) {
+            var pathRepr = '[' + path.join(' -> ') + ']';
+            console.log('Restoring value from ' + pathRepr + ' to ' + response);
+        }
+    });
+}
+
+function bindValueStoreListener(element, path, preprocess = x => x, verbose = true) {
+    bindListener(element, makeValueStoreCallback(path, preprocess, verbose));
+    refillForm(element, path, verbose);
+}
+
+function postprocess(response) {
+    //
 }
 
 $(document).ready(function() {

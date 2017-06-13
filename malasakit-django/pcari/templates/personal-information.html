@@ -5,33 +5,15 @@
 
 {% block scripts %}
   <script>
-    function locationUpdateCallback(response) {
-      var province = $('#province').val().trim();
-      var barangay = $('#barangay').val().trim();
-      if (province.length === 0 && barangay.length === 0) {
-        delete response['respondent-data']['location'];
-        console.log('Removed [respondent-data -> location] of current response');
-      } else {
-        if (province.length === 0) {
-          response['respondent-data']['location'] = barangay;
-        } else if (barangay.length === 0) {
-          response['respondent-data']['location'] = province;
-        } else {
-          response['respondent-data']['location'] = province + ', ' + barangay;
-        }
-        console.log('[respondent-data -> location] of current response updated to '
-                    + response['respondent-data']['location']);
-      }
-    }
-
     $(document).ready(function() {
-      bindListener($('#age'), makeValueStoreCallback(['respondent-data', 'age'], parseInt));
-      bindListener($('#gender'), makeValueStoreCallback(['respondent-data', 'gender']));
-      $('#province').on('input', function() {
-        editCurrentResponse(locationUpdateCallback);
-      });
-      $('#barangay').on('input', function() {
-        editCurrentResponse(locationUpdateCallback);
+      bindValueStoreListener($('#age'), ['respondent-data', 'age'], parseInt);
+      bindValueStoreListener($('#gender'), ['respondent-data', 'gender']);
+      bindValueStoreListener($('#province'), ['respondent-data', 'province']);
+      bindValueStoreListener($('#barangay'), ['respondent-data', 'barangay']);
+      $('#next').click(function() {
+        editCurrentResponse(function(response) {
+          response['respondent-data']['submitted-personal-data'] = true;
+        });
       });
     });
   </script>
