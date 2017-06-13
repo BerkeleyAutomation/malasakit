@@ -1,17 +1,17 @@
-/** storage.js
+/** client.js
  */
 
 const CURRENT_RESPONSE_KEY = 'current';
 const RESPONSE_KEY_PREFIX = 'user-';
-const RESPONSE_LIFETIME = 24*60*60*1000;
+const CURRENT_RESPONSE_LIFETIME = 24*60*60*1000;
 const RESPONSE_PUSH_ENDPOINT = '/pcari/save-response/';
 const RESPONSE_PUSH_TIMEOUT = 5000;
 
-const COMMENT_KEY = 'comments';
-const COMMENT_TIMESTAMP_KEY = 'comments-timestamp';
-const COMMENT_LIFETIME = 12*60*60*1000;
-const COMMENT_FETCH_ENDPOINT = '/pcari/fetch-comments/';
-const COMMENT_FETCH_TIMEOUT = 5000;
+const COMMENTS_KEY = 'comments';
+const COMMENTS_TIMESTAMP_KEY = 'comments-timestamp';
+const COMMENTS_LIFETIME = 12*60*60*1000;
+const COMMENTS_FETCH_ENDPOINT = '/pcari/fetch-comments/';
+const COMMENTS_FETCH_TIMEOUT = 5000;
 
 const EMPTY_RESPONSE = {
     'question-ratings': {},
@@ -48,6 +48,7 @@ function csrfSetup() {
             }
         }
     });
+    console.log('AJAX with CSRF token usage initialized');
  }
 
 function getCurrentTimestamp() {
@@ -57,12 +58,14 @@ function getCurrentTimestamp() {
 function editLocalStorageJSON(key, callback) {
     var unserializedObject = JSON.parse(localStorage.getItem(key));
     unserializedObject = callback(unserializedObject);
-    localStorage.setItem(key, JSON.stringify(unserializedObject));
+    if (unserializedObject !== null) {
+        localStorage.setItem(key, JSON.stringify(unserializedObject));
+    }
 }
 
 function initializeNewResponse() {
-    var timestamp = getCurrentTimestamp();
-    var key = RESPONSE_KEY_PREFIX + timestamp.toString();
+    var now = getCurrentTimestamp();
+    var key = RESPONSE_KEY_PREFIX + now.toString();
     localStorage.setItem(CURRENT_RESPONSE_KEY, key);
     localStorage.setItem(key, JSON.stringify(EMPTY_RESPONSE));
 }
@@ -87,15 +90,78 @@ function pushCompletedResponses() {
     }
 }
 
-function setLanguage() {
+function editCurrentResponse(callback) {
     var currentResponseKey = localStorage.getItem(CURRENT_RESPONSE_KEY);
-    editLocalStorageJSON(currentResponseKey, function(response) {
+    editLocalStorageJSON(currentResponseKey, callback);
+}
+
+function recordCurrentLanguage() {
+    editCurrentResponse(function(response) {
         if (response !== null) {
+            var language = $('html').attr('lang');
+            response['respondent-data']['language'] = language;
+            console.log('Set respondent language to "' + language + '"');
+            return response;
+        } else {
+            return null;
         }
     });
 }
 
+function getTimestampFromResponseKey(key) {
+    console.assert(key.startsWith(RESPONSE_KEY_PREFIX));
+    return new Date(parseInt(key.substring(RESPONSE_KEY_PREFIX.length)));
+}
+
+function invalidateCurrentResponseKey() {
+    if (CURRENT_RESPONSE_KEY in localStorage) {
+        delete localStorage[CURRENT_RESPONSE_KEY];
+    }
+}
+
+function invalidateOldCurrentResponseKey() {
+    if (CURRENT_RESPONSE_KEY in localStorage) {
+        var currentResponseKey = localStorage.getItem(CURRENT_RESPONSE_KEY);
+        var now = getCurrentTimestamp();
+        var currentResponseTimestamp = getTimestampFromResponseKey(currentResponseKey);
+        if (now - currentResponseTimestamp > CURRENT_RESPONSE_LIFETIME) {
+            invalidateCurrentResponseKey();
+            console.log('Invalidated old current response key');
+        } else {
+            console.log('Current response key is still alive');
+        }
+    }
+}
+
+function commentsExpired() {
+    var now = getCurrentTimestamp();
+    var commentsTimestamp = new Date(parseInt(localStorage.getItem(COMMENTS_TIMESTAMP_KEY)));
+    return now - commentsTimestamp > COMMENTS_LIFETIME;
+}
+
+function fetchComments() {
+    if (!(COMMENTS_KEY in localStorage) || commentsExpired()) {
+        $.ajax(COMMENTS_FETCH_ENDPOINT, {
+            timeout: COMMENTS_FETCH_TIMEOUT,
+            success: function(comments) {
+                var now = getCurrentTimestamp();
+                localStorage.setItem(COMMENTS_KEY, JSON.stringify(comments));
+                localStorage.setItem(COMMENTS_TIMESTAMP_KEY, now.toString());
+                console.log('Successfully fetched comments');
+            },
+            failure: function(comments) {
+                console.log('Failed to fetch comments');
+            }
+        });
+    } else {
+        console.log('Using cached comments');
+    }
+}
+
 $(document).ready(function() {
-    var currentResponseKey = localStorage.getItem(CURRENT_RESPONSE_KEY);
-    if (current)
+    csrfSetup();
+    fetchComments();
+    recordCurrentLanguage();
+    invalidateOldCurrentResponseKey();
+    pushCompletedResponses();
 });
