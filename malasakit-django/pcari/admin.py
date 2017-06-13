@@ -1,6 +1,8 @@
 from django.contrib import admin
 
-from .models import QualitativeQuestion, QuantitativeQuestion, QuantitativeQuestionRating, CommentRating, Comment, Respondent
+from .models import QualitativeQuestion, QuantitativeQuestion, 
+from .models import CommentRating, Comment, 
+from .models import QuantitativeQuestionRating, Respondent
 
 admin.site.register(QualitativeQuestion)
 admin.site.register(QuantitativeQuestion)
@@ -37,9 +39,6 @@ class CommentAdmin(admin.ModelAdmin):
 
     # Enables search
     search_fields = ('respondent', 'message', 'tag')
-
-
-    # list_filter = ('timestamp', )
 
 admin.site.register(Comment, CommentAdmin)
 
