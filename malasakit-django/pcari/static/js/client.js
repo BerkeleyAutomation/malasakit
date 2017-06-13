@@ -1,4 +1,7 @@
-/** client.js
+/** client.js -- Response and comment storage and transmission
+ *
+ *  Uses the `localStorage` API and AJAX calls to store comments and responses
+ *  locally.
  */
 
 const CURRENT_RESPONSE_KEY = 'current';
@@ -164,6 +167,41 @@ function fetchComments() {
     } else {
         console.log('Using cached comments');
     }
+}
+
+function bindListener(element, callback) {
+    element.on('input', function() {
+        var value = $(this).val();
+        callback(value);
+    });
+}
+
+function makeValueStoreCallback(path, preprocess = x => x, verbose = true) {
+    console.assert(path.length > 1);
+    var pathRepr = '[' + path.join(' -> ') + ']';
+
+    return function(value) {
+        value = value.trim();
+        editCurrentResponse(function(response) {
+            var pathFront = path.slice(0, -1), pathLast = path[path.length - 1];
+            var parentObject = response;
+            pathFront.forEach(function(key) {
+                parentObject = parentObject[key];
+            });
+
+            if (value) {
+                parentObject[pathLast] = preprocess(value);
+                if (verbose) {
+                    console.log(pathRepr + ' of current response set to ' + value);
+                }
+            } else {
+                delete parentObject[pathLast];
+                if (verbose) {
+                    console.log('Removed ' + pathRepr + ' of current response');
+                }
+            }
+        });
+    };
 }
 
 $(document).ready(function() {
