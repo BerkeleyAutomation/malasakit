@@ -20,7 +20,7 @@ from django.contrib import admin
 # pylint: disable=invalid-name
 urlpatterns = [
     # Regular site
-    url(r'^pcari/$', include('pcari.urls')),
+    url(r'^pcari/', include('pcari.urls')),
 
     # Admin site password reset
     url(r'^admin/password_reset/$', auth_views.password_reset, name='admin_password_reset'),

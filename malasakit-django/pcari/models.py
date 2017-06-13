@@ -237,7 +237,7 @@ class Question(models.Model):
         tag: A short string that summarizes the prompt.
     """
     prompt = models.TextField(blank=True)
-    tag = models.CharField(max_length=255, blank=True, default='')
+    tag = models.CharField(max_length=256, blank=True, default='')
 
     class Meta:
         abstract = True
