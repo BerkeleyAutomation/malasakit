@@ -18,6 +18,8 @@ var views = [
 var urlsToCache = [];
 
 for (var i = 0; i < views.length; i++) {
+    urlsToCache.push(views[i]); // really unsure about not caching these at all,
+    // as someone may decide to type in url without get request param
     for (var j = 0; j < langCodes.length; j++) {
         urlsToCache.push(views[i] + "?lang=" + langCodes[j]);
     }
