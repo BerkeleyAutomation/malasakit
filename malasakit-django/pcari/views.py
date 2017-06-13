@@ -107,8 +107,14 @@ def make_quantitative_question_ratings(respondent, responses):
 def make_comments(respondent, responses):
     for question_id, message in responses.get('comments', {}).iteritems():
         question = QualitativeQuestion(id=int(question_id))
-        yield Comment(respondent=respondent, question=question,
-                      language=respondent.language, message=message)
+
+        # Replaces empty messages with None so they can show up as placeholders in admin 
+        if message == "" or message.isspace():
+            yield Comment(respondent=respondent, question=question,
+                          language=respondent.language, message=None)
+        else:
+            yield Comment(respondent=respondent, question=question,
+                          language=respondent.language, message=message)
 
 
 def make_comment_ratings(respondent, responses):

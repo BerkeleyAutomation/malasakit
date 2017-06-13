@@ -211,7 +211,7 @@ class Comment(Response):
     question = models.ForeignKey('QualitativeQuestion',
                                  on_delete=models.CASCADE)
     language = models.CharField(max_length=25, choices=LANGUAGES)
-    message = models.TextField(blank=True)
+    message = models.TextField(blank=True, null=True)
     flagged = models.BooleanField(default=False)
     tag = models.CharField(max_length=256, blank=True, default='')
 
