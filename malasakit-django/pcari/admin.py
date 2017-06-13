@@ -18,6 +18,8 @@ class CommentAdmin(admin.ModelAdmin):
     # By default first column listed in list_display is clickable; this makes `message` column clickable
     list_display_links = ('message',)
 
+    list_filter = ('timestamp', 'language', 'flagged', 'tag')
+
 
 
     # list_filter = ('timestamp', )
