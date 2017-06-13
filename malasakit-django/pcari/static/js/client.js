@@ -70,41 +70,49 @@ function initializeNewResponse() {
     localStorage.setItem(key, JSON.stringify(EMPTY_RESPONSE));
 }
 
+function pushResponse(responseKey) {
+    var response = localStorage.getItem(responseKey);
+    if (response !== null) {
+        $.ajax(RESPONSE_PUSH_ENDPOINT, {
+            method: 'POST',
+            timeout: RESPONSE_PUSH_TIMEOUT,
+            data: response,
+            success: function() {
+                console.log('Successfully pushed data for ' + responseKey);
+                localStorage.removeItem(responseKey);
+            },
+            error: function() {
+                console.log('Could not push data for ' + responseKey);
+            },
+        });
+    }
+}
+
 function pushCompletedResponses() {
     var currentResponseKey = localStorage.getItem(CURRENT_RESPONSE_KEY);
     for (var key in localStorage) {
         if (key.startsWith(RESPONSE_KEY_PREFIX) && key !== currentResponseKey) {
-            $.ajax(RESPONSE_PUSH_ENDPOINT, {
-                method: 'POST',
-                timeout: RESPONSE_PUSH_TIMEOUT,
-                data: localStorage.getItem(key),
-                success: function() {
-                    console.log('Successfully pushed data for ' + key);
-                    localStorage.removeItem(key);
-                },
-                error: function() {
-                    console.log('Could not push data for ' + key);
-                },
-            });
+            pushResponse(key);
         }
     }
 }
 
 function editCurrentResponse(callback) {
     var currentResponseKey = localStorage.getItem(CURRENT_RESPONSE_KEY);
-    editLocalStorageJSON(currentResponseKey, callback);
+    editLocalStorageJSON(currentResponseKey, function(response) {
+        if (response === null) {
+            return null;
+        }
+        callback(response);
+        return response;
+    });
 }
 
 function recordCurrentLanguage() {
     editCurrentResponse(function(response) {
-        if (response !== null) {
-            var language = $('html').attr('lang');
-            response['respondent-data']['language'] = language;
-            console.log('Set respondent language to "' + language + '"');
-            return response;
-        } else {
-            return null;
-        }
+        var language = $('html').attr('lang');
+        response['respondent-data']['language'] = language;
+        console.log('Set respondent language to "' + language + '"');
     });
 }
 
@@ -135,7 +143,7 @@ function invalidateOldCurrentResponseKey() {
 
 function commentsExpired() {
     var now = getCurrentTimestamp();
-    var commentsTimestamp = new Date(parseInt(localStorage.getItem(COMMENTS_TIMESTAMP_KEY)));
+    var commentsTimestamp = parseInt(localStorage.getItem(COMMENTS_TIMESTAMP_KEY));
     return now - commentsTimestamp > COMMENTS_LIFETIME;
 }
 
@@ -160,8 +168,8 @@ function fetchComments() {
 
 $(document).ready(function() {
     csrfSetup();
-    fetchComments();
     recordCurrentLanguage();
     invalidateOldCurrentResponseKey();
     pushCompletedResponses();
+    fetchComments();
 });

@@ -5,41 +5,57 @@
 
 {% block scripts %}
   <script>
-    function locationUpdateCallback() {
+    function locationUpdateCallback(response) {
       var province = $('#province').val().trim();
       var barangay = $('#barangay').val().trim();
       if (province.length === 0 && barangay.length === 0) {
-        deleteRespondentAttribute('location');
-      } else if (province.length === 0) {
-        updateRespondentAttribute('location', barangay);
-      } else if (barangay.length === 0) {
-        updateRespondentAttribute('location', province);
+        delete response['respondent-data']['location'];
+        console.log('Removed location attribute');
       } else {
-        updateRespondentAttribute('location', province + ', ' + barangay);
+        if (province.length === 0) {
+          response['respondent-data']['location'] = barangay;
+        } else if (barangay.length === 0) {
+          response['respondent-data']['location'] = province;
+        } else {
+          response['respondent-data']['location'] = province + ', ' + barangay;
+        }
+        console.log('Updated location to "' + response['respondent-data']['location'] + '"');
       }
     }
 
     $(document).ready(function() {
       $('#age').on('input', function() {
-        var age = parseInt($('#age').val());
-        if (!isNaN(age)) {
-          updateRespondentAttribute('age', age);
-        } else {
-          deleteRespondentAttribute('age');
-        }
+        var age = parseInt($(this).val());
+        editCurrentResponse(function(response) {
+          if (!isNaN(age)) {
+            response['respondent-data']['age'] = age;
+            console.log('Updated age to ' + age);
+          } else {
+            delete response['respondent-data']['age'];
+            console.log('Removed age');
+          }
+        });
       });
 
       $('#gender').on('input', function() {
-        var gender = $('#gender').val();
-        if (gender) {
-          updateRespondentAttribute('gender', gender);
-        } else {
-          deleteRespondentAttribute('gender');
-        }
+        var gender = $(this).val().trim();
+        editCurrentResponse(function(response) {
+          if (gender) {
+            response['respondent-data']['gender'] = gender;
+            console.log('Updated gender to ' + gender);
+          } else {
+            delete response['respondent-data']['gender'];
+            console.log('')
+          }
+        });
       });
 
-      $('#province').on('input', locationUpdateCallback);
-      $('#barangay').on('input', locationUpdateCallback);
+      $('#province').on('input', function() {
+        editCurrentResponse(locationUpdateCallback);
+      });
+      $('#barangay').on('input', function() {
+        editCurrentResponse(locationUpdateCallback);
+      });
     });
   </script>
 {% endblock %}
