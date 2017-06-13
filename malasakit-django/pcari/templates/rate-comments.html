@@ -28,7 +28,7 @@
       var selectedPoint = totalError * Math.random();
 
       for (var index = 1; index < cumulativeErrors.length; index++) {
-        if (cumulativeErrors[index - 1] < selectedPoint
+        if (cumulativeErrors[index - 1] <= selectedPoint
             && selectedPoint < cumulativeErrors[index]) {
           return commentIDs[index];
         }

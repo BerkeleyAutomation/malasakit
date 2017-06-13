@@ -22,35 +22,7 @@ const EMPTY_RESPONSE = {
     'respondent-data': {}
 }
 
-function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
 
-function csrfSafeMethod(method) {
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-}
-
-function csrfSetup() {
-    $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
-            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                var csrftoken = getCookie('csrftoken');
-                xhr.setRequestHeader('X-CSRFToken', csrftoken);
-            }
-        }
-    });
-}
 
 function getTimestampFromID(id) {
     var millsecondsSinceEpoch = parseInt(id.substring(ID_PREFIX.length));
@@ -111,9 +83,11 @@ function createNewCurrentID() {
 
 function updateCurrentResponse(callback) {
     var currentID = getCurrentID();
-    var response = JSON.parse(localStorage.getItem(currentID));
-    callback(response);
-    localStorage.setItem(currentID, JSON.stringify(response))
+    if (currentID !== null) {
+        var response = JSON.parse(localStorage.getItem(currentID));
+        callback(response);
+        localStorage.setItem(currentID, JSON.stringify(response))
+    }
 }
 
 function updateRespondentAttribute(name, value) {
@@ -132,7 +106,9 @@ function deleteRespondentAttribute(name) {
 
 function setLanguage() {
     updateCurrentResponse(function(response) {
-        response['respondent-data']['language'] = $('html').attr('lang');
+        if (response !== null) {
+            response['respondent-data']['language'] = $('html').attr('lang');
+        }
     });
 }
 
