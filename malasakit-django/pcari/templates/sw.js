@@ -4,17 +4,24 @@
 */
 
 var CACHE_NAME = 'malasakit-cache';
-var urlsToCache = [
-    '/pcari/personal-information/',
+var langCodes = ['en', 'tl'];
+var views = [
     '/pcari/landing/',
-    '/pcari/static/img/landing1.jpg', // TODO: Fix hardcoded url issue
-    '/pcari/sw.js',
+    '/pcari/personal-information/',
     '/pcari/quantitative-questions/',
     '/pcari/response-histograms/',
     '/pcari/rate-comments/',
     '/pcari/qualitative-questions/',
     '/pcari/end/'
 ];
+
+var urlsToCache = [];
+
+for (var i = 0; i < views.length; i++) {
+    for (var j = 0; j < langCodes.length; j++) {
+        urlsToCache.push(views[i] + "?lang=" + langCodes[j]);
+    }
+}
 
 function installEvent(event) {
     console.log("Installing. Resources to prefetch:", urlsToCache);
@@ -28,7 +35,7 @@ function installEvent(event) {
 }
 
 function fetchEvent(event) {
-    console.log("Fetch event!");
+    console.log("Requesting resource: ", event.request.url);
     // Upon receiving an event
     // We first attempt to fetch desired resource from server.
     // fetch(event.request) returns a Promise that may or may not be
@@ -38,7 +45,6 @@ function fetchEvent(event) {
             .catch(function (err) {
                 // If fetch fails (i.e. no internet connection or server issue)
                 // then attempt to pull resource from cache.
-                console.log("Requesting resource: ", event.request.url);
                 console.log("=== FETCH FAILED, LOOKING IN CACHE ===");
                 console.log(err);
                 console.log("======================================");
