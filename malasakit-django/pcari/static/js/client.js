@@ -321,7 +321,7 @@ function selectComments(method) {
                                    Object.keys(comments).length);
         for (var index = 0; index < numToSelect; index++) {
             var commentID = method(comments);
-            selectedComments[commentID] = comments[commentID]['msg'];
+            selectedComments[commentID] = comments[commentID];
             delete comments[commentID];
         }
 

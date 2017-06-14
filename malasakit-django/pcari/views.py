@@ -156,7 +156,7 @@ def fetch_comments(request):
             # Projects the ratings by this comment's author onto the first two
             # principal components
             ratings_by_respondent = normalized_ratings[row_index, :]
-            position = list(components.dot(ratings_by_respondent))
+            position = list(np.round(components.dot(ratings_by_respondent), 6))
 
             if math.isnan(standard_error):
                 standard_error = DEFAULT_STANDARD_ERROR
@@ -164,6 +164,7 @@ def fetch_comments(request):
                 'msg': comment.message,
                 'sem': round(standard_error, STANDARD_ERROR_PRECISION),
                 'pos': position,
+                'tag': comment.tag,
             }
 
     return JsonResponse(data)

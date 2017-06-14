@@ -8,16 +8,74 @@
 
 {% block static-assets %}
   {{ block.super }}
+  <script src="{% static 'js/d3.v4.min.js' %}"></script>
 {% endblock %}
 
 {% block scripts %}
   <script>
-    function renderComments() {
-      //
+    var selectedComments = JSON.parse(localStorage.getItem(SELECTED_COMMENTS_KEY)) || {};
+
+    function calculateBounds() {
+      var bounds = {
+        top: -Infinity,
+        bottom: Infinity,
+        left: Infinity,
+        right: -Infinity,
+      };
+      for (var commentID in selectedComments) {
+        var comment = selectedComments[commentID];
+        var position = comment.pos;
+        var x = position[0], y = position[1];
+        if (y > bounds.top) {
+          bounds.top = y;
+        }
+        if (y < bounds.bottom) {
+          bounds.bottom = y;
+        }
+        if (x > bounds.right) {
+          bounds.right = x;
+        }
+        if (x < bounds.left) {
+          bounds.left = x;
+        }
+      }
+
+      return bounds;
     }
+
+    function calculateNormalizedCoordinates(bounds, svgWidth, svgHeight, rawPosition) {
+      var x = rawPosition[0], y = rawPosition[1];
+      return [(0.7*(x - bounds.left)/(bounds.right - bounds.left) + 0.1)*svgWidth,
+              (0.7*(1 - (y - bounds.bottom)/(bounds.top - bounds.bottom)) + 0.2)*svgHeight];
+    }
+
+    function resizeSVG() {
+      var width = d3.select('#bloom').node().getBoundingClientRect().width;
+      var height = 0.6 * width;
+      d3.select('#bloom').attr('height', height);
+
+      var bounds = calculateBounds();
+      var bloom = d3.select('#bloom');
+
+      for (var commentID in selectedComments) {
+        var comment = selectedComments[commentID];
+        var tag = comment['tag'].trim() || '(No tag)';
+        var normalizedPosition = calculateNormalizedCoordinates(bounds, width, height, comment['pos']);
+        console.log(comment['pos'] + ' -> ' + normalizedPosition);
+        bloom.append('text').attr('x', normalizedPosition[0]).attr('y', normalizedPosition[1]).text(tag);
+      }
+    }
+
+    function renderComments() {
+      // var bloom = d3.select('#bloom');
+      // bloom.append('text').attr('x', 100).attr('y', 100).text('sdf').on('click', function() {alert('sdf')});
+    }
+
+    $(window).resize(resizeSVG);
 
     $(document).ready(function() {
       selectComments(selectCommentFromStandardError);
+      resizeSVG();
       renderComments();
     });
   </script>
@@ -26,31 +84,11 @@
 {% block content %}
   <p>
     {% blocktrans trimmed %}
-      These are some suggestions made by other people living in barangays
-      across the Phillippines.
-      Read each one, and rate how helpful it is.
+      <!-- Each -->
     {% endblocktrans %}
   </p>
 
-  <!-- TODO: refactor with dynamic client-side comment selection -->
-
-  <!-- S1 -->
-  <p class="q"><b>1. Suggestion 1</b></p>
-  <span class="leftlabel">Very unhelpful.</span>
-  <input type="range" value="0" min=1 max=10 />
-  <span class="rightlabel">Very helpful.</span>
-
-  <!-- S2 -->
-  <p class="q"><b>2. Suggestion 2</b></p>
-  <span class="leftlabel">Very unhelpful.</span>
-  <input type="range" value="0" min=1 max=10 />
-  <span class="rightlabel">Very helpful.</span>
-
-  <!-- S3 -->
-  <p class="q"><b>3. Suggestion 3</b></p>
-  <span class="leftlabel">Very unhelpful.</span>
-  <input type="range" value="0" min=1 max=10 />
-  <span class="rightlabel">Very helpful.</span>
+  <svg id='bloom' width="100%"></svg>
 
   <div class="nav-button">
     <a href="{% url 'pcari:qualitative-questions' %}?lang={{ language_code }}">Next</a>
