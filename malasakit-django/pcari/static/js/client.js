@@ -15,6 +15,8 @@ const COMMENTS_TIMESTAMP_KEY = 'comments-timestamp';
 const COMMENTS_LIFETIME = 12*60*60*1000;
 const COMMENTS_FETCH_ENDPOINT = '/pcari/fetch-comments/';
 const COMMENTS_FETCH_TIMEOUT = 5000;
+const SELECTED_COMMENTS_KEY = 'selected-comments';
+const DEFAULT_NUM_COMMENTS_TO_SELECT = 8;
 
 const EMPTY_RESPONSE = {
     'question-ratings': {},
@@ -131,9 +133,8 @@ function getTimestampFromResponseKey(key) {
 }
 
 function invalidateCurrentResponseKey() {
-    if (CURRENT_RESPONSE_KEY in localStorage) {
-        delete localStorage[CURRENT_RESPONSE_KEY];
-    }
+    delete localStorage[CURRENT_RESPONSE_KEY];
+    delete localStorage[SELECTED_COMMENTS_KEY];
 }
 
 function invalidateOldCurrentResponseKey() {
@@ -289,6 +290,43 @@ function bindHistoryStoreListener(element, path, preprocess = x => x, verbose = 
 
 function postprocess(response) {
     //
+}
+
+function selectCommentFromStandardError(comments) {
+    var cumulativeErrors = [0], commentIDs = [null];
+    for (var id in comments) {
+        var comment = comments[id];
+        var indexOfLast = cumulativeErrors.length - 1;
+        cumulativeErrors.push(cumulativeErrors[indexOfLast] + comment['sem']);
+        commentIDs.push(id);
+    }
+
+    var totalError = cumulativeErrors[cumulativeErrors.length - 1];
+    var selectedPoint = totalError * Math.random();
+
+    for (var index = 1; index < cumulativeErrors.length; index++) {
+        if (cumulativeErrors[index - 1] <= selectedPoint
+                && selectedPoint < cumulativeErrors[index]) {
+            return commentIDs[index];
+        }
+    }
+}
+
+function selectComments(method) {
+    if (!(SELECTED_COMMENTS_KEY in localStorage) && COMMENTS_KEY in localStorage) {
+        var comments = JSON.parse(localStorage.getItem(COMMENTS_KEY));
+
+        var selectedComments = {};
+        var numToSelect = Math.min(DEFAULT_NUM_COMMENTS_TO_SELECT,
+                                   Object.keys(comments).length);
+        for (var index = 0; index < numToSelect; index++) {
+            var commentID = method(comments);
+            selectedComments[commentID] = comments[commentID]['msg'];
+            delete comments[commentID];
+        }
+
+        localStorage.setItem(SELECTED_COMMENTS_KEY, JSON.stringify(selectedComments));
+    }
 }
 
 $(document).ready(function() {

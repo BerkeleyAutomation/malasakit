@@ -12,54 +12,12 @@
 
 {% block scripts %}
   <script>
-    const SELECTED_COMMENTS_KEY = 'selected-comments';
-    const NUM_COMMENTS_TO_SELECT = 8;
-
-    function drawComment(comments) {
-      var cumulativeErrors = [0], commentIDs = [null];
-      for (var id in comments) {
-        var comment = comments[id];
-        var indexOfLast = cumulativeErrors.length - 1;
-        cumulativeErrors.push(cumulativeErrors[indexOfLast] + comment['sem']);
-        commentIDs.push(id);
-      }
-
-      var totalError = cumulativeErrors[cumulativeErrors.length - 1];
-      var selectedPoint = totalError * Math.random();
-
-      for (var index = 1; index < cumulativeErrors.length; index++) {
-        if (cumulativeErrors[index - 1] <= selectedPoint
-            && selectedPoint < cumulativeErrors[index]) {
-          return commentIDs[index];
-        }
-      }
-    }
-
-    function selectComments() {
-      if (!(SELECTED_COMMENTS_KEY in localStorage)) {
-        if (!(COMMENTS_KEY in localStorage)) {
-          console.log('=> No comments found');
-          return;
-        }
-
-        var comments = JSON.parse(localStorage.getItem(COMMENTS_KEY));
-        var selectedComments = {};
-        for (var index = 0; index < NUM_COMMENTS_TO_SELECT; index++) {
-          var commentID = drawComment(comments);
-          selectedComments[commentID] = comments[commentID]['msg'];
-          delete comments[commentID];
-        }
-
-        localStorage.setItem(SELECTED_COMMENTS_KEY, JSON.stringify(selectedComments));
-      }
-    }
-
     function renderComments() {
       //
     }
 
     $(document).ready(function() {
-      selectComments();
+      selectComments(selectCommentFromStandardError);
       renderComments();
     });
   </script>
