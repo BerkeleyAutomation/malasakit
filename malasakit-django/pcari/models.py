@@ -216,7 +216,9 @@ class Comment(Response):
     tag = models.CharField(max_length=256, blank=True, default='')
 
     def __unicode__(self):
-        return '{0}: "{1}"'.format(self.id, self.message)
+        if self.message is not None and self.message.strip():
+            return '"{0}"'.format(self.message)
+        return '-- Empty response --'
 
     @property
     def word_count(self):

@@ -1,3 +1,7 @@
+"""
+This module defines how Django should render the admin panel.
+"""
+
 from django.contrib import admin
 
 from .models import QualitativeQuestion, QuantitativeQuestion
@@ -14,7 +18,7 @@ class ResponseAdmin(admin.ModelAdmin):
     `QuantitativeQuestionRatingAdmin`.
     """
     # Empty responses (recorded as None) will be replaced by this placeholder
-    empty_value_display = '-- No response --'
+    empty_value_display = '-- Empty response --'
 
     # Performance optimizer to limit database queries
     list_select_related = True
@@ -29,9 +33,10 @@ class ResponseAdmin(admin.ModelAdmin):
 @admin.register(CommentRating)
 class CommentRatingAdmin(ResponseAdmin):
     """
-    Customizes admin change page function for CommentRatings
+    Customizes admin change page function for `CommentRating`s.
     """
     def get_comment_message(self, comment_rating):
+        # pylint: disable=no-self-use
         return comment_rating.comment.message
 
     # Columns to display in the Comment change list page, in order from left to
@@ -55,7 +60,7 @@ class CommentRatingAdmin(ResponseAdmin):
 @admin.register(Comment)
 class CommentAdmin(ResponseAdmin):
     """
-    Customizes admin change page functionality for Comments
+    Customizes admin change page functionality for `Comment`s.
     """
     # Columns to display in the Comment change list page, in order from left to
     # right
@@ -80,9 +85,10 @@ class CommentAdmin(ResponseAdmin):
 class QuantitativeQuestionRatingAdmin(ResponseAdmin):
     """
     Customizes admin change page functionality for
-    `QuantitativeQuestionRatings`.
+    `QuantitativeQuestionRating`s.
     """
     def get_question_prompt(self, question_rating):
+        # pylint: disable=no-self-use
         return question_rating.question.prompt
 
     # Columns to display in the Comment change list page, in order from left to
@@ -156,6 +162,7 @@ class RespondentAdmin(admin.ModelAdmin):
     Customizes admin change page functionality for `RespondentAdmin`.
     """
     def get_comments(self, respondent):
+        # pylint: disable=no-self-use
         return list(respondent.comments_made)
 
     # Empty responses (recorded as None) will be replaced by this placeholder
