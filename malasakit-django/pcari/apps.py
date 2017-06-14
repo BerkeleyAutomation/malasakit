@@ -12,6 +12,7 @@ from django.conf import settings
 
 class PCARIConfig(AppConfig):
     name = 'pcari'
+    verbose_name = 'PCARI'
 
     def initialize_logger(self):
         logger = logging.getLogger(self.name)

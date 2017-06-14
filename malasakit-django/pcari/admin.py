@@ -5,6 +5,9 @@ from .models import CommentRating, Comment
 from .models import QuantitativeQuestionRating, Respondent
 
 
+admin.site.site_header = admin.site.site_title = 'Malasakit'
+
+
 class ResponseAdmin(admin.ModelAdmin):
     """
     Abstract admin class for CommentRatingAdmin, CommentAdmin, and QuantitativeQuestionRatingAdmin
@@ -54,7 +57,7 @@ class CommentAdmin(ResponseAdmin):
     """
     Customizes admin change page functionality for Comments
     """
-    # Columns to display in the Comment change list page, in order from left to right 
+    # Columns to display in the Comment change list page, in order from left to right
     list_display = ('respondent', 'message', 'timestamp', 'language', 'flagged', 'tag')
 
     # By default first column listed in list_display is clickable; this makes `message` column clickable
@@ -81,7 +84,7 @@ class QuantitativeQuestionRatingAdmin(ResponseAdmin):
         """
         return obj.question.prompt
 
-    # Columns to display in the Comment change list page, in order from left to right 
+    # Columns to display in the Comment change list page, in order from left to right
     list_display = ('respondent', 'get_question_prompt', 'timestamp', 'score')
 
     # By default first column listed in list_display is clickable; this makes `message` column clickable
@@ -106,7 +109,7 @@ class QuestionAdmin(admin.ModelAdmin):
 
     # Adds a "Save as New" button
     save_as = True
-        
+
 
 @admin.register(QualitativeQuestion)
 class QualitativeQuestionAdmin(QuestionAdmin):
@@ -116,7 +119,7 @@ class QualitativeQuestionAdmin(QuestionAdmin):
     def get_comments(self, obj):
         return list(obj.comments)
 
-    # Columns to display in the Comment change list page, in order from left to right 
+    # Columns to display in the Comment change list page, in order from left to right
     list_display = ('prompt', 'tag', 'get_comments')
 
     # Specify which columns we want filtering capabilities for
@@ -172,6 +175,6 @@ class RespondentAdmin(admin.ModelAdmin):
 
     # Enables search
     search_fields = ('gender', 'location', 'language', 'submitted_personal_data', 'completed_survey', 'num_questions_rated', 'num_comments_rated')
-        
-        
-        
+
+
+
