@@ -10,10 +10,11 @@ admin.site.site_header = admin.site.site_title = 'Malasakit'
 
 class ResponseAdmin(admin.ModelAdmin):
     """
-    Abstract admin class for CommentRatingAdmin, CommentAdmin, and QuantitativeQuestionRatingAdmin
+    Abstract admin class for `CommentRatingAdmin`, `CommentAdmin`, and
+    `QuantitativeQuestionRatingAdmin`.
     """
     # Empty responses (recorded as None) will be replaced by this placeholder
-    empty_value_display = '-- no response --'
+    empty_value_display = '-- No response --'
 
     # Performance optimizer to limit database queries
     list_select_related = True
@@ -30,16 +31,15 @@ class CommentRatingAdmin(ResponseAdmin):
     """
     Customizes admin change page function for CommentRatings
     """
-    def get_comment_message(self, obj):
-        """
-        A callable that returns the `message` attribute of the ForeignKey `comment`.
-        """
-        return obj.comment.message
+    def get_comment_message(self, comment_rating):
+        return comment_rating.comment.message
 
-    # Columns to display in the Comment change list page, in order from left to right
+    # Columns to display in the Comment change list page, in order from left to
+    # right
     list_display = ('respondent', 'get_comment_message', 'score', 'timestamp')
 
-    # By default first column listed in list_display is clickable; this makes `message` column clickable
+    # By default first column listed in list_display is clickable; this makes
+    # `message` column clickable
     list_display_links = ('get_comment_message',)
 
     # Specify which columns we want filtering capabilities for
@@ -57,10 +57,13 @@ class CommentAdmin(ResponseAdmin):
     """
     Customizes admin change page functionality for Comments
     """
-    # Columns to display in the Comment change list page, in order from left to right
-    list_display = ('respondent', 'message', 'timestamp', 'language', 'flagged', 'tag')
+    # Columns to display in the Comment change list page, in order from left to
+    # right
+    list_display = ('respondent', 'message', 'timestamp', 'language',
+                    'flagged', 'tag')
 
-    # By default first column listed in list_display is clickable; this makes `message` column clickable
+    # By default first column listed in list_display is clickable; this makes
+    # `message` column clickable
     list_display_links = ('message',)
 
     # Specify which columns we want filtering capabilities for
@@ -76,18 +79,18 @@ class CommentAdmin(ResponseAdmin):
 @admin.register(QuantitativeQuestionRating)
 class QuantitativeQuestionRatingAdmin(ResponseAdmin):
     """
-    Customizes admin change page functionality for QuantitativeQuestionRatings
+    Customizes admin change page functionality for
+    `QuantitativeQuestionRatings`.
     """
-    def get_question_prompt(self, obj):
-        """
-        A callable that returns the `prompt` attribute of the ForeignKey `question`.
-        """
-        return obj.question.prompt
+    def get_question_prompt(self, question_rating):
+        return question_rating.question.prompt
 
-    # Columns to display in the Comment change list page, in order from left to right
+    # Columns to display in the Comment change list page, in order from left to
+    # right
     list_display = ('respondent', 'get_question_prompt', 'timestamp', 'score')
 
-    # By default first column listed in list_display is clickable; this makes `message` column clickable
+    # By default first column listed in list_display is clickable; this makes
+    # `message` column clickable
     list_display_links = ('get_question_prompt',)
 
     # Specify which columns we want filtering capabilities for
@@ -102,7 +105,8 @@ class QuantitativeQuestionRatingAdmin(ResponseAdmin):
 
 class QuestionAdmin(admin.ModelAdmin):
     """
-    Abstract admin class for QualitativeQuestionAdmin and QuantitativeQuestionAdmin
+    Abstract admin class for `QualitativeQuestionAdmin` and
+    `QuantitativeQuestionAdmin`.
     """
     # Performance optimizer to limit database queries
     list_select_related = True
@@ -114,9 +118,10 @@ class QuestionAdmin(admin.ModelAdmin):
 @admin.register(QualitativeQuestion)
 class QualitativeQuestionAdmin(QuestionAdmin):
     """
-    Customizes admin change page functionality for QualitativeQuestionAdmin
+    Customizes admin change page functionality for `QualitativeQuestionAdmin`.
     """
-    # Columns to display in the Comment change list page, in order from left to right 
+    # Columns to display in the Comment change list page, in order from left to
+    # right
     list_display = ('prompt', 'tag')
 
     # Specify which columns we want filtering capabilities for
@@ -129,9 +134,10 @@ class QualitativeQuestionAdmin(QuestionAdmin):
 @admin.register(QuantitativeQuestion)
 class QuantitativeQuestionAdmin(QuestionAdmin):
     """
-    Customizes admin change page functionality for QuantitativeQuestionAdmin
+    Customizes admin change page functionality for `QuantitativeQuestionAdmin`.
     """
-    # Columns to display in the Comment change list page, in order from left to right
+    # Columns to display in the Comment change list page, in order from left to
+    # right
     list_display = ('prompt', 'tag')
 
     # Specify which columns we want filtering capabilities for
@@ -147,13 +153,13 @@ class QuantitativeQuestionAdmin(QuestionAdmin):
 @admin.register(Respondent)
 class RespondentAdmin(admin.ModelAdmin):
     """
-    Customizes admin change page functionality for RespondentAdmin
+    Customizes admin change page functionality for `RespondentAdmin`.
     """
-    def get_comments(self, obj):
-        return list(obj.comments_made)
+    def get_comments(self, respondent):
+        return list(respondent.comments_made)
 
     # Empty responses (recorded as None) will be replaced by this placeholder
-    empty_value_display = 'N/A'
+    empty_value_display = '(Empty)'
 
     # Performance optimizer to limit database queries
     list_select_related = True
@@ -161,17 +167,17 @@ class RespondentAdmin(admin.ModelAdmin):
     # Adds a "Save as New" button
     save_as = True
 
-    # Columns to display in the Comment change list page, in order from left to right
-    list_display = ('get_comments', 'age', 'gender', 'location', 'language', 'submitted_personal_data', 'completed_survey', 'num_questions_rated', 'num_comments_rated')
+    # Columns to display in the Comment change list page, in order from left to
+    # right
+    list_display = ('get_comments', 'age', 'gender', 'location', 'language',
+                    'submitted_personal_data', 'completed_survey',
+                    'num_questions_rated', 'num_comments_rated')
 
     # Specify which columns we want filtering capabilities for
-    list_filter = ('gender', 'language', 'submitted_personal_data', 'completed_survey')
-
-    # Sets fields as readonly
-    # readonly_fields = ('respondent', 'score', 'comment')
+    list_filter = ('gender', 'language', 'submitted_personal_data',
+                   'completed_survey')
 
     # Enables search
-    search_fields = ('gender', 'location', 'language', 'submitted_personal_data', 'completed_survey', 'num_questions_rated', 'num_comments_rated')
-
-
-
+    search_fields = ('gender', 'location', 'language',
+                     'submitted_personal_data', 'completed_survey',
+                     'num_questions_rated', 'num_comments_rated')
