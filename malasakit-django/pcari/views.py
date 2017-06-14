@@ -112,7 +112,7 @@ def make_comments(respondent, responses):
         question = QualitativeQuestion(id=int(question_id))
 
         # Replaces empty messages with None so they can show up as placeholders in admin 
-        if message == "" or message.isspace():
+        if message.strip() == "":
             message = None
 
         yield Comment(respondent=respondent, question=question,
