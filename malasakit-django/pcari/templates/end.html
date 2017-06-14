@@ -20,6 +20,6 @@
     {% trans 'We appreciate your participation in the Malasakit program.' %}
   </p>
   <div class="nav-button">
-    <a href="{% url 'pcari:landing' %}">{% trans 'Finish' %}</a>
+    <a href="{% url 'pcari:landing' %}?lang={{ language_code }}">{% trans 'Finish' %}</a>
   </div>
 {% endblock %}
