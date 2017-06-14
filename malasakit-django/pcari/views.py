@@ -47,52 +47,85 @@ def profile(function):
 
 
 @profile
-def generate_quantitative_question_ratings_matrix():
+def generate_quantitative_question_ratings_matrix(respondents=None):
     """
     Fetches quantitative question ratings in the form of a numpy matrix.
 
     Each row corresponds to one respondent and each column corresponds to one
     question. Missing values are filled in with `np.nan`.
 
-    Because we only pull ID numbers, this function runs in milliseconds.
-    """
-    respondent_ids = Respondent.objects.values_list('id', flat=True)
-    question_ids = QuantitativeQuestion.objects.values_list('id', flat=True)
-    respondents_id_map = {key: index for index, key in enumerate(respondent_ids)}
-    questions_id_map = {key: index for index, key in enumerate(question_ids)}
+    Because we only pull the fields we need from the ORM, this function should
+    run relatively quickly (on the order of milliseconds).
 
-    shape = (len(respondents_id_map), len(questions_id_map))
+    Args:
+        respondents: A `QuerySet` of respondents to select ratings from. If
+                     `None` (which is the default value), select all
+                     respondents.
+
+    Returns:
+        respondent_id_map: A length-`m` dictionary mapping respondent IDs to
+                           row indices.
+        question_id_map: A lenght-`n` dictionary mapping quantitative question
+                         IDs to column indices.
+        ratings_matrix: A `m` x `n` NumPy array of ratings.
+    """
+    if respondents is None:
+        respondents = Respondent.objects.all()
+
+    respondent_ids = respondents.values_list('id', flat=True)
+    question_ids = QuantitativeQuestion.objects.values_list('id', flat=True)
+    respondent_id_map = {key: index for index, key in enumerate(respondent_ids)}
+    question_id_map = {key: index for index, key in enumerate(question_ids)}
+
+    shape = (len(respondent_id_map), len(question_id_map))
     ratings_matrix = np.full(shape, np.nan)
 
     features = 'respondent_id', 'question_id', 'score'
     values = QuantitativeQuestionRating.objects.values_list(*features)
     for respondent_id, question_id, score in values:
-        row_index = respondents_id_map[respondent_id]
-        column_index = questions_id_map[question_id]
+        row_index = respondent_id_map[respondent_id]
+        column_index = question_id_map[question_id]
         ratings_matrix[row_index, column_index] = score
-    return question_ids, ratings_matrix
+
+    return respondent_id_map, question_id_map, ratings_matrix
 
 
-def return_principal_components(n=2):
+def normalize_ratings_matrix(ratings_matrix):
     """
-    Calculates and returns the first n principal components of the quantitative
+    Normalize a ratings matrix.
+
+    In this context, a normalized matrix is one where the mean row is the zero
+    vector, and `np.nan` values are replaced by zero. (If the bias, or mean, is
+    readded to every row, the missing values are replaced by its column's mean.)
+
+    Args:
+        ratings_matrix: A `m` x `n` matrix of ratings, where each row
+                        represents a respondent.
+
+    Returns:
+        A `m` x `n` matrix of normalized ratings, which is guaranteed to have
+        no `np.nan` values.
+    """
+    mean_ratings = np.nanmean(ratings_matrix, axis=0)
+    normalized_ratings_matrix = np.nan_to_num(ratings_matrix - mean_ratings)
+    return normalized_ratings_matrix
+
+
+@profile
+def calculate_principal_components(normalized_ratings, n=2):
+    """
+    Calculates the first `n` principal components of a normalized quantitative
     question ratings matrix.
 
     Args:
-        n: number of principal components to return .
+        n: number of principal components to calculate.
 
     Returns:
-        A q x n Numpy matrix where q is number of questions. Each row is a
-        principal component.
+        A `n` x `q` Numpy matrix, where `q` is number of quantitative
+        questions. Each row is a principal component.
     """
-    qids, ratings = generate_quantitative_question_ratings_matrix() # dim r x q
-    # subtract means
-    means = np.nanmean(ratings, axis=1)
-    ratings = (ratings.T - means).T # broadcasting rules for numpy
-    ratings = np.nan_to_num(ratings) # replace unanswered questions with mean
-
-    U, s, VT = np.linalg.svd(ratings) # U is r x r, VT is q x q
-    return VT[:n,:] # return first n rows
+    U, S, VT = np.linalg.svd(normalized_ratings, full_matrices=False)
+    return VT[:n, :]  # Slice the first `n` rows
 
 
 @require_GET
@@ -109,15 +142,28 @@ def fetch_comments(request):
     if len(comments) > limit:
         comments = random.sample(comments, limit)
 
+    ratings_data = generate_quantitative_question_ratings_matrix()
+    respondent_id_map, question_id_map, ratings = ratings_data
+    normalized_ratings = normalize_ratings_matrix(ratings)
+    components = calculate_principal_components(normalized_ratings, 2)
+
     data = {}
     for comment in comments:
-        if len(comment.message.strip()) > 0:
+        if comment.message:
             standard_error = comment.standard_error
+            row_index = respondent_id_map[comment.respondent.id]
+
+            # Projects the ratings by this comment's author onto the first two
+            # principal components
+            ratings_by_respondent = normalized_ratings[row_index, :]
+            position = list(components.dot(ratings_by_respondent))
+
             if math.isnan(standard_error):
                 standard_error = DEFAULT_STANDARD_ERROR
             data[str(comment.id)] = {
                 'msg': comment.message,
-                'sem': round(standard_error, STANDARD_ERROR_PRECISION)
+                'sem': round(standard_error, STANDARD_ERROR_PRECISION),
+                'pos': position,
             }
 
     return JsonResponse(data)
