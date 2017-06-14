@@ -3,6 +3,7 @@ This module defines how URLs should route to views.
 """
 
 from django.conf.urls import url
+from django.views.generic import TemplateView
 
 from . import views
 
@@ -22,6 +23,12 @@ urlpatterns = [
     url(r'^qualitative-questions/$', views.qualitative_questions,
         name='qualitative-questions'),
     url(r'^end/$', views.end, name='end'),
+
+    # ServiceWorker script- special case
+    url(r'^sw.js$',
+        TemplateView.as_view(template_name='sw.js',
+                             content_type='application/javascript'),
+        name='sw.js'),
 
     # AJAX endpoints
     url(r'^save-response', views.save_response, name='save-response'),
