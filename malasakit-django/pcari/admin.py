@@ -10,7 +10,7 @@ class ResponseAdmin(admin.ModelAdmin):
     Abstract admin class for CommentRatingAdmin, CommentAdmin, and QuantitativeQuestionRatingAdmin
     """
     # Empty responses (recorded as None) will be replaced by this placeholder
-    empty_value_display = '-- empty response --'
+    empty_value_display = '-- no response --'
 
     # Performance optimizer to limit database queries
     list_select_related = True
@@ -113,11 +113,8 @@ class QualitativeQuestionAdmin(QuestionAdmin):
     """
     Customizes admin change page functionality for QualitativeQuestionAdmin
     """
-    def get_comments(self, obj):
-        return list(obj.comments)
-
     # Columns to display in the Comment change list page, in order from left to right 
-    list_display = ('prompt', 'tag', 'get_comments')
+    list_display = ('prompt', 'tag')
 
     # Specify which columns we want filtering capabilities for
     list_filter = ('tag', 'prompt')
@@ -153,7 +150,7 @@ class RespondentAdmin(admin.ModelAdmin):
         return list(obj.comments_made)
 
     # Empty responses (recorded as None) will be replaced by this placeholder
-    empty_value_display = '-- empty response --'
+    empty_value_display = 'N/A'
 
     # Performance optimizer to limit database queries
     list_select_related = True
@@ -165,7 +162,7 @@ class RespondentAdmin(admin.ModelAdmin):
     list_display = ('get_comments', 'age', 'gender', 'location', 'language', 'submitted_personal_data', 'completed_survey', 'num_questions_rated', 'num_comments_rated')
 
     # Specify which columns we want filtering capabilities for
-    list_filter = ('gender', 'location', 'language', 'submitted_personal_data', 'completed_survey', 'age')
+    list_filter = ('gender', 'language', 'submitted_personal_data', 'completed_survey')
 
     # Sets fields as readonly
     # readonly_fields = ('respondent', 'score', 'comment')
