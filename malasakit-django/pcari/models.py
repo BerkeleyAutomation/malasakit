@@ -230,12 +230,14 @@ class Comment(Response):
     question = models.ForeignKey('QualitativeQuestion',
                                  on_delete=models.CASCADE)
     language = models.CharField(max_length=25, choices=LANGUAGES)
-    message = models.TextField(blank=True)
+    message = models.TextField(blank=True, null=True)
     flagged = models.BooleanField(default=False)
     tag = models.CharField(max_length=256, blank=True, default='')
 
     def __unicode__(self):
-        return '{0}: "{1}"'.format(self.id, self.message)
+        if self.message is not None and self.message.strip():
+            return '"{0}"'.format(self.message)
+        return '-- Empty response --'
 
     @property
     def word_count(self):
@@ -334,7 +336,7 @@ class Respondent(models.Model):
     age = models.PositiveSmallIntegerField(default=None, null=True, blank=True)
     gender = models.CharField(max_length=1, choices=GENDERS, default='',
                               blank=True)
-    location = models.CharField(max_length=512, default='', blank=True)
+    location = models.CharField(max_length=512, default='', blank=True, null=True)
     language = models.CharField(max_length=2, choices=LANGUAGES)
     submitted_personal_data = models.BooleanField(default=False)
     completed_survey = models.BooleanField(default=False)

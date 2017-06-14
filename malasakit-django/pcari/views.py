@@ -1,6 +1,7 @@
 """
 This module defines the application's views, which are needed to render pages.
 """
+# pylint: disable=unused-import
 
 # Standard library
 import logging
@@ -36,10 +37,10 @@ LOGGER = logging.getLogger('pcari')
 
 def profile(function):
     def wrapper(*args, **kwargs):
-        start = time.time()
+        start_time = time.time()
         result = function(*args, **kwargs)
-        end = time.time()
-        time_elapsed = end - start
+        end_time = time.time()
+        time_elapsed = end_time - start_time
         message = 'Call to {} took {:.3f} seconds'
         LOGGER.log(logging.INFO, message.format(function.__name__, time_elapsed))
         return result
@@ -180,6 +181,11 @@ def make_quantitative_question_ratings(respondent, responses):
 def make_comments(respondent, responses):
     for question_id, message in responses.get('comments', {}).iteritems():
         question = QualitativeQuestion(id=int(question_id))
+
+        # Replaces empty messages with None so they can show up as placeholders in admin
+        if message.strip() == "":
+            message = None
+
         yield Comment(respondent=respondent, question=question,
                       language=respondent.language, message=message)
 
