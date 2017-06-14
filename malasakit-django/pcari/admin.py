@@ -6,7 +6,6 @@ from .models import QuantitativeQuestionRating, Respondent
 
 admin.site.register(QualitativeQuestion)
 admin.site.register(QuantitativeQuestion)
-admin.site.register(QuantitativeQuestionRating)
 admin.site.register(Respondent)
 
 class ResponseAdmin(admin.ModelAdmin):
@@ -32,17 +31,17 @@ class CommentRatingAdmin(ResponseAdmin):
     Customizes admin change page function for CommentRatings
     """
 
-    def get_message(self, obj):
+    def get_question_message(self, obj):
         """
         A callable that returns the `message` attribute of the ForeignKey `comment`. 
         """
         return obj.comment.message
 
     # Columns to display in the Comment change list page, in order from left to right
-    list_display = ('respondent', 'get_message', 'score', 'timestamp')
+    list_display = ('respondent', 'get_question_message', 'score', 'timestamp')
 
     # By default first column listed in list_display is clickable; this makes `message` column clickable
-    list_display_links = ('get_message',)
+    list_display_links = ('get_question_message',)
 
     # Specify which columns we want filtering capabilities for
     list_filter = ('timestamp', 'score')
@@ -52,7 +51,6 @@ class CommentRatingAdmin(ResponseAdmin):
 
     # Enables search
     search_fields = ('score', 'comment__message')
-
 
 
 @admin.register(Comment)
@@ -75,3 +73,29 @@ class CommentAdmin(ResponseAdmin):
     # Enables search
     search_fields = ('message', 'tag')
 
+@admin.register(QuantitativeQuestionRating)
+class QuantitativeQuestionRatingAdmin(ResponseAdmin):
+    """
+    Customizes admin change page functionality for QuantitativeQuestionRatings
+    """
+
+    def get_question_message(self, obj):
+        """
+        A callable that returns the `prompt` attribute of the ForeignKey `question`. 
+        """
+        return obj.question.prompt
+
+    # Columns to display in the Comment change list page, in order from left to right 
+    list_display = ('respondent', 'get_question_message', 'timestamp', 'score')
+
+    # By default first column listed in list_display is clickable; this makes `message` column clickable
+    list_display_links = ('get_question_message',)
+
+    # Specify which columns we want filtering capabilities for
+    list_filter = ('timestamp', 'score')
+
+    # Sets fields as readonly
+    readonly_fields = ('respondent', 'question', 'timestamp', 'score')
+
+    # Enables search
+    search_fields = ('question__prompt', 'score')
