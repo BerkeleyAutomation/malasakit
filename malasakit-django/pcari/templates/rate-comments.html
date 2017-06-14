@@ -15,68 +15,43 @@
   <script>
     var selectedComments = JSON.parse(localStorage.getItem(SELECTED_COMMENTS_KEY)) || {};
 
-    function calculateBounds() {
-      var bounds = {
-        top: -Infinity,
-        bottom: Infinity,
-        left: Infinity,
-        right: -Infinity,
-      };
-      for (var commentID in selectedComments) {
-        var comment = selectedComments[commentID];
-        var position = comment.pos;
-        var x = position[0], y = position[1];
-        if (y > bounds.top) {
-          bounds.top = y;
-        }
-        if (y < bounds.bottom) {
-          bounds.bottom = y;
-        }
-        if (x > bounds.right) {
-          bounds.right = x;
-        }
-        if (x < bounds.left) {
-          bounds.left = x;
-        }
-      }
-
-      return bounds;
+    function startDrag(d) {
+      if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+      d.fx = d.x;
+      d.fy = d.y;
     }
 
-    function calculateNormalizedCoordinates(bounds, svgWidth, svgHeight, rawPosition) {
-      var x = rawPosition[0], y = rawPosition[1];
-      return [(0.7*(x - bounds.left)/(bounds.right - bounds.left) + 0.1)*svgWidth,
-              (0.7*(1 - (y - bounds.bottom)/(bounds.top - bounds.bottom)) + 0.2)*svgHeight];
+    function continueDrag(d) {
+      d.fx = d3.event.x;
+      d.fy = d3.event.y;
     }
 
-    function resizeSVG() {
-      var width = d3.select('#bloom').node().getBoundingClientRect().width;
-      var height = 0.6 * width;
-      d3.select('#bloom').attr('height', height);
-
-      var bounds = calculateBounds();
-      var bloom = d3.select('#bloom');
-
-      for (var commentID in selectedComments) {
-        var comment = selectedComments[commentID];
-        var tag = comment['tag'].trim() || '(No tag)';
-        var normalizedPosition = calculateNormalizedCoordinates(bounds, width, height, comment['pos']);
-        console.log(comment['pos'] + ' -> ' + normalizedPosition);
-        bloom.append('text').attr('x', normalizedPosition[0]).attr('y', normalizedPosition[1]).text(tag);
-      }
+    function endDrag(d) {
+      if (!d3.event.active) simulation.alphaTarget(0);
+      d.fx = null;
+      d.fy = null;
     }
 
-    function renderComments() {
-      // var bloom = d3.select('#bloom');
-      // bloom.append('text').attr('x', 100).attr('y', 100).text('sdf').on('click', function() {alert('sdf')});
-    }
-
-    $(window).resize(resizeSVG);
+    var simulation = d3.forceSimulation()
+                       .force('charge', d3.forceManyBody());
+                       // .force('collide', d3.forceCollide(15));
 
     $(document).ready(function() {
       selectComments(selectCommentFromStandardError);
-      resizeSVG();
-      renderComments();
+
+      var nodeData = [{x: 200, y: 200}, {x: 200, y: 200}];
+
+      var bloom = d3.select('#bloom');
+      var drag = d3.drag().on('start', startDrag).on('drag', continueDrag).on('end', endDrag);
+      var nodes = bloom.append('g').selectAll('circle').data(nodeData).enter()
+                       .append('circle').attr('r', 10).call(drag);
+
+      function tick() {
+        nodes.attr('cx', function(node) { return node.x; })
+             .attr('cy', function(node) { return node.y; });
+      }
+
+      simulation.nodes(nodeData).on('tick', tick);
     });
   </script>
 {% endblock %}
@@ -88,7 +63,7 @@
     {% endblocktrans %}
   </p>
 
-  <svg id='bloom' width="100%"></svg>
+  <svg id='bloom' width="960" height="600"></svg>
 
   <div class="nav-button">
     <a href="{% url 'pcari:qualitative-questions' %}?lang={{ language_code }}">Next</a>
