@@ -14,9 +14,23 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf.urls import include, url
+from django.conf.urls.i18n import i18n_patterns
 from django.contrib import admin
+
+from django.views.generic import TemplateView
 
 urlpatterns = [
     # url(r'^admin/', admin.site.urls),
+    # ServiceWorker script- special case
+    url(r'^sw.js$',
+        TemplateView.as_view(template_name='sw.js',
+                             content_type='application/javascript'),
+        name='sw.js'),
+
+]
+
+urls_to_translate = [
     url(r'^pcari/', include('pcari.urls')),
 ]
+
+urlpatterns += i18n_patterns(*urls_to_translate)
