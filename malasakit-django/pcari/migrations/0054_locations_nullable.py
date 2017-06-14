@@ -14,4 +14,3 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterField('Respondent', 'location', models.CharField(max_length=512, default=None, blank=True, null=True))
     ]
-
