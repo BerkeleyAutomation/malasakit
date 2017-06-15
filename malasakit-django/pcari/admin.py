@@ -11,6 +11,23 @@ from .models import QuantitativeQuestionRating, Respondent
 
 admin.site.site_header = admin.site.site_title = 'Malasakit'
 
+def flag_comment(modeladmin, request, queryset):
+    """
+    Admin action that flags all selected unflagged comments
+    """
+    queryset.update(flagged=True)
+
+flag_comment.short_description = "Flag selected comments"
+
+
+def unflag_comment(modeladmin, request, queryset):
+    """
+    Admin action that unflags all selected unflagged comments
+    """
+    queryset.update(flagged=False)
+
+unflag_comment.short_description = "Unflag selected comments"
+
 
 class ResponseAdmin(admin.ModelAdmin):
     """
@@ -79,6 +96,9 @@ class CommentAdmin(ResponseAdmin):
 
     # Enables search
     search_fields = ('message', 'tag')
+
+    # Actions that users can do on selected comments
+    actions = (flag_comment, unflag_comment)
 
 
 @admin.register(QuantitativeQuestionRating)
