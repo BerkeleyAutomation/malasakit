@@ -62,7 +62,7 @@ ROOT_URLCONF = 'cafe.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ["pcari/static/js"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
