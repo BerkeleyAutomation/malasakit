@@ -18,7 +18,9 @@ var staticResources = [
     "/pcari/static/css/quicksand-font.css",
     "/pcari/static/css/main.css",
     "/pcari/static/js/jquery-3.2.1.min.js",
+    "/pcari/static/js/d3.v4.min.js",
     "/pcari/static/js/client.js",
+    "/pcari/static/js/bloom.js",
     "/pcari/static/js/sw-bootstrap.js"
 ];
 
