@@ -302,20 +302,12 @@ def landing(request):
 
 
 @language_selectable
-def personal_information(request):
-    config = apps.get_app_config('pcari')
-    context = {'province_names': [(province_name['code'], province_name['name'])
-                                  for province_name in config.province_names]}
-    return render(request, 'personal-information.html', context)
-
-
-@language_selectable
 def quantitative_questions(request):
     context = {'questions': QuantitativeQuestion.objects.all()}
     return render(request, 'quantitative-questions.html', context)
 
 @language_selectable
-def response_histograms(request):
+def peer_responses(request):
     return render(request, 'response-histograms.html')
 
 
@@ -332,6 +324,14 @@ def qualitative_questions(request):
     question_text = [(question.id, question.prompt) for question in questions]
     context = {'questions': question_text}
     return render(request, 'qualitative-questions.html', context)
+
+
+@language_selectable
+def personal_information(request):
+    config = apps.get_app_config('pcari')
+    context = {'province_names': [(province_name['code'], province_name['name'])
+                                  for province_name in config.province_names]}
+    return render(request, 'personal-information.html', context)
 
 
 @language_selectable
