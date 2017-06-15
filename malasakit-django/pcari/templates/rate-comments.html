@@ -22,13 +22,32 @@
   <p>
     {% blocktrans trimmed %}
       Click an icon to rate that comment on its helpfulness.
+      <strong>You must rate at least two comments to proceed.</strong>
       You can also drag the icons around.
     {% endblocktrans %}
   </p>
-
   <svg id='bloom' width="100%"></svg>
+  <div class='modal'>
+    <div class='modal-container'>
+      <p>{% trans 'The question was:' %}</p>
+      <blockquote id='prompt'></blockquote>
+      <p>{% trans 'The comment was:' %}</p>
+      <blockquote id='comment'></blockquote>
 
-  <div class="nav-button">
+      <p class="prompt">{% trans 'How helpful is this comment?' %}</p>
+      <input id="comment-rating" type="range" value="0" min="0" max="9">
+      <div class='scale-context'>
+        <span class="left-text">{% trans 'Not helpful' %}</span>
+        <span class="right-text">{% trans 'Helpful' %}</span>
+      </div>
+
+      <div class='button-group'>
+        <div id='submit' class='button'>Submit</div>
+        <div id='skip' class='button'>Skip</div>
+      </div>
+    </div>
+  </div>
+  <div id='next' class="nav-button">
     <a href="{% url 'pcari:qualitative-questions' %}?lang={{ language_code }}">Next</a>
   </div>
 {% endblock %}

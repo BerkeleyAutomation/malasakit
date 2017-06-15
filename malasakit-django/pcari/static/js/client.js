@@ -83,7 +83,6 @@ function initializeNewResponse() {
 
 function pushResponse(responseKey) {
     var response = localStorage.getItem(responseKey);
-    postprocess(response);
     if (response !== null) {
         $.ajax(RESPONSE_PUSH_ENDPOINT, {
             method: 'POST',
@@ -106,7 +105,7 @@ function pushCompletedResponses() {
         if (key.startsWith(RESPONSE_KEY_PREFIX) && key !== currentResponseKey) {
             editLocalStorageJSON(key, function(response) {
                 console.assert(response !== null);
-                postprocess(response);
+                postprocess();
                 return response;
             });
             pushResponse(key);
@@ -308,8 +307,22 @@ function bindHistoryStoreListener(element, path, preprocess = x => x, verbose = 
     refillElementFromHistory(element, path);
 }
 
-function postprocess(response) {
-    //
+function postprocess() {
+    var barangay = getResponseValue(['respondent-data', 'barangay']);
+    var province = getResponseValue(['respondent-data', 'province']);
+
+    var respondentLocation = null;
+    if (barangay !== null && province !== null) {
+        respondentLocation = province + ', ' + barangay;
+    } else if (barangay !== null) {
+        respondentLocation = barangay;
+    } else if (province !== null) {
+        respondentLocation = province;
+    }
+
+    if (respondentLocation !== null) {
+        setResponseValue(['respondent-data', 'location'], respondentLocation);
+    }
 }
 
 function selectCommentFromStandardError(comments) {

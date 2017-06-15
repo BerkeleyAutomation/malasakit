@@ -68,7 +68,33 @@ function endDrag(node) {
 
 function startCommentRating(commentID) {
     console.log('User selected ' + commentID + ' to rate');
-    console.log($('body'));
+    $('.modal').css('display', 'block');
+    var qualitativeQuestions = JSON.parse(localStorage.getItem(QUALITATIVE_QUESTIONS_KEY));
+    var comments = JSON.parse(localStorage.getItem(COMMENTS_KEY));
+    if (qualitativeQuestions !== null && comments !== null) {
+        var prompt = qualitativeQuestions[comments[commentID]['qid']];
+        $('#comment-rating').val(0);
+        $('#prompt').text(prompt);
+        $('#comment').text(comments[commentID].msg);
+        var path = ['comment-ratings', commentID];
+        if (getResponseValue(path) === null) {
+            setResponseValue(path, [parseInt($('#comment-rating').val())]);
+        }
+        bindHistoryStoreListener($('#comment-rating'), path, parseInt);
+        $('#submit').on('click', function() {
+            $('.modal').css('display', 'none');
+            renderComments();
+            setNextButtonStatus();
+        });
+        $('#skip').on('click', function() {
+            var history = getResponseValue(path);
+            history.push(-1);
+            setResponseValue(path, history);
+            $('.modal').css('display', 'none');
+            renderComments();
+            setNextButtonStatus();
+        });
+    }
 }
 
 var simulation;
@@ -84,6 +110,11 @@ function renderComments() {
     bloom.selectAll('*').remove();
 
     var selectedComments = JSON.parse(localStorage.getItem(SELECTED_COMMENTS_KEY)) || {};
+    for (var commentID in selectedComments) {
+        if (commentID in getResponseValue(['comment-ratings'])) {
+            delete selectedComments[commentID];
+        }
+    }
     var nodeData = makeNodeData(selectedComments, width, height);
 
     var drag = d3.drag().on('start', startDrag).on('drag', continueDrag).on('end', endDrag);
@@ -108,8 +139,20 @@ function renderComments() {
     simulation.nodes(nodeData).on('tick', tick);
 }
 
+function setNextButtonStatus() {
+    var disabled = Object.keys(getResponseValue(['comment-ratings'])).length < 2;
+    if (disabled) {
+        $('#next > a').click(function(event) {
+            event.preventDefault();
+        });
+    } else {
+        $('#next > a').unbind('click');
+    }
+}
+
 $(document).ready(function() {
     selectComments(selectCommentFromStandardError);
     renderComments();
+    setNextButtonStatus();
     $(window).resize(renderComments);
 });
