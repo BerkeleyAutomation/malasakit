@@ -13,7 +13,8 @@ import json
 
 # Public-facing models (parent models are excluded)
 __all__ = ['Comment', 'QuantitativeQuestionRating', 'CommentRating',
-           'QualitativeQuestion', 'QuantitativeQuestion', 'Respondent']
+           'QualitativeQuestion', 'QuantitativeQuestion', 'Respondent',
+           'OptionQuestion', 'OptionResponse']
 
 from django.conf import settings
 from django.db import models
