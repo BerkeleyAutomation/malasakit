@@ -8,9 +8,14 @@ from .models import QualitativeQuestion, QuantitativeQuestion
 from .models import CommentRating, Comment
 from .models import QuantitativeQuestionRating, Respondent
 
+from .admin_actions import flag_comment, unflag_comment
+from .admin_actions import export_all_comments_csv, export_selected_comments_csv
+from .admin_actions import export_all_commentratings_csv, export_selected_commentratings_csv
+from .admin_actions import export_all_quantitativequestionratings_csv, export_selected_quantitativequestionratings_csv
+from .admin_actions import export_all_respondents_csv, export_selected_respondents_csv
+
 
 admin.site.site_header = admin.site.site_title = 'Malasakit'
-
 
 class ResponseAdmin(admin.ModelAdmin):
     """
@@ -56,6 +61,9 @@ class CommentRatingAdmin(ResponseAdmin):
     # Enables search
     search_fields = ('score', 'comment__message')
 
+    # Actions that users can do on selected comments
+    actions = (export_all_commentratings_csv, export_selected_commentratings_csv)
+
 
 @admin.register(Comment)
 class CommentAdmin(ResponseAdmin):
@@ -75,10 +83,13 @@ class CommentAdmin(ResponseAdmin):
     list_filter = ('timestamp', 'language', 'flagged', 'tag')
 
     # Sets fields as readonly
-    readonly_fields = ('respondent', 'question', 'language', 'message')
+    readonly_fields = ('respondent', 'question', 'language', 'message', 'timestamp')
 
     # Enables search
     search_fields = ('message', 'tag')
+
+    # Actions that users can do on selected comments
+    actions = (flag_comment, unflag_comment, export_all_comments_csv, export_selected_comments_csv)
 
 
 @admin.register(QuantitativeQuestionRating)
@@ -107,6 +118,10 @@ class QuantitativeQuestionRatingAdmin(ResponseAdmin):
 
     # Enables search
     search_fields = ('question__prompt', 'score')
+
+    # Actions that users can do on selected comments
+    actions = (export_all_quantitativequestionratings_csv,
+               export_selected_quantitativequestionratings_csv)
 
 
 class QuestionAdmin(admin.ModelAdmin):
@@ -188,3 +203,6 @@ class RespondentAdmin(admin.ModelAdmin):
     search_fields = ('gender', 'location', 'language',
                      'submitted_personal_data', 'completed_survey',
                      'num_questions_rated', 'num_comments_rated')
+
+    # Actions that users can do on selected comments
+    actions = (export_all_respondents_csv, export_selected_respondents_csv)
