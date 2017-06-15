@@ -9,11 +9,11 @@ Attributes:
 """
 
 from __future__ import unicode_literals
+import json
 
 # Public-facing models (parent models are excluded)
 __all__ = ['Comment', 'QuantitativeQuestionRating', 'CommentRating',
-           'QualitativeQuestion', 'QuantitativeQuestion', 'Respondent',
-           'LANGUAGES']
+           'QualitativeQuestion', 'QuantitativeQuestion', 'Respondent']
 
 from django.conf import settings
 from django.db import models
@@ -128,6 +128,15 @@ def accepts_ratings(ratings_model, keyword):
 
 
 def validate_has_input_type(model):
+    """
+    A decorator that checks that the given model has an `input_type` attribute.
+
+    Args:
+        model: The model to validate.
+
+    Returns:
+        The `model` passed in.
+    """
     if not hasattr(model, 'input_type'):
         raise AttributeError('Model ' + model.__name__ +
                              ' must have `input_type` attribute.')
@@ -280,7 +289,7 @@ class QualitativeQuestion(Question):
         comments: A Django `QuerySet` of `Comment`s in response to this
                   question.
     """
-    input_type = 'text-field'
+    input_type = 'textarea'
 
     def __unicode__(self):
         return 'QualitativeQuestion {0}: "{1}"'.format(self.id, self.prompt)
@@ -297,11 +306,11 @@ class QuantitativeQuestion(Question):
     A `QuantitativeQuestion` is a `Question` that asks for a numeric rating.
 
     Attributes:
-        left_text: The text that is rendered on the left end of the slider.
-        right_text: The text that is rendered on the right end of the slider.
-        min_val: The smallest possible value for any response.
-        max_val: The largest possible value for any response.
-        input_type: `'range'` or `'number'`
+        left_text: The text that is rendered on the left end of a slider.
+        right_text: The text that is rendered on the right end of a slider.
+        min_score: The smallest possible score for this question.
+        max_score: The largest possible score for this question.
+        input_type: A string specifying how the input should be rendered:
             range: The question displays as a slider.
             number: The question displays as a number-specific text field.
     """
@@ -324,20 +333,35 @@ class QuantitativeQuestion(Question):
 @validate_has_input_type
 class OptionQuestion(Question):
     """
-    An `OptionQuestion` is a `Question` that asks the user to select one option
-    from a pre-defined set of choices.
+    An `OptionQuestion` is a `Question` that asks the respondent to select one
+    option from a set of unordered choices.
 
     Attributes:
-        options: The serialized list of allowed options.
+        options_as_json: A string representation of a JSON list specifying
+                         the options.
+        options: A wrapper around `options_as_json` that automatically
+                 serializes and unserializes a Python list of options. This is
+                 the preferred way of manipulating the list of options.
+        input_type: A string specifying how the input should be rendered:
+            select: Render the question as a dropdown menu.
+            radio: Render the question as a list of radio buttons.
     """
     INPUT_TYPES = (
-        ('dropdown', 'dropdown'),
-        ('bubble', 'bubble')
+        ('select', 'select'),
+        ('radio', 'radio')
     )
 
-    options = models.TextField(blank=True)
+    options_as_json = models.TextField(blank=True)
     input_type = models.CharField(max_length=16, choices=INPUT_TYPES,
-                                  default='dropdown', blank=True)
+                                  default='select', blank=True)
+
+    @property
+    def options(self):
+        return json.loads(self.options_as_json)
+
+    @options.setter
+    def options(self, options_list):
+        self.options_as_json = json.dumps(list(options_list))
 
     def __unicode__(self):
         return 'OptionQuestion {0}: "{1}"'.format(self.id, self.prompt)

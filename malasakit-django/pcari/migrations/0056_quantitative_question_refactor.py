@@ -14,15 +14,15 @@ INPUT_TYPES = (
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('pcari', '0052_auto_20170609_1902'),
+        ('pcari', '0055_empty_strings_to_null'),
     ]
 
     operations = [
-        migrations.AddField('QuantitativeQuestion', 'minval',
+        migrations.AddField('QuantitativeQuestion', 'min_score',
                             models.PositiveSmallIntegerField(default=0,
                                                              null=True,
                                                              blank=True)),
-        migrations.AddField('QuantitativeQuestion', 'maxval',
+        migrations.AddField('QuantitativeQuestion', 'max_score',
                             models.PositiveSmallIntegerField(default=9,
                                                              null=True,
                                                              blank=True)),
