@@ -78,13 +78,13 @@ class ResponseSaveTestCase(TestCase):
 
         http_response = self.push({
             'question-ratings': {
-                '1': 4
+                '1': [4]
             },
             'comments': {
                 '1': 'hello world',
             },
             'comment-ratings': {
-                str(comment.id): 2
+                str(comment.id): [2]
             },
             'respondent-data': {
                 'language': 'tl'
