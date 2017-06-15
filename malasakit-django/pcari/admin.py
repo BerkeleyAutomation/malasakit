@@ -10,7 +10,8 @@ from .models import QuantitativeQuestionRating, Respondent
 
 from .admin_actions import flag_comment, unflag_comment
 from .admin_actions import export_all_comments_csv, export_selected_comments_csv
-from.admin_actions import export_all_commentratings_csv, export_selected_commentratings_csv
+from .admin_actions import export_all_commentratings_csv, export_selected_commentratings_csv
+from .admin_actions import export_all_quantitativequestionratings_csv, export_selected_quantitativequestionratings_csv
 
 
 admin.site.site_header = admin.site.site_title = 'Malasakit'
@@ -116,6 +117,9 @@ class QuantitativeQuestionRatingAdmin(ResponseAdmin):
 
     # Enables search
     search_fields = ('question__prompt', 'score')
+
+    # Actions that users can do on selected comments
+    actions = (export_all_quantitativequestionratings_csv, export_selected_quantitativequestionratings_csv)
 
 
 class QuestionAdmin(admin.ModelAdmin):
