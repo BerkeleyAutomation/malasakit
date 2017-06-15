@@ -313,10 +313,7 @@ def personal_information(request):
 
 @language_selectable
 def quantitative_questions(request):
-    questions = QuantitativeQuestion.objects.all()
-    question_text = [(question.id, question.prompt, question.left_text,
-                      question.right_text) for question in questions]
-    context = {'questions': question_text}
+    context = {'questions': QuantitativeQuestion.objects.all()}
     return render(request, 'quantitative-questions.html', context)
 
 

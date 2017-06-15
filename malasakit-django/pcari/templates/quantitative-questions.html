@@ -27,12 +27,9 @@
 
 {% block content %}
   <ol>
-    {% for qid, prompt, left_text, right_text in questions %}
+    {% for question in questions %}
       <li>
-        <p class="prompt">{% trans prompt %}</p>
-        <span class="leftlabel">{% trans left_text %}</span>
-        <input id="rating-{{ qid }}" type="range" value="5" min="1" max="10">
-        <span class="rightlabel">{% trans right_text %}</span>
+        {% include 'rating-slider.html' with question=question %}
       </li>
     {% endfor %}
   </ol>
