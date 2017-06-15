@@ -38,15 +38,17 @@
       d.fy = null;
     }
 
-    var simulation = d3.forceSimulation()
-                       .force('charge', d3.forceManyBody().strength(-50));
-                       // .force('collide', d3.forceCollide(15));
+    var simulation;
 
-    $(document).ready(function() {
-      selectComments(selectCommentFromStandardError);
+    function renderComments() {
       var bloom = d3.select('#bloom'),
-          width = bloom.attr('width'),
-          height = bloom.attr('height');
+          width = bloom.node().getBoundingClientRect().width,
+          height = width * 0.6;
+      bloom.attr('height', height);
+
+      console.log('Rendering ' + width + 'x' + height + ' bloom');
+      simulation = d3.forceSimulation().force('charge', d3.forceManyBody());
+      bloom.selectAll('*').remove();
 
       var selectedComments = JSON.parse(localStorage.getItem(SELECTED_COMMENTS_KEY)) || {};
       var nodeData = [];
@@ -63,10 +65,9 @@
                    .on('end', endDrag);
 
       var nodes = bloom.selectAll('g').data(nodeData).enter().append('g');
-      nodes.call(drag);
+      nodes.call(drag).on('click', function() { console.log('OK'); });
       nodes.append('image').attr('xlink:href', 'data:image/png;base64,' + ICON_IMAGE);
-      nodes.append('text').text('(No tag)').attr('x', 30).attr('y', 15);
-      // nodes.append('circle').attr('r', 5).data(nodeData).enter();
+      nodes.append('text').text('(?)').attr('x', 30).attr('y', 15).attr('fill', '#1371ad');
 
       function tick() {
         nodes.attr('transform', function(node) {
@@ -77,18 +78,32 @@
       }
 
       simulation.nodes(nodeData).on('tick', tick);
+    }
+
+    $(document).ready(function() {
+      selectComments(selectCommentFromStandardError);
+      renderComments();
     });
+
+    $(window).resize(renderComments);
   </script>
 {% endblock %}
 
 {% block content %}
   <p>
     {% blocktrans trimmed %}
-      <!-- Each -->
+      Each icon below is a comment made by another user.
+      Next to each icon is the topic of the comment, or <span style='color: #1371ad'>(?)</span> if no topic was found.
+      Comments that are closer together have authors who answered the quantitative questions similarly.
+    {% endblocktrans %}
+  <p>
+    {% blocktrans trimmed %}
+      Click an icon to rate that comment on its helpfulness.
+      You can also drag the icons around.
     {% endblocktrans %}
   </p>
 
-  <svg id='bloom' width="960" height="600"></svg>
+  <svg id='bloom' width="100%"></svg>
 
   <div class="nav-button">
     <a href="{% url 'pcari:qualitative-questions' %}?lang={{ language_code }}">Next</a>
