@@ -295,6 +295,7 @@ def language_selectable(view):
 def index(request):
     return redirect(reverse('pcari:landing'))
 
+
 @language_selectable
 def landing(request):
     context = {'num_responses': Respondent.objects.count()}
@@ -306,9 +307,10 @@ def quantitative_questions(request):
     context = {'questions': QuantitativeQuestion.objects.all()}
     return render(request, 'quantitative-questions.html', context)
 
+
 @language_selectable
 def peer_responses(request):
-    return render(request, 'response-histograms.html')
+    return render(request, 'peer-responses.html')
 
 
 @language_selectable
