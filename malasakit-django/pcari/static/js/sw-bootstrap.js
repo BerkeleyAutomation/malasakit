@@ -8,8 +8,10 @@ function main() {
         navigator.serviceWorker.register('/sw.js')
             .then(function(registration) {
             // Registration successful
-            console.log("Registration successful, SW scope: ",
+                console.log("Registration successful, SW scope: ",
                         registration.scope);
+
+                registration.update(); // try to update serviceworker script
         }, function(err) {
             // Registration failed
             console.log("Registration failed: ", err);

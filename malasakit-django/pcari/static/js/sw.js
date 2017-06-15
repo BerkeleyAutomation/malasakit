@@ -56,7 +56,12 @@ function fetchEvent(event) {
     // fulfilled (i.e., do we get a resource?)
     event.respondWith(
         fetch(event.request)
-            .catch(function (err) {
+            .then(function (response) {
+                return caches.open(CACHE_NAME).then(function (cache) {
+                    cache.put(event.request, response.clone());
+                    return response;
+                });
+            }, function (err) {
                 // If fetch fails (i.e. no internet connection or server issue)
                 // then attempt to pull resource from cache.
                 console.log("=== FETCH FAILED, LOOKING IN CACHE ===");
