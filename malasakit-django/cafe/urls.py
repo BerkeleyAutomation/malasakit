@@ -15,22 +15,30 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.conf.urls.i18n import i18n_patterns
+from django.contrib.auth import views as auth_views
 from django.contrib import admin
 
 from django.views.generic import TemplateView
 
+# pylint: disable=invalid-name
 urlpatterns = [
-    # url(r'^admin/', admin.site.urls),
-    # ServiceWorker script- special case
+     # ServiceWorker script- special case
     url(r'^sw.js$',
         TemplateView.as_view(template_name='sw.js',
                              content_type='application/javascript'),
         name='sw.js'),
 
+
+    # Admin site password reset
+    url(r'^admin/password_reset/', auth_views.password_reset, name='admin_password_reset'),
+    url(r'^admin/password_reset/done/', auth_views.password_reset_done, name='password_reset_done'),
+    url(r'^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>.+)/', auth_views.password_reset_confirm,
+        name='password_reset_confirm'),
+    url(r'^reset/done/', auth_views.password_reset_complete, name='password_reset_complete'),
+
+    # Admin site
+    url(r'^admin/', admin.site.urls),
 ]
 
-urls_to_translate = [
-    url(r'^pcari/', include('pcari.urls')),
-]
-
-urlpatterns += i18n_patterns(*urls_to_translate)
+# Translate all pcari urls
+urlpatterns += i18n_patterns(url(r'^pcari/', include('pcari.urls')))
