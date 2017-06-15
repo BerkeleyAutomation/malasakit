@@ -19,13 +19,11 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField('QuantitativeQuestion', 'min_score',
-                            models.PositiveSmallIntegerField(default=0,
-                                                             null=True,
-                                                             blank=True)),
+                            models.SmallIntegerField(default=0, null=True,
+                                                     blank=True)),
         migrations.AddField('QuantitativeQuestion', 'max_score',
-                            models.PositiveSmallIntegerField(default=9,
-                                                             null=True,
-                                                             blank=True)),
+                            models.SmallIntegerField(default=9, null=True,
+                                                     blank=True)),
         migrations.AddField('QuantitativeQuestion', 'input_type',
                             models.CharField(max_length=16, choices=INPUT_TYPES,
                                              default='range', blank=True)),

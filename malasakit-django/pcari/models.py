@@ -321,8 +321,8 @@ class QuantitativeQuestion(Question):
 
     left_text = models.TextField(blank=True)
     right_text = models.TextField(blank=True)
-    min_val = models.PositiveSmallIntegerField(default=0, null=True, blank=True)
-    max_val = models.PositiveSmallIntegerField(default=9, null=True, blank=True)
+    min_score = models.SmallIntegerField(default=0, null=True, blank=True)
+    max_score = models.SmallIntegerField(default=9, null=True, blank=True)
     input_type = models.CharField(max_length=16, choices=INPUT_TYPES,
                                   default='range', blank=True)
 
