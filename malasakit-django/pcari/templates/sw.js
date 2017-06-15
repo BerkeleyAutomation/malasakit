@@ -19,8 +19,8 @@ var staticResources = [
     "/pcari/static/css/quicksand-font.css",
     "/pcari/static/css/main.css",
     "/pcari/static/js/jquery-3.2.1.min.js",
-    "/pcari/static/js/responses.js",
-    "/pcari/static/js/loader.js"
+    "/pcari/static/js/client.js",
+    "/pcari/static/js/sw-bootstrap.js"
 ];
 
 var urlsToCache = [];

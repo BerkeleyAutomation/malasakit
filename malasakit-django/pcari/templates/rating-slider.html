@@ -1,0 +1,7 @@
+{% load i18n %}
+
+<p class="prompt">{% trans question.prompt %}</p>
+<span class="leftlabel">{% trans question.left_text %}</span>
+<!-- TODO: dynamically set min/max/default -->
+<input id="rating-{{ question.id }}" type="range" value="0" min="0" max="9">
+<span class="rightlabel">{% trans question.right_text %}</span>
