@@ -12,6 +12,7 @@ from .admin_actions import flag_comment, unflag_comment
 from .admin_actions import export_all_comments_csv, export_selected_comments_csv
 from .admin_actions import export_all_commentratings_csv, export_selected_commentratings_csv
 from .admin_actions import export_all_quantitativequestionratings_csv, export_selected_quantitativequestionratings_csv
+from .admin_actions import export_all_respondents_csv, export_selected_respondents_csv
 
 
 admin.site.site_header = admin.site.site_title = 'Malasakit'
@@ -201,3 +202,6 @@ class RespondentAdmin(admin.ModelAdmin):
     search_fields = ('gender', 'location', 'language',
                      'submitted_personal_data', 'completed_survey',
                      'num_questions_rated', 'num_comments_rated')
+
+    # Actions that users can do on selected comments
+    actions = (export_all_respondents_csv, export_selected_respondents_csv)

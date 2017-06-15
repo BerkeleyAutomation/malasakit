@@ -48,7 +48,8 @@ def create_csv_response():
     Create a response object to download CSV files
     Helper function for export_all_comments_csv, export_selected_comments_csv, 
     export_all_commentratings_csv, export_selected_commentratings_csv,
-    export_all_quantitativequestionratings_csv, export_selected_quantitativequestionratings_csv
+    export_all_quantitativequestionratings_csv, export_selected_quantitativequestionratings_csv,
+    export_all_respondents_csv, export_selected_respondents_csv
 
     Returns:
         an HttpResponse object for the CSV file to be downloaded
@@ -349,3 +350,111 @@ def export_selected_quantitativequestionratings_csv(modeladmin, request, queryse
 export_selected_quantitativequestionratings_csv.short_description = "Export selected quantitative question ratings as a CSV"
 
 
+def create_respondent_csv_writer(response):
+    """
+    Create a csv.writer object for dumping Respondents
+    Helper function for export_all_respondents_csv, export_selected_respondents_csv
+
+    Returns:
+        a Writer object for dumping Respondents into a CSV
+
+    More info:
+        https://docs.python.org/2/library/csv.html
+    """
+    writer = csv.writer(response)
+
+    # write the column headers in the table
+    writer.writerow([
+        smart_str("Comments Made"),
+        smart_str("Age"),
+        smart_str("Gender"),
+        smart_str("Location"),
+        smart_str("Language"),
+        smart_str("Submitted Personal Data"),
+        smart_str("Completed Survey"),
+        smart_str("Num Questions Rated"),
+        smart_str("Num Comments Rated")
+    ])
+
+    return writer
+
+
+def export_all_respondents_csv(modeladmin, request, queryset):
+    """
+    Admin action that dumps all Respondents into a CSV file
+
+    Args:
+        modeladmin: the current ModelAdmin the action is used in
+        request: the HttpRequest object
+        queryset: the set of objects selected by the user
+
+    Returns:
+        an HttpResponse object containing the CSV file to be downloaded
+
+    More info:
+        https://docs.djangoproject.com/en/1.10/ref/contrib/admin/actions/
+    """
+    # instantiate the HttpResponse
+    response = create_csv_response()
+
+    # instantiate the csv.writer object
+    writer = create_respondent_csv_writer(response)
+
+    # write the rows in the table
+    respondents = Respondent.objects.all()
+    for respondent in respondents:
+        writer.writerow([
+            smart_str(list(respondent.comments_made)),
+            smart_str(respondent.age),
+            smart_str(respondent.gender),
+            smart_str(respondent.location),
+            smart_str(respondent.language),
+            smart_str(respondent.submitted_personal_data),
+            smart_str(respondent.completed_survey),
+            smart_str(respondent.num_questions_rated),
+            smart_str(respondent.num_comments_rated)
+        ])
+
+    return response
+
+export_all_respondents_csv.short_description = "Export all respondents as a CSV (select one first)"
+
+
+def export_selected_respondents_csv(modeladmin, request, queryset):
+    """
+    Admin action that dumps selected Respondents into a CSV file
+
+    Args:
+        modeladmin: the current ModelAdmin the action is used in
+        request: the HttpRequest object
+        queryset: the set of objects selected by the user
+
+    Returns:
+        an HttpResponse object containing the CSV file to be downloaded
+
+    More info:
+        https://docs.djangoproject.com/en/1.10/ref/contrib/admin/actions/
+    """
+    # instantiate the HttpResponse
+    response = create_csv_response()
+
+    # instantiate the csv.writer object
+    writer = create_respondent_csv_writer(response)
+
+    # write the rows in the table
+    for respondent in queryset:
+        writer.writerow([
+            smart_str(list(respondent.comments_made)),
+            smart_str(respondent.age),
+            smart_str(respondent.gender),
+            smart_str(respondent.location),
+            smart_str(respondent.language),
+            smart_str(respondent.submitted_personal_data),
+            smart_str(respondent.completed_survey),
+            smart_str(respondent.num_questions_rated),
+            smart_str(respondent.num_comments_rated),
+        ])
+
+    return response
+
+export_selected_respondents_csv.short_description = "Export selected respondents as a CSV"
