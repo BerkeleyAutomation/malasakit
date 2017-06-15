@@ -9,8 +9,8 @@
 {% block scripts %}
   <script>
     $(document).ready(function() {
-      invalidateCurrentID();
-      attemptDataPush();
+      invalidateCurrentResponseKey();
+      pushCompletedResponses();
     });
   </script>
 {% endblock %}

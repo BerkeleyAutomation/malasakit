@@ -6,42 +6,48 @@
 {% block title %}{% trans 'Rate Comments by Other Users' %}{% endblock %}
 {% block main-heading %}{% trans 'Rate Comments by Other Users' %}{% endblock %}
 
-{% block scripts %}
-  <script>
-    // TODO: implement this
-  </script>
+{% block static-assets %}
+  {{ block.super }}
+  <script src="{% static 'js/d3.v4.min.js' %}"></script>
+  <script src="{% static 'js/bloom.js' %}"></script>
 {% endblock %}
 
 {% block content %}
   <p>
     {% blocktrans trimmed %}
-      These are some suggestions made by other people living in barangays
-      across the Phillippines.
-      Read each one, and rate how helpful it is.
+      Each icon below is a comment made by another user.
+      Next to each icon is the topic of the comment, or <span style='color: #1371ad'>(?)</span> if no topic was found.
+      Comments that are closer together have authors who answered the quantitative questions similarly.
+    {% endblocktrans %}
+  <p>
+    {% blocktrans trimmed %}
+      Click an icon to rate that comment on its helpfulness.
+      <strong>You must rate at least two comments to proceed.</strong>
+      You can also drag the icons around.
     {% endblocktrans %}
   </p>
+  <svg id='bloom' width="100%"></svg>
+  <div class='modal'>
+    <div class='modal-container'>
+      <p>{% trans 'The question was:' %}</p>
+      <blockquote id='prompt'></blockquote>
+      <p>{% trans 'The comment was:' %}</p>
+      <blockquote id='comment'></blockquote>
 
-  <!-- TODO: refactor with dynamic client-side comment selection -->
+      <p class="prompt">{% trans 'How helpful is this comment?' %}</p>
+      <input id="comment-rating" type="range" value="0" min="0" max="9">
+      <div class='scale-context'>
+        <span class="left-text">{% trans 'Not helpful' %}</span>
+        <span class="right-text">{% trans 'Helpful' %}</span>
+      </div>
 
-  <!-- S1 -->
-  <p class="q"><b>1. Suggestion 1</b></p>
-  <span class="leftlabel">Very unhelpful.</span>
-  <input type="range" value="0" min=1 max=10 />
-  <span class="rightlabel">Very helpful.</span>
-
-  <!-- S2 -->
-  <p class="q"><b>2. Suggestion 2</b></p>
-  <span class="leftlabel">Very unhelpful.</span>
-  <input type="range" value="0" min=1 max=10 />
-  <span class="rightlabel">Very helpful.</span>
-
-  <!-- S3 -->
-  <p class="q"><b>3. Suggestion 3</b></p>
-  <span class="leftlabel">Very unhelpful.</span>
-  <input type="range" value="0" min=1 max=10 />
-  <span class="rightlabel">Very helpful.</span>
-
-  <div class="nav-button">
+      <div class='button-group'>
+        <div id='submit' class='button'>Submit</div>
+        <div id='skip' class='button'>Skip</div>
+      </div>
+    </div>
+  </div>
+  <div id='next' class="nav-button">
     <a href="{% url 'pcari:qualitative-questions' %}">Next</a>
   </div>
 {% endblock %}
