@@ -367,21 +367,22 @@ class OptionQuestion(Question):
         return 'OptionQuestion {0}: "{1}"'.format(self.id, self.prompt)
 
 
-class OptionSelection(Rating):
+class OptionResponse(Response):
     """
-    An `OptionSelection` is a response to an `OptionQuestion`, corresponding to
-    one of the options allowed by the `OptionQuestion`.
+    An `OptionResponse` is a response to an `OptionQuestion`.
 
     Attributes:
         question: A reference to the `OptionQuestion` this selection is in
                   response to.
+        option: The option selected by the respondent. This must be an element
+                of `question.options`.
     """
-    question = models.ForeignKey('OptionQuestion',
-                                 on_delete=models.CASCADE)
+    question = models.ForeignKey('OptionQuestion', on_delete=models.CASCADE)
+    option = models.TextField(blank=True)
 
     def __unicode__(self):
-        template = 'QuantitativeQuestion {0}: {1}'
-        return template.format(self.question_id, self.score)
+        template = 'OptionResponse {0}: "{1}"'
+        return template.format(self.question_id, self.option)
 
     class Meta:
         unique_together = ('respondent', 'question')
