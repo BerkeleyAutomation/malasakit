@@ -6,7 +6,6 @@
 var CACHE_NAME = 'malasakit-cache';
 var langCodes = ['en', 'tl'];
 var views = [
-    '/pcari/landing/',
     '/pcari/personal-information/',
     '/pcari/quantitative-questions/',
     '/pcari/response-histograms/',
@@ -23,11 +22,11 @@ var staticResources = [
     "/pcari/static/js/loader.js"
 ];
 
-var urlsToCache = [];
+var urlsToCache = [
+    '/pcari/landing/',
+];
 
 for (var i = 0; i < views.length; i++) {
-    urlsToCache.push(views[i]); // really unsure about not caching these at all,
-    // as someone may decide to type in url withou
     for (var j = 0; j < langCodes.length; j++) {
         urlsToCache.push('/' + langCodes[j] + views[i]);
     }
