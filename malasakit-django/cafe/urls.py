@@ -22,7 +22,7 @@ from django.views.generic import TemplateView
 
 # pylint: disable=invalid-name
 urlpatterns = [
-     # ServiceWorker script- special case
+    # ServiceWorker script- special case
     url(r'^sw.js$',
         TemplateView.as_view(template_name='sw.js',
                              content_type='application/javascript'),
