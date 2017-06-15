@@ -45,7 +45,48 @@ def unflag_comment(modeladmin, request, queryset):
 
 unflag_comment.short_description = "Unflag selected comments"
 
-def dump_all_comments_csv(modeladmin, request, queryset):
+def create_csv_response():
+    """
+    Create a response object to download CSV files
+
+    Returns:
+        an HttpResponse object for the CSV file to be downloaded
+    """
+    # instantiate the HttpResponse
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=malasakit_comment_data.csv'
+    response.write(u'\ufeff'.encode('utf8'))
+
+    return response
+
+
+def create_comments_csv_writer(response):
+    """
+    Create a csv.writer object for dumping Comments
+
+    Returns:
+        a Writer object for dumping Comments into a CSV
+
+    More info: 
+        https://docs.python.org/2/library/csv.html
+    """
+    # instantiate the csv.writer object
+    writer = csv.writer(response) # TODO: csv.excel might not be needed
+
+    # write the column headers in the table
+    writer.writerow([
+        smart_str(u"Respondent"),
+        smart_str(u"Question"),
+        smart_str(u"Message"),
+        smart_str(u"Language"),
+        smart_str(u"Tag"),
+        smart_str(u"Timestamp")
+    ])
+
+    return writer
+
+
+def export_all_comments_csv(modeladmin, request, queryset):
     """
     Admin action that dumps all comments into a CSV file
 
@@ -57,27 +98,12 @@ def dump_all_comments_csv(modeladmin, request, queryset):
     Returns:
         an HttpResponse object containing the CSV file to be downloaded
 
-    More info: 
+    More info:
         https://docs.djangoproject.com/en/1.10/ref/contrib/admin/actions/
-        https://docs.python.org/2/library/csv.html
     """
-    # instantiate the HttpResponse
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename=malasakit_comment_data.csv'
-    response.write(u'\ufeff'.encode('utf8'))
+    response = create_csv_response()
 
-    # instantiate the csv.writer object
-    writer = csv.writer(response, csv.excel) # TODO: csv.excel might not be needed
-
-    # write the column headers in the table
-    writer.writerow([
-        smart_str(u"Respondent"),
-        smart_str(u"Question"),
-        smart_str(u"Message"),
-        smart_str(u"Language"),
-        smart_str(u"Tag"),
-        smart_str(u"Timestamp")
-    ])
+    writer = create_comments_csv_writer(response)
 
     # write the rows in the table
     comments = Comment.objects.all()
@@ -93,8 +119,7 @@ def dump_all_comments_csv(modeladmin, request, queryset):
 
     return response
 
-dump_all_comments_csv.short_description = "Dump all comments as a CSV"
-
+export_all_comments_csv.short_description = "Export all comments as a CSV (select one first)"
 
 
 class ResponseAdmin(admin.ModelAdmin):
@@ -166,7 +191,7 @@ class CommentAdmin(ResponseAdmin):
     search_fields = ('message', 'tag')
 
     # Actions that users can do on selected comments
-    actions = (flag_comment, unflag_comment, dump_all_comments_csv)
+    actions = (flag_comment, unflag_comment, export_all_comments_csv)
 
 
 @admin.register(QuantitativeQuestionRating)
