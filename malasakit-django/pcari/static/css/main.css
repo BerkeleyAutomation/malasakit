@@ -141,8 +141,28 @@ input[type=range]:focus::-ms-fill-upper {
   transition-duration: 0.4s;
 }
 
+.button-group {
+  display: block;
+  text-align: center;
+}
+
+.button {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  margin: 1rem auto;
+  border: 1px solid black;
+  -webkit-transition-duration: 0.4s;
+  transition-duration: 0.4s;
+}
+
+.button:hover {
+  background-color: goldenrod;
+  color: white;
+}
+
 .nav-button:hover {
   background-color: goldenrod;
+  color: white;
 }
 
 .nav-button > a {
@@ -153,10 +173,6 @@ input[type=range]:focus::-ms-fill-upper {
 
 .nav-button > a:visited {
   color: black;
-}
-
-.nav-button:hover > a {
-  color: white;
 }
 
 /* Content components */
@@ -224,4 +240,63 @@ nav {
 
 #languages > li > a:hover {
   color: white;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  padding-top: 10rem;
+  padding: 3rem 1rem 1rem 1rem;
+  left: 0;
+  top: 0;
+  width: 100%;
+  box-sizing: border-box;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-container {
+  margin: 0 auto;
+  background-color: white;
+  max-width: 960px;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  box-sizing: border-box;
+}
+
+blockquote {
+  color: rgb(140, 140, 140);
+  margin: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-left: 1px solid rgb(140, 140, 140);
+}
+
+input[type=range] {
+  width: 20rem;
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+}
+
+.scale-context {
+  display: block;
+  width: 20rem;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.left-text {
+  display: inline-block;
+  width: 50%;
+  float: left;
+  padding: 0.5rem 0;
+}
+
+.right-text {
+  display: inline-block;
+  width: 50%;
+  float: right;
+  padding: 0.5rem 0;
+  text-align: right;
 }

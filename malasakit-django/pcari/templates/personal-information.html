@@ -5,41 +5,16 @@
 
 {% block scripts %}
   <script>
-    function locationUpdateCallback() {
-      var province = $('#province').val().trim();
-      var barangay = $('#barangay').val().trim();
-      if (province.length === 0 && barangay.length === 0) {
-        deleteRespondentAttribute('location');
-      } else if (province.length === 0) {
-        updateRespondentAttribute('location', barangay);
-      } else if (barangay.length === 0) {
-        updateRespondentAttribute('location', province);
-      } else {
-        updateRespondentAttribute('location', province + ', ' + barangay);
-      }
-    }
-
     $(document).ready(function() {
-      $('#age').on('input', function() {
-        var age = parseInt($('#age').val());
-        if (!isNaN(age)) {
-          updateRespondentAttribute('age', age);
-        } else {
-          deleteRespondentAttribute('age');
-        }
+      bindValueStoreListener($('#age'), ['respondent-data', 'age'], parseInt);
+      bindValueStoreListener($('#gender'), ['respondent-data', 'gender']);
+      bindValueStoreListener($('#province'), ['respondent-data', 'province']);
+      bindValueStoreListener($('#barangay'), ['respondent-data', 'barangay']);
+      $('#next').click(function() {
+        editCurrentResponse(function(response) {
+          response['respondent-data']['submitted-personal-data'] = true;
+        });
       });
-
-      $('#gender').on('input', function() {
-        var gender = $('#gender').val();
-        if (gender) {
-          updateRespondentAttribute('gender', gender);
-        } else {
-          deleteRespondentAttribute('gender');
-        }
-      });
-
-      $('#province').on('input', locationUpdateCallback);
-      $('#barangay').on('input', locationUpdateCallback);
     });
   </script>
 {% endblock %}

@@ -65,7 +65,7 @@ def accepts_ratings(ratings_model, keyword):
     True
     """
     def ratings_aggregator(target_model):
-        """ The decorator itself. """
+        """ A decorator that wraps a model that can be rated. """
         def select_ratings(self, answered=True):
             """
             Select ratings attached to this target model instance.
@@ -93,16 +93,35 @@ def accepts_ratings(ratings_model, keyword):
         def num_ratings(self):
             return self.select_ratings().count()
 
-        def standard_error(self):
-            """ Computes the statistical standard error. """
+        def stdev(self):
+            """
+            Computed the sample standard deviation.
+
+            Returns:
+                `float('nan')` if the number of samples is fewer than two.
+            """
             scores = self.select_ratings().values_list('score', flat=True)
+            if len(scores) < 2:
+                return float('nan')
             mean_score = float(sum(scores))/len(scores)
-            variance = sum(pow(score - mean_score, 2)/len(scores) for score in scores)
-            return variance**0.5/len(scores)**2
+            squared_errors = (pow(score - mean_score, 2) for score in scores)
+            return (sum(squared_errors)/(len(scores) - 1))**0.5
+
+        def standard_error(self):
+            """
+            Computes the statistical standard error of the mean.
+
+            Returns:
+                `float('nan')` if the number of samples is fewer than two.
+            """
+            num_ratings = self.num_ratings
+            return (self.stdev/num_ratings**0.5 if num_ratings > 0
+                    else float('nan'))
 
         target_model.select_ratings = select_ratings
         target_model.mean_score = property(mean_score)
         target_model.num_ratings = property(num_ratings)
+        target_model.stdev = property(stdev)
         target_model.standard_error = property(standard_error)
         return target_model
     return ratings_aggregator
@@ -217,13 +236,15 @@ class Comment(Response):
     """
     question = models.ForeignKey('QualitativeQuestion',
                                  on_delete=models.CASCADE)
-    language = models.CharField(max_length=2, choices=LANGUAGES)
-    message = models.TextField(blank=True)
+    language = models.CharField(max_length=25, choices=LANGUAGES)
+    message = models.TextField(blank=True, null=True)
     flagged = models.BooleanField(default=False)
     tag = models.CharField(max_length=256, blank=True, default='')
 
     def __unicode__(self):
-        return '{0}: "{1}"'.format(self.id, self.message)
+        if self.message is not None and self.message.strip():
+            return '"{0}"'.format(self.message)
+        return '-- Empty response --'
 
     @property
     def word_count(self):
@@ -382,7 +403,7 @@ class Respondent(models.Model):
     age = models.PositiveSmallIntegerField(default=None, null=True, blank=True)
     gender = models.CharField(max_length=1, choices=GENDERS, default='',
                               blank=True)
-    location = models.CharField(max_length=512, default='', blank=True)
+    location = models.CharField(max_length=512, default='', blank=True, null=True)
     language = models.CharField(max_length=2, choices=LANGUAGES)
     submitted_personal_data = models.BooleanField(default=False)
     completed_survey = models.BooleanField(default=False)
