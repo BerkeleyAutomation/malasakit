@@ -4,6 +4,7 @@ import random
 
 from django.db import IntegrityError
 from django.test import TestCase, Client
+from django.urls import reverse
 
 from .models import Respondent
 from .models import QuantitativeQuestion, QualitativeQuestion
@@ -53,7 +54,7 @@ class ResponseSaveTestCase(TestCase):
         self.client = Client()
 
     def push(self, responses):
-        http_response = self.client.post('/pcari/save-response',
+        http_response = self.client.post(reverse('pcari:save-response'),
                                          data=json.dumps(responses),
                                          content_type='application/json')
         return http_response
