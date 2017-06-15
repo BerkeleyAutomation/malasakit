@@ -120,7 +120,8 @@ class QuantitativeQuestionRatingAdmin(ResponseAdmin):
     search_fields = ('question__prompt', 'score')
 
     # Actions that users can do on selected comments
-    actions = (export_all_quantitativequestionratings_csv, export_selected_quantitativequestionratings_csv)
+    actions = (export_all_quantitativequestionratings_csv,
+               export_selected_quantitativequestionratings_csv)
 
 
 class QuestionAdmin(admin.ModelAdmin):
