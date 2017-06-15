@@ -80,12 +80,14 @@ function startCommentRating(commentID) {
         if (getResponseValue(path) === null) {
             setResponseValue(path, [parseInt($('#comment-rating').val())]);
         }
+        $('#comment-rating').unbind('change');
         bindHistoryStoreListener($('#comment-rating'), path, parseInt);
         $('#submit').on('click', function() {
             $('.modal').css('display', 'none');
             renderComments();
             setNextButtonStatus();
         });
+        $('#skip').unbind('click');
         $('#skip').on('click', function() {
             var history = getResponseValue(path);
             history.push(-1);
