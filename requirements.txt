@@ -6,3 +6,4 @@ pylint==1.7.1
 pylint_django==0.7.2
 pyyaml
 django-htmlmin==0.10.0
+django-admin-tools==0.8.1 
