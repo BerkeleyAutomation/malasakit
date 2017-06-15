@@ -9,7 +9,6 @@ const ICON_IMAGE = 'iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAABDklEQVR4nNXV
                  + 'AL9itXnhT7PbAbiKA4xmYVnTIO4wnCMuY6h5poJbXOMCpxo7o222cm5XweJ3DrfLko/f9QQjIeDj'
                  + 'GnOs41FjaUyGAKcZwDJm0BUS/P/zDqZIDzgtIDS2AAAAAElFTkSuQmCC';
 
-const SELECTED_COMMENTS = JSON.parse(localStorage.getItem(SELECTED_COMMENTS_KEY)) || {};
 const NO_TAG = '(?)';
 
 function calculateBounds(comments) {
@@ -84,7 +83,8 @@ function renderComments() {
     simulation = d3.forceSimulation().force('charge', d3.forceManyBody());
     bloom.selectAll('*').remove();
 
-    var nodeData = makeNodeData(SELECTED_COMMENTS, width, height);
+    var selectedComments = JSON.parse(localStorage.getItem(SELECTED_COMMENTS_KEY)) || {};
+    var nodeData = makeNodeData(selectedComments, width, height);
 
     var drag = d3.drag().on('start', startDrag).on('drag', continueDrag).on('end', endDrag);
     var nodes = bloom.selectAll('g').data(nodeData).enter().append('g');

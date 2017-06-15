@@ -166,9 +166,16 @@ def fetch_comments(request):
                 'sem': round(standard_error, STANDARD_ERROR_PRECISION),
                 'pos': position,
                 'tag': comment.tag,
+                'qid': comment.question_id
             }
 
     return JsonResponse(data)
+
+
+@require_GET
+def fetch_qualitative_questions(request):
+    return JsonResponse({str(question.id): question.prompt for question in
+                         QualitativeQuestion.objects.all()})
 
 
 def make_quantitative_question_ratings(respondent, responses):

@@ -218,3 +218,10 @@ nav {
 #languages > li > a:hover {
   color: white;
 }
+
+.modal {
+  max-width: 960px;
+  margin: 0 auto;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}

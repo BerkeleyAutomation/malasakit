@@ -4,6 +4,8 @@
  *  locally.
  */
 
+// TODO: refactor the API with less redundancy
+
 const CURRENT_RESPONSE_KEY = 'current';
 const RESPONSE_KEY_PREFIX = 'user-';
 const CURRENT_RESPONSE_LIFETIME = 24*60*60*1000;
@@ -17,6 +19,10 @@ const COMMENTS_FETCH_ENDPOINT = '/pcari/fetch-comments/';
 const COMMENTS_FETCH_TIMEOUT = 5000;
 const SELECTED_COMMENTS_KEY = 'selected-comments';
 const DEFAULT_NUM_COMMENTS_TO_SELECT = 8;
+
+const QUALITATIVE_QUESTIONS_KEY = 'qualitative-questions';
+const QUALITATIVE_QUESTIONS_FETCH_ENDPOINT = '/pcari/fetch-qualitative-questions/';
+const QUALITATIVE_QUESTIONS_FETCH_TIMEOUT = 5000;
 
 const EMPTY_RESPONSE = {
     'question-ratings': {},
@@ -174,6 +180,20 @@ function fetchComments() {
     } else {
         console.log('Using cached comments');
     }
+}
+
+function fetchQualitativeQuestions() {
+    $.ajax(QUALITATIVE_QUESTIONS_FETCH_ENDPOINT, {
+        timeout: QUALITATIVE_QUESTIONS_FETCH_TIMEOUT,
+        success: function(qualitativeQuestions) {
+            localStorage.setItem(QUALITATIVE_QUESTIONS_KEY,
+                                 JSON.stringify(qualitativeQuestions));
+            console.log('Successfully fetched qualitative questions');
+        },
+        failure: function(qualitativeQuestions) {
+            console.log('Failed to fetch qualitative questions');
+        }
+    });
 }
 
 /** Mid-level API */
@@ -335,4 +355,5 @@ $(document).ready(function() {
     invalidateOldCurrentResponseKey();
     pushCompletedResponses();
     fetchComments();
+    fetchQualitativeQuestions();
 });
