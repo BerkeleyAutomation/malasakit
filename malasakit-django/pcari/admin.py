@@ -52,7 +52,6 @@ def create_csv_response():
     Returns:
         an HttpResponse object for the CSV file to be downloaded
     """
-    # instantiate the HttpResponse
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=malasakit_comment_data.csv'
     response.write(u'\ufeff'.encode('utf8'))
@@ -70,7 +69,6 @@ def create_comments_csv_writer(response):
     More info: 
         https://docs.python.org/2/library/csv.html
     """
-    # instantiate the csv.writer object
     writer = csv.writer(response) # TODO: csv.excel might not be needed
 
     # write the column headers in the table
@@ -101,8 +99,10 @@ def export_all_comments_csv(modeladmin, request, queryset):
     More info:
         https://docs.djangoproject.com/en/1.10/ref/contrib/admin/actions/
     """
+    # instantiate the HttpResponse
     response = create_csv_response()
 
+    # instantiate the csv.writer object
     writer = create_comments_csv_writer(response)
 
     # write the rows in the table
@@ -120,6 +120,42 @@ def export_all_comments_csv(modeladmin, request, queryset):
     return response
 
 export_all_comments_csv.short_description = "Export all comments as a CSV (select one first)"
+
+
+def export_selected_comments_csv(modeladmin, request, queryset):
+    """
+    Admin action that dumps selected comments into a CSV file
+
+    Args:
+        modeladmin: the current ModelAdmin the action is used in
+        request: the HttpRequest object
+        queryset: the set of objects selected by the user
+
+    Returns:
+        an HttpResponse object containing the CSV file to be downloaded
+
+    More info:
+        https://docs.djangoproject.com/en/1.10/ref/contrib/admin/actions/
+    """
+    # instantiate the HttpResponse
+    response = create_csv_response()
+
+    # instantiate the csv.writer object
+    writer = create_comments_csv_writer(response)
+
+    for comment in queryset:
+        writer.writerow([
+            smart_str(comment.respondent),
+            smart_str(comment.question),
+            smart_str(comment.message),
+            smart_str(comment.language),
+            smart_str(comment.tag),
+            smart_str(comment.timestamp)
+        ])
+
+    return response
+
+export_selected_comments_csv.short_description = "Export selected comments as a CSV"
 
 
 class ResponseAdmin(admin.ModelAdmin):
@@ -191,7 +227,7 @@ class CommentAdmin(ResponseAdmin):
     search_fields = ('message', 'tag')
 
     # Actions that users can do on selected comments
-    actions = (flag_comment, unflag_comment, export_all_comments_csv)
+    actions = (flag_comment, unflag_comment, export_all_comments_csv, export_selected_comments_csv)
 
 
 @admin.register(QuantitativeQuestionRating)
