@@ -1,8 +1,11 @@
 """
 This module defines how Django should render the admin panel.
 """
+import csv
 
 from django.contrib import admin
+from django.http import HttpResponse
+from django.utils.encoding import smart_str
 
 from .models import QualitativeQuestion, QuantitativeQuestion
 from .models import CommentRating, Comment
@@ -14,6 +17,13 @@ admin.site.site_header = admin.site.site_title = 'Malasakit'
 def flag_comment(modeladmin, request, queryset):
     """
     Admin action that flags all selected unflagged comments
+
+    Args:
+        modeladmin: the current ModelAdmin the action is used in
+        request: the HttpRequest object
+        queryset: the set of objects selected by the user
+
+    More info: https://docs.djangoproject.com/en/1.10/ref/contrib/admin/actions/
     """
     queryset.update(flagged=True)
 
@@ -23,10 +33,68 @@ flag_comment.short_description = "Flag selected comments"
 def unflag_comment(modeladmin, request, queryset):
     """
     Admin action that unflags all selected unflagged comments
+
+    Args:
+        modeladmin: the current ModelAdmin the action is used in
+        request: the HttpRequest object
+        queryset: the set of objects selected by the user
+
+    More info: https://docs.djangoproject.com/en/1.10/ref/contrib/admin/actions/
     """
     queryset.update(flagged=False)
 
 unflag_comment.short_description = "Unflag selected comments"
+
+def dump_all_comments_csv(modeladmin, request, queryset):
+    """
+    Admin action that dumps all comments into a CSV file
+
+    Args:
+        modeladmin: the current ModelAdmin the action is used in
+        request: the HttpRequest object
+        queryset: the set of objects selected by the user
+
+    Returns:
+        an HttpResponse object containing the CSV file to be downloaded
+
+    More info: 
+        https://docs.djangoproject.com/en/1.10/ref/contrib/admin/actions/
+        https://docs.python.org/2/library/csv.html
+    """
+    # instantiate the HttpResponse
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=malasakit_comment_data.csv'
+    response.write(u'\ufeff'.encode('utf8'))
+
+    # instantiate the csv.writer object
+    writer = csv.writer(response, csv.excel) # TODO: csv.excel might not be needed
+
+    # write the column headers in the table
+    writer.writerow([
+        smart_str(u"Respondent"),
+        smart_str(u"Question"),
+        smart_str(u"Message"),
+        smart_str(u"Language"),
+        smart_str(u"Tag"),
+        smart_str(u"Timestamp")
+    ])
+
+    # write the rows in the table
+    comments = Comment.objects.all()
+    for comment in comments:
+        writer.writerow([
+            smart_str(comment.respondent),
+            smart_str(comment.question),
+            smart_str(comment.message),
+            smart_str(comment.language),
+            smart_str(comment.tag),
+            smart_str(comment.timestamp)
+        ])
+
+    return response
+
+dump_all_comments_csv.short_description = "Dump all comments as a CSV"
+
 
 
 class ResponseAdmin(admin.ModelAdmin):
@@ -92,13 +160,13 @@ class CommentAdmin(ResponseAdmin):
     list_filter = ('timestamp', 'language', 'flagged', 'tag')
 
     # Sets fields as readonly
-    readonly_fields = ('respondent', 'question', 'language', 'message')
+    readonly_fields = ('respondent', 'question', 'language', 'message', 'timestamp')
 
     # Enables search
     search_fields = ('message', 'tag')
 
     # Actions that users can do on selected comments
-    actions = (flag_comment, unflag_comment)
+    actions = (flag_comment, unflag_comment, dump_all_comments_csv)
 
 
 @admin.register(QuantitativeQuestionRating)
