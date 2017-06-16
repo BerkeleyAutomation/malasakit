@@ -29,7 +29,7 @@
             <li><a href='{{ request.path }}?lang={{ code }}'>{{ name }}</a></li>
           {% endfor %}
         </ul>
-        <span id='status-indicator' class='ok'>&#9899;</span>
+        <span id='status-indicator' class='ok'>&#9679;</span>
       </div>
     </nav>
     <header>
@@ -45,17 +45,15 @@
     </main>
     <footer>
       <div class="container">
-        <div class="center">
-          <hr>
-          <p id="footnote">
-            {% block footnote %}
-              {% blocktrans trimmed %}
-                A project by the CITRIS Connected Communities Initiative at
-                UC Berkeley and the Philippine Commission on Higher Education
-                through the Philippine-California Advanced Research Institutes Project.
-              {% endblocktrans %}
-            {% endblock %}
-        </div>
+        <hr>
+        <p id="footnote">
+          {% block footnote %}
+            {% blocktrans trimmed %}
+              A project by the CITRIS Connected Communities Initiative at
+              UC Berkeley and the Philippine Commission on Higher Education
+              through the Philippine-California Advanced Research Institutes Project.
+            {% endblocktrans %}
+          {% endblock %}
       </div>
     </footer>
   </body>

@@ -3,7 +3,7 @@
 
 @import 'typography';
 
-@light-gray: rgb(172, 172, 172);
+@light-gray: rgb(192, 192, 192);
 
 body {
   margin: 0;
@@ -41,6 +41,33 @@ nav {
   }
 }
 
+ul.button-group {
+  list-style: none;
+  text-align: center;
+  padding-left: 0;
+  li {
+    padding: 0 0.5rem;
+    display: inline-block;
+    margin: 0.trem;
+  }
+}
+
+.nav-button {
+  padding: 0.5rem 1rem;
+  border: 1px solid black;
+  transition-duration: 0.5s;
+  font-size: 1.3rem;
+  a {
+    color: black;
+  }
+  &:hover {
+    a {
+      color: white;
+    }
+    background-color: goldenrod;
+  }
+}
+
 .ok {
   color: rgb(19, 184, 60);
 }
@@ -59,6 +86,17 @@ img {
 
 #main-heading {
   text-align: center;
+}
+
+#footnote {
+  font-size: 0.7rem;
+}
+
+hr {
+  margin: 0.5rem 0;
+  border: none;
+  min-height: 1px;
+  background-color: rgb(232, 232, 232);
 }
 
 .container {
