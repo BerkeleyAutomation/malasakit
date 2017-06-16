@@ -33,7 +33,11 @@
       </li>
     {% endfor %}
   </ol>
-  <div class="nav-button">
-    <a href="{% url 'pcari:peer-responses' %}">{% trans 'Next' %}</a>
-  </div>
+  <ul class='button-group'>
+    <li>
+      <div class="nav-button">
+        <a href="{% url 'pcari:peer-responses' %}">{% trans 'Next' %}</a>
+      </div>
+    </li>
+  </ul>
 {% endblock %}

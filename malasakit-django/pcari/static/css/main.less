@@ -3,6 +3,9 @@
 
 @import 'typography';
 
+@green: rgb(19, 184, 60);
+@yellow: rgb(195, 188, 29);
+@red: rgb(226, 44, 44);
 @light-gray: rgb(192, 192, 192);
 
 body {
@@ -33,11 +36,45 @@ nav {
       }
     }
   }
-  #status-indicator {
-    float: right;
-    padding: 0 0.2rem;
-    border-radius: 0.1rem;
-    margin: auto 0;
+}
+
+.range-container {
+  display: flex;
+  flex-flow: row wrap;
+}
+
+input[type=range] {
+  flex-basis: 45%;
+  order: 2;
+}
+
+.left-label {
+  box-sizing: border-box;
+  padding-right: 2rem;
+  flex-basis: 25%;
+  text-align: center;
+  order: 1;
+}
+
+.right-label {
+  box-sizing: border-box;
+  padding-left: 2rem;
+  flex-basis: 25%;
+  text-align: center;
+  order: 3;
+}
+
+@media all and (max-width: 568px) {
+  input[type=range] {
+    flex-basis: 100%;
+  }
+
+  .left-label, .right-label {
+    flex-basis: 50%;
+  }
+
+  input[type=range], .left-label, .right-label {
+    order: 0;
   }
 }
 
@@ -69,15 +106,18 @@ ul.button-group {
 }
 
 .ok {
-  color: rgb(19, 184, 60);
+  color: white;
+  background-color: @green;
 }
 
 .warning {
-  color: rgb(222, 210, 57);
+  color: white;
+  background-color: @yellow;
 }
 
 .error {
-  color: rgb(226, 44, 44);
+  color: white;
+  background-color: @red;
 }
 
 img {
