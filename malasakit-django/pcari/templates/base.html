@@ -2,16 +2,14 @@
 {% load static %}
 {% get_current_language as language_code %}
 
-<!DOCTYPE HTML>
-
+<!DOCTYPE html>
 <html lang="{{ language_code }}">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     {% block static-assets %}
-      <link rel="stylesheet" href="{% static 'css/quicksand-font.css' %}">
-      <link rel="stylesheet" href="{% static 'css/main.css' %}">
+      <link rel="stylesheet" href="{% static 'css/main.min.css' %}">
       <script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
       <script src="{% static 'js/client.js' %}"></script>
       <script src="{% static 'js/sw-bootstrap.js' %}"></script>
@@ -31,6 +29,7 @@
             <li><a href='{{ request.path }}?lang={{ code }}'>{{ name }}</a></li>
           {% endfor %}
         </ul>
+        <span id='status-indicator' class='ok'>&#9899;</span>
       </div>
     </nav>
     <header>

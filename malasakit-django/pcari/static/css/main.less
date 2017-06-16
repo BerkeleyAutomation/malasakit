@@ -1,31 +1,68 @@
-/** main.less -- Custom stylesheet for Malasakit
+/** main.less
  */
 
-/** Font definitions */
+@import 'typography';
 
-// Vietnamese
-@font-face {
-  font-family: 'Quicksand';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Quicksand Regular'), local('Quicksand-Regular'), url('/pcari/static/fonts/NUrn2XQrRfyGZp5MknntaRJtnKITppOI_IvcXXDNrsc.woff2') format('woff2');
-  unicode-range: U+0102-0103, U+1EA0-1EF9, U+20AB;
+@light-gray: rgb(172, 172, 172);
+
+body {
+  margin: 0;
 }
 
-// Latin-ext
-@font-face {
-  font-family: 'Quicksand';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Quicksand Regular'), local('Quicksand-Regular'), url('/pcari/static/fonts/s2PXW4WrV3VLrOUpHiqsfRJtnKITppOI_IvcXXDNrsc.woff2') format('woff2');
-  unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF, U+2C60-2C7F, U+A720-A7FF;
+a {
+  text-decoration: none;
 }
 
-// Latin
-@font-face {
-  font-family: 'Quicksand';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Quicksand Regular'), local('Quicksand-Regular'), url('/pcari/static/fonts/sKd0EMYPAh5PYCRKSryvW1tXRa8TVwTICgirnJhmVJw.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215;
+nav {
+  padding: 0.5rem 0;
+  background: black;
+  ul#languages {
+    display: inline-block;
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+    max-width: 80%;
+    li {
+      display: inline-block;
+      margin-right: 1rem;
+      a {
+        color: @light-gray;
+        &:hover {
+          color: white;
+        }
+      }
+    }
+  }
+  #status-indicator {
+    float: right;
+    padding: 0 0.2rem;
+    border-radius: 0.1rem;
+    margin: auto 0;
+  }
+}
+
+.ok {
+  color: rgb(19, 184, 60);
+}
+
+.warning {
+  color: rgb(222, 210, 57);
+}
+
+.error {
+  color: rgb(226, 44, 44);
+}
+
+img {
+  width: 100%;
+}
+
+#main-heading {
+  text-align: center;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 0.5rem;
 }
