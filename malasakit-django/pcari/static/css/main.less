@@ -46,31 +46,46 @@ nav {
 input[type=range] {
   flex-basis: 45%;
   order: 2;
+  margin: 0;
 }
 
 .left-label {
   box-sizing: border-box;
-  padding-right: 2rem;
+  padding-right: 1rem;
   flex-basis: 25%;
-  text-align: center;
+  text-align: left;
   order: 1;
 }
 
 .right-label {
   box-sizing: border-box;
-  padding-left: 2rem;
+  padding-left: 1rem;
   flex-basis: 25%;
-  text-align: center;
+  text-align: right;
   order: 3;
 }
 
 @media all and (max-width: 568px) {
+  ol#quantitative-questions {
+    padding-left: 0;
+    list-style-position: inside;
+    li {
+      margin: 1rem 0;
+      p {
+        display: inline;
+        margin: 0;
+      }
+    }
+  }
+
   input[type=range] {
     flex-basis: 100%;
+    padding: 0.5rem 0;
   }
 
   .left-label, .right-label {
     flex-basis: 50%;
+    font-size: 0.8rem;
   }
 
   input[type=range], .left-label, .right-label {
