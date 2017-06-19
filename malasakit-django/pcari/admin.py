@@ -48,7 +48,7 @@ class CommentRatingAdmin(ResponseAdmin):
     list_display_links = ('get_comment_message',)
 
     # Specify which columns we want filtering capabilities for
-    list_filter = ('timestamp', 'score')
+    list_filter = ('timestamp', )
 
     # Sets fields as readonly
     readonly_fields = ('respondent', 'score', 'comment')
@@ -100,7 +100,7 @@ class QuantitativeQuestionRatingAdmin(ResponseAdmin):
     list_display_links = ('get_question_prompt',)
 
     # Specify which columns we want filtering capabilities for
-    list_filter = ('timestamp', 'score')
+    list_filter = ('timestamp', )
 
     # Sets fields as readonly
     readonly_fields = ('respondent', 'question', 'timestamp', 'score')

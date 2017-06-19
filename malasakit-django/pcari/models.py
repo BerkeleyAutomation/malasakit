@@ -17,6 +17,7 @@ __all__ = ['Comment', 'QuantitativeQuestionRating', 'CommentRating',
 
 from django.conf import settings
 from django.db import models
+from django.core.validators import validate_comma_separated_integer_list
 
 LANGUAGES = settings.LANGUAGES
 
@@ -151,14 +152,39 @@ class Rating(Response):
                    submitted (that is, a default value).
         SKIPPED: A sentinel value assigned to a `Rating` where the user
                  intentionally chose to decline rating a question or a comment.
-        score: An integer that quantifies a rating. (No scale is provided, by
-               design. Interpreting the `score` is the responsibility of
-               clients of this model.)
+        score_history_text: The internal string representation of a rating's
+                            scoring history. (That is, a list of other
+                            responses considered by the respondent before
+                            settling on a final `score`.)
+        score_history: A Python list of integers that acts as a proxy for
+                       `score_history_text`. This is the preferred way of
+                       interacting with the score history.
+        score: A read-only integer that quantifies a rating. (No scale is
+               provided, by design. Interpreting the `score` is the
+               responsibility of clients of this model.)
     """
+    SCORE_HISTORY_TEXT_DELIMIETER = ','
+
     NOT_RATED = -2
     SKIPPED = -1
 
-    score = models.SmallIntegerField(default=NOT_RATED)
+    score_history_text = models.CharField(max_length=256,
+                                          default='{0}'.format(NOT_RATED),
+                                          validators=[validate_comma_separated_integer_list])
+
+    @property
+    def score_history(self):
+        return list(map(int, map(str.strip, score_history_text.split(
+                                 SCORE_HISTORY_TEXT_DELIMIETER))))
+
+    @score_history.setter
+    def score_history(self, scores):
+        self.score_history_text = SCORE_HISTORY_TEXT_DELIMIETER.join(map(str, scores))
+
+    @property
+    def score(self):
+        scores = self.score_history
+        return scores[-1] if len(scores) > 0 else NOT_RATED
 
     class Meta:
         abstract = True

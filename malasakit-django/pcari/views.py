@@ -181,8 +181,10 @@ def fetch_qualitative_questions(request):
 def make_quantitative_question_ratings(respondent, responses):
     for question_id, scores in responses.get('question-ratings', {}).iteritems():
         question = QuantitativeQuestion(id=int(question_id))
-        yield QuantitativeQuestionRating(respondent=respondent, question=question,
-                                         score=scores[-1])
+        rating = QuantitativeQuestionRating(respondent=respondent,
+                                            question=question)
+        rating.score_history = scores
+        yield rating
 
 
 def make_comments(respondent, responses):
@@ -198,9 +200,11 @@ def make_comments(respondent, responses):
 
 
 def make_comment_ratings(respondent, responses):
-    for comment_id, score in responses.get('comment-ratings', {}).iteritems():
+    for comment_id, scores in responses.get('comment-ratings', {}).iteritems():
         comment = Comment.objects.get(id=int(comment_id))
-        yield CommentRating(respondent=respondent, comment=comment, score=score[-1])
+        rating = CommentRating(respondent=respondent, comment=comment)
+        rating.score_history = scores
+        yield rating
 
 
 def make_respondent_data(respondent, responses):
