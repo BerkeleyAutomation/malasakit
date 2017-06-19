@@ -1,24 +1,18 @@
-/* Script here installs a ServiceWorker located in a separate script, sw.js.
-   Not sure what else will happen here.
-*/
+/** sw-bootstrap.js -- Installs a service worker for caching pages for use offline
+ */
 
-function main() {
-    if ("serviceWorker" in navigator) {
+const SERVICE_WORKER_SCRIPT_URL = '/sw.js';
+
+window.onload = function() {
+    if ('serviceWorker' in navigator) {
         // TODO: Address hardcoded urls
-        navigator.serviceWorker.register('/sw.js')
+        navigator.serviceWorker.register(SERVICE_WORKER_SCRIPT_URL)
             .then(function(registration) {
-            // Registration successful
-                console.log("Registration successful, SW scope: ",
-                        registration.scope);
-
-                registration.update(); // try to update serviceworker script
-        }, function(err) {
-            // Registration failed
-            console.log("Registration failed: ", err);
+                console.log('Registration successful, SW scope:',
+                            registration.scope);
+                registration.update();  // Try to update `sw.js`
+        }, function(error) {
+            console.log('Registration failed:', error);
         });
     }
 }
-
-window.onload = function () {
-    main();
-};

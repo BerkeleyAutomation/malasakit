@@ -1,39 +1,53 @@
-/* ServiceWorker script.
-   Inspired by
-   https://developers.google.com/web/fundamentals/getting-started/primers/service-workers
-*/
+/** sw.js -- Service worker script that serves cached pages when offline
+ *
+ *  References:
+ *      https://developers.google.com/web/fundamentals/getting-started/primers/service-workers
+ */
 
-var CACHE_NAME = 'malasakit-cache';
-var langCodes = ['en', 'tl'];
-var views = [
-    '/pcari/landing/',
-    '/pcari/personal-information/',
-    '/pcari/quantitative-questions/',
-    '/pcari/response-histograms/',
-    '/pcari/rate-comments/',
-    '/pcari/qualitative-questions/',
-    '/pcari/end/'
+const CACHE_NAME = 'malasakit-cache';
+
+const APP_ROOT = '/';  // TODO: change to `/pcari/` in production
+const STATIC_ROOT = APP_ROOT + 'static/';
+
+const LANGUAGE_CODES = ['en', 'tl'];
+const VIEWS = [
+    'landing/',
+    'personal-information/',
+    'quantitative-questions/',
+    'response-histograms/',
+    'rate-comments/',
+    'qualitative-questions/',
+    'end/'
 ];
 
-var staticResources = [
-    "/pcari/static/css/quicksand-font.css",
-    "/pcari/static/css/main.css",
-    "/pcari/static/js/jquery-3.2.1.min.js",
-    "/pcari/static/js/d3.v4.min.js",
-    "/pcari/static/js/client.js",
-    "/pcari/static/js/bloom.js",
-    "/pcari/static/js/sw-bootstrap.js"
+const STATIC_RESOURCES = [
+    'css/quicksand-font.css',
+    'css/main.css',
+    'js/jquery-3.2.1.min.js',
+    'js/d3.v4.min.js',
+    'js/client.js',
+    'js/bloom.js',
+    'js/sw-bootstrap.js'
 ];
 
-var urlsToCache = [];
+function makeURLsToCache() {
+    var urls = [];
 
-for (var i = 0; i < views.length; i++) {
-    for (var j = 0; j < langCodes.length; j++) {
-        urlsToCache.push('/' + langCodes[j] + views[i]);
-    }
+    LANGUAGE_CODES.forEach(function(languageCode) {
+        var languageCodeURLFragment = languageCode + '/';
+        VIEWS.forEach(function(viewURLFragment) {
+            urls.push(APP_ROOT + languageCodeURLFragment + viewURLFragment);
+        });
+    });
+
+    STATIC_RESOURCES.forEach(function(urlFragment) {
+        urls.push(STATIC_ROOT + urlFragment);
+    });
+
+    return urls;
 }
 
-urlsToCache = urlsToCache.concat(staticResources);
+var urlsToCache = makeURLsToCache();
 
 function installEvent(event) {
     console.log("Installing. Resources to prefetch:", urlsToCache);
@@ -112,5 +126,9 @@ self.addEventListener("install", function(event) {
 });
 
 self.addEventListener("fetch", function(event) {
-    fetchEvent(event);
+    if (event.request.method === 'GET') {
+        fetchEvent(event);
+    } else {
+        console.log(event.request);
+    }
 });

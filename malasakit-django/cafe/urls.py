@@ -41,4 +41,4 @@ urlpatterns = [
 ]
 
 # Translate all pcari urls
-urlpatterns += i18n_patterns(url(r'^pcari/', include('pcari.urls')))
+urlpatterns += i18n_patterns(url(r'^', include('pcari.urls')))
