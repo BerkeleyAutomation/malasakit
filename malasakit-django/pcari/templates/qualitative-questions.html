@@ -23,17 +23,17 @@
 {% endblock %}
 
 {% block content %}
-  <ol>
-    {% for qid, prompt in questions %}
+  <ol id="qualitative-questions">
+    {% for question in questions %}
       <li>
-        <p class="prompt">{{ prompt }}</p>
+        <p class="prompt">{{ question.prompt }}</p>
         <div class="center">
-          <textarea id="comment-{{ qid }}" class="comment"></textarea>
+          <textarea question-id="{{ question.id }}" class="comment"></textarea>
         </div>
       </li>
     {% endfor %}
   </ol>
-  <div class="nav-button">
-    <a href="{% url 'pcari:personal-information' %}">{% trans 'Next' %}</a>
-  </div>
+  {% url 'pcari:rate-comments' as previous_link %}
+  {% url 'pcari:end' as next_link %}
+  {% include 'nav-buttons.html' %}
 {% endblock %}

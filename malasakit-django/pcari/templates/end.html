@@ -16,10 +16,6 @@
 {% endblock %}
 
 {% block content %}
-  <p class="center">
-    {% trans 'We appreciate your participation in the Malasakit program.' %}
-  </p>
-  <div class="nav-button">
-    <a href="{% url 'pcari:landing' %}?lang={{ language_code }}">{% trans 'Finish' %}</a>
-  </div>
+  {% url 'pcari:landing' as next_link %}
+  {% include 'nav-buttons.html' with next_label='Finish' %}
 {% endblock %}

@@ -2,16 +2,14 @@
 {% load static %}
 {% get_current_language as language_code %}
 
-<!DOCTYPE HTML>
-
+<!DOCTYPE html>
 <html lang="{{ language_code }}">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     {% block static-assets %}
-      <link rel="stylesheet" href="{% static 'css/quicksand-font.css' %}">
-      <link rel="stylesheet" href="{% static 'css/main.css' %}">
+      <link rel="stylesheet" href="{% static 'css/main.min.css' %}">
       <script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
       <script src="{% static 'js/client.js' %}"></script>
       <script src="{% static 'js/sw-bootstrap.js' %}"></script>
@@ -46,17 +44,15 @@
     </main>
     <footer>
       <div class="container">
-        <div class="center">
-          <hr>
-          <p id="footnote">
-            {% block footnote %}
-              {% blocktrans trimmed %}
-                A project by the CITRIS Connected Communities Initiative at
-                UC Berkeley and the Philippine Commission on Higher Education
-                through the Philippine-California Advanced Research Institutes Project.
-              {% endblocktrans %}
-            {% endblock %}
-        </div>
+        <hr>
+        <p id="footnote">
+          {% block footnote %}
+            {% blocktrans trimmed %}
+              A project by the CITRIS Connected Communities Initiative at
+              UC Berkeley and the Philippine Commission on Higher Education
+              through the Philippine-California Advanced Research Institutes Project.
+            {% endblocktrans %}
+          {% endblock %}
       </div>
     </footer>
   </body>

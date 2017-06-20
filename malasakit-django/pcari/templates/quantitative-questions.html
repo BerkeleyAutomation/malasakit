@@ -26,14 +26,21 @@
 {% endblock %}
 
 {% block content %}
-  <ol>
+  <ol id="quantitative-questions">
     {% for question in questions %}
       <li>
-        {% include 'rating-slider.html' with question=question %}
+        <p class="prompt">{% trans question.prompt %}</p>
+        {% with id=question.id min_score=question.min_score max_score=question.max_score %}
+          {% with left_text=question.left_text right_text=question.right_text %}
+            {% include 'rating-slider.html' %}
+          {% endwith %}
+        {% endwith %}
+        <ul class="button-group">
+          <button class="skip">Skip Question</button>
+        </ul>
       </li>
     {% endfor %}
   </ol>
-  <div class="nav-button">
-    <a href="{% url 'pcari:peer-responses' %}">{% trans 'Next' %}</a>
-  </div>
+  {% url 'pcari:peer-responses' as next_link %}
+  {% include 'nav-buttons.html' %}
 {% endblock %}

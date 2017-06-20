@@ -1,0 +1,264 @@
+/** main.less
+ */
+
+@import 'typography';
+
+@green: rgb(19, 184, 60);
+@yellow: rgb(195, 188, 29);
+@red: rgb(226, 44, 44);
+@blue: rgb(63, 169, 228);
+@light-gray: rgb(240, 240, 240);
+
+body {
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
+}
+
+nav {
+  padding: 0.5rem 0;
+  background: black;
+  ul#languages {
+    display: inline-block;
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+    max-width: 80%;
+    li {
+      display: inline-block;
+      margin-right: 1rem;
+      a {
+        color: darken(@light-gray, 30%);
+        &:hover {
+          color: @light-gray;
+        }
+      }
+    }
+  }
+}
+
+.range-container {
+  display: flex;
+  flex-flow: row wrap;
+}
+
+input[type=range] {
+  flex-basis: 45%;
+  order: 2;
+  margin: 1rem 0;
+}
+
+.left-label {
+  box-sizing: border-box;
+  padding-right: 1rem;
+  flex-basis: 25%;
+  text-align: left;
+  order: 1;
+}
+
+.right-label {
+  box-sizing: border-box;
+  padding-left: 1rem;
+  flex-basis: 25%;
+  text-align: right;
+  order: 3;
+}
+
+button {
+  color: white;
+  background-color: @blue;
+  border: none;
+  border-radius: 0.2rem;
+  padding: 0.5rem 1rem;
+  transition-duration: 0.5s;
+  font-size: 1rem;
+  &:hover {
+    background: darken(@blue, 20%);
+  }
+  margin: 1rem auto;
+}
+
+textarea {
+  width: 100%;
+  height: 10rem;
+}
+
+ol {
+  padding-left: 0;
+  list-style-position: inside;
+  li {
+    p {
+      display: inline-block;
+    }
+  }
+}
+
+@media all and (max-width: 568px) {
+  ol {
+    li {
+      margin: 1rem 0;
+      p {
+        display: inline;
+        margin: 0;
+      }
+    }
+  }
+
+  input[type=range] {
+    flex-basis: 100%;
+    padding: 0.5rem 0;
+  }
+
+  .left-label, .right-label {
+    flex-basis: 50%;
+    font-size: 0.8rem;
+  }
+
+  input[type=range], .left-label, .right-label {
+    order: 0;
+  }
+}
+
+ul.button-group {
+  list-style: none;
+  text-align: center;
+  padding-left: 0;
+  li {
+    padding: 0 0.5rem;
+    display: inline-block;
+    margin: 0.trem;
+  }
+}
+
+.nav-button {
+  padding: 0.5rem 1rem;
+  border: 1px solid black;
+  transition-duration: 0.5s;
+  font-size: 1.3rem;
+  a {
+    color: black;
+  }
+  &:hover {
+    a {
+      color: white;
+    }
+    background-color: goldenrod;
+  }
+}
+
+.ok {
+  color: white;
+  background-color: @green;
+}
+
+.warning {
+  color: white;
+  background-color: @yellow;
+}
+
+.error {
+  color: white;
+  background-color: @red;
+}
+
+img {
+  width: 100%;
+}
+
+#main-heading {
+  text-align: center;
+}
+
+#footnote {
+  font-size: 0.7rem;
+}
+
+hr {
+  margin: 0.5rem 0;
+  border: none;
+  min-height: 1px;
+  background-color: @light-gray;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 0.5rem;
+}
+
+.range-track(@color: @light-gray) {
+  height: 0.4rem;
+  background-color: @color;
+  border-radius: 0.2rem;
+}
+
+input[type=range] {
+  -webkit-appearance: none;
+
+  &:focus {
+    outline: none;
+    &::-webkit-slider-runnable-track {
+      background: darken(@light-gray, 5%);
+    }
+  }
+
+  &:disabled {
+    &::-webkit-slider-thumb {
+      background: darken(@light-gray, 30%);
+    }
+    &::-webkit-slider-runnable-track {
+      background: darken(@light-gray, 10%);
+    }
+  }
+
+  &::-webkit-slider-runnable-track {
+    .range-track();
+  }
+  &::-moz-range-track {
+    .range-track();
+  }
+  &::-ms-track {
+    .range-track();
+  }
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 1rem;
+    height: 1rem;
+    background: goldenrod;
+    border-radius: 50%;
+    margin-top: -0.3rem;
+  }
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  padding-top: 2rem;
+  padding: 1.5rem;
+  left: 0;
+  top: 0;
+  width: 100%;
+  box-sizing: border-box;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  overflow-y: scroll;
+}
+
+.modal-container {
+  margin: 0 auto;
+  background-color: white;
+  max-width: 720px;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  box-sizing: border-box;
+}
+
+blockquote {
+  color: darken(@light-gray, 35%);
+  margin: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-left: 1px solid darken(@light-gray, 10%);
+}
