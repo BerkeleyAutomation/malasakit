@@ -146,6 +146,9 @@ ul.button-group {
     }
     background-color: goldenrod;
   }
+  &:disabled {
+    background-color: black;
+  }
 }
 
 .ok {
@@ -250,14 +253,14 @@ input[type=range] {
 .modal-container {
   margin: 0 auto;
   background-color: white;
-  max-width: 720px;
+  max-width: 660px;
   width: 100%;
   padding: 0.5rem 1rem;
   box-sizing: border-box;
 }
 
 blockquote {
-  color: darken(@light-gray, 35%);
+  color: darken(@light-gray, 50%);
   margin: 0.5rem;
   padding: 0.5rem 1rem;
   border-left: 1px solid darken(@light-gray, 10%);

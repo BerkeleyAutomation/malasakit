@@ -310,7 +310,8 @@ def quantitative_questions(request):
 
 @language_selectable
 def peer_responses(request):
-    return render(request, 'peer-responses.html')
+    context = {'questions': QuantitativeQuestion.objects.all()}
+    return render(request, 'peer-responses.html', context)
 
 
 @language_selectable

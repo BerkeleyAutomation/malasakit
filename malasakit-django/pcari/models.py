@@ -9,6 +9,7 @@ Attributes:
 """
 
 from __future__ import unicode_literals
+from collections import Counter
 import json
 
 # Public-facing models (parent models are excluded)
@@ -94,6 +95,11 @@ def accepts_ratings(ratings_model, keyword):
         def num_ratings(self):
             return self.select_ratings().count()
 
+        def mode_score(self):
+            scores = self.select_ratings().values_list('score', flat=True)
+            frequencies = Counter(scores)
+            return frequencies.most_common(1)[0][0]
+
         def stdev(self):
             """
             Computed the sample standard deviation.
@@ -121,6 +127,7 @@ def accepts_ratings(ratings_model, keyword):
 
         target_model.select_ratings = select_ratings
         target_model.mean_score = property(mean_score)
+        target_model.mode_score = property(mode_score)
         target_model.num_ratings = property(num_ratings)
         target_model.stdev = property(stdev)
         target_model.standard_error = property(standard_error)

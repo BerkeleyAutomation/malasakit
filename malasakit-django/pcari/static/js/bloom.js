@@ -28,8 +28,10 @@ function calculateBounds(comments) {
     return bounds;
 }
 
+var bounds;
+
 function makeNodeData(comments, width, height) {
-    var bounds = calculateBounds(comments), nodeData = [];
+    var nodeData = [];
     for (var commentID in comments) {
         var comment = comments[commentID];
         var x = comment['pos'][0], y = comment['pos'][1], tag = comment['tag'];
@@ -74,8 +76,8 @@ function startCommentRating(commentID) {
     if (qualitativeQuestions !== null && comments !== null) {
         var prompt = qualitativeQuestions[comments[commentID]['qid']];
         $('#comment-rating').val(0);
-        $('#prompt').text(prompt);
-        $('#comment').text(comments[commentID].msg);
+        $('#question-prompt').text(prompt);
+        $('#comment-message').text(comments[commentID].msg);
         var path = ['comment-ratings', commentID];
         if (getResponseValue(path) === null) {
             setResponseValue(path, [parseInt($('#comment-rating').val())]);
@@ -112,6 +114,7 @@ function renderComments() {
     bloom.selectAll('*').remove();
 
     var selectedComments = JSON.parse(localStorage.getItem(SELECTED_COMMENTS_KEY)) || {};
+    bounds = calculateBounds(selectedComments);
     for (var commentID in selectedComments) {
         if (commentID in getResponseValue(['comment-ratings'])) {
             delete selectedComments[commentID];
@@ -147,6 +150,7 @@ function setNextButtonStatus() {
         $('#next > a').click(function(event) {
             event.preventDefault();
         });
+        // $('#next').prop('disabled', true);
     } else {
         $('#next > a').unbind('click');
     }
