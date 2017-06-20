@@ -30,24 +30,27 @@
   <div class='modal'>
     <div class='modal-container'>
       <p>{% trans 'The question was:' %}</p>
-      <blockquote id='prompt'></blockquote>
+      <blockquote id="question-prompt"></blockquote>
       <p>{% trans 'The comment was:' %}</p>
-      <blockquote id='comment'></blockquote>
+      <blockquote id="comment-message"></blockquote>
 
       <p class="prompt">{% trans 'How helpful is this comment?' %}</p>
-      <input id="comment-rating" type="range" value="0" min="0" max="9">
-      <div class='scale-context'>
-        <span class="left-text">{% trans 'Not helpful' %}</span>
-        <span class="right-text">{% trans 'Helpful' %}</span>
+      <div class="range-container">
+        <input id="rating-{{ comment.id }}" type="range" value="0" min="0" max="9" step="1">
+        <span class="left-label">{% trans 'Not helpful' %}</span>
+        <span class="right-label">{% trans 'Helpful' %}</span>
       </div>
-
-      <div class='button-group'>
-        <div id='submit' class='button'>Submit</div>
-        <div id='skip' class='button'>Skip</div>
-      </div>
+      <ul class="button-group">
+        <li>
+          <button id="#submit">Submit</button>
+        </li>
+        <li>
+          <button id="#skip">Skip</button>
+        </li>
+      </ul>
     </div>
   </div>
-  <div id='next' class="nav-button">
-    <a href="{% url 'pcari:qualitative-questions' %}?lang={{ language_code }}">Next</a>
-  </div>
+  {% url 'pcari:peer-responses' as previous_link %}
+  {% url 'pcari:qualitative-questions' as next_link %}
+  {% include 'nav-buttons.html' %}
 {% endblock %}

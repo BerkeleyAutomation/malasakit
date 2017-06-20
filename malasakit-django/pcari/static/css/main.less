@@ -66,22 +66,21 @@ input[type=range] {
   order: 3;
 }
 
-button.skip {
-  order: 4;
-  margin: 1rem auto;
-  height: 2rem;
+button {
   color: white;
   background-color: @blue;
   border: none;
   border-radius: 0.2rem;
-  padding: 0 1rem;
+  padding: 0.5rem 1rem;
   transition-duration: 0.5s;
+  font-size: 1rem;
   &:hover {
     background: darken(@blue, 20%);
   }
+  margin: 1rem auto;
 }
 
-ol#quantitative-questions {
+ol {
   padding-left: 0;
   list-style-position: inside;
   li {
@@ -92,7 +91,7 @@ ol#quantitative-questions {
 }
 
 @media all and (max-width: 568px) {
-  ol#quantitative-questions {
+  ol {
     li {
       margin: 1rem 0;
       p {
@@ -226,4 +225,35 @@ input[type=range] {
     border-radius: 50%;
     margin-top: -0.3rem;
   }
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  padding-top: 2rem;
+  padding: 1.5rem;
+  left: 0;
+  top: 0;
+  width: 100%;
+  box-sizing: border-box;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  overflow-y: scroll;
+}
+
+.modal-container {
+  margin: 0 auto;
+  background-color: white;
+  max-width: 960px;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  box-sizing: border-box;
+}
+
+blockquote {
+  color: darken(@light-gray, 35%);
+  margin: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-left: 1px solid darken(@light-gray, 10%);
 }
