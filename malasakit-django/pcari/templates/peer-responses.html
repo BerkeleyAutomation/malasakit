@@ -6,7 +6,16 @@
 {% block main-heading %}{% trans 'Responses by Other Users' %}{% endblock %}
 
 {% block content %}
-  <div class="nav-button">
-    <a href="{% url 'pcari:rate-comments' %}?lang={{ language_code }}">{% trans 'Next' %}</a>
-  </div>
+  <ul class="button-group">
+    <li>
+      <div class="nav-button">
+        <a href="{% url 'pcari:quantitative-questions' %}">{% trans 'Previous' %}</a>
+      </div>
+    </li>
+    <li>
+      <div class="nav-button">
+        <a href="{% url 'pcari:rate-comments' %}">{% trans 'Next' %}</a>
+      </div>
+    </li>
+  </ul>
 {% endblock %}

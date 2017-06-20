@@ -6,6 +6,7 @@
 @green: rgb(19, 184, 60);
 @yellow: rgb(195, 188, 29);
 @red: rgb(226, 44, 44);
+@blue: rgb(63, 169, 228);
 @light-gray: rgb(240, 240, 240);
 
 body {
@@ -46,7 +47,7 @@ nav {
 input[type=range] {
   flex-basis: 45%;
   order: 2;
-  margin: 0;
+  margin: 1rem 0;
 }
 
 .left-label {
@@ -65,10 +66,33 @@ input[type=range] {
   order: 3;
 }
 
+button.skip {
+  order: 4;
+  margin: 1rem auto;
+  height: 2rem;
+  color: white;
+  background-color: @blue;
+  border: none;
+  border-radius: 0.2rem;
+  padding: 0 1rem;
+  transition-duration: 0.5s;
+  &:hover {
+    background: darken(@blue, 20%);
+  }
+}
+
+ol#quantitative-questions {
+  padding-left: 0;
+  list-style-position: inside;
+  li {
+    p {
+      display: inline-block;
+    }
+  }
+}
+
 @media all and (max-width: 568px) {
   ol#quantitative-questions {
-    padding-left: 0;
-    list-style-position: inside;
     li {
       margin: 1rem 0;
       p {

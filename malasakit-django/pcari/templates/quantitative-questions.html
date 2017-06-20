@@ -26,14 +26,14 @@
 {% endblock %}
 
 {% block content %}
-  <ol id='quantitative-questions'>
+  <ol id="quantitative-questions">
     {% for question in questions %}
       <li>
         {% include 'rating-slider.html' with question=question %}
       </li>
     {% endfor %}
   </ol>
-  <ul class='button-group'>
+  <ul class="button-group">
     <li>
       <div class="nav-button">
         <a href="{% url 'pcari:peer-responses' %}">{% trans 'Next' %}</a>

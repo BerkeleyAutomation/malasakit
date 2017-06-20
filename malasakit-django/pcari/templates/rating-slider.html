@@ -2,7 +2,8 @@
 
 <p class="prompt">{% trans question.prompt %}</p>
 <div class="range-container">
-  <input id="rating-{{ question.id }}" type="range" value="{{ question.min_score }}" min="{{ question.min_score }}" max="{{ question.max_score }}" step="1">
+  <input disabled id="rating-{{ question.id }}" type="range" value="{{ question.min_score }}" min="{{ question.min_score }}" max="{{ question.max_score }}" step="1">
   <span class="left-label">{% trans question.left_text %}</span>
   <span class="right-label">{% trans question.right_text %}</span>
+  <button class="skip">{% trans 'Skip Question' %}</button>
 </div>
