@@ -320,9 +320,7 @@ def rate_comments(request):
 
 @language_selectable
 def qualitative_questions(request):
-    questions = QualitativeQuestion.objects.all()
-    question_text = [(question.id, question.prompt) for question in questions]
-    context = {'questions': question_text}
+    context = {'questions': QualitativeQuestion.objects.all()}
     return render(request, 'qualitative-questions.html', context)
 
 

@@ -22,11 +22,6 @@
     {% endblocktrans %}
   </p>
   <img src="{% static 'img/landing1.jpg' %}">
-  <ul class='button-group'>
-    <li>
-      <div id="next" class="nav-button">
-        <a href="{% url 'pcari:quantitative-questions' %}">{% trans 'Begin' %}</a>
-      </div>
-    </li>
-  </div>
+  {% url 'pcari:quantitative-questions' as next_link %}
+  {% include 'nav-buttons.html' with next_label='Begin' %}
 {% endblock %}
