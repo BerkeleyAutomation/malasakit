@@ -14,13 +14,20 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf.urls import include, url
+from django.conf.urls.i18n import i18n_patterns
 from django.contrib.auth import views as auth_views
 from django.contrib import admin
 
+from django.views.generic import TemplateView
+
 # pylint: disable=invalid-name
 urlpatterns = [
-    # Regular site
-    url(r'^pcari/', include('pcari.urls')),
+    # ServiceWorker script- special case
+    url(r'^sw.js$',
+        TemplateView.as_view(template_name='sw.js',
+                             content_type='application/javascript'),
+        name='sw.js'),
+
 
     # Admin site password reset
     url(r'^admin/password_reset/', auth_views.password_reset, name='admin_password_reset'),
@@ -32,3 +39,6 @@ urlpatterns = [
     # Admin site
     url(r'^admin/', admin.site.urls),
 ]
+
+# Translate all pcari urls
+urlpatterns += i18n_patterns(url(r'^', include('pcari.urls')))
