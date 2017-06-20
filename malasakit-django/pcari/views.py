@@ -315,9 +315,7 @@ def peer_responses(request):
 
 @language_selectable
 def rate_comments(request):
-    ratings = [] # TODO (much the same as how quantitative_questions works)
-    context = {'ratings': ratings}
-    return render(request, 'rate-comments.html', context)
+    return render(request, 'rate-comments.html')
 
 
 @language_selectable
