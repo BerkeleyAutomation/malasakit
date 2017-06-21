@@ -1,9 +1,13 @@
 from django.db import IntegrityError
-from django.test import LiveServerTestCase, Client
+from django.test import LiveServerTestCase
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.urls import reverse
 
 from django.conf import settings
+
+from .models import Respondent
+from .models import QuantitativeQuestion, QualitativeQuestion
+from .models import Comment, QuantitativeQuestionRating, CommentRating
 
 from selenium import webdriver
 
@@ -35,16 +39,32 @@ class PageLoadTestCase(StaticLiveServerTestCase):
         """Selenium setup goes here; running headless Chrome"""
         options = webdriver.ChromeOptions()
         options.add_argument('headless')
+        options.add_argument('window-size=720x960')
         settings.DEBUG = True
         self.driver = webdriver.Chrome(chrome_options=options)
 
-    def test_load_landing(self):
+    def test_basic_flow(self):
+        """Loads landing page and attempts to proceed through the app
+        as normal, creating random responses. Checks for successful
+        submission."""
 
-        print settings.DEBUG
-        print self.live_server_url + "/landing"
+        # How many respondents are in the db?
+        respondent_count = Respondent.objects.count()
 
-        self.driver.get("%s%s" % (self.live_server_url, "/landing/"))
-        self.driver.implicitly_wait(10)
+        # Load Landing Page
+        self.driver.get("%s%s" % (self.live_server_url,
+                                  reverse('pcari:landing')))
         self.driver.get_screenshot_as_file('landing.png')
-        for entry in self.driver.get_log("browser"):
-            print entry
+
+        # Begin Survey (Advance to Personal Information
+        begin_button = self.driver.find_element_by_css_selector("a[href='%s']"
+                                    % (reverse('pcari:personal-information')))
+        begin_button.click()
+        self.driver.get_screenshot_as_file('personal-info.png')
+
+
+        # Advance to Quantiatative Questions
+        quant_button = self.driver.find_element_by_css_selector("a[href='%s']"
+                                    % (reverse('pcari:quantitative-questions')))
+        quant_button.click()
+        self.driver.get_screenshot_as_file('quant-qs.png')
