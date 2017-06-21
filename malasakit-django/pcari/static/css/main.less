@@ -50,18 +50,21 @@ input[type=range] {
   margin: 1rem 0;
 }
 
-.left-label {
+.label {
   box-sizing: border-box;
   padding-right: 1rem;
   flex-basis: 25%;
+  padding-bottom: .5rem;
+}
+
+.left-label {
+  .label();
   text-align: left;
   order: 1;
 }
 
 .right-label {
-  box-sizing: border-box;
-  padding-left: 1rem;
-  flex-basis: 25%;
+  .label();
   text-align: right;
   order: 3;
 }
@@ -279,4 +282,57 @@ blockquote {
 textarea.comment {
   font-size: 1rem;
   outline: goldenrod;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 2.5rem;
+  height: 1.25rem;
+}
+
+.switch input {
+  display:none;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: .25rem;
+  left: 0;
+  right: 0;
+  bottom: -.25rem;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 1rem;
+  width: 1rem;
+  left: .125rem;
+  bottom: .125rem;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: goldenrod;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(1.25rem);
+  -ms-transform: translateX(1.25rem);
+  transform: translateX(1.25rem);
+}
+
+.slider.round {
+  border-radius: 0.625rem;
+}
+
+.slider.round:before {
+  border-radius: 50%;
 }

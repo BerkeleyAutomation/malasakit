@@ -55,7 +55,11 @@
           {% endwith %}
         {% endwith %}
         <ul class="button-group">
-          <button class="skip" id="{{ question.id }}">Skip Question</button>
+          <label class="switch">
+            <input type="checkbox" class="skip" id="{{ question.id }}">
+            <div class="slider round"></div>
+          </label>
+          <p>Skip Question</p>
         </ul>
       </li>
     {% endfor %}
