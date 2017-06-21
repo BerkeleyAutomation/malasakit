@@ -1,6 +1,9 @@
 from django.db import IntegrityError
-from django.test import LiveServerTestCase
+from django.test import LiveServerTestCase, Client
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.urls import reverse
+
+from django.conf import settings
 
 from selenium import webdriver
 
@@ -25,20 +28,23 @@ Tests that we want but are harder to implement as part of Django test suite:
 - ServiceWorker works when offline
 """
 
-class PageLoadTestCase(LiveServerTestCase):
+class PageLoadTestCase(StaticLiveServerTestCase):
     fixtures = ['questions.yaml', 'user-generated.yaml']
 
     def setUp(self):
         """Selenium setup goes here; running headless Chrome"""
         options = webdriver.ChromeOptions()
         options.add_argument('headless')
-
+        settings.DEBUG = True
         self.driver = webdriver.Chrome(chrome_options=options)
 
     def test_load_landing(self):
-        self.driver.get(self.live_server_url + "/admin/")
-        print self.live_server_url + "/en/landing/"
+
+        print settings.DEBUG
+        print self.live_server_url + "/landing"
+
+        self.driver.get("%s%s" % (self.live_server_url, "/landing/"))
         self.driver.implicitly_wait(10)
-        self.driver.get_screenshot_as_file('landing.jpg')
+        self.driver.get_screenshot_as_file('landing.png')
         for entry in self.driver.get_log("browser"):
             print entry
