@@ -96,13 +96,19 @@ def accepts_ratings(ratings_model, keyword):
             return self.select_ratings().count()
 
         def mode_score(self):
+            """
+            Compute the statistical mode.
+
+            Returns:
+                The most common answer to the question (an integer).
+            """
             scores = self.select_ratings().values_list('score', flat=True)
             frequencies = Counter(scores)
             return frequencies.most_common(1)[0][0]
 
         def stdev(self):
             """
-            Computed the sample standard deviation.
+            Compute the sample standard deviation.
 
             Returns:
                 `float('nan')` if the number of samples is fewer than two.
