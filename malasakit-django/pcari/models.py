@@ -128,7 +128,52 @@ def accepts_ratings(ratings_model, keyword):
     return ratings_aggregator
 
 
-class Response(models.Model):
+class History(models.Model):
+    """
+    The `History` abstract model records how one model instance derives from
+    another.
+
+    The database should be insert-only such that when updating a field of a
+    model instance, a new instance is created, rather than overwriting the
+    attribute of an old instance. This model effectively does the bookkeeping
+    necessary so that we can see which instances are active and how they have
+    changed over time.
+
+    Attributes:
+        predecessor: A reference to the instance this instance is based on. If
+                     this instance is the first of its kind (e.g., a new
+                     question), this reference should be set to `None`.
+        active: Whether this instance is considered usable or not. Typically,
+                when a new model instance is created from an old one, the old
+                one is marked as inactive.
+    """
+    predecessor = models.ForeignKey('self', on_delete=models.SET_NULL,
+                                    null=True, default=None)
+    active = models.BooleanField(default=True)
+
+    def pre_delete(self, sender, instance, using):
+        for successor in sender.objects.using(using).filter(predecessor=instance):
+            successor.predecessor = instance.predecessor
+            successor.save()
+
+    @property
+    def predecessors(self):
+        """
+        Yields a sequence of predecessors, from the most recent to the original.
+
+        Returns:
+            A generator of model instances.
+        """
+        current = self
+        while current.predecessor is not None:
+            current = current.predecessor
+            yield current
+
+    class Meta:
+        abstract = True
+
+
+class Response(History):
     """
     A `Response` is an abstract model of user-generated data.
 
@@ -169,7 +214,7 @@ class Rating(Response):
     SKIPPED = -1
 
     score_history_text = models.CharField(max_length=256,
-                                          default='{0}'.format(NOT_RATED),
+                                          default=str(NOT_RATED),
                                           validators=[validate_comma_separated_integer_list])
 
     @property
@@ -270,7 +315,7 @@ class Comment(Response):
         return len(self.message.split())
 
 
-class Question(models.Model):
+class Question(History):
     """
     A `Question` models a prompt presented to the user that requires a
     response.
@@ -322,7 +367,7 @@ class QuantitativeQuestion(Question):
         return 'QuantitativeQuestion {0}: "{1}"'.format(self.id, self.prompt)
 
 
-class Respondent(models.Model):
+class Respondent(History):
     """
     A `Respondent` represents a one-time participant in a survey.
 
