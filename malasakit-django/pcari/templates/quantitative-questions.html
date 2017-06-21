@@ -51,7 +51,7 @@
         <p class="prompt">{% trans question.prompt %}</p>
         {% with id=question.id min_score=question.min_score max_score=question.max_score %}
           {% with left_text=question.left_text right_text=question.right_text %}
-            {% include 'rating-slider.html' %}
+            {% include 'questions/rating-slider.html' %}
           {% endwith %}
         {% endwith %}
         <ul class="button-group">
@@ -60,6 +60,6 @@
       </li>
     {% endfor %}
   </ol>
-  {% url 'pcari:peer-responses' as next_link %}
+  {% url 'pcari:rate-comments' as next_link %}
   {% include 'nav-buttons.html' %}
 {% endblock %}

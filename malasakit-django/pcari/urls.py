@@ -17,8 +17,6 @@ urlpatterns = [
         name='personal-information'),
     url(r'^quantitative-questions/$', views.quantitative_questions,
         name='quantitative-questions'),
-    url(r'^peer-responses/$', views.peer_responses,
-        name='peer-responses'),
     url(r'^rate-comments/$', views.rate_comments, name='rate-comments'),
     url(r'^qualitative-questions/$', views.qualitative_questions,
         name='qualitative-questions'),

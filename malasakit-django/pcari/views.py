@@ -309,12 +309,6 @@ def quantitative_questions(request):
 
 
 @language_selectable
-def peer_responses(request):
-    context = {'questions': QuantitativeQuestion.objects.all()}
-    return render(request, 'peer-responses.html', context)
-
-
-@language_selectable
 def rate_comments(request):
     return render(request, 'rate-comments.html')
 
@@ -335,4 +329,5 @@ def personal_information(request):
 
 @language_selectable
 def end(request):
-    return render(request, 'end.html')
+    context = {'questions': QuantitativeQuestion.objects.all()}
+    return render(request, 'end.html', context)
