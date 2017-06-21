@@ -21,6 +21,25 @@
           bindHistoryStoreListener($(this), path, parseInt);
         }
       });
+      $('button.skip').each(function() {
+        $(this).click(function() {
+          var sliderID = '#' + RATING_ID_PREFIX + this.id;
+          var disabled = $(sliderID).prop('disabled');
+          var path = ['question-ratings', this.id];
+          var history = getResponseValue(path);
+          if (!disabled) {
+            history.push(-1);
+            $(this).text('Answer Question');
+            $(this).css('background-color', '#1dc752');
+          } else {
+            history.push(history[history.length - 2]);
+            $(this).text('Skip Question');
+            $(this).css('background-color', 'rgb(63, 169, 228)');
+          }
+          setResponseValue(path, history);
+          $('#' + RATING_ID_PREFIX + this.id).prop('disabled', !disabled);
+        });
+      });
     });
   </script>
 {% endblock %}
@@ -36,7 +55,7 @@
           {% endwith %}
         {% endwith %}
         <ul class="button-group">
-          <button class="skip">Skip Question</button>
+          <button class="skip" id="{{ question.id }}">Skip Question</button>
         </ul>
       </li>
     {% endfor %}

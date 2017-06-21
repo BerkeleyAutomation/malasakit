@@ -2,7 +2,7 @@
 
 <div class="range-container">
   <!-- FIXME -->
-  <input target-id="{{ id }}" id="{{ id }}" type="range" value="{{ min_score|default:'0' }}"
+  <input target-id="{{ id }}" id="rating-{{ id }}" type="range" value="{{ min_score|default:'0' }}"
          min="{{ min_score|default:'0' }}" max="{{ max_score|default:'9' }}"
          step="{{ step|default:'1' }}">
   <span class="left-label">{% trans left_text %}</span>

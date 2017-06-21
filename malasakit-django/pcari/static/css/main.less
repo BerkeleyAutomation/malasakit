@@ -77,15 +77,19 @@ button {
   &:hover {
     background: darken(@blue, 20%);
   }
+  &:active {
+    outline: none;
+  }
   margin: 1rem auto;
 }
 
 textarea {
+  margin: 0 auto;
   width: 100%;
   height: 10rem;
 }
 
-ol {
+ol#quantitative-questions {
   padding-left: 0;
   list-style-position: inside;
   li {
@@ -96,7 +100,7 @@ ol {
 }
 
 @media all and (max-width: 568px) {
-  ol {
+  ol#quantitative-questions {
     li {
       margin: 1rem 0;
       p {
@@ -128,7 +132,7 @@ ul.button-group {
   li {
     padding: 0 0.5rem;
     display: inline-block;
-    margin: 0.trem;
+    margin: 0.5rem;
   }
 }
 
@@ -264,4 +268,9 @@ blockquote {
   margin: 0.5rem;
   padding: 0.5rem 1rem;
   border-left: 1px solid darken(@light-gray, 10%);
+}
+
+textarea.comment {
+  font-size: 1rem;
+  outline: goldenrod;
 }
