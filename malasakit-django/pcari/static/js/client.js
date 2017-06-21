@@ -292,7 +292,18 @@ function refillElementFromHistory(element, path) {
     if (history !== null && history.length > 0) {
         var last = history[history.length - 1];
         if (last !== null) {
-            element.val(last);
+            if (last !== -1) {
+                element.val(last);
+            } else {
+                var id = element.attr('id');
+                if (id.startsWith('rating-')) {
+                    var skipID = 'button#' + id.substring('rating-'.length);
+                    $(skipID).text('Answer Question');
+                    $(skipID).css('background-color', '#1dc752');
+                    element.prop('disabled', true);
+                    element.val(history[history.length - 2]);
+                }
+            }
         }
     }
 }
