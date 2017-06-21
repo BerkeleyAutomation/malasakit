@@ -78,21 +78,21 @@ def accepts_ratings(ratings_model, keyword):
                           ratings returned are guaranteed to be nonnegative.
 
             Returns:
-                A Django `QuerySet` containing this question's or comment's
-                ratings.
+                A `list` containing this question's or comment's ratings.
             """
             query = ratings_model.objects.filter(**{keyword: self})
             if answered:
                 excluded_ratings = [Rating.NOT_RATED, Rating.SKIPPED]
-                return query.exclude(score__in=excluded_ratings)
-            return query
+                return [instance for instance in query
+                        if instance.score not in excluded_ratings]
+            return list(query.all())
 
         def mean_score(self):
-            scores = self.select_ratings().values_list('score', flat=True)
+            scores = [instance.score for instance in self.select_ratings()]
             return float(sum(scores))/len(scores)
 
         def num_ratings(self):
-            return self.select_ratings().count()
+            return len(self.select_ratings())
 
         def stdev(self):
             """
@@ -101,7 +101,7 @@ def accepts_ratings(ratings_model, keyword):
             Returns:
                 `float('nan')` if the number of samples is fewer than two.
             """
-            scores = self.select_ratings().values_list('score', flat=True)
+            scores = [instance.score for instance in self.select_ratings()]
             if len(scores) < 2:
                 return float('nan')
             mean_score = float(sum(scores))/len(scores)
@@ -174,17 +174,17 @@ class Rating(Response):
 
     @property
     def score_history(self):
-        return list(map(int, map(str.strip, score_history_text.split(
-                                 SCORE_HISTORY_TEXT_DELIMIETER))))
+        return list(map(int, map(unicode.strip, self.score_history_text.split(
+                                 Rating.SCORE_HISTORY_TEXT_DELIMIETER))))
 
     @score_history.setter
     def score_history(self, scores):
-        self.score_history_text = SCORE_HISTORY_TEXT_DELIMIETER.join(map(str, scores))
+        self.score_history_text = Rating.SCORE_HISTORY_TEXT_DELIMIETER.join(map(str, scores))
 
     @property
     def score(self):
         scores = self.score_history
-        return scores[-1] if len(scores) > 0 else NOT_RATED
+        return scores[-1] if len(scores) > 0 else Rating.NOT_RATED
 
     class Meta:
         abstract = True

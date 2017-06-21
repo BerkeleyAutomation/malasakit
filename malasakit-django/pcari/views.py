@@ -81,9 +81,11 @@ def generate_quantitative_question_ratings_matrix(respondents=None):
     shape = (len(respondent_id_map), len(question_id_map))
     ratings_matrix = np.full(shape, np.nan)
 
-    features = 'respondent_id', 'question_id', 'score'
+    features = 'respondent_id', 'question_id', 'score_history_text'
     values = QuantitativeQuestionRating.objects.values_list(*features)
-    for respondent_id, question_id, score in values:
+    for respondent_id, question_id, score_history_text in values:
+        score = score_history_text.split(QuantitativeQuestionRating
+                                         .SCORE_HISTORY_TEXT_DELIMIETER)[-1]
         row_index = respondent_id_map[respondent_id]
         column_index = question_id_map[question_id]
         ratings_matrix[row_index, column_index] = score
