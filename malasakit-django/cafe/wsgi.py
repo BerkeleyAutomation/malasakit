@@ -13,4 +13,5 @@ from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "cafe.settings")
 
+# pylint: disable=invalid-name
 application = get_wsgi_application()
