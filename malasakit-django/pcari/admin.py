@@ -38,6 +38,7 @@ class CommentRatingAdmin(ResponseAdmin):
     def get_comment_message(self, comment_rating):
         # pylint: disable=no-self-use
         return comment_rating.comment.message
+    get_comment_message.short_description = 'Comment message'
 
     # Columns to display in the Comment change list page, in order from left to
     # right
@@ -91,6 +92,7 @@ class QuantitativeQuestionRatingAdmin(ResponseAdmin):
     def get_question_prompt(self, question_rating):
         # pylint: disable=no-self-use
         return question_rating.question.prompt
+    get_question_prompt.short_description = 'Question prompt'
 
     # Columns to display in the Comment change list page, in order from left to
     # right
@@ -165,7 +167,8 @@ class RespondentAdmin(admin.ModelAdmin):
     """
     def comments_made(self, respondent):
         # pylint: disable=no-self-use
-        return list(respondent.comments_made)
+        comments = list(respondent.comments_made)
+        return '(No comments)' if len(comments) == 0 else ''.join(map(str, comments))
 
     # Empty responses (recorded as None) will be replaced by this placeholder
     empty_value_display = '(Empty)'
