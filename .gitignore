@@ -93,6 +93,10 @@ ENV/
 *.sqlite3
 *.sqlite3-journal
 *.json
+*.csv
 
 # macOS file finder files
 *.DS_Store
+
+# staticroot files
+cafe/static/
