@@ -49,7 +49,7 @@
     {% for question in questions %}
       <li>
         <p class="prompt">{% trans question.prompt %}</p>
-        {% with id=question.id %}
+        {% with type=question.input_type id=question.id %}
           {% include 'questions/questions.html' %}
         {% endwith %}
         <ul class="button-group">
