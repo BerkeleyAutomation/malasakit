@@ -12,7 +12,12 @@ from .models import QuantitativeQuestionRating, Respondent
 admin.site.site_header = admin.site.site_title = 'Malasakit'
 
 
-class ResponseAdmin(admin.ModelAdmin):
+class HistoryAdmin(admin.ModelAdmin):
+    exclude = ('predecessor', )
+    save_as = True
+
+
+class ResponseAdmin(HistoryAdmin):
     """
     Abstract admin class for `CommentRatingAdmin`, `CommentAdmin`, and
     `QuantitativeQuestionRatingAdmin`.
@@ -53,10 +58,10 @@ class CommentRatingAdmin(ResponseAdmin):
     list_filter = ('timestamp', 'active')
 
     # Sets fields as readonly
-    readonly_fields = ('respondent', 'score', 'comment')
+    readonly_fields = ('respondent', 'score_history_text', 'comment')
 
     # Enables search
-    search_fields = ('score', 'comment__message')
+    search_fields = ('score_history_text', 'comment__message')
 
 
 @admin.register(Comment)
@@ -107,13 +112,13 @@ class QuantitativeQuestionRatingAdmin(ResponseAdmin):
     list_filter = ('timestamp', 'active')
 
     # Sets fields as readonly
-    readonly_fields = ('respondent', 'question', 'timestamp', 'score')
+    readonly_fields = ('respondent', 'question', 'timestamp', 'score_history_text')
 
     # Enables search
-    search_fields = ('question__prompt', 'score')
+    search_fields = ('question__prompt', 'score_history_text')
 
 
-class QuestionAdmin(admin.ModelAdmin):
+class QuestionAdmin(HistoryAdmin):
     """
     Abstract admin class for `QualitativeQuestionAdmin` and
     `QuantitativeQuestionAdmin`.
@@ -161,14 +166,14 @@ class QuantitativeQuestionAdmin(QuestionAdmin):
 
 
 @admin.register(Respondent)
-class RespondentAdmin(admin.ModelAdmin):
+class RespondentAdmin(HistoryAdmin):
     """
     Customizes admin change page functionality for `RespondentAdmin`.
     """
     def comments_made(self, respondent):
         # pylint: disable=no-self-use
         comments = list(respondent.comments_made)
-        return '(No comments)' if comments else ''.join(map(str, comments))
+        return '(No comments)' if not comments else ''.join(map(str, comments))
 
     # Empty responses (recorded as None) will be replaced by this placeholder
     empty_value_display = '(Empty)'
@@ -191,5 +196,4 @@ class RespondentAdmin(admin.ModelAdmin):
 
     # Enables search
     search_fields = ('gender', 'location', 'language',
-                     'submitted_personal_data', 'completed_survey',
-                     'num_questions_rated', 'num_comments_rated')
+                     'submitted_personal_data', 'completed_survey')
