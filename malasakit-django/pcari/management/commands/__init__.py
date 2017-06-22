@@ -20,6 +20,9 @@ class BatchProcessingCommand(BaseCommand):
         """
         pass  # By default, make no checks
 
+    def preprocess(self, options):
+        pass
+
     def process(self, options, instance, model_name, field_name):
         """
         Given a model instance and the field to operate on, perform an action.
@@ -27,6 +30,8 @@ class BatchProcessingCommand(BaseCommand):
         raise NotImplementedError
 
     def handle(self, *args, **options):
+        self.preprocess(options)
+
         for model_field_pair in options['fields']:
             components = model_field_pair.split('.')
             if len(components) != 2:
@@ -36,7 +41,7 @@ class BatchProcessingCommand(BaseCommand):
 
             try:
                 model = getattr(models, model_name)
-                assert issubclass(model, Model), 'not a model'
+                assert issubclass(model, Model), 'not a Django model'
                 field = model._meta.get_field(field_name)
                 self.precondition_check(options, model, field)
             except Exception as exc:
@@ -45,3 +50,8 @@ class BatchProcessingCommand(BaseCommand):
 
             for instance in model.objects.all():
                 self.process(options, instance, model_name, field_name)
+
+        self.postprocess(options)
+
+    def postprocess(self, options):
+        pass

@@ -14,7 +14,9 @@ class Command(BatchProcessingCommand):
 
     def add_arguments(self, parser):
         super(Command, self).add_arguments(parser)
-        parser.add_argument('--empty-value', nargs=1, default=None)
+        parser.add_argument('--empty-value', nargs=1, default=None,
+                            help='Text to substitute empty strings with '
+                                 '(by default: use a NULL value)')
 
     def precondition_check(self, options, model, field):
         super(Command, self).precondition_check(options, model, field)
