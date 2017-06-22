@@ -17,7 +17,6 @@ from django.conf import settings
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_GET, require_POST
-from django.utils import translation
 from django.urls import reverse
 import numpy as np
 
@@ -128,7 +127,7 @@ def calculate_principal_components(normalized_ratings, n=2):
         questions. Each row is a principal component.
     """
     U, S, VT = np.linalg.svd(normalized_ratings, full_matrices=False)
-    return VT[:n, :]  # Slice the first `n` rows
+    return VT[:n]  # Slice the first `n` rows
 
 
 @require_GET
@@ -194,7 +193,7 @@ def make_comments(respondent, responses):
         question = QualitativeQuestion(id=int(question_id))
 
         # Replaces empty messages with None so they can show up as placeholders in admin
-        if message.strip() == "":
+        if message.strip() == '':
             message = None
 
         yield Comment(respondent=respondent, question=question,
@@ -285,31 +284,15 @@ def save_response(request):
     return HttpResponse()
 
 
-def supported_languages():
-    return [code for code, name in settings.LANGUAGES]
-
-
-def language_selectable(view):
-    def view_wrapper(request, *args, **kwargs):
-        language_code = request.GET.get('lang')
-        if language_code in supported_languages():
-            translation.activate(language_code)
-            request.session[translation.LANGUAGE_SESSION_KEY] = language_code
-        return view(request, *args, **kwargs)
-    return view_wrapper
-
-
 def index(request):
     return redirect(reverse('pcari:landing'))
 
 
-@language_selectable
 def landing(request):
     context = {'num_responses': Respondent.objects.count()}
     return render(request, 'landing.html', context)
 
 
-@language_selectable
 def personal_information(request):
     config = apps.get_app_config('pcari')
     context = {'province_names': [(province_name['code'], province_name['name'])
@@ -317,25 +300,21 @@ def personal_information(request):
     return render(request, 'personal-information.html', context)
 
 
-@language_selectable
 def quantitative_questions(request):
     context = {'questions': QuantitativeQuestion.objects.all()}
     return render(request, 'quantitative-questions.html', context)
 
 
-@language_selectable
 def response_histograms(request):
     return render(request, 'response-histograms.html')
 
 
-@language_selectable
 def rate_comments(request):
     ratings = [] # TODO (much the same as how quantitative_questions works)
     context = {'ratings': ratings}
     return render(request, 'rate-comments.html', context)
 
 
-@language_selectable
 def qualitative_questions(request):
     questions = QualitativeQuestion.objects.all()
     question_text = [(question.id, question.prompt) for question in questions]
@@ -343,6 +322,5 @@ def qualitative_questions(request):
     return render(request, 'qualitative-questions.html', context)
 
 
-@language_selectable
 def end(request):
     return render(request, 'end.html')

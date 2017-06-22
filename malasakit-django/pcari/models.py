@@ -415,14 +415,21 @@ class Respondent(History):
     def __unicode__(self):
         return '{0}'.format(self.id)
 
-    @property
     def num_questions_rated(self):
-        questions = QuantitativeQuestionRating.objects.filter(respondent=self)
-        return questions.count()
+        ratings = QuantitativeQuestionRating.objects.filter(respondent=self).all()
+        return sum(1 for rating in ratings if rating.score not in
+                   [Rating.NOT_RATED, Rating.SKIPPED])
 
-    @property
+    num_questions_rated.short_description = 'Number of questions rated'
+    num_questions_rated = property(num_questions_rated)
+
     def num_comments_rated(self):
-        return CommentRating.objects.filter(respondent=self).count()
+        ratings = CommentRating.objects.filter(respondent=self).all()
+        return sum(1 for rating in ratings if rating.score not in
+                   [Rating.NOT_RATED, Rating.SKIPPED])
+
+    num_comments_rated.short_description = 'Number of comments rated'
+    num_comments_rated = property(num_comments_rated)
 
     @property
     def comments_made(self):

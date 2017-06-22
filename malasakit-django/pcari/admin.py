@@ -41,14 +41,15 @@ class CommentRatingAdmin(ResponseAdmin):
 
     # Columns to display in the Comment change list page, in order from left to
     # right
-    list_display = ('respondent', 'get_comment_message', 'score', 'timestamp')
+    list_display = ('respondent', 'get_comment_message', 'score', 'timestamp',
+                    'active')
 
     # By default first column listed in list_display is clickable; this makes
     # `message` column clickable
     list_display_links = ('get_comment_message',)
 
     # Specify which columns we want filtering capabilities for
-    list_filter = ('timestamp', )
+    list_filter = ('timestamp', 'active')
 
     # Sets fields as readonly
     readonly_fields = ('respondent', 'score', 'comment')
@@ -65,14 +66,14 @@ class CommentAdmin(ResponseAdmin):
     # Columns to display in the Comment change list page, in order from left to
     # right
     list_display = ('respondent', 'message', 'timestamp', 'language',
-                    'flagged', 'tag')
+                    'flagged', 'tag', 'active')
 
     # By default first column listed in list_display is clickable; this makes
     # `message` column clickable
     list_display_links = ('message',)
 
     # Specify which columns we want filtering capabilities for
-    list_filter = ('timestamp', 'language', 'flagged', 'tag')
+    list_filter = ('timestamp', 'language', 'flagged', 'tag', 'active')
 
     # Sets fields as readonly
     readonly_fields = ('respondent', 'question', 'language', 'message')
@@ -93,14 +94,15 @@ class QuantitativeQuestionRatingAdmin(ResponseAdmin):
 
     # Columns to display in the Comment change list page, in order from left to
     # right
-    list_display = ('respondent', 'get_question_prompt', 'timestamp', 'score')
+    list_display = ('respondent', 'get_question_prompt', 'timestamp', 'score',
+                    'active')
 
     # By default first column listed in list_display is clickable; this makes
     # `message` column clickable
     list_display_links = ('get_question_prompt',)
 
     # Specify which columns we want filtering capabilities for
-    list_filter = ('timestamp', )
+    list_filter = ('timestamp', 'active')
 
     # Sets fields as readonly
     readonly_fields = ('respondent', 'question', 'timestamp', 'score')
@@ -128,10 +130,10 @@ class QualitativeQuestionAdmin(QuestionAdmin):
     """
     # Columns to display in the Comment change list page, in order from left to
     # right
-    list_display = ('prompt', 'tag')
+    list_display = ('prompt', 'tag', 'active')
 
     # Specify which columns we want filtering capabilities for
-    list_filter = ('tag', 'prompt')
+    list_filter = ('prompt', 'tag', 'active')
 
     # Enables search
     search_fields = ('prompt', 'tag')
@@ -144,10 +146,10 @@ class QuantitativeQuestionAdmin(QuestionAdmin):
     """
     # Columns to display in the Comment change list page, in order from left to
     # right
-    list_display = ('prompt', 'tag')
+    list_display = ('prompt', 'tag', 'active')
 
     # Specify which columns we want filtering capabilities for
-    list_filter = ('tag',)
+    list_filter = ('tag', 'active')
 
     # Sets fields as readonly
     readonly_fields = ('prompt', 'tag')
@@ -161,7 +163,7 @@ class RespondentAdmin(admin.ModelAdmin):
     """
     Customizes admin change page functionality for `RespondentAdmin`.
     """
-    def get_comments(self, respondent):
+    def comments_made(self, respondent):
         # pylint: disable=no-self-use
         return list(respondent.comments_made)
 
@@ -176,13 +178,13 @@ class RespondentAdmin(admin.ModelAdmin):
 
     # Columns to display in the Comment change list page, in order from left to
     # right
-    list_display = ('get_comments', 'age', 'gender', 'location', 'language',
+    list_display = ('comments_made', 'age', 'gender', 'location', 'language',
                     'submitted_personal_data', 'completed_survey',
-                    'num_questions_rated', 'num_comments_rated')
+                    'num_questions_rated', 'num_comments_rated', 'active')
 
     # Specify which columns we want filtering capabilities for
     list_filter = ('gender', 'language', 'submitted_personal_data',
-                   'completed_survey')
+                   'completed_survey', 'active')
 
     # Enables search
     search_fields = ('gender', 'location', 'language',

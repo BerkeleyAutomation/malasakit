@@ -27,11 +27,17 @@ class Command(BatchProcessingCommand):
 
     def preprocess(self, options):
         super(Command, self).preprocess(options)
-        options[self.OUTPUT_FILE_KEY] = open(options['output'], 'w+')
+        output_file = open(options['output'], 'w+')
+        options[self.OUTPUT_FILE_KEY] = output_file
+
+        # Write header
+        print('msgid ""', file=output_file)
+        print('msgstr "Content-Type: text/plain; charset=UTF-8\\n"',
+              file=output_file, end='\n'*2)
 
     def process(self, options, instance, model_name, field_name):
         value = getattr(instance, field_name)
-        if value is not None:
+        if value:
             output_file = options[self.OUTPUT_FILE_KEY]
 
             comment = '#: {0}.{1}:{2}'
