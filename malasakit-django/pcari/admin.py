@@ -7,6 +7,7 @@ from django.contrib import admin
 from .models import QualitativeQuestion, QuantitativeQuestion
 from .models import CommentRating, Comment
 from .models import QuantitativeQuestionRating, Respondent
+from .models import History
 
 
 admin.site.site_header = admin.site.site_title = 'Malasakit'
@@ -14,7 +15,20 @@ admin.site.site_header = admin.site.site_title = 'Malasakit'
 
 class HistoryAdmin(admin.ModelAdmin):
     exclude = ('predecessor', )
-    save_as = True
+    # save_as = True
+    save_as_continue = False
+
+    def save_model(self, request, obj, form, change):
+        model = obj.__class__
+        if change and issubclass(model, History):
+            old_instance = obj.__class__.objects.get(id=obj.id)
+            if set(obj.diff(old_instance)) - {'active'}:
+                copy = old_instance.make_copy()
+                copy.active = False
+                copy.predecessor = old_instance.predecessor
+                obj.predecessor = copy
+                copy.save()
+        super(HistoryAdmin, self).save_model(request, obj, form, change)
 
 
 class ResponseAdmin(HistoryAdmin):
@@ -30,9 +44,6 @@ class ResponseAdmin(HistoryAdmin):
 
     # Sets default ordering to be most recent comment first
     ordering = ('-timestamp',)
-
-    # Adds a "Save as New" button
-    save_as = True
 
 
 @admin.register(CommentRating)
@@ -58,7 +69,7 @@ class CommentRatingAdmin(ResponseAdmin):
     list_filter = ('timestamp', 'active')
 
     # Sets fields as readonly
-    readonly_fields = ('respondent', 'score_history_text', 'comment')
+    readonly_fields = ('timestamp', )
 
     # Enables search
     search_fields = ('score_history_text', 'comment__message')
@@ -80,9 +91,6 @@ class CommentAdmin(ResponseAdmin):
 
     # Specify which columns we want filtering capabilities for
     list_filter = ('timestamp', 'language', 'flagged', 'tag', 'active')
-
-    # Sets fields as readonly
-    readonly_fields = ('respondent', 'question', 'language', 'message')
 
     # Enables search
     search_fields = ('message', 'tag')
@@ -112,7 +120,7 @@ class QuantitativeQuestionRatingAdmin(ResponseAdmin):
     list_filter = ('timestamp', 'active')
 
     # Sets fields as readonly
-    readonly_fields = ('respondent', 'question', 'timestamp', 'score_history_text')
+    readonly_fields = ('timestamp', )
 
     # Enables search
     search_fields = ('question__prompt', 'score_history_text')
@@ -125,9 +133,6 @@ class QuestionAdmin(HistoryAdmin):
     """
     # Performance optimizer to limit database queries
     list_select_related = True
-
-    # Adds a "Save as New" button
-    save_as = True
 
 
 @admin.register(QualitativeQuestion)
@@ -158,9 +163,6 @@ class QuantitativeQuestionAdmin(QuestionAdmin):
     # Specify which columns we want filtering capabilities for
     list_filter = ('tag', 'active')
 
-    # Sets fields as readonly
-    readonly_fields = ('prompt', 'tag')
-
     # Enables search
     search_fields = ('prompt', 'tag')
 
@@ -180,9 +182,6 @@ class RespondentAdmin(HistoryAdmin):
 
     # Performance optimizer to limit database queries
     list_select_related = True
-
-    # Adds a "Save as New" button
-    save_as = True
 
     # Columns to display in the Comment change list page, in order from left to
     # right

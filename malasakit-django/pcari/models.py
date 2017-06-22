@@ -17,7 +17,6 @@ __all__ = ['Comment', 'QuantitativeQuestionRating', 'CommentRating',
 
 from django.conf import settings
 from django.db import models
-from django.core.validators import validate_comma_separated_integer_list
 
 LANGUAGES = settings.LANGUAGES
 
@@ -151,21 +150,25 @@ class History(models.Model):
                                     null=True, default=None)
     active = models.BooleanField(default=True)
 
-    """
-    def pre_save(self, sender, instance, raw, using, update_fields):
-        if not raw:
-            is_direct = lambda field: not field.auto_created or field.concrete
-            fields = filter(is_direct, sender._meta.get_fields()
-            parent = sender()
-            for field in fields:
-                if field.editable:
-                    value = getattr(instance, field.name)
-                    setattr(parent, field.name, value)
-            parent.active = False
-            old_predecessor
-            instance.predecessor = parent
-            parent.predecessor =
-    """
+    def is_direct(self, field):
+        return not field.auto_created or field.concrete
+
+    def make_copy(self):
+        model = self.__class__
+        copy = model()
+        for field in filter(self.is_direct, model._meta.get_fields()):
+            if field.editable and not field.unique:
+                value = getattr(self, field.name)
+                setattr(copy, field.name, value)
+
+        return copy
+
+    def diff(self, other):
+        model = self.__class__
+        assert isinstance(other, model)
+        for field in filter(self.is_direct, model._meta.get_fields()):
+            if getattr(self, field.name) != getattr(other, field.name):
+                yield field.name
 
     def pre_delete(self, sender, instance, using):
         """
@@ -235,7 +238,7 @@ class Rating(Response):
 
     score_history_text = models.CharField(max_length=256,
                                           default=str(NOT_RATED),
-                                          validators=[validate_comma_separated_integer_list])
+                                          validators=[])
 
     @property
     def score_history(self):
@@ -268,8 +271,8 @@ class QuantitativeQuestionRating(Rating):
                                  on_delete=models.CASCADE)
 
     def __unicode__(self):
-        template = 'QuantitativeQuestion {0}: {1}'
-        return template.format(self.question_id, self.score)
+        template = 'Rating {1} to {0}'
+        return template.format(self.question, self.score)
 
     class Meta:
         unique_together = ('respondent', 'question')
@@ -285,7 +288,7 @@ class CommentRating(Rating):
     comment = models.ForeignKey('Comment', on_delete=models.CASCADE)
 
     def __unicode__(self):
-        return 'Comment {0}: {1}'.format(self.comment_id, self.score)
+        return 'Rating {1} to {0}'.format(self.comment, self.score)
 
     class Meta:
         unique_together = ('respondent', 'comment')
@@ -318,6 +321,8 @@ class Comment(Response):
     >>> comment.word_count
     2
     """
+    MAX_COMMENT_DISPLAY_LEN = 140
+
     question = models.ForeignKey('QualitativeQuestion',
                                  on_delete=models.CASCADE)
     language = models.CharField(max_length=25, choices=LANGUAGES)
@@ -327,7 +332,10 @@ class Comment(Response):
 
     def __unicode__(self):
         if self.message is not None and self.message.strip():
-            return '"{0}"'.format(self.message)
+            message = self.message
+            if len(message) > self.MAX_COMMENT_DISPLAY_LEN:
+                message = message[:self.MAX_COMMENT_DISPLAY_LEN] + ' ...'
+            return '"{0}"'.format(message)
         return '-- Empty response --'
 
     @property
@@ -364,7 +372,7 @@ class QualitativeQuestion(Question):
                   question.
     """
     def __unicode__(self):
-        return 'QualitativeQuestion {0}: "{1}"'.format(self.id, self.prompt)
+        return 'Qualitative question {0}: "{1}"'.format(self.id, self.prompt)
 
     @property
     def comments(self):
@@ -384,7 +392,7 @@ class QuantitativeQuestion(Question):
     right_text = models.TextField(blank=True)
 
     def __unicode__(self):
-        return 'QuantitativeQuestion {0}: "{1}"'.format(self.id, self.prompt)
+        return 'Quantitative question {0}: "{1}"'.format(self.id, self.prompt)
 
 
 class Respondent(History):
@@ -433,7 +441,7 @@ class Respondent(History):
     completed_survey = models.BooleanField(default=False)
 
     def __unicode__(self):
-        return '{0}'.format(self.id)
+        return 'Respondent {0}'.format(self.id)
 
     def num_questions_rated(self):
         ratings = QuantitativeQuestionRating.objects.filter(respondent=self).all()
