@@ -49,10 +49,8 @@
     {% for question in questions %}
       <li>
         <p class="prompt">{% trans question.prompt %}</p>
-        {% with id=question.id min_score=question.min_score max_score=question.max_score %}
-          {% with left_text=question.left_text right_text=question.right_text %}
-            {% include 'questions/rating-slider.html' %}
-          {% endwith %}
+        {% with id=question.id %}
+          {% include 'questions/questions.html' %}
         {% endwith %}
         <ul class="button-group">
           <label class="switch">

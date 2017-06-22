@@ -45,7 +45,7 @@ nav {
 }
 
 input[type=range] {
-  flex-basis: 45%;
+  flex-basis: 50%;
   order: 2;
   margin: 1rem 0;
 }
@@ -84,14 +84,6 @@ button {
     outline: none;
   }
   margin: 1rem auto;
-}
-
-textarea {
-  margin: 0 auto;
-  width: 95%;
-  height: 10rem;
-  border: 1px solid goldenrod;
-  resize: none;
 }
 
 ol#quantitative-questions {
@@ -246,6 +238,25 @@ input[type=range] {
     border-radius: 50%;
     margin-top: -0.3rem;
   }
+}
+
+input[type=number], input[type=text-field], select {
+  margin: 0.5rem auto;
+  padding: 0 0.5rem;
+  width: 10rem;
+  height: 35px;
+  overflow: hidden;
+  background: solid white;
+  border: 1px solid goldenrod;
+  font-size: medium;
+}
+
+textarea {
+  margin: 0 auto;
+  width: 95%;
+  height: 10rem;
+  border: 1px solid goldenrod;
+  resize: none;
 }
 
 .modal {

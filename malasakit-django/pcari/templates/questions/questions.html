@@ -1,0 +1,13 @@
+{% load i18n %}
+
+{% ifequal question.input_type 'range' %}
+  {% with left_text=question.left_text right_text=question.right_text %}
+    {% include 'questions/rating-slider.html' %}
+  {% endwith %}
+{% endifequal %}
+
+{% ifequal question.input_type 'number' %}
+  {% with left_text=question.left_text right_text=question.right_text %}
+    {% include 'questions/numerical-input.html' %}
+  {% endwith %}
+{% endifequal %}

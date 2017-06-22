@@ -1,9 +1,9 @@
 {% load i18n %}
 
 <div class="range-container">
-  <input target-id="{{ id }}" id="rating-{{ id }}" type="range" value="{{ min_score|default:'0' }}"
-         min="{{ min_score|default:'0' }}" max="{{ max_score|default:'9' }}"
-         step="{{ step|default:'1' }}">
+  <input target-id="{{ id }}" id="rating-{{ id }}" type="range"
+         value="{{ min_score|default:'0' }}" step="{{ step|default:'1' }}"
+         min="{{ min_score|default:'0' }}" max="{{ max_score|default:'9' }}">
   <span class="left-label">{% trans left_text %}</span>
   <span class="right-label">{% trans right_text %}</span>
 </div>
