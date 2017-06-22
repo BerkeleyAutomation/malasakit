@@ -3,7 +3,7 @@
 DJANGO_PROJECT_ROOT=malasakit-django
 LINT_CMD=pylint
 LINT_OPTIONS=--output-format=colorized --rcfile=.pylintrc
-LINT_TARGETS=cafe/settings.py cafe/urls.py cafe/wsgi.py pcari/management/commands/__init__.py pcari/management/commands/cleantext.py pcari/management/commands/makemessages.py pcari/models.py pcari/urls.py pcari/admin.py
+LINT_TARGETS=cafe/settings.py cafe/urls.py cafe/wsgi.py pcari/management/commands/__init__.py pcari/management/commands/cleantext.py pcari/management/commands/makemessages.py pcari/models.py pcari/urls.py pcari/admin.py pcari/views.py
 CLEANED_TEXT_TARGETS=Comment.message Respondent.location
 DB_TRANS_TARGETS=QuantitativeQuestion.prompt QuantitativeQuestion.left_text QuantitativeQuestion.right_text QualitativeQuestion.prompt
 LOCALES=tl

@@ -151,7 +151,26 @@ class History(models.Model):
                                     null=True, default=None)
     active = models.BooleanField(default=True)
 
+    """
+    def pre_save(self, sender, instance, raw, using, update_fields):
+        if not raw:
+            is_direct = lambda field: not field.auto_created or field.concrete
+            fields = filter(is_direct, sender._meta.get_fields()
+            parent = sender()
+            for field in fields:
+                if field.editable:
+                    value = getattr(instance, field.name)
+                    setattr(parent, field.name, value)
+            parent.active = False
+            old_predecessor
+            instance.predecessor = parent
+            parent.predecessor =
+    """
+
     def pre_delete(self, sender, instance, using):
+        """
+        Ensure that child instances do not have a dangling pointer.
+        """
         # pylint: disable=no-self-use
         for successor in sender.objects.using(using).filter(predecessor=instance):
             successor.predecessor = instance.predecessor
