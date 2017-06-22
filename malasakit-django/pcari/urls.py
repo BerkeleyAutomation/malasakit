@@ -13,13 +13,14 @@ urlpatterns = [
     # User-facing views
     url(r'^$', views.index, name='index'),
     url(r'^landing/$', views.landing, name='landing'),
-    url(r'^personal-information/$', views.personal_information,
-        name='personal-information'),
     url(r'^quantitative-questions/$', views.quantitative_questions,
         name='quantitative-questions'),
+    url(r'^peer-responses/$', views.peer_responses, name='peer-responses'),
     url(r'^rate-comments/$', views.rate_comments, name='rate-comments'),
     url(r'^qualitative-questions/$', views.qualitative_questions,
         name='qualitative-questions'),
+    url(r'^personal-information/$', views.personal_information,
+        name='personal-information'),
     url(r'^end/$', views.end, name='end'),
 
     # ServiceWorker script- special case

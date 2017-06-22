@@ -26,7 +26,13 @@
         <ul id="languages">
           {% get_available_languages as languages %}
           {% for code, name in languages %}
-            <li><a href='{{ request.path }}?lang={{ code }}'>{{ name }}</a></li>
+          <li>
+            <a href='/{{ code }}{{ request.path|slice:"3:" }}'>{{ name }}</a>
+            <!-- Above is a gnarly workaround because language prefixing only
+              works for reverse url resolution, and there's no way to resolve
+              the current path (that I could find online). The slice template
+              command works the same way as Python slicing. -->
+          </li>
           {% endfor %}
         </ul>
       </div>

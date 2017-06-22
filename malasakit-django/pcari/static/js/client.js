@@ -9,19 +9,19 @@
 const CURRENT_RESPONSE_KEY = 'current';
 const RESPONSE_KEY_PREFIX = 'user-';
 const CURRENT_RESPONSE_LIFETIME = 24*60*60*1000;
-const RESPONSE_PUSH_ENDPOINT = '/pcari/save-response/';
+const RESPONSE_PUSH_ENDPOINT = 'save-response/';
 const RESPONSE_PUSH_TIMEOUT = 5000;
 
 const COMMENTS_KEY = 'comments';
 const COMMENTS_TIMESTAMP_KEY = 'comments-timestamp';
 const COMMENTS_LIFETIME = 12*60*60*1000;
-const COMMENTS_FETCH_ENDPOINT = '/pcari/fetch-comments/';
+const COMMENTS_FETCH_ENDPOINT = 'fetch-comments/';
 const COMMENTS_FETCH_TIMEOUT = 5000;
 const SELECTED_COMMENTS_KEY = 'selected-comments';
 const DEFAULT_NUM_COMMENTS_TO_SELECT = 8;
 
 const QUALITATIVE_QUESTIONS_KEY = 'qualitative-questions';
-const QUALITATIVE_QUESTIONS_FETCH_ENDPOINT = '/pcari/fetch-qualitative-questions/';
+const QUALITATIVE_QUESTIONS_FETCH_ENDPOINT = 'fetch-qualitative-questions/';
 const QUALITATIVE_QUESTIONS_FETCH_TIMEOUT = 5000;
 
 const EMPTY_RESPONSE = {
@@ -30,6 +30,12 @@ const EMPTY_RESPONSE = {
     'comment-ratings': {},
     'respondent-data': {},
 };
+
+const DEFAULT_LANGUAGE = 'tl';
+
+function getCurrentLanguage() {
+    return $('html').attr('lang') || DEFAULT_LANGUAGE;
+}
 
 function getCookie(name) {
     var cookieValue = null;
@@ -84,10 +90,10 @@ function initializeNewResponse() {
 function pushResponse(responseKey) {
     var response = localStorage.getItem(responseKey);
     if (response !== null) {
-        $.ajax(RESPONSE_PUSH_ENDPOINT, {
+        $.ajax('/' + getCurrentLanguage() + '/' + RESPONSE_PUSH_ENDPOINT, {
             method: 'POST',
             timeout: RESPONSE_PUSH_TIMEOUT,
-            data: response,
+            data: postprocess(response),
             success: function() {
                 console.log('Successfully pushed data for ' + responseKey);
                 localStorage.removeItem(responseKey);
@@ -103,11 +109,6 @@ function pushCompletedResponses() {
     var currentResponseKey = localStorage.getItem(CURRENT_RESPONSE_KEY);
     for (var key in localStorage) {
         if (key.startsWith(RESPONSE_KEY_PREFIX) && key !== currentResponseKey) {
-            editLocalStorageJSON(key, function(response) {
-                console.assert(response !== null);
-                postprocess();
-                return response;
-            });
             pushResponse(key);
         }
     }
@@ -126,7 +127,7 @@ function editCurrentResponse(callback) {
 
 function recordCurrentLanguage() {
     editCurrentResponse(function(response) {
-        var language = $('html').attr('lang');
+        var language = getCurrentLanguage();
         response['respondent-data']['language'] = language;
         console.log('Set respondent language to "' + language + '"');
     });
@@ -164,7 +165,7 @@ function commentsExpired() {
 
 function fetchComments() {
     if (!(COMMENTS_KEY in localStorage) || commentsExpired()) {
-        $.ajax(COMMENTS_FETCH_ENDPOINT, {
+        $.ajax('/' + getCurrentLanguage() + '/' + COMMENTS_FETCH_ENDPOINT, {
             timeout: COMMENTS_FETCH_TIMEOUT,
             success: function(comments) {
                 var now = getCurrentTimestamp();
@@ -182,7 +183,7 @@ function fetchComments() {
 }
 
 function fetchQualitativeQuestions() {
-    $.ajax(QUALITATIVE_QUESTIONS_FETCH_ENDPOINT, {
+    $.ajax('/' + getCurrentLanguage() + '/' + QUALITATIVE_QUESTIONS_FETCH_ENDPOINT, {
         timeout: QUALITATIVE_QUESTIONS_FETCH_TIMEOUT,
         success: function(qualitativeQuestions) {
             localStorage.setItem(QUALITATIVE_QUESTIONS_KEY,
@@ -318,22 +319,29 @@ function bindHistoryStoreListener(element, path, preprocess = x => x, verbose = 
     refillElementFromHistory(element, path);
 }
 
-function postprocess() {
-    var barangay = getResponseValue(['respondent-data', 'barangay']);
-    var province = getResponseValue(['respondent-data', 'province']);
+function postprocess(response) {
+    response = JSON.parse(response);
+    var respondentData = response['respondent-data'];
+    if (respondentData !== undefined) {
+        var barangay = respondentData['barangay'] || null;
+        var province = respondentData['province'] || null;
 
-    var respondentLocation = null;
-    if (barangay !== null && province !== null) {
-        respondentLocation = province + ', ' + barangay;
-    } else if (barangay !== null) {
-        respondentLocation = barangay;
-    } else if (province !== null) {
-        respondentLocation = province;
-    }
+        var location = null;
+        if (barangay !== null && province !== null) {
+            location = province + ', ' + barangay;
+        } else if (barangay !== null) {
+            location = barangay;
+        } else if (province !== null) {
+            location = province;
+        }
 
-    if (respondentLocation !== null) {
-        setResponseValue(['respondent-data', 'location'], respondentLocation);
+        if (location !== null) {
+            respondentData['location'] = location;
+        }
+
+        respondentData['completed-survey'] = true;
     }
+    return JSON.stringify(response);
 }
 
 function selectCommentFromStandardError(comments) {

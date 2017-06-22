@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+
+{% block title %}{% trans 'Peer Responses' %}{% endblock %}
+{% block main-heading %}{% trans 'Peer Responses' %}{% endblock %}
+
+{% block content %}
+  <ol>
+    {% for question in questions %}
+      <li>
+        <p>
+          {% trans 'For the question' %}
+        </p>
+        <blockquote>
+          {% trans question.prompt %}
+        </blockquote>
+        <p>
+          {% blocktrans trimmed with num_ratings=question.num_ratings mode=question.mode_score mean=question.mean_score|floatformat %}
+            <strong>{{ num_ratings }}</strong> other respondents rated this statement,
+            the most common score was <strong>{{ mode }}</strong>, and
+            the average score was <strong>{{ mean }}</strong>.
+          {% endblocktrans %}
+        </p>
+      </li>
+    {% endfor %}
+  </ol>
+  {% url 'pcari:quantitative-questions' as previous_link %}
+  {% url 'pcari:rate-comments' as next_link %}
+  {% include 'nav-buttons.html' %}
+{% endblock %}

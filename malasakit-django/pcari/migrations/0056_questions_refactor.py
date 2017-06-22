@@ -14,7 +14,7 @@ INPUT_TYPES = (
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('pcari', '0055_empty_strings_to_null'),
+        ('pcari', '0056_auto_20170621_1935'),
     ]
 
     operations = [
