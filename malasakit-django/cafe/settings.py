@@ -62,7 +62,7 @@ ROOT_URLCONF = 'cafe.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['pcari/static/js'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -147,4 +147,4 @@ URL_ROOT = 'http://opinion.berkeley.edu'
 # STATIC_URL = '/static/'
 
 STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
-STATIC_URL = '/pcari/static/'
+STATIC_URL = '/static/'

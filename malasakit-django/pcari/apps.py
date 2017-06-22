@@ -42,5 +42,6 @@ class PCARIConfig(AppConfig):
                        'Could not find province names file at: ' + path)
 
     def ready(self):
+        import signals
         self.initialize_logger()
         self.read_province_names()

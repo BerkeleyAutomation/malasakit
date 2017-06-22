@@ -31,5 +31,8 @@ urlpatterns = [
         name='sw.js'),
 
     # AJAX endpoints
-    url(r'^save-response', views.save_response, name='save-response'),
+    url(r'^fetch-comments/$', views.fetch_comments, name='fetch-comments'),
+    url(r'^fetch-qualitative-questions/$', views.fetch_qualitative_questions,
+        name='fetch-qualitative-questions'),
+    url(r'^save-response/$', views.save_response, name='save-response'),
 ]

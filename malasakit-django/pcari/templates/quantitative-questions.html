@@ -9,54 +9,31 @@
 {% block scripts %}
   <script>
     const RATING_ID_PREFIX = 'rating-';
-    const SKIP_SCORE = -1;
-    const QUESTION_RATING_KEY = 'question-ratings';
-
-    function getQuestionID(idAttr) {
-      return parseInt(idAttr.substring(RATING_ID_PREFIX.length));
-    }
-
-    function initializeQuestionRatings() {
-      $.each($('input[type=range]'), function(index, element) {
-        updateCurrentResponse(function(response) {
-          var questionID = getQuestionID(element.id);
-          var score = parseInt($('#' + element.id).val());
-          response[QUESTION_RATING_KEY][questionID] = score;
-        });
-      });
-    }
-
-    function bindListenerCallbacks() {
-      $('input[type=range]').on('input', function() {
-        var questionID = getQuestionID(this.id);
-        var score = parseInt($(this).val());
-        updateCurrentResponse(function(response) {
-          response[QUESTION_RATING_KEY][questionID] = score;
-        });
-      });
-    }
-
-    // TODO: implement question skipping
 
     $(document).ready(function() {
-      initializeQuestionRatings();
-      bindListenerCallbacks();
+      $('input[type=range], input[type=number]').each(function() {
+        if (this.id.startsWith(RATING_ID_PREFIX)) {
+          var questionID = this.id.substring(RATING_ID_PREFIX.length);
+          var path = ['question-ratings', questionID];
+          if (getResponseValue(path) === null) {
+            setResponseValue(path, [parseInt($(this).val())]);
+          }
+          bindHistoryStoreListener($(this), path, parseInt);
+        }
+      });
     });
   </script>
 {% endblock %}
 
 {% block content %}
   <ol>
-    {% for qid, prompt, left_text, right_text in questions %}
+    {% for question in questions %}
       <li>
-        <p class="prompt">{% trans prompt %}</p>
-        <span class="leftlabel">{% trans left_text %}</span>
-        <input id="rating-{{ qid }}" type="range" value="5" min="1" max="10">
-        <span class="rightlabel">{% trans right_text %}</span>
+        {% include 'rating-slider.html' with question=question %}
       </li>
     {% endfor %}
   </ol>
   <div class="nav-button">
-    <a href="{% url 'pcari:response-histograms' %}?lang={{ language_code }}">{% trans 'Next' %}</a>
+    <a href="{% url 'pcari:response-histograms' %}">{% trans 'Next' %}</a>
   </div>
 {% endblock %}

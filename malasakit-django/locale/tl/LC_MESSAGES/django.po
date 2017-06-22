@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-07 22:55+0000\n"
+"POT-Creation-Date: 2017-06-22 16:31+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,15 +17,59 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: cafe/settings.py:113
-msgid "English"
+#: QuantitativeQuestion.prompt:1
+msgid "I have suffered the consequence of a typhoon or flood"
+msgstr ""
+
+#: QuantitativeQuestion.prompt:2
+msgid "I feel prepared to handle a major typhoon right now."
+msgstr ""
+
+#: QuantitativeQuestion.prompt:3
+msgid "The barangay’s typhoon Early Warning System is effective."
+msgstr ""
+
+#: QuantitativeQuestion.prompt:4
+msgid ""
+"My family has identified a place to meet and ways to communicate in a "
+"disaster."
+msgstr ""
+
+#: QuantitativeQuestion.prompt:5
+msgid ""
+"How many days of disaster supplies (e.g., canned food, bottled water, "
+"medicine) are immediately available to you in your home?"
+msgstr ""
+
+#: QuantitativeQuestion.prompt:6
+msgid ""
+"I feel like I could count on my nearest neighbors for support when "
+"recovering from a major typhoon."
+msgstr ""
+
+#: QuantitativeQuestion.prompt:7
+msgid ""
+"I believe our barangay will help my community repair and rebuild after a "
+"major typhoon."
+msgstr ""
+
+#: QuantitativeQuestion.prompt:8
+msgid "How many weeks has it been since you participated in a disaster drill?"
+msgstr ""
+
+#: QualitativeQuestion.prompt:1
+msgid "How could your Barangay help you better prepare for a disaster?"
 msgstr ""
 
 #: cafe/settings.py:114
+msgid "English"
+msgstr ""
+
+#: cafe/settings.py:115
 msgid "Filipino"
 msgstr ""
 
-#: pcari/templates/base.html:46
+#: pcari/templates/base.html:57
 msgid ""
 "A project by the CITRIS Connected Communities Initiative at UC Berkeley and "
 "the Philippine Commission on Higher Education through the Philippine-"
@@ -39,11 +83,11 @@ msgstr ""
 msgid "Thank You"
 msgstr ""
 
-#: pcari/templates/end.html:11
+#: pcari/templates/end.html:20
 msgid "We appreciate your participation in the Malasakit program."
 msgstr ""
 
-#: pcari/templates/end.html:14
+#: pcari/templates/end.html:23
 msgid "Finish"
 msgstr ""
 
@@ -51,7 +95,7 @@ msgstr ""
 msgid "Welcome"
 msgstr ""
 
-#: pcari/templates/landing.html:10
+#: pcari/templates/landing.html:18
 #, python-format
 msgid ""
 "How prepared are you in times of disaster? %(num_responses)s barangay "
@@ -60,56 +104,56 @@ msgstr ""
 "Gaano ka kahanda sa panahon ng kalamidad? %(num_responses)s na ang nag "
 "MALASAKIT. Sali na!"
 
-#: pcari/templates/landing.html:18
+#: pcari/templates/landing.html:26
 msgid "Begin"
 msgstr "Simulan"
 
-#: pcari/templates/personal-information.html:6
-#: pcari/templates/personal-information.html:7
+#: pcari/templates/personal-information.html:22
+#: pcari/templates/personal-information.html:23
 msgid "Personal Information"
 msgstr ""
 
-#: pcari/templates/personal-information.html:11
+#: pcari/templates/personal-information.html:27
 msgid ""
 "All questions on this page are strictly optional. Your responses will be "
 "anonymous."
 msgstr ""
 
-#: pcari/templates/personal-information.html:18
+#: pcari/templates/personal-information.html:34
 msgid "Age"
 msgstr "Edad"
 
-#: pcari/templates/personal-information.html:22
+#: pcari/templates/personal-information.html:38
 msgid "Gender"
 msgstr "Kasarian"
 
-#: pcari/templates/personal-information.html:25
+#: pcari/templates/personal-information.html:41
 msgid "Select gender"
 msgstr ""
 
-#: pcari/templates/personal-information.html:26
+#: pcari/templates/personal-information.html:42
 msgid "Male"
 msgstr "Lalaki"
 
-#: pcari/templates/personal-information.html:27
+#: pcari/templates/personal-information.html:43
 msgid "Female"
 msgstr "Babae"
 
-#: pcari/templates/personal-information.html:32
+#: pcari/templates/personal-information.html:48
 msgid "Province"
 msgstr ""
 
-#: pcari/templates/personal-information.html:35
+#: pcari/templates/personal-information.html:51
 msgid "Select province"
 msgstr ""
 
-#: pcari/templates/personal-information.html:43
+#: pcari/templates/personal-information.html:59
 msgid "Barangay"
 msgstr "Barangay"
 
-#: pcari/templates/personal-information.html:50
-#: pcari/templates/qualitative-questions.html:19
-#: pcari/templates/quantitative-questions.html:21
+#: pcari/templates/personal-information.html:64
+#: pcari/templates/qualitative-questions.html:35
+#: pcari/templates/quantitative-questions.html:37
 #: pcari/templates/response-histograms.html:10
 msgid "Next"
 msgstr ""
@@ -128,10 +172,39 @@ msgstr ""
 msgid "Rate Comments by Other Users"
 msgstr ""
 
-#: pcari/templates/rate-comments.html:11
+#: pcari/templates/rate-comments.html:17
 msgid ""
-"These are some suggestions made by other people living in barangays across "
-"the Phillippines. Read each one, and rate how helpful it is."
+"Each icon below is a comment made by another user. Next to each icon is the "
+"topic of the comment, or <span style='color: #1371ad'>(?)</span> if no topic "
+"was found. Comments that are closer together have authors who answered the "
+"quantitative questions similarly."
+msgstr ""
+
+#: pcari/templates/rate-comments.html:23
+msgid ""
+"Click an icon to rate that comment on its helpfulness. <strong>You must rate "
+"at least two comments to proceed.</strong> You can also drag the icons "
+"around."
+msgstr ""
+
+#: pcari/templates/rate-comments.html:32
+msgid "The question was:"
+msgstr ""
+
+#: pcari/templates/rate-comments.html:34
+msgid "The comment was:"
+msgstr ""
+
+#: pcari/templates/rate-comments.html:37
+msgid "How helpful is this comment?"
+msgstr ""
+
+#: pcari/templates/rate-comments.html:40
+msgid "Not helpful"
+msgstr ""
+
+#: pcari/templates/rate-comments.html:41
+msgid "Helpful"
 msgstr ""
 
 #: pcari/templates/response-histograms.html:5

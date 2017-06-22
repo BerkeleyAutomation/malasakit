@@ -7,12 +7,39 @@ from django.contrib import admin
 from .models import QualitativeQuestion, QuantitativeQuestion
 from .models import CommentRating, Comment
 from .models import QuantitativeQuestionRating, Respondent
+from .models import History
 
 
 admin.site.site_header = admin.site.site_title = 'Malasakit'
 
 
-class ResponseAdmin(admin.ModelAdmin):
+class HistoryAdmin(admin.ModelAdmin):
+    """
+    Abstract admin class that defines special behavior for `History` models.
+    """
+    exclude = ('predecessor', )
+    # save_as = True
+    save_as_continue = False
+
+    def save_model(self, request, obj, form, change):
+        if change and issubclass(obj.__class__, History):
+            old_instance = obj.__class__.objects.get(id=obj.id)
+            if set(obj.diff(old_instance)) - {'active'}:
+                obj = obj.make_copy()
+                obj.predecessor = old_instance
+                old_instance.active, obj.active = False, True
+                old_instance.save()
+        super(HistoryAdmin, self).save_model(request, obj, form, change)
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj and issubclass(obj.__class__, History) and not obj.active:
+            field_names = [field.name for field in obj.get_direct_fields()]
+            field_names.remove('active')
+            return field_names
+        return self.readonly_fields
+
+
+class ResponseAdmin(HistoryAdmin):
     """
     Abstract admin class for `CommentRatingAdmin`, `CommentAdmin`, and
     `QuantitativeQuestionRatingAdmin`.
@@ -26,9 +53,6 @@ class ResponseAdmin(admin.ModelAdmin):
     # Sets default ordering to be most recent comment first
     ordering = ('-timestamp',)
 
-    # Adds a "Save as New" button
-    save_as = True
-
 
 @admin.register(CommentRating)
 class CommentRatingAdmin(ResponseAdmin):
@@ -38,23 +62,25 @@ class CommentRatingAdmin(ResponseAdmin):
     def get_comment_message(self, comment_rating):
         # pylint: disable=no-self-use
         return comment_rating.comment.message
+    get_comment_message.short_description = 'Comment message'
 
     # Columns to display in the Comment change list page, in order from left to
     # right
-    list_display = ('respondent', 'get_comment_message', 'score', 'timestamp')
+    list_display = ('respondent', 'get_comment_message', 'score', 'timestamp',
+                    'active')
 
     # By default first column listed in list_display is clickable; this makes
     # `message` column clickable
     list_display_links = ('get_comment_message',)
 
     # Specify which columns we want filtering capabilities for
-    list_filter = ('timestamp', 'score')
+    list_filter = ('timestamp', 'active')
 
     # Sets fields as readonly
-    readonly_fields = ('respondent', 'score', 'comment')
+    readonly_fields = ('timestamp', )
 
     # Enables search
-    search_fields = ('score', 'comment__message')
+    search_fields = ('score_history_text', 'comment__message')
 
 
 @admin.register(Comment)
@@ -65,17 +91,14 @@ class CommentAdmin(ResponseAdmin):
     # Columns to display in the Comment change list page, in order from left to
     # right
     list_display = ('respondent', 'message', 'timestamp', 'language',
-                    'flagged', 'tag')
+                    'flagged', 'tag', 'active')
 
     # By default first column listed in list_display is clickable; this makes
     # `message` column clickable
     list_display_links = ('message',)
 
     # Specify which columns we want filtering capabilities for
-    list_filter = ('timestamp', 'language', 'flagged', 'tag')
-
-    # Sets fields as readonly
-    readonly_fields = ('respondent', 'question', 'language', 'message')
+    list_filter = ('timestamp', 'language', 'flagged', 'tag', 'active')
 
     # Enables search
     search_fields = ('message', 'tag')
@@ -90,35 +113,34 @@ class QuantitativeQuestionRatingAdmin(ResponseAdmin):
     def get_question_prompt(self, question_rating):
         # pylint: disable=no-self-use
         return question_rating.question.prompt
+    get_question_prompt.short_description = 'Question prompt'
 
     # Columns to display in the Comment change list page, in order from left to
     # right
-    list_display = ('respondent', 'get_question_prompt', 'timestamp', 'score')
+    list_display = ('respondent', 'get_question_prompt', 'timestamp', 'score',
+                    'active')
 
     # By default first column listed in list_display is clickable; this makes
     # `message` column clickable
     list_display_links = ('get_question_prompt',)
 
     # Specify which columns we want filtering capabilities for
-    list_filter = ('timestamp', 'score')
+    list_filter = ('timestamp', 'active')
 
     # Sets fields as readonly
-    readonly_fields = ('respondent', 'question', 'timestamp', 'score')
+    readonly_fields = ('timestamp', )
 
     # Enables search
-    search_fields = ('question__prompt', 'score')
+    search_fields = ('question__prompt', 'score_history_text')
 
 
-class QuestionAdmin(admin.ModelAdmin):
+class QuestionAdmin(HistoryAdmin):
     """
     Abstract admin class for `QualitativeQuestionAdmin` and
     `QuantitativeQuestionAdmin`.
     """
     # Performance optimizer to limit database queries
     list_select_related = True
-
-    # Adds a "Save as New" button
-    save_as = True
 
 
 @admin.register(QualitativeQuestion)
@@ -128,10 +150,10 @@ class QualitativeQuestionAdmin(QuestionAdmin):
     """
     # Columns to display in the Comment change list page, in order from left to
     # right
-    list_display = ('prompt', 'tag')
+    list_display = ('prompt', 'tag', 'active')
 
     # Specify which columns we want filtering capabilities for
-    list_filter = ('tag', 'prompt')
+    list_filter = ('prompt', 'tag', 'active')
 
     # Enables search
     search_fields = ('prompt', 'tag')
@@ -144,26 +166,24 @@ class QuantitativeQuestionAdmin(QuestionAdmin):
     """
     # Columns to display in the Comment change list page, in order from left to
     # right
-    list_display = ('prompt', 'tag')
+    list_display = ('prompt', 'tag', 'active')
 
     # Specify which columns we want filtering capabilities for
-    list_filter = ('tag',)
-
-    # Sets fields as readonly
-    readonly_fields = ('prompt', 'tag')
+    list_filter = ('tag', 'active')
 
     # Enables search
     search_fields = ('prompt', 'tag')
 
 
 @admin.register(Respondent)
-class RespondentAdmin(admin.ModelAdmin):
+class RespondentAdmin(HistoryAdmin):
     """
     Customizes admin change page functionality for `RespondentAdmin`.
     """
-    def get_comments(self, respondent):
+    def comments_made(self, respondent):
         # pylint: disable=no-self-use
-        return list(respondent.comments_made)
+        comments = list(respondent.comments_made)
+        return '(No comments)' if not comments else ''.join(map(str, comments))
 
     # Empty responses (recorded as None) will be replaced by this placeholder
     empty_value_display = '(Empty)'
@@ -171,20 +191,16 @@ class RespondentAdmin(admin.ModelAdmin):
     # Performance optimizer to limit database queries
     list_select_related = True
 
-    # Adds a "Save as New" button
-    save_as = True
-
     # Columns to display in the Comment change list page, in order from left to
     # right
-    list_display = ('get_comments', 'age', 'gender', 'location', 'language',
+    list_display = ('id', 'comments_made', 'age', 'gender', 'location', 'language',
                     'submitted_personal_data', 'completed_survey',
-                    'num_questions_rated', 'num_comments_rated')
+                    'num_questions_rated', 'num_comments_rated', 'active')
 
     # Specify which columns we want filtering capabilities for
     list_filter = ('gender', 'language', 'submitted_personal_data',
-                   'completed_survey')
+                   'completed_survey', 'active')
 
     # Enables search
     search_fields = ('gender', 'location', 'language',
-                     'submitted_personal_data', 'completed_survey',
-                     'num_questions_rated', 'num_comments_rated')
+                     'submitted_personal_data', 'completed_survey')

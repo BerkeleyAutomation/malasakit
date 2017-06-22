@@ -4,6 +4,7 @@ import random
 
 from django.db import IntegrityError
 from django.test import TestCase, Client
+from django.urls import reverse
 
 from .models import Respondent
 from .models import QuantitativeQuestion, QualitativeQuestion
@@ -26,7 +27,8 @@ class UserFeedbackTestCase(TestCase):
                             QuantitativeQuestionRating.objects.all()]
         prev_respondent = random.sample(prev_respondents, 1)[0]
         with self.assertRaises(IntegrityError):
-            QuantitativeQuestionRating(respondent=prev_respondent, score=2,
+            QuantitativeQuestionRating(respondent=prev_respondent,
+                                       score_history_text='2',
                                        question=self.quant_question).save()
 
     def test_quantitative_question_rating_timestamp_order(self):
@@ -53,7 +55,7 @@ class ResponseSaveTestCase(TestCase):
         self.client = Client()
 
     def push(self, responses):
-        http_response = self.client.post('/pcari/save-response',
+        http_response = self.client.post(reverse('pcari:save-response'),
                                          data=json.dumps(responses),
                                          content_type='application/json')
         return http_response
@@ -77,13 +79,13 @@ class ResponseSaveTestCase(TestCase):
 
         http_response = self.push({
             'question-ratings': {
-                '1': 4
+                '1': [4]
             },
             'comments': {
                 '1': 'hello world',
             },
             'comment-ratings': {
-                str(comment.id): 2
+                str(comment.id): [2]
             },
             'respondent-data': {
                 'language': 'tl'

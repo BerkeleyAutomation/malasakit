@@ -65,7 +65,7 @@ def accepts_ratings(ratings_model, keyword):
     True
     """
     def ratings_aggregator(target_model):
-        """ The decorator itself. """
+        """ A decorator that wraps a model that can be rated. """
         def select_ratings(self, answered=True):
             """
             Select ratings attached to this target model instance.
@@ -77,38 +77,133 @@ def accepts_ratings(ratings_model, keyword):
                           ratings returned are guaranteed to be nonnegative.
 
             Returns:
-                A Django `QuerySet` containing this question's or comment's
-                ratings.
+                A `list` containing this question's or comment's ratings.
             """
             query = ratings_model.objects.filter(**{keyword: self})
             if answered:
                 excluded_ratings = [Rating.NOT_RATED, Rating.SKIPPED]
-                return query.exclude(score__in=excluded_ratings)
-            return query
+                return [instance for instance in query
+                        if instance.score not in excluded_ratings]
+            return list(query.all())
 
         def mean_score(self):
-            scores = self.select_ratings().values_list('score', flat=True)
+            scores = [instance.score for instance in self.select_ratings()]
             return float(sum(scores))/len(scores)
 
         def num_ratings(self):
-            return self.select_ratings().count()
+            return len(self.select_ratings())
+
+        def stdev(self):
+            """
+            Computed the sample standard deviation.
+
+            Returns:
+                `float('nan')` if the number of samples is fewer than two.
+            """
+            scores = [instance.score for instance in self.select_ratings()]
+            if len(scores) < 2:
+                return float('nan')
+            mean_score = float(sum(scores))/len(scores)
+            squared_errors = (pow(score - mean_score, 2) for score in scores)
+            return (sum(squared_errors)/(len(scores) - 1))**0.5
 
         def standard_error(self):
-            """ Computes the statistical standard error. """
-            scores = self.select_ratings().values_list('score', flat=True)
-            mean_score = float(sum(scores))/len(scores)
-            variance = sum(pow(score - mean_score, 2)/len(scores) for score in scores)
-            return variance**0.5/len(scores)**2
+            """
+            Computes the statistical standard error of the mean.
+
+            Returns:
+                `float('nan')` if the number of samples is fewer than two.
+            """
+            num_ratings = self.num_ratings
+            return (self.stdev/num_ratings**0.5 if num_ratings > 0
+                    else float('nan'))
 
         target_model.select_ratings = select_ratings
         target_model.mean_score = property(mean_score)
         target_model.num_ratings = property(num_ratings)
+        target_model.stdev = property(stdev)
         target_model.standard_error = property(standard_error)
         return target_model
     return ratings_aggregator
 
 
-class Response(models.Model):
+class History(models.Model):
+    """
+    The `History` abstract model records how one model instance derives from
+    another.
+
+    The database should be insert-only such that when updating a field of a
+    model instance, a new instance is created, rather than overwriting the
+    attribute of an old instance. This model effectively does the bookkeeping
+    necessary so that we can see which instances are active and how they have
+    changed over time.
+
+    Attributes:
+        predecessor: A reference to the instance this instance is based on. If
+                     this instance is the first of its kind (e.g., a new
+                     question), this reference should be set to `None`.
+        active: Whether this instance is considered usable or not. Typically,
+                when a new model instance is created from an old one, the old
+                one is marked as inactive.
+    """
+    predecessor = models.ForeignKey('self', on_delete=models.SET_NULL,
+                                    null=True, default=None)
+    active = models.BooleanField(default=True)
+
+    def get_direct_fields(self):
+        return [field for field in self.__class__._meta.get_fields()
+                if not field.auto_created or field.concrete]
+
+    def make_copy(self):
+        """
+        Make a copy of the current model, excluding unique fields.
+
+        Returns:
+            An unsaved copy of `self`.
+        """
+        model = self.__class__
+        copy = model()
+        for field in self.get_direct_fields():
+            if field.editable and not field.unique:
+                value = getattr(self, field.name)
+                setattr(copy, field.name, value)
+
+        return copy
+
+    def diff(self, other):
+        """
+        Find the fields where the two instances have different values.
+
+        Args:
+            other: An instance of the same model.
+
+        Returns:
+            A generator of field names where the two instances differ.
+        """
+        model = self.__class__
+        assert isinstance(other, model)
+        for field in self.get_direct_fields():
+            if getattr(self, field.name) != getattr(other, field.name):
+                yield field.name
+
+    @property
+    def predecessors(self):
+        """
+        Yields a sequence of predecessors, from the most recent to the original.
+
+        Returns:
+            A generator of model instances.
+        """
+        current = self
+        while current.predecessor is not None:
+            current = current.predecessor
+            yield current
+
+    class Meta:
+        abstract = True
+
+
+class Response(History):
     """
     A `Response` is an abstract model of user-generated data.
 
@@ -132,14 +227,39 @@ class Rating(Response):
                    submitted (that is, a default value).
         SKIPPED: A sentinel value assigned to a `Rating` where the user
                  intentionally chose to decline rating a question or a comment.
-        score: An integer that quantifies a rating. (No scale is provided, by
-               design. Interpreting the `score` is the responsibility of
-               clients of this model.)
+        score_history_text: The internal string representation of a rating's
+                            scoring history. (That is, a list of other
+                            responses considered by the respondent before
+                            settling on a final `score`.)
+        score_history: A Python list of integers that acts as a proxy for
+                       `score_history_text`. This is the preferred way of
+                       interacting with the score history.
+        score: A read-only integer that quantifies a rating. (No scale is
+               provided, by design. Interpreting the `score` is the
+               responsibility of clients of this model.)
     """
+    SCORE_HISTORY_TEXT_DELIMIETER = ','
+
     NOT_RATED = -2
     SKIPPED = -1
 
-    score = models.SmallIntegerField(default=NOT_RATED)
+    score_history_text = models.CharField(max_length=256,
+                                          default=str(NOT_RATED),
+                                          validators=[])
+
+    @property
+    def score_history(self):
+        scores = self.score_history_text.split(Rating.SCORE_HISTORY_TEXT_DELIMIETER)
+        return list(map(int, map(unicode.strip, scores)))
+
+    @score_history.setter
+    def score_history(self, scores):
+        self.score_history_text = Rating.SCORE_HISTORY_TEXT_DELIMIETER.join(map(str, scores))
+
+    @property
+    def score(self):
+        scores = self.score_history
+        return scores[-1] if scores else Rating.NOT_RATED
 
     class Meta:
         abstract = True
@@ -158,8 +278,8 @@ class QuantitativeQuestionRating(Rating):
                                  on_delete=models.CASCADE)
 
     def __unicode__(self):
-        template = 'QuantitativeQuestion {0}: {1}'
-        return template.format(self.question_id, self.score)
+        template = 'Rating {1} to {0}'
+        return template.format(self.question, self.score)
 
     class Meta:
         unique_together = ('respondent', 'question')
@@ -175,7 +295,7 @@ class CommentRating(Rating):
     comment = models.ForeignKey('Comment', on_delete=models.CASCADE)
 
     def __unicode__(self):
-        return 'Comment {0}: {1}'.format(self.comment_id, self.score)
+        return 'Rating {1} to {0}'.format(self.comment, self.score)
 
     class Meta:
         unique_together = ('respondent', 'comment')
@@ -208,6 +328,8 @@ class Comment(Response):
     >>> comment.word_count
     2
     """
+    MAX_COMMENT_DISPLAY_LEN = 140
+
     question = models.ForeignKey('QualitativeQuestion',
                                  on_delete=models.CASCADE)
     language = models.CharField(max_length=25, choices=LANGUAGES)
@@ -217,7 +339,10 @@ class Comment(Response):
 
     def __unicode__(self):
         if self.message is not None and self.message.strip():
-            return '"{0}"'.format(self.message)
+            message = self.message
+            if len(message) > self.MAX_COMMENT_DISPLAY_LEN:
+                message = message[:self.MAX_COMMENT_DISPLAY_LEN] + ' ...'
+            return '"{0}"'.format(message)
         return '-- Empty response --'
 
     @property
@@ -225,7 +350,7 @@ class Comment(Response):
         return len(self.message.split())
 
 
-class Question(models.Model):
+class Question(History):
     """
     A `Question` models a prompt presented to the user that requires a
     response.
@@ -254,7 +379,7 @@ class QualitativeQuestion(Question):
                   question.
     """
     def __unicode__(self):
-        return 'QualitativeQuestion {0}: "{1}"'.format(self.id, self.prompt)
+        return 'Qualitative question {0}: "{1}"'.format(self.id, self.prompt)
 
     @property
     def comments(self):
@@ -274,10 +399,10 @@ class QuantitativeQuestion(Question):
     right_text = models.TextField(blank=True)
 
     def __unicode__(self):
-        return 'QuantitativeQuestion {0}: "{1}"'.format(self.id, self.prompt)
+        return 'Quantitative question {0}: "{1}"'.format(self.id, self.prompt)
 
 
-class Respondent(models.Model):
+class Respondent(History):
     """
     A `Respondent` represents a one-time participant in a survey.
 
@@ -323,16 +448,23 @@ class Respondent(models.Model):
     completed_survey = models.BooleanField(default=False)
 
     def __unicode__(self):
-        return '{0}'.format(self.id)
+        return 'Respondent {0}'.format(self.id)
 
-    @property
     def num_questions_rated(self):
-        questions = QuantitativeQuestionRating.objects.filter(respondent=self)
-        return questions.count()
+        ratings = QuantitativeQuestionRating.objects.filter(respondent=self).all()
+        return sum(1 for rating in ratings if rating.score not in
+                   [Rating.NOT_RATED, Rating.SKIPPED])
 
-    @property
+    num_questions_rated.short_description = 'Number of questions rated'
+    num_questions_rated = property(num_questions_rated)
+
     def num_comments_rated(self):
-        return CommentRating.objects.filter(respondent=self).count()
+        ratings = CommentRating.objects.filter(respondent=self).all()
+        return sum(1 for rating in ratings if rating.score not in
+                   [Rating.NOT_RATED, Rating.SKIPPED])
+
+    num_comments_rated.short_description = 'Number of comments rated'
+    num_comments_rated = property(num_comments_rated)
 
     @property
     def comments_made(self):
