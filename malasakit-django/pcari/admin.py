@@ -14,21 +14,29 @@ admin.site.site_header = admin.site.site_title = 'Malasakit'
 
 
 class HistoryAdmin(admin.ModelAdmin):
+    """
+    Abstract admin class that defines special behavior for `History` models.
+    """
     exclude = ('predecessor', )
     # save_as = True
     save_as_continue = False
 
     def save_model(self, request, obj, form, change):
-        model = obj.__class__
-        if change and issubclass(model, History):
+        if change and issubclass(obj.__class__, History):
             old_instance = obj.__class__.objects.get(id=obj.id)
             if set(obj.diff(old_instance)) - {'active'}:
-                copy = old_instance.make_copy()
-                copy.active = False
-                copy.predecessor = old_instance.predecessor
-                obj.predecessor = copy
-                copy.save()
+                obj = obj.make_copy()
+                obj.predecessor = old_instance
+                old_instance.active, obj.active = False, True
+                old_instance.save()
         super(HistoryAdmin, self).save_model(request, obj, form, change)
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj and issubclass(obj.__class__, History) and not obj.active:
+            field_names = [field.name for field in obj.get_direct_fields()]
+            field_names.remove('active')
+            return field_names
+        return self.readonly_fields
 
 
 class ResponseAdmin(HistoryAdmin):
@@ -185,7 +193,7 @@ class RespondentAdmin(HistoryAdmin):
 
     # Columns to display in the Comment change list page, in order from left to
     # right
-    list_display = ('comments_made', 'age', 'gender', 'location', 'language',
+    list_display = ('id', 'comments_made', 'age', 'gender', 'location', 'language',
                     'submitted_personal_data', 'completed_survey',
                     'num_questions_rated', 'num_comments_rated', 'active')
 

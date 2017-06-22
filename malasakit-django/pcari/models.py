@@ -150,13 +150,20 @@ class History(models.Model):
                                     null=True, default=None)
     active = models.BooleanField(default=True)
 
-    def is_direct(self, field):
-        return not field.auto_created or field.concrete
+    def get_direct_fields(self):
+        return [field for field in self.__class__._meta.get_fields()
+                if not field.auto_created or field.concrete]
 
     def make_copy(self):
+        """
+        Make a copy of the current model, excluding unique fields.
+
+        Returns:
+            An unsaved copy of `self`.
+        """
         model = self.__class__
         copy = model()
-        for field in filter(self.is_direct, model._meta.get_fields()):
+        for field in self.get_direct_fields():
             if field.editable and not field.unique:
                 value = getattr(self, field.name)
                 setattr(copy, field.name, value)
@@ -164,20 +171,20 @@ class History(models.Model):
         return copy
 
     def diff(self, other):
+        """
+        Find the fields where the two instances have different values.
+
+        Args:
+            other: An instance of the same model.
+
+        Returns:
+            A generator of field names where the two instances differ.
+        """
         model = self.__class__
         assert isinstance(other, model)
-        for field in filter(self.is_direct, model._meta.get_fields()):
+        for field in self.get_direct_fields():
             if getattr(self, field.name) != getattr(other, field.name):
                 yield field.name
-
-    def pre_delete(self, sender, instance, using):
-        """
-        Ensure that child instances do not have a dangling pointer.
-        """
-        # pylint: disable=no-self-use
-        for successor in sender.objects.using(using).filter(predecessor=instance):
-            successor.predecessor = instance.predecessor
-            successor.save()
 
     @property
     def predecessors(self):
