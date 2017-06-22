@@ -17,7 +17,6 @@ from django.conf import settings
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_GET, require_POST
-from django.utils import translation
 from django.urls import reverse
 import numpy as np
 
@@ -36,7 +35,17 @@ LOGGER = logging.getLogger('pcari')
 
 
 def profile(function):
+    """
+    Add a hook to a function to log runtime.
+
+    Args:
+        function: The callable to profile.
+
+    Returns:
+        A wrapped version of `function` with the same behavior.
+    """
     def wrapper(*args, **kwargs):
+        """ Return the result of the given `function`. """
         start_time = time.time()
         result = function(*args, **kwargs)
         end_time = time.time()
@@ -48,7 +57,7 @@ def profile(function):
 
 
 @profile
-def generate_quantitative_question_ratings_matrix(respondents=None):
+def generate_ratings_matrix(respondents=None):
     """
     Fetches quantitative question ratings in the form of a numpy matrix.
 
@@ -81,9 +90,11 @@ def generate_quantitative_question_ratings_matrix(respondents=None):
     shape = (len(respondent_id_map), len(question_id_map))
     ratings_matrix = np.full(shape, np.nan)
 
-    features = 'respondent_id', 'question_id', 'score'
+    features = 'respondent_id', 'question_id', 'score_history_text'
     values = QuantitativeQuestionRating.objects.values_list(*features)
-    for respondent_id, question_id, score in values:
+    for respondent_id, question_id, score_history_text in values:
+        score = score_history_text.split(QuantitativeQuestionRating
+                                         .SCORE_HISTORY_TEXT_DELIMIETER)[-1]
         row_index = respondent_id_map[respondent_id]
         column_index = question_id_map[question_id]
         ratings_matrix[row_index, column_index] = score
@@ -113,26 +124,45 @@ def normalize_ratings_matrix(ratings_matrix):
 
 
 @profile
-def calculate_principal_components(normalized_ratings, n=2):
+def calculate_principal_components(normalized_ratings, num_components=2):
     """
     Calculates the first `n` principal components of a normalized quantitative
     question ratings matrix.
 
     Args:
-        n: number of principal components to calculate.
+        num_components: number of principal components to calculate (`n`).
 
     Returns:
         A `n` x `q` Numpy matrix, where `q` is number of quantitative
         questions. Each row is a principal component.
     """
-    U, S, VT = np.linalg.svd(normalized_ratings, full_matrices=False)
-    return VT[:n, :]  # Slice the first `n` rows
+    results = np.linalg.svd(normalized_ratings, full_matrices=False)
+    components = results[-1]
+    return components[:num_components]  # Slice the first `n` rows
 
 
 @require_GET
 def fetch_comments(request):
     """
     Fetch a list of comments as JSON.
+
+    Args:
+        request: May contain a `limit` GET parameter that specifies how many
+                 comments to get (by default: 1000).
+
+    Returns:
+        A `JsonResponse` containing an JSON object mapping comment identifiers
+        to JSON objects with the following attributes:
+            msg: The comment's message (from the `Comment.message` field).
+            sem: The standard error of the mean.
+            pos: The position of the comment. Obtained by projecting the
+                 quantitative question ratings vector of the comment author
+                 onto the first two principal components of the question
+                 ratings dataset. This is a list containing two numbers, the
+                 first principal component projection and second, respectively.
+            tag: A short description of the comment's message.
+            qid: The identifier of the `QualitativeQuestion` this comment was
+                 in response to.
     """
     try:
         limit = int(request.GET.get('limit', str(DEFAULT_COMMENT_LIMIT)))
@@ -143,8 +173,8 @@ def fetch_comments(request):
     if len(comments) > limit:
         comments = random.sample(comments, limit)
 
-    ratings_data = generate_quantitative_question_ratings_matrix()
-    respondent_id_map, question_id_map, ratings = ratings_data
+    ratings_data = generate_ratings_matrix()
+    respondent_id_map, _, ratings = ratings_data
     normalized_ratings = normalize_ratings_matrix(ratings)
     components = calculate_principal_components(normalized_ratings, 2)
 
@@ -156,8 +186,7 @@ def fetch_comments(request):
 
             # Projects the ratings by this comment's author onto the first two
             # principal components
-            ratings_by_respondent = normalized_ratings[row_index, :]
-            position = list(np.round(components.dot(ratings_by_respondent), 6))
+            position = list(np.round(components.dot(normalized_ratings[row_index, :]), 6))
 
             if math.isnan(standard_error):
                 standard_error = DEFAULT_STANDARD_ERROR
@@ -174,23 +203,39 @@ def fetch_comments(request):
 
 @require_GET
 def fetch_qualitative_questions(request):
+    """
+    Fetch all qualitative question data as JSON.
+
+    Args:
+        request: The request is ignored.
+
+    Returns:
+        A `JsonResponse` containing a JSON object mapping qualitative question
+        identifiers to prompts.
+    """
+    # pylint: disable=unused-argument
     return JsonResponse({str(question.id): question.prompt for question in
                          QualitativeQuestion.objects.all()})
 
 
-def make_quantitative_question_ratings(respondent, responses):
+def make_question_ratings(respondent, responses):
+    """ Generate new quantitative question model instances. """
     for question_id, scores in responses.get('question-ratings', {}).iteritems():
         question = QuantitativeQuestion(id=int(question_id))
-        yield QuantitativeQuestionRating(respondent=respondent, question=question,
-                                         score=scores[-1])
+        rating = QuantitativeQuestionRating(respondent=respondent,
+                                            question=question)
+        rating.score_history = scores
+        yield rating
 
 
 def make_comments(respondent, responses):
+    """ Generate new comment model instances. """
     for question_id, message in responses.get('comments', {}).iteritems():
         question = QualitativeQuestion(id=int(question_id))
 
         # Replaces empty messages with None so they can show up as placeholders in admin
-        if message.strip() == "":
+        message = message.strip()
+        if not message:
             message = None
 
         yield Comment(respondent=respondent, question=question,
@@ -198,12 +243,16 @@ def make_comments(respondent, responses):
 
 
 def make_comment_ratings(respondent, responses):
-    for comment_id, score in responses.get('comment-ratings', {}).iteritems():
+    """ Generate new comment rating instances. """
+    for comment_id, scores in responses.get('comment-ratings', {}).iteritems():
         comment = Comment.objects.get(id=int(comment_id))
-        yield CommentRating(respondent=respondent, comment=comment, score=score[-1])
+        rating = CommentRating(respondent=respondent, comment=comment)
+        rating.score_history = scores
+        yield rating
 
 
 def make_respondent_data(respondent, responses):
+    """ Save respondent data from a given response object. """
     respondent_data = responses.get('respondent-data', {})
     attributes = ['age', 'gender', 'location', 'submitted_personal_data',
                   'completed_survey']
@@ -262,7 +311,7 @@ def save_response(request):
 
         model_generator_functions = [
             make_respondent_data,
-            make_quantitative_question_ratings,
+            make_question_ratings,
             make_comments,
             make_comment_ratings,
         ]
@@ -279,64 +328,52 @@ def save_response(request):
     return HttpResponse()
 
 
-def supported_languages():
-    return [code for code, name in settings.LANGUAGES]
-
-
-def language_selectable(view):
-    def view_wrapper(request, *args, **kwargs):
-        language_code = request.GET.get('lang')
-        if language_code in supported_languages():
-            translation.activate(language_code)
-            request.session[translation.LANGUAGE_SESSION_KEY] = language_code
-        return view(request, *args, **kwargs)
-    return view_wrapper
-
-
 def index(request):
+    """ Redirect the user to the `landing` page. """
+    # pylint: disable=unused-argument
     return redirect(reverse('pcari:landing'))
 
 
-@language_selectable
 def landing(request):
+    """ Render a landing page. """
     context = {'num_responses': Respondent.objects.count()}
     return render(request, 'landing.html', context)
 
 
-@language_selectable
 def personal_information(request):
+    """ Render a page asking respondents for personal information. """
     config = apps.get_app_config('pcari')
     context = {'province_names': [(province_name['code'], province_name['name'])
                                   for province_name in config.province_names]}
     return render(request, 'personal-information.html', context)
 
 
-@language_selectable
 def quantitative_questions(request):
+    """ Render a page asking respondents to rate statements. """
     context = {'questions': QuantitativeQuestion.objects.all()}
     return render(request, 'quantitative-questions.html', context)
 
 
-@language_selectable
 def response_histograms(request):
+    """ FIXME: deprecated in branch `sequoia` """
     return render(request, 'response-histograms.html')
 
 
-@language_selectable
 def rate_comments(request):
-    ratings = [] # TODO (much the same as how quantitative_questions works)
+    """ Render a bloom page where respondents can rate comments by others. """
+    ratings = []  # (much the same as how quantitative_questions works)
     context = {'ratings': ratings}
     return render(request, 'rate-comments.html', context)
 
 
-@language_selectable
 def qualitative_questions(request):
+    """ Render a page asking respondents for comments (i.e. suggestions). """
     questions = QualitativeQuestion.objects.all()
     question_text = [(question.id, question.prompt) for question in questions]
     context = {'questions': question_text}
     return render(request, 'qualitative-questions.html', context)
 
 
-@language_selectable
 def end(request):
+    """ Render an end-of-survey page. """
     return render(request, 'end.html')
