@@ -1,10 +1,20 @@
+"""
+makemessages -- Prepare message files for translators
+"""
+
 import os
 
 from django.core.management.commands import makemessages
 
 
 class Command(makemessages.Command):
+    """ Extends the default `makemessages` command. """
     def write_po_file(self, potfile, locale):
+        """
+        Before merging the `.pot` file with an existing `.po` file, merge other
+        `.pot` files together (use in conjunction with `makedbtrans`).
+        """
+        # Using `os.system` isn't great, but it will do for now
         dirname = os.path.dirname(potfile)
         for filename in os.listdir(dirname):
             if filename.endswith('.pot'):

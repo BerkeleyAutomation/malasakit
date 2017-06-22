@@ -152,6 +152,7 @@ class History(models.Model):
     active = models.BooleanField(default=True)
 
     def pre_delete(self, sender, instance, using):
+        # pylint: disable=no-self-use
         for successor in sender.objects.using(using).filter(predecessor=instance):
             successor.predecessor = instance.predecessor
             successor.save()
@@ -219,8 +220,8 @@ class Rating(Response):
 
     @property
     def score_history(self):
-        return list(map(int, map(unicode.strip, self.score_history_text.split(
-                                 Rating.SCORE_HISTORY_TEXT_DELIMIETER))))
+        scores = self.score_history_text.split(Rating.SCORE_HISTORY_TEXT_DELIMIETER)
+        return list(map(int, map(unicode.strip, scores)))
 
     @score_history.setter
     def score_history(self, scores):
@@ -229,7 +230,7 @@ class Rating(Response):
     @property
     def score(self):
         scores = self.score_history
-        return scores[-1] if len(scores) > 0 else Rating.NOT_RATED
+        return scores[-1] if scores else Rating.NOT_RATED
 
     class Meta:
         abstract = True

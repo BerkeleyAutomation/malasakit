@@ -168,7 +168,7 @@ class RespondentAdmin(admin.ModelAdmin):
     def comments_made(self, respondent):
         # pylint: disable=no-self-use
         comments = list(respondent.comments_made)
-        return '(No comments)' if len(comments) == 0 else ''.join(map(str, comments))
+        return '(No comments)' if comments else ''.join(map(str, comments))
 
     # Empty responses (recorded as None) will be replaced by this placeholder
     empty_value_display = '(Empty)'

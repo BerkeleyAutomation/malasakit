@@ -1,3 +1,7 @@
+"""
+This module defines common command templates.
+"""
+
 from django.core.exceptions import FieldDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
 from django.db.models import Model
@@ -21,6 +25,9 @@ class BatchProcessingCommand(BaseCommand):
         pass  # By default, make no checks
 
     def preprocess(self, options):
+        """
+        Prepare to batch process all fields (e.g. open files).
+        """
         pass
 
     def process(self, options, instance, model_name, field_name):
@@ -54,4 +61,7 @@ class BatchProcessingCommand(BaseCommand):
         self.postprocess(options)
 
     def postprocess(self, options):
+        """
+        Terminate the processing job (e.g. close files).
+        """
         pass
