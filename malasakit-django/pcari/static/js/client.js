@@ -223,6 +223,12 @@ function refreshResources() {
     }
 }
 
+function postprocess(responseData) {
+    var barangay = responseData['respondent-data'].barangay || '(No barangay)';
+    var province = responseData['respondent-data'].province || '(No province)';
+    responseData['respondent-data'].location = province + ', ' + barangay;
+}
+
 function pushCompletedResponses() {
     var resourceNames = Resource.loadNames();
     var currentResponseName = Resource.load('current').data;
@@ -230,6 +236,7 @@ function pushCompletedResponses() {
         var name = resourceNames[index];
         if (isResponseName(name) && name !== currentResponseName) {
             var response = Resource.load(name);
+            postprocess(response.data);
             response.push();
         }
     }
