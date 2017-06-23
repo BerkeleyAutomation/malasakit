@@ -9,7 +9,8 @@
 const DEFAULT_LANGUAGE = 'tl';
 const DEFAULT_TIMEOUT = 5000;
 
-const API_URL_ROOT = '/api';
+const APP_URL_ROOT = '';
+const API_URL_ROOT = APP_URL_ROOT + '/api';
 const RESPONSE_SAVE_ENDPOINT = API_URL_ROOT + '/save-response/';
 
 const RESPONSE_KEY_PREFIX = 'response-';
@@ -19,6 +20,10 @@ const EMPTY_RESPONSE = {
     'comment-ratings': {},
     'respondent-data': {},
 };
+
+function redirect(url) {
+    $(location).attr('href', url);
+}
 
 function getCurrentTimestamp() {
     return new Date().getTime();
