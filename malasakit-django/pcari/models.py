@@ -102,7 +102,7 @@ def accepts_ratings(ratings_model, keyword):
             Returns:
                 The most common answer to the question (an integer).
             """
-            scores = self.select_ratings().values_list('score', flat=True)
+            scores = [instance.score for instance in self.select_ratings()]
             frequencies = Counter(scores)
             return frequencies.most_common(1)[0][0]
 

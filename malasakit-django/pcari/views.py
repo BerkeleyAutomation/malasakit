@@ -368,7 +368,7 @@ def quantitative_questions(request):
 @profile
 def peer_responses(request):
     """ Render a page showing respondents how others rated the quantitative questions. """
-    context = {'quqestion': QuantitativeQuestion.objects.filter(active=True).all()}
+    context = {'questions': QuantitativeQuestion.objects.filter(active=True).all()}
     return render(request, 'peer-responses.html', context)
 
 
