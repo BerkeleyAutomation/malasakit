@@ -5,21 +5,7 @@ DJANGO_PROJECT_ROOT=malasakit-django
 LINT_CMD=pylint
 LINT_OPTIONS=--output-format=colorized --rcfile=.pylintrc
 # List of Python source files to inspect for PEP8 compliance
-define LINT_TARGETS
-	cafe/settings.py
-	cafe/urls.py
-	cafe/wsgi.py
-	pcari/management/commands/__init__.py
-	pcari/management/commands/cleantext.py
-	pcari/management/commands/makedbtrans.py
-	pcari/management/commands/makemessages.py
-	pcari/templatetags/localize_url.py
-	pcari/admin.py
-	pcari/apps.py
-	pcari/signals.py
-	pcari/urls.py
-	pcari/views.py
-endef
+LINT_TARGETS=cafe/settings.py cafe/urls.py cafe/wsgi.py pcari/management/commands/__init__.py pcari/management/commands/cleantext.py pcari/management/commands/makedbtrans.py pcari/management/commands/makemessages.py pcari/templatetags/localize_url.py pcari/admin.py pcari/apps.py pcari/signals.py pcari/urls.py pcari/views.py
 
 CLEANTEXT_TARGETS=Comment.message Respondent.location
 DB_TRANS_TARGETS="QuantitativeQuestion.prompt QuantitativeQuestion.left_text \

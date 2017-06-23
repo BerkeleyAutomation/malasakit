@@ -66,6 +66,23 @@ class Resource {
     updateTimestamp() {
         this.timestamp = getCurrentTimestamp();
     }
+
+    fetch() {
+        var resource = this;  // Alias to avoid conflicts in callbacks
+        if (resource.endpoint !== undefined) {
+            $.ajax(resource.endpoint, {
+                timeout: resource.timeout || DEFAULT_TIMEOUT,
+                success: function(data) {
+                    resource.put(data);
+                    resource.updateTimestamp();
+                    console.log('Successfully fetched ' + resource.name);
+                },
+                failure: function() {
+                    console.log('Failed to fetch data for ' + resource.name);
+                },
+            });
+        }
+    }
 }
 
 class ResourceMap extends Resource {
@@ -108,23 +125,12 @@ function initializeResourceMaps() {
     RESPONSE_STORAGE_MAP.putAll();
 }
 
-function refreshAssetsMap() {
+function refreshAssets() {
     for (var name in ASSETS_MAP.resources) {
         var resource = ASSETS_MAP.resources[name];
         if (resource.stale || !resource.exists()) {
-            if (resource.url !== undefined) {
-                $.ajax(resource.url, {
-                    timeout: resource.timeout || DEFAULT_TIMEOUT,
-                    success: function(data) {
-                        resource.put(data);
-                        resource.updateTimestamp();
-                    },
-                    failure: function(data) {
-                        console.log('Failed to update resource');
-                    },
-                })
-            } else {
-                resource.delete();
+            if (resource.endpoint !== undefined) {
+                resource.fetch();
             }
         }
     }
@@ -208,7 +214,7 @@ function displayLocalStorageUsage(precision=3) {
 function main() {
     csrfSetup();
     initializeResourceMaps();
-    refreshAssetsMap();
+    refreshAssets();
 }
 
 $(document).ready(main);
