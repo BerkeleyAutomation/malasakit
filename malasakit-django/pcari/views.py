@@ -102,6 +102,7 @@ def generate_ratings_matrix(respondents=None):
     return respondent_id_map, question_id_map, ratings_matrix
 
 
+@profile
 def normalize_ratings_matrix(ratings_matrix):
     """
     Normalize a ratings matrix.
@@ -141,6 +142,7 @@ def calculate_principal_components(normalized_ratings, num_components=2):
     return components[:num_components]  # Slice the first `n` rows
 
 
+@profile
 @require_GET
 def fetch_comments(request):
     """
@@ -169,7 +171,7 @@ def fetch_comments(request):
     except ValueError as error:
         return HttpResponseBadRequest(str(error))
 
-    comments = list(Comment.objects.all())
+    comments = list(Comment.objects.filter(active=True).all())
     if len(comments) > limit:
         comments = random.sample(comments, limit)
 
@@ -201,6 +203,7 @@ def fetch_comments(request):
     return JsonResponse(data)
 
 
+@profile
 @require_GET
 def fetch_qualitative_questions(request):
     """
@@ -222,10 +225,11 @@ def fetch_qualitative_questions(request):
         str(question.id): {
             code: translate(question.prompt, code)
             for code, name in settings.LANGUAGES
-        } for question in QualitativeQuestion.objects.all()
+        } for question in QualitativeQuestion.objects.filter(active=True).all()
     })
 
 
+@profile
 def make_question_ratings(respondent, responses):
     """ Generate new quantitative question model instances. """
     for question_id, scores in responses.get('question-ratings', {}).iteritems():
@@ -236,6 +240,7 @@ def make_question_ratings(respondent, responses):
         yield rating
 
 
+@profile
 def make_comments(respondent, responses):
     """ Generate new comment model instances. """
     for question_id, message in responses.get('comments', {}).iteritems():
@@ -250,6 +255,7 @@ def make_comments(respondent, responses):
                       language=respondent.language, message=message)
 
 
+@profile
 def make_comment_ratings(respondent, responses):
     """ Generate new comment rating instances. """
     for comment_id, scores in responses.get('comment-ratings', {}).iteritems():
@@ -259,6 +265,7 @@ def make_comment_ratings(respondent, responses):
         yield rating
 
 
+@profile
 def make_respondent_data(respondent, responses):
     """ Save respondent data from a given response object. """
     respondent_data = responses.get('respondent-data', {})
@@ -272,6 +279,7 @@ def make_respondent_data(respondent, responses):
     yield respondent
 
 
+@profile
 @require_POST
 def save_response(request):
     """
@@ -282,7 +290,7 @@ def save_response(request):
 
         {
             "question-ratings": {
-                <qid>: <score>,
+                <qid>: [<score-history>],
                 ...
             },
             "comments": [
@@ -290,7 +298,7 @@ def save_response(request):
                 ...
             ],
             "comment-ratings": [
-                <cid>: <score>,
+                <cid>: [<score-history>],
                 ...
             ],
             "respondent-data": {
@@ -336,41 +344,48 @@ def save_response(request):
     return HttpResponse()
 
 
+@profile
 def index(request):
     """ Redirect the user to the `landing` page. """
     # pylint: disable=unused-argument
     return redirect(reverse('pcari:landing'))
 
 
+@profile
 def landing(request):
     """ Render a landing page. """
-    context = {'num_responses': Respondent.objects.count()}
+    context = {'num_responses': Respondent.objects.filter(active=True).count()}
     return render(request, 'landing.html', context)
 
 
+@profile
 def quantitative_questions(request):
     """ Render a page asking respondents to rate statements. """
-    context = {'questions': QuantitativeQuestion.objects.all()}
+    context = {'questions': QuantitativeQuestion.objects.filter(active=True).all()}
     return render(request, 'quantitative-questions.html', context)
 
 
+@profile
 def peer_responses(request):
     """ Render a page showing respondents how others rated the quantitative questions. """
-    context = {'quqestion': QuantitativeQuestion.objects.all()}
+    context = {'quqestion': QuantitativeQuestion.objects.filter(active=True).all()}
     return render(request, 'peer-responses.html', context)
 
 
+@profile
 def rate_comments(request):
     """ Render a bloom page where respondents can rate comments by others. """
     return render(request, 'rate-comments.html')
 
 
+@profile
 def qualitative_questions(request):
     """ Render a page asking respondents for comments (i.e. suggestions). """
-    context = {'questions': QualitativeQuestion.objects.all()}
+    context = {'questions': QualitativeQuestion.objects.filter(active=True).all()}
     return render(request, 'qualitative-questions.html', context)
 
 
+@profile
 def personal_information(request):
     """ Render a page asking respondents for personal information. """
     config = apps.get_app_config('pcari')
@@ -379,11 +394,13 @@ def personal_information(request):
     return render(request, 'personal-information.html', context)
 
 
+@profile
 def end(request):
     """ Render an end-of-survey page. """
     return render(request, 'end.html')
 
 
+@profile
 def handle_page_not_found(request):
     """ Render a page for HTTP 404 errors (page not found). """
     context = {'heading': _('Page Not Found'),
@@ -391,6 +408,7 @@ def handle_page_not_found(request):
     return render(request, 'error.html', context)
 
 
+@profile
 def handle_internal_server_error(request):
     """ Render a page for HTTP 500 errors (internal server error). """
     context = {'heading': _('Internal Error'),
