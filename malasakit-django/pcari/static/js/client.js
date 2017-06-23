@@ -311,6 +311,36 @@ function selectComments(method) {
     }
 }
 
+function getNestedValue(obj, path) {
+    if (path.length === 0) {
+        return obj;
+    }
+    var first = path[0], rest = path.slice(1);
+    return first in obj ? getNestedValue(obj[first], rest) : null;
+}
+
+function setNestedValue(obj, path, value) {
+    if (path.length === 0) {
+        return value;
+    }
+    var first = path[0], rest = path.slice(1);
+    obj[first] = setNestedValue(obj[first] || {}, rest, value);
+    return obj;
+}
+
+function getResponseValue(path) {
+    var currentResponseName = Resource.load('current').data;
+    var response = Resource.load(currentResponseName);
+    return getNestedValue(response.data, path);
+}
+
+function setResponseValue(path, value) {
+    var currentResponseName = Resource.load('current').data;
+    var response = Resource.load(currentResponseName);
+    setNestedValue(response.data, path, value);
+    response.put();
+}
+
 function main() {
     csrfSetup();
     initializeResources();
