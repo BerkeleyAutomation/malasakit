@@ -25,7 +25,6 @@
       </li>
     {% endfor %}
   </ol>
-  {% url 'pcari:quantitative-questions' as previous_link %}
-  {% url 'pcari:rate-comments' as next_link %}
+  {% url 'pcari:end' as next_link %}
   {% include 'nav-buttons.html' %}
 {% endblock %}
