@@ -28,8 +28,7 @@
           {% get_available_languages as languages %}
           {% for code, name in languages %}
           <li>
-            {{ request.path|localize_url:code }}
-            <!--a href='/{{ code }}{{ request.path|slice:"3:" }}'>{{ name }}</a-->
+            <a href="{{ request.path|localize_url:code }}">{{ name }}</a>
           </li>
           {% endfor %}
         </ul>
