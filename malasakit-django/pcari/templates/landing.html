@@ -7,7 +7,9 @@
 
 {% block scripts %}
   <script>
-    <!-- FIXME -->
+    $(document).ready(function() {
+      $('#next').on('click', initializeNewResponse);
+    });
   </script>
 {% endblock %}
 

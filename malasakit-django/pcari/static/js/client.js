@@ -125,12 +125,25 @@ function initializeResourceMaps() {
     RESPONSE_STORAGE_MAP.putAll();
 }
 
+function recordCurrentLanguage() {
+    var language = $('html').attr('lang') || DEFAULT_LANGUAGE;
+    var currentID = ASSETS_MAP.resources.current.get();
+    if (currentID !== null) {
+        var resource = RESPONSE_STORAGE_MAP.resources[currentID];
+        var response = resource.get();
+        response['respondent-data'].language = language;
+        resource.put(response);
+    }
+}
+
 function refreshAssets() {
     for (var name in ASSETS_MAP.resources) {
         var resource = ASSETS_MAP.resources[name];
         if (resource.stale || !resource.exists()) {
             if (resource.endpoint !== undefined) {
                 resource.fetch();
+            } else {
+                resource.delete();
             }
         }
     }
@@ -154,7 +167,7 @@ function pushCompletedResponses() {
             var responseResource = RESPONSE_STORAGE_MAP.resources[id];
             $.ajax(RESPONSE_SAVE_ENDPOINT, {
                 method: 'POST',
-                data: responseResource.get(),
+                data: JSON.stringify(responseResource.get()),
                 timeout: DEFAULT_TIMEOUT,
                 success: function() {
                     console.log(':: Successfully pushed data for ' + id);
@@ -214,7 +227,9 @@ function displayLocalStorageUsage(precision=3) {
 function main() {
     csrfSetup();
     initializeResourceMaps();
+    recordCurrentLanguage();
     refreshAssets();
+    pushCompletedResponses();
 }
 
 $(document).ready(main);
