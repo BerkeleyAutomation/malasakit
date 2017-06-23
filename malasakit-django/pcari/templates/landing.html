@@ -23,5 +23,6 @@
   </p>
   <img src="{% static 'img/landing1.jpg' %}">
   {% url 'pcari:quantitative-questions' as next_link %}
-  {% include 'nav-buttons.html' with next_label='Begin' %}
+  {% trans 'Begin' as next_label %}
+  {% include 'nav-buttons.html' %}
 {% endblock %}
