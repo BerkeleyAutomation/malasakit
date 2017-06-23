@@ -170,7 +170,7 @@ function setNextButtonStatus() {
         $('#next > a').click(function(event) {
             event.preventDefault();
         });
-        $('#next').adddClass('blocked');
+        $('#next').addClass('blocked');
     } else {
         $('#next > a').unbind('click');
         $('#next').removeClass('blocked');

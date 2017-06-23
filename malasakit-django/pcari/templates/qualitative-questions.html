@@ -8,14 +8,20 @@
 
 {% block scripts %}
   <script>
-    const COMMENT_ID_PREFIX = 'comment-';
-
     $(document).ready(function() {
       $('input[type=text], textarea').each(function() {
-        if (this.id.startsWith(COMMENT_ID_PREFIX)) {
-          var commentID = this.id.substring(COMMENT_ID_PREFIX.length);
-          var path = ['comments', commentID];
-          bindValueStoreListener($(this), path);
+        var inputElement = $(this);
+        var questionID = inputElement.attr('question-id');
+        var path = ['comments', questionID];
+
+        inputElement.on('input', function() {
+          var text = inputElement.val().trim();
+          setResponseValue(path, text);
+        });
+
+        var comment = getResponseValue(path);
+        if (comment !== null) {
+          inputElement.val(comment);
         }
       });
     });

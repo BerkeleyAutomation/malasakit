@@ -5,6 +5,18 @@
 {% block title %}{% trans 'Peer Responses' %}{% endblock %}
 {% block main-heading %}{% trans 'Peer Responses' %}{% endblock %}
 
+{% block scripts %}
+  <script>
+    $(document).ready(function() {
+      var current = Resource.load('current');
+      current.data = null;
+      current.put();
+      pushCompletedResponses();
+      Resource.delete('selected-comments');
+    });
+  </script>
+{% endblock %}
+
 {% block content %}
   <ol>
     {% for question in questions %}

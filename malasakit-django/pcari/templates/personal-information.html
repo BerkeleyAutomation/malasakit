@@ -6,14 +6,24 @@
 {% block scripts %}
   <script>
     $(document).ready(function() {
-      bindValueStoreListener($('#age'), ['respondent-data', 'age'], parseInt);
-      bindValueStoreListener($('#gender'), ['respondent-data', 'gender']);
-      bindValueStoreListener($('#province'), ['respondent-data', 'province']);
-      bindValueStoreListener($('#barangay'), ['respondent-data', 'barangay']);
-      $('#next').click(function() {
-        editCurrentResponse(function(response) {
-          response['respondent-data']['submitted-personal-data'] = true;
+      function initializeField(inputElement, path, preprocess = x => x) {
+        inputElement.on('input', function() {
+          var value = preprocess($(this).val()) || null;
+          setResponseValue(path, value);
         });
+
+        var value = getResponseValue(path);
+        if (value !== null) {
+          inputElement.val(value);
+        }
+      }
+
+      initializeField($('#age'), ['respondent-data', 'age'], parseInt);
+      initializeField($('#gender'), ['respondent-data', 'gender']);
+      initializeField($('#province'), ['respondent-data', 'province']);
+      initializeField($('#barangay'), ['respondent-data', 'barangay']);
+      $('#next').on('click', function() {
+        setResponseValue(['respondent-data', 'submitted-personal-data'], true);
       });
     });
   </script>
