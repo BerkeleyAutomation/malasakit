@@ -18,6 +18,11 @@
 {% endblock %}
 
 {% block content %}
+  <p>
+    {% blocktrans %}
+      Below, you can see how the other respondents answered the quantitative questions.
+    {% endblocktrans %}
+  </p>
   <ol>
     {% for question in questions %}
       <li>
