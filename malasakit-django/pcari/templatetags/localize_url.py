@@ -33,7 +33,6 @@ def localize_url(url_example, language):
     if url_example.startswith(settings.URL_ROOT):
         url_root = posixpath.commonprefix([settings.URL_ROOT, url_example])
         assert url_root == settings.URL_ROOT
-        url_without_root = url_example[len(url_root):]
 
         relative_url = posixpath.relpath(url_example, url_root)
         components = relative_url.split('/')
