@@ -9,6 +9,7 @@ from . import views
 
 # pylint: disable=invalid-name
 app_name = 'pcari'
+
 urlpatterns = [
     # User-facing views
     url(r'^$', views.index, name='index'),
@@ -28,8 +29,9 @@ urlpatterns = [
         TemplateView.as_view(template_name='sw.js',
                              content_type='application/javascript'),
         name='sw.js'),
+]
 
-    # AJAX endpoints
+ajax_urlpatterns = [
     url(r'^fetch-comments/$', views.fetch_comments, name='fetch-comments'),
     url(r'^fetch-qualitative-questions/$', views.fetch_qualitative_questions,
         name='fetch-qualitative-questions'),

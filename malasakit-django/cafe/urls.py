@@ -1,4 +1,5 @@
-"""cafe URL Configuration
+"""
+cafe URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/1.9/topics/http/urls/
@@ -13,12 +14,15 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
+
 from django.conf.urls import include, url
 from django.conf.urls.i18n import i18n_patterns
 from django.contrib.auth import views as auth_views
 from django.contrib import admin
 
 from django.views.generic import TemplateView
+
+from pcari.urls import ajax_urlpatterns
 
 # pylint: disable=invalid-name
 urlpatterns = [
@@ -37,6 +41,9 @@ urlpatterns = [
 
     # Admin site
     url(r'^admin/', admin.site.urls),
+
+    # AJAX endpoints
+    url(r'^api/', include(ajax_urlpatterns)),
 ]
 
 # Translate all pcari urls
