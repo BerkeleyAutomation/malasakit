@@ -22,7 +22,6 @@ import numpy as np
 
 # Local modules and models
 from .models import Respondent
-from .models import LANGUAGES
 from .models import QuantitativeQuestion, QualitativeQuestion
 from .models import Comment, CommentRating, QuantitativeQuestionRating
 
@@ -377,12 +376,14 @@ def end(request):
 
 
 def handle_page_not_found(request):
+    """ Render a page for HTTP 404 errors (page not found). """
     context = {'heading': _('Page Not Found'),
                'message': _('The requested page does not appear to exist.')}
     return render(request, 'error.html', context)
 
 
 def handle_internal_server_error(request):
+    """ Render a page for HTTP 500 errors (internal server error). """
     context = {'heading': _('Internal Error'),
                'message': _('The server is currently experiencing some issues. '
                             'Please let the maintainers know immediately.')}
