@@ -372,7 +372,7 @@ class Comment(Response):
             message = self.message
             if len(message) > self.MAX_COMMENT_DISPLAY_LEN:
                 message = message[:self.MAX_COMMENT_DISPLAY_LEN] + ' ...'
-            return '"{0}"'.format(message)
+            return 'Comment {1}: "{0}"'.format(message, self.id)
         return '-- Empty response --'
 
     @property
@@ -484,7 +484,7 @@ class OptionQuestion(Question):
         self.options_as_json = json.dumps(list(options_list))
 
     def __unicode__(self):
-        return 'OptionQuestion {0}: "{1}"'.format(self.id, self.prompt)
+        return 'Option question {0}: "{1}"'.format(self.id, self.prompt)
 
 
 class OptionResponse(Response):
@@ -501,7 +501,7 @@ class OptionResponse(Response):
     option = models.TextField(blank=True)
 
     def __unicode__(self):
-        template = 'OptionResponse {0}: "{1}"'
+        template = 'Option response {0}: "{1}"'
         return template.format(self.question_id, self.option)
 
     class Meta:
