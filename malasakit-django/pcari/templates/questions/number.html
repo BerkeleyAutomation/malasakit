@@ -1,7 +1,7 @@
 {% load i18n %}
 
 <div class="container center">
-  <input class="quantitative-question-input" target-id="{{ id }}" type="number"
+  <input class="quantitative-input" target-id="{{ id }}" type="number"
          value="{{ min_score|default:'0' }}" step="{{ step|default:'1' }}"
          min="{{ min_score|default:'0' }}" max="{{ max_score|default:'9' }}">
 </div>

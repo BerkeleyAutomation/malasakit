@@ -4,7 +4,7 @@
 @import 'typography';
 
 @green: rgb(19, 184, 60);
-@yellow: rgb(195, 188, 29);
+@yellow: rgb(213, 205, 29);
 @red: rgb(226, 44, 44);
 @blue: rgb(63, 169, 228);
 @light-gray: rgb(240, 240, 240);
@@ -146,9 +146,6 @@ ul.button-group {
       color: white;
     }
     background-color: goldenrod;
-  }
-  &:disabled {
-    background-color: black;
   }
 }
 
@@ -346,4 +343,17 @@ input:checked + .slider:before {
 
 .slider.round:before {
   border-radius: 50%;
+}
+
+.nav-button.blocked {
+  background-color: darken(@light-gray, 10%);
+  cursor: not-allowed;
+  a {
+    cursor: not-allowed;
+    color: darken(@light-gray, 50%);
+  }
+}
+
+.no-tag {
+  color: #1371ad;
 }

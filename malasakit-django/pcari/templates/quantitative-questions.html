@@ -11,7 +11,7 @@
     const SKIPPED = -1, NOT_SCORED = -2;
 
     $(document).ready(function() {
-      $('input.quantitative-question-input').each(function() {
+      $('input.quantitative-input').each(function() {
         var inputElement = $(this);
         var questionID = inputElement.attr('target-id');
         var path = ['question-ratings', questionID];
@@ -43,7 +43,7 @@
         var path = ['question-ratings', questionID];
 
         function setStatus(disabled) {
-          var questionInput = 'input.quantitative-question-input[target-id='
+          var questionInput = 'input.quantitative-input[target-id='
                               + questionID + ']';
           toggleButton.prop('checked', disabled);
           $(questionInput).prop('disabled', disabled);

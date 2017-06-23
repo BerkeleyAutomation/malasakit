@@ -17,7 +17,8 @@ from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_GET, require_POST
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils import translation
+from django.utils.translation import ugettext_lazy as _, ugettext
 import numpy as np
 
 # Local modules and models
@@ -210,11 +211,19 @@ def fetch_qualitative_questions(request):
 
     Returns:
         A `JsonResponse` containing a JSON object mapping qualitative question
-        identifiers to prompts.
+        identifiers to objects that map language codes to translated prompts.
     """
     # pylint: disable=unused-argument
-    return JsonResponse({str(question.id): question.prompt for question in
-                         QualitativeQuestion.objects.all()})
+    def translate(text, language_code):
+        translation.activate(language_code)
+        return ugettext(text)
+
+    return JsonResponse({
+        str(question.id): {
+            code: translate(question.prompt, code)
+            for code, name in settings.LANGUAGES
+        } for question in QualitativeQuestion.objects.all()
+    })
 
 
 def make_question_ratings(respondent, responses):

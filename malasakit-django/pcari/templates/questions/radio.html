@@ -1,9 +1,9 @@
 {% load i18n %}
 
 <div class="container center">
-  <div target-id="{{ id }}" id="rating-{{ id }}">
+  <div target-id="{{ id }}">
     {% for option in options %}
-      <input type="radio" name="{{ id }}" value="{{ option }}"> {{ option }}<br>
+      <input type="radio" name="{{ option }}" value="{{ option }}"> {{ option }}<br>
     {% endfor %}
   </div>
 </div>
