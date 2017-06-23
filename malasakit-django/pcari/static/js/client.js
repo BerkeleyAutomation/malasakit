@@ -39,8 +39,14 @@ class Resource {
 
     static make(obj) {
         // Wrap a raw JavaScript object with the `Resource` class
-        return new Resource(obj.name, obj.timestamp, obj.lifetime,
-                            obj.endpoint, obj.timeout, obj.data);
+        var resource = new Resource(obj.name, obj.timestamp, obj.lifetime,
+                                    obj.endpoint, obj.timeout, obj.data);
+        for (var name in obj) {
+            if (resource[name] === undefined) {
+                resource[name] = obj[name];
+            }
+        }
+        return resource;
     }
 
     static load(name) {
@@ -126,7 +132,7 @@ class Resource {
         if (resource.endpoint !== undefined) {
             $.ajax(resource.endpoint, {
                 method: 'POST',
-                data: JSON.stringify(this),
+                data: JSON.stringify(this.data),
                 timeout: resource.timeout || DEFAULT_TIMEOUT,
                 success: function() {
                     console.log('Successfully pushed ' + resource.name);
@@ -215,9 +221,10 @@ function refreshResources() {
 function pushCompletedResponses() {
     var resourceNames = Resource.loadNames();
     var currentResponseName = Resource.load('current').data;
-    for (var name in resourceNames) {
+    for (var index in resourceNames) {
+        var name = resourceNames[index];
         if (isResponseName(name) && name !== currentResponseName) {
-            var response = localStorage.load(name);
+            var response = Resource.load(name);
             response.push();
         }
     }
@@ -264,6 +271,44 @@ function displayLocalStorageUsage(precision=3) {
         console.log(key + ': ' + usage.toFixed(precision) + ' kB');
     }
     console.log('Total: ' + total.toFixed(precision) + ' kB');
+}
+
+function selectCommentFromStandardError(comments) {
+    var cumulativeErrors = [0], commentIDs = [null];
+    for (var id in comments) {
+        var comment = comments[id];
+        var indexOfLast = cumulativeErrors.length - 1;
+        cumulativeErrors.push(cumulativeErrors[indexOfLast] + comment.sem);
+        commentIDs.push(id);
+    }
+
+    var totalError = cumulativeErrors[cumulativeErrors.length - 1];
+    var selectedPoint = totalError * Math.random();
+
+    for (var index = 1; index < cumulativeErrors.length; index++) {
+        if (cumulativeErrors[index - 1] <= selectedPoint
+                && selectedPoint < cumulativeErrors[index]) {
+            return commentIDs[index];
+        }
+    }
+}
+
+function selectComments(method) {
+    var selectedComments = new Resource('selected-comments');
+    if (!selectedComments.exists() && Resource.exists('comments')) {
+        selectedComments.data = {};
+        var comments = Resource.load('comments');
+        var numToSelect = Math.min(comments.default_sample_size,
+                                   Object.keys(comments.data).length);
+
+        for (var index = 0; index < numToSelect; index++) {
+            var commentID = method(comments.data);
+            selectedComments.data[commentID] = comments.data[commentID];
+            delete comments.data[commentID];
+        }
+
+        selectedComments.put();
+    }
 }
 
 function main() {
