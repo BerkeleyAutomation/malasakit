@@ -6,14 +6,40 @@
 {% block scripts %}
   <script>
     $(document).ready(function() {
-      bindValueStoreListener($('#age'), ['respondent-data', 'age'], parseInt);
-      bindValueStoreListener($('#gender'), ['respondent-data', 'gender']);
-      bindValueStoreListener($('#province'), ['respondent-data', 'province']);
-      bindValueStoreListener($('#barangay'), ['respondent-data', 'barangay']);
-      $('#next').click(function() {
-        editCurrentResponse(function(response) {
-          response['respondent-data']['submitted-personal-data'] = true;
+      displayNoCurrentRespondentError();
+
+      function initializeField(inputElement, path, preprocess = x => x) {
+        inputElement.on('input', function() {
+          var value = preprocess($(this).val()) || null;
+          setResponseValue(path, value);
         });
+
+        var value = getResponseValue(path);
+        if (value !== null) {
+          inputElement.val(value);
+        }
+      }
+
+      initializeField($('#age'), ['respondent-data', 'age'], parseInt);
+      initializeField($('#gender'), ['respondent-data', 'gender']);
+      initializeField($('#province'), ['respondent-data', 'province']);
+      initializeField($('#barangay'), ['respondent-data', 'barangay']);
+
+      setResponseValue(['respondent-data', 'submitted-personal-data'], true);
+
+      $('#next > a').on('click', function(event) {
+        event.preventDefault();
+        $('.modal').css('display', 'block');
+      });
+
+      $('#return').on('click', function() {
+        $('.modal').css('display', 'none');
+      });
+
+      $('#submit').on('click', function() {
+        setResponseValue(['respondent-data', 'completed-survey'], true);
+        var language = $('html').attr('lang') || DEFAULT_LANGUAGE;
+        redirect($('#next > a').attr('href'));
       });
     });
   </script>
@@ -23,13 +49,13 @@
 {% block main-heading %}{% trans 'Personal Information' %}{% endblock %}
 
 {% block content %}
-  <p id="privacy-notice">
+  <div class="container center">
     {% blocktrans trimmed %}
       All questions on this page are strictly optional.
       Your responses will be anonymous.
     {% endblocktrans %}
-  </p>
-  <table>
+  </div>
+  <table style="margin: 0 auto;">
     <tr>
       <td>{% trans 'Age' %}</td>
       <td><input id="age" type="number" min="1" max="120"></td>
@@ -57,10 +83,28 @@
     </tr>
     <tr>
       <td>{% trans 'Barangay' %}</td>
-      <td><input id="barangay"></td>
+      <td><input id="barangay" type="text"></td>
     </tr>
   </table>
-  <div id="next" class="nav-button">
-    <a href="{% url 'pcari:quantitative-questions' %}">{% trans 'Next' %}</a>
+  <div class="modal">
+    <div class="modal-container">
+      <p>
+        {% blocktrans trimmed %}
+          You are about to submit your response, and will no longer be able to edit your answers.
+          Do you wish to continue?
+        {% endblocktrans %}
+      </p>
+      <ul class="button-group">
+        <li>
+          <button id="submit">{% trans 'Yes' %}</button>
+        </li>
+        <li>
+          <button id="return">{% trans 'No' %}</button>
+        </li>
+      </ul>
+    </div>
   </div>
+  {% url 'pcari:qualitative-questions' as previous_link %}
+  {% url 'pcari:peer-responses' as next_link %}
+  {% include 'nav-buttons.html' %}
 {% endblock %}

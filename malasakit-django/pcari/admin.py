@@ -17,8 +17,6 @@ class HistoryAdmin(admin.ModelAdmin):
     """
     Abstract admin class that defines special behavior for `History` models.
     """
-    exclude = ('predecessor', )
-    # save_as = True
     save_as_continue = False
 
     def save_model(self, request, obj, form, change):
@@ -36,7 +34,7 @@ class HistoryAdmin(admin.ModelAdmin):
             field_names = [field.name for field in obj.get_direct_fields()]
             field_names.remove('active')
             return field_names
-        return self.readonly_fields
+        return self.readonly_fields + ('predecessor', )
 
 
 class ResponseAdmin(HistoryAdmin):

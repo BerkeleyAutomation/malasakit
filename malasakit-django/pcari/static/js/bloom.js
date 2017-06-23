@@ -9,7 +9,8 @@ const ICON_IMAGE = 'iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAABDklEQVR4nNXV
                  + 'AL9itXnhT7PbAbiKA4xmYVnTIO4wnCMuY6h5poJbXOMCpxo7o222cm5XweJ3DrfLko/f9QQjIeDj'
                  + 'GnOs41FjaUyGAKcZwDJm0BUS/P/zDqZIDzgtIDS2AAAAAElFTkSuQmCC';
 
-const NO_TAG = '(?)';
+const NO_TAG_PLACEHOLDER = '(?)';
+const MIN_REQUIRED_COMMENT_RATINGS = 2;
 
 function calculateBounds(comments) {
     var bounds = {
@@ -28,8 +29,10 @@ function calculateBounds(comments) {
     return bounds;
 }
 
+var bounds;
+
 function makeNodeData(comments, width, height) {
-    var bounds = calculateBounds(comments), nodeData = [];
+    var nodeData = [];
     for (var commentID in comments) {
         var comment = comments[commentID];
         var x = comment['pos'][0], y = comment['pos'][1], tag = comment['tag'];
@@ -38,7 +41,7 @@ function makeNodeData(comments, width, height) {
         nodeData.push({
             x: (x - bounds.left)/(bounds.right - bounds.left)*width,
             y: (y - bounds.bottom)/(bounds.top - bounds.bottom)*height,
-            tag: (tag !== null && tag.trim()) ? tag : NO_TAG,
+            tag: (tag !== null && tag.trim()) ? tag : NO_TAG_PLACEHOLDER,
             commentID: commentID,
         });
     }
@@ -66,37 +69,51 @@ function endDrag(node) {
     node.fy = null;
 }
 
+function resetBloom() {
+    $('.modal').css('display', 'none');
+    renderComments();
+    setNextButtonStatus();
+}
+
+// TODO: number input type for rating?
+
 function startCommentRating(commentID) {
-    console.log('User selected ' + commentID + ' to rate');
+    var qualitativeQuestions = Resource.load('qualitative-questions').data;
+    var comments = Resource.load('comments').data;
+
+    var promptTranslations = qualitativeQuestions[comments[commentID].qid];
+    var preferredLanguage = getResponseValue(['respondent-data', 'language']);
+    var translatedPrompt = promptTranslations[preferredLanguage];
+
+    var inputElement = $('input.quantitative-input[target-id=comment-rating]');
+
     $('.modal').css('display', 'block');
-    var qualitativeQuestions = JSON.parse(localStorage.getItem(QUALITATIVE_QUESTIONS_KEY));
-    var comments = JSON.parse(localStorage.getItem(COMMENTS_KEY));
-    if (qualitativeQuestions !== null && comments !== null) {
-        var prompt = qualitativeQuestions[comments[commentID]['qid']];
-        $('#comment-rating').val(0);
-        $('#prompt').text(prompt);
-        $('#comment').text(comments[commentID].msg);
-        var path = ['comment-ratings', commentID];
-        if (getResponseValue(path) === null) {
-            setResponseValue(path, [parseInt($('#comment-rating').val())]);
-        }
-        $('#comment-rating').unbind('change');
-        bindHistoryStoreListener($('#comment-rating'), path, parseInt);
-        $('#submit').on('click', function() {
-            $('.modal').css('display', 'none');
-            renderComments();
-            setNextButtonStatus();
-        });
-        $('#skip').unbind('click');
-        $('#skip').on('click', function() {
-            var history = getResponseValue(path);
-            history.push(-1);
-            setResponseValue(path, history);
-            $('.modal').css('display', 'none');
-            renderComments();
-            setNextButtonStatus();
-        });
+    $('#question-prompt').text(translatedPrompt);
+    $('#comment-message').text(comments[commentID].msg);
+
+    inputElement.val(0);
+    var path = ['comment-ratings', commentID];
+    if (getResponseValue(path) === null) {
+        setResponseValue(path, [parseInt(inputElement.val())]);
     }
+
+    inputElement.unbind('change');
+    inputElement.on('change', function() {
+        var history = getResponseValue(path);
+        history.push(parseInt(inputElement.val()));
+        console.log('Comment', commentID, 'history:', history);
+        setResponseValue(path, history);
+    });
+
+    $('#submit').on('click', resetBloom);
+
+    $('#skip').unbind('click');
+    $('#skip').on('click', function() {
+        var history = getResponseValue(path);
+        history.push(-1);
+        setResponseValue(path, history);
+        resetBloom();
+    });
 }
 
 var simulation;
@@ -111,7 +128,8 @@ function renderComments() {
     simulation = d3.forceSimulation().force('charge', d3.forceManyBody());
     bloom.selectAll('*').remove();
 
-    var selectedComments = JSON.parse(localStorage.getItem(SELECTED_COMMENTS_KEY)) || {};
+    var selectedComments = Resource.load('selected-comments').data || {};
+    bounds = calculateBounds(selectedComments);
     for (var commentID in selectedComments) {
         if (commentID in getResponseValue(['comment-ratings'])) {
             delete selectedComments[commentID];
@@ -142,19 +160,26 @@ function renderComments() {
 }
 
 function setNextButtonStatus() {
-    var disabled = Object.keys(getResponseValue(['comment-ratings'])).length < 2;
+    var comments = Resource.load('comments');
+    var numComments = Object.keys(comments.data).length;
+    var commentRatings = getResponseValue(['comment-ratings']);
+    var requiredRatings = Math.min(MIN_REQUIRED_COMMENT_RATINGS, numComments);
+    var disabled = Object.keys(commentRatings).length < requiredRatings;
+
     if (disabled) {
         $('#next > a').click(function(event) {
             event.preventDefault();
         });
+        $('#next').addClass('blocked');
     } else {
         $('#next > a').unbind('click');
+        $('#next').removeClass('blocked');
     }
 }
 
 $(document).ready(function() {
+    displayNoCurrentRespondentError();
     selectComments(selectCommentFromStandardError);
-    renderComments();
-    setNextButtonStatus();
+    resetBloom();
     $(window).resize(renderComments);
 });

@@ -12,17 +12,16 @@ const STATIC_ROOT = APP_ROOT + 'static/';
 const LANGUAGE_CODES = ['en', 'tl'];
 const VIEWS = [
     'landing/',
-    'personal-information/',
     'quantitative-questions/',
-    'response-histograms/',
     'rate-comments/',
     'qualitative-questions/',
+    'personal-information/',
+    'peer-responses/',
     'end/'
 ];
 
 const STATIC_RESOURCES = [
-    'css/quicksand-font.css',
-    'css/main.css',
+    'css/main.min.css',
     'js/jquery-3.2.1.min.js',
     'js/d3.v4.min.js',
     'js/client.js',

@@ -1,29 +1,19 @@
-/** client.js -- Response and comment storage and transmission
+/** client.js
  *
- *  Uses the `localStorage` API and AJAX calls to store comments and responses
- *  locally.
+ *  This script is based on ECMAScript 6, which may not be supported by all
+ *  browsers at the time of this writing. The optimal way to use this script is
+ *  to transpile it to ECMAScript 5 using something like `babel`, the NPM
+ *  package.
  */
 
-// TODO: refactor the API with less redundancy
+const DEFAULT_LANGUAGE = 'tl';
+const DEFAULT_TIMEOUT = 5000;
 
-const CURRENT_RESPONSE_KEY = 'current';
-const RESPONSE_KEY_PREFIX = 'user-';
-const CURRENT_RESPONSE_LIFETIME = 24*60*60*1000;
-const RESPONSE_PUSH_ENDPOINT = 'save-response/';
-const RESPONSE_PUSH_TIMEOUT = 5000;
+const APP_URL_ROOT = '';
+const API_URL_ROOT = APP_URL_ROOT + '/api';
+const RESPONSE_SAVE_ENDPOINT = API_URL_ROOT + '/save-response/';
 
-const COMMENTS_KEY = 'comments';
-const COMMENTS_TIMESTAMP_KEY = 'comments-timestamp';
-const COMMENTS_LIFETIME = 12*60*60*1000;
-const COMMENTS_FETCH_ENDPOINT = 'fetch-comments/';
-const COMMENTS_FETCH_TIMEOUT = 5000;
-const SELECTED_COMMENTS_KEY = 'selected-comments';
-const DEFAULT_NUM_COMMENTS_TO_SELECT = 8;
-
-const QUALITATIVE_QUESTIONS_KEY = 'qualitative-questions';
-const QUALITATIVE_QUESTIONS_FETCH_ENDPOINT = 'fetch-qualitative-questions/';
-const QUALITATIVE_QUESTIONS_FETCH_TIMEOUT = 5000;
-
+const RESPONSE_KEY_PREFIX = 'response-';
 const EMPTY_RESPONSE = {
     'question-ratings': {},
     'comments': {},
@@ -31,10 +21,240 @@ const EMPTY_RESPONSE = {
     'respondent-data': {},
 };
 
-const DEFAULT_LANGUAGE = 'tl';
+function displayError(message) {
+    var bannerMarkup = '<p class="error banner">' + message + '</p>';
+    $('header > .container').append(bannerMarkup);
+}
 
-function getCurrentLanguage() {
-    return $('html').attr('lang') || DEFAULT_LANGUAGE;
+function displayNoCurrentRespondentError() {
+    var current = Resource.load('current');
+    if (!isResponseName(current.data)) {
+        var language = $('html').attr('lang') || DEFAULT_LANGUAGE;
+        var landingURL = APP_URL_ROOT + '/' + language + '/landing';
+        displayError("It appears you're editing an old response, so your answers may not be saved. "
+                   + 'You should start a <a href="' + landingURL + '">new response</a>.');
+    }
+}
+
+function redirect(url) {
+    $(location).attr('href', url);
+}
+
+function getCurrentTimestamp() {
+    return new Date().getTime();
+}
+
+class Resource {
+    constructor(name, timestamp=null, lifetime=0, endpoint=null,
+                timeout=DEFAULT_TIMEOUT, data=null) {
+        this.name = name;
+        this.timestamp = timestamp;
+        // JSON cannot represent `Infinity`, so this is the sentinel value
+        // for the lifetime of a resource that does not expire
+        this.lifetime = lifetime === Infinity ? null : lifetime;
+        this.endpoint = endpoint;
+        this.timeout = timeout;
+        this.data = data;
+    }
+
+    static make(obj) {
+        // Wrap a raw JavaScript object with the `Resource` class
+        var resource = new Resource(obj.name, obj.timestamp, obj.lifetime,
+                                    obj.endpoint, obj.timeout, obj.data);
+        for (var name in obj) {
+            if (resource[name] === undefined) {
+                resource[name] = obj[name];
+            }
+        }
+        return resource;
+    }
+
+    static load(name) {
+        var rawResource = JSON.parse(localStorage.getItem(name));
+        return Resource.make(rawResource);
+    }
+
+    static loadNames() {
+        var names = [];
+        for (var index = 0; index < localStorage.length; index++) {
+            names.push(localStorage.key(index));
+        }
+        return names;
+    }
+
+    static exists(name) {
+        return localStorage.getItem(name) !== null;
+    }
+
+    static get(name) {
+        return JSON.parse(localStorage.getItem(name));
+    }
+
+    static put(name, resource) {
+        localStorage.setItem(name, JSON.stringify(resource));
+    }
+
+    static delete(name) {
+        localStorage.removeItem(name);
+    }
+
+    exists() {
+        return localStorage.getItem(this.name) !== null;
+    }
+
+    get() {
+        return Resource.load(this.name);
+    }
+
+    put() {
+        localStorage.setItem(this.name, JSON.stringify(this));
+    }
+
+    delete() {
+        localStorage.removeItem(this.name);
+    }
+
+    updateTimestamp() {
+        this.timestamp = getCurrentTimestamp();
+    }
+
+    get stale() {
+        if (this.timestamp === undefined) {
+            return true;
+        } else if (this.lifetime === null || !isFinite(this.lifetime)) {
+            return false;
+        }
+        var now = getCurrentTimestamp();
+        var timedelta = now - this.timestamp;
+        return timedelta > this.lifetime;
+    }
+
+    fetch() {
+        var resource = this;  // Alias to avoid conflicts in callbacks
+        if (resource.endpoint !== undefined) {
+            $.ajax(resource.endpoint, {
+                timeout: resource.timeout || DEFAULT_TIMEOUT,
+                success: function(data) {
+                    resource.data = data;
+                    resource.updateTimestamp();
+                    resource.put();
+                    console.log('Successfully fetched ' + resource.name);
+                },
+                failure: function() {
+                    console.log('Failed to fetch data for ' + resource.name);
+                },
+            });
+        }
+    }
+
+    push(deleteOnSuccess=true) {
+        var resource = this;  // Alias for callbacks
+        if (resource.endpoint !== undefined) {
+            $.ajax(resource.endpoint, {
+                method: 'POST',
+                data: JSON.stringify(this.data),
+                timeout: resource.timeout || DEFAULT_TIMEOUT,
+                success: function() {
+                    console.log('Successfully pushed ' + resource.name);
+                    if (deleteOnSuccess) {
+                        resource.delete();
+                    }
+                },
+                failure: function() {
+                    console.log('Failed to push data for ' + resource.name);
+                },
+            })
+        }
+    }
+}
+
+function initializeResources() {
+    var comments = new Resource('comments', null, 12*60*60*1000,
+                                API_URL_ROOT + '/fetch-comments/');
+    var qualitativeQuestions = new Resource('qualitative-questions', null, 0,
+                                            API_URL_ROOT + '/fetch-qualitative-questions/');
+    var current = new Resource('current', null, 12*60*60*1000);
+    var initialResources = [comments, qualitativeQuestions, current];
+
+    comments.default_sample_size = 8;
+    current.updateTimestamp();
+
+    for (var index in initialResources) {
+        var resource = initialResources[index];
+        if (!resource.exists()) {
+            resource.put();
+        } else {
+            initialResources[index] = Resource.load(resource.name);
+        }
+    }
+
+    return initialResources;
+}
+
+function isResponseName(resourceName) {
+    return resourceName !== null && resourceName.startsWith(RESPONSE_KEY_PREFIX);
+}
+
+function initializeNewResponse() {
+    var now = getCurrentTimestamp();
+    var responseKey = RESPONSE_KEY_PREFIX + now.toString();
+    var response = new Resource(responseKey, now, Infinity,
+                                API_URL_ROOT + '/save-response/',
+                                DEFAULT_TIMEOUT, EMPTY_RESPONSE);
+    response.put();
+
+    var current = Resource.load('current');
+    current.data = responseKey;
+    current.updateTimestamp();
+    current.put();
+}
+
+function recordCurrentLanguage() {
+    var language = $('html').attr('lang') || DEFAULT_LANGUAGE;
+    var current = Resource.load('current');
+    if (current.data !== null) {
+        var response = Resource.load(current.data);
+        response.data['respondent-data'].language = language;
+        response.put();
+    }
+}
+
+function refreshResources() {
+    var resourceNames = Resource.loadNames();
+    for (var index in resourceNames) {
+        var name = resourceNames[index];
+        if (!isResponseName(name)) {
+            var resource = Resource.load(name);
+            if (resource.stale && resource.endpoint !== undefined) {
+                resource.fetch();
+            }
+        }
+    }
+
+    var current = Resource.load('current');
+    if (current.stale) {
+        current.data = null;
+        current.put();
+    }
+}
+
+function postprocess(responseData) {
+    var barangay = responseData['respondent-data'].barangay || '(No barangay)';
+    var province = responseData['respondent-data'].province || '(No province)';
+    responseData['respondent-data'].location = province + ', ' + barangay;
+}
+
+function pushCompletedResponses() {
+    var resourceNames = Resource.loadNames();
+    var currentResponseName = Resource.load('current').data;
+    for (var index in resourceNames) {
+        var name = resourceNames[index];
+        if (isResponseName(name) && name !== currentResponseName) {
+            var response = Resource.load(name);
+            postprocess(response.data);
+            response.push();
+        }
+    }
 }
 
 function getCookie(name) {
@@ -66,271 +286,18 @@ function csrfSetup() {
         }
     });
     console.log('AJAX with CSRF token usage initialized');
- }
-
-function getCurrentTimestamp() {
-    return new Date().getTime();
 }
 
-function editLocalStorageJSON(key, callback) {
-    var unserializedObject = JSON.parse(localStorage.getItem(key));
-    unserializedObject = callback(unserializedObject);
-    if (unserializedObject !== null) {
-        localStorage.setItem(key, JSON.stringify(unserializedObject));
+function displayLocalStorageUsage(precision=3) {
+    var total = 0;
+    for (var index = 0; index < localStorage.length; index++) {
+        var key = localStorage.key(index);
+        var data = localStorage.getItem(key);
+        var usage = 2 * data.length / 1000;  // 2 bytes per char, in kB
+        total += usage;
+        console.log(key + ': ' + usage.toFixed(precision) + ' kB');
     }
-}
-
-function initializeNewResponse() {
-    var now = getCurrentTimestamp();
-    var key = RESPONSE_KEY_PREFIX + now.toString();
-    localStorage.setItem(CURRENT_RESPONSE_KEY, key);
-    localStorage.setItem(key, JSON.stringify(EMPTY_RESPONSE));
-}
-
-function pushResponse(responseKey) {
-    var response = localStorage.getItem(responseKey);
-    if (response !== null) {
-        $.ajax('/' + getCurrentLanguage() + '/' + RESPONSE_PUSH_ENDPOINT, {
-            method: 'POST',
-            timeout: RESPONSE_PUSH_TIMEOUT,
-            data: postprocess(response),
-            success: function() {
-                console.log('Successfully pushed data for ' + responseKey);
-                localStorage.removeItem(responseKey);
-            },
-            error: function() {
-                console.log('Could not push data for ' + responseKey);
-            },
-        });
-    }
-}
-
-function pushCompletedResponses() {
-    var currentResponseKey = localStorage.getItem(CURRENT_RESPONSE_KEY);
-    for (var key in localStorage) {
-        if (key.startsWith(RESPONSE_KEY_PREFIX) && key !== currentResponseKey) {
-            pushResponse(key);
-        }
-    }
-}
-
-function editCurrentResponse(callback) {
-    var currentResponseKey = localStorage.getItem(CURRENT_RESPONSE_KEY);
-    editLocalStorageJSON(currentResponseKey, function(response) {
-        if (response === null) {
-            return null;
-        }
-        callback(response);
-        return response;
-    });
-}
-
-function recordCurrentLanguage() {
-    editCurrentResponse(function(response) {
-        var language = getCurrentLanguage();
-        response['respondent-data']['language'] = language;
-        console.log('Set respondent language to "' + language + '"');
-    });
-}
-
-function getTimestampFromResponseKey(key) {
-    console.assert(key.startsWith(RESPONSE_KEY_PREFIX));
-    return new Date(parseInt(key.substring(RESPONSE_KEY_PREFIX.length)));
-}
-
-function invalidateCurrentResponseKey() {
-    delete localStorage[CURRENT_RESPONSE_KEY];
-    delete localStorage[SELECTED_COMMENTS_KEY];
-}
-
-function invalidateOldCurrentResponseKey() {
-    if (CURRENT_RESPONSE_KEY in localStorage) {
-        var currentResponseKey = localStorage.getItem(CURRENT_RESPONSE_KEY);
-        var now = getCurrentTimestamp();
-        var currentResponseTimestamp = getTimestampFromResponseKey(currentResponseKey);
-        if (now - currentResponseTimestamp > CURRENT_RESPONSE_LIFETIME) {
-            invalidateCurrentResponseKey();
-            console.log('Invalidated old current response key');
-        } else {
-            console.log('Current response key is still alive');
-        }
-    }
-}
-
-function commentsExpired() {
-    var now = getCurrentTimestamp();
-    var commentsTimestamp = parseInt(localStorage.getItem(COMMENTS_TIMESTAMP_KEY));
-    return now - commentsTimestamp > COMMENTS_LIFETIME;
-}
-
-function fetchComments() {
-    if (!(COMMENTS_KEY in localStorage) || commentsExpired()) {
-        $.ajax('/' + getCurrentLanguage() + '/' + COMMENTS_FETCH_ENDPOINT, {
-            timeout: COMMENTS_FETCH_TIMEOUT,
-            success: function(comments) {
-                var now = getCurrentTimestamp();
-                localStorage.setItem(COMMENTS_KEY, JSON.stringify(comments));
-                localStorage.setItem(COMMENTS_TIMESTAMP_KEY, now.toString());
-                console.log('Successfully fetched comments');
-            },
-            failure: function(comments) {
-                console.log('Failed to fetch comments');
-            }
-        });
-    } else {
-        console.log('Using cached comments');
-    }
-}
-
-function fetchQualitativeQuestions() {
-    $.ajax('/' + getCurrentLanguage() + '/' + QUALITATIVE_QUESTIONS_FETCH_ENDPOINT, {
-        timeout: QUALITATIVE_QUESTIONS_FETCH_TIMEOUT,
-        success: function(qualitativeQuestions) {
-            localStorage.setItem(QUALITATIVE_QUESTIONS_KEY,
-                                 JSON.stringify(qualitativeQuestions));
-            console.log('Successfully fetched qualitative questions');
-        },
-        failure: function(qualitativeQuestions) {
-            console.log('Failed to fetch qualitative questions');
-        }
-    });
-}
-
-/** Mid-level API */
-
-function followPath(response, path) {
-    for (var index in path) {
-        var component = path[index];
-        if (component in response) {
-            response = response[component];
-        } else {
-            return null;
-        }
-    }
-    return response;
-}
-
-function getPathRepr(path, separator = ' -> ') {
-    return '[' + path.join(separator) + ']'
-}
-
-function getResponseValue(path) {
-    var value = null;
-    editCurrentResponse(function(response) {
-        value = followPath(response, path);
-    });
-    return value;
-}
-
-function setResponseValue(path, value, verbose = true) {
-    editCurrentResponse(function(response) {
-        var last = path[path.length - 1];
-        var parent = followPath(response, path.slice(0, -1));
-        parent[last] = value;
-
-        if (verbose) {
-            console.log(getPathRepr(path) + ' of current response set to ' + value);
-        }
-    });
-}
-
-function deleteResponseValue(path, verbose = true) {
-    editCurrentResponse(function(response) {
-        var last = path[path.length - 1];
-        var parent = followPath(response, path.slice(0, -1));
-        delete parent[last];
-
-        if (verbose) {
-            console.log('Deleted ' + getPathRepr(path));
-        }
-    });
-}
-
-/** High-level API */
-
-function bindListener(element, eventName, callback) {
-    element.on(eventName, function() {
-        var value = $(this).val();
-        callback(value);
-    });
-}
-
-function makeValueStoreCallback(path, preprocess, verbose) {
-    console.assert(path.length > 1);
-    return function(value) {
-        value = value.trim();
-        if (value) {
-            setResponseValue(path, preprocess(value), verbose);
-        } else {
-            deleteResponseValue(path, verbose);
-        }
-    };
-}
-
-function makeHistoryStoreCallback(path, preprocess, verbose) {
-    console.assert(path.length > 1);
-    return function(value) {
-        value = value.trim();
-        var history = getResponseValue(path);
-        if (value) {
-            history.push(preprocess(value));
-        } else {
-            history.push(null);
-        }
-        setResponseValue(path, history);
-    }
-}
-
-function refillElementFromValue(element, path) {
-    var value = getResponseValue(path);
-    if (value !== null) {
-        element.val(value);
-    }
-}
-
-function refillElementFromHistory(element, path) {
-    var history = getResponseValue(path);
-    if (history !== null && history.length > 0) {
-        var last = history[history.length - 1];
-        if (last !== null) {
-            element.val(last);
-        }
-    }
-}
-
-function bindValueStoreListener(element, path, preprocess = x => x, verbose = true) {
-    bindListener(element, 'input', makeValueStoreCallback(path, preprocess, verbose));
-    refillElementFromValue(element, path);
-}
-
-function bindHistoryStoreListener(element, path, preprocess = x => x, verbose = true) {
-    bindListener(element, 'change', makeHistoryStoreCallback(path, preprocess, verbose));
-    refillElementFromHistory(element, path);
-}
-
-function postprocess(response) {
-    response = JSON.parse(response);
-    var respondentData = response['respondent-data'];
-    if (respondentData !== undefined) {
-        var barangay = respondentData['barangay'] || null;
-        var province = respondentData['province'] || null;
-
-        var location = null;
-        if (barangay !== null && province !== null) {
-            location = province + ', ' + barangay;
-        } else if (barangay !== null) {
-            location = barangay;
-        } else if (province !== null) {
-            location = province;
-        }
-
-        if (location !== null) {
-            respondentData['location'] = location;
-        }
-
-        respondentData['completed-survey'] = true;
-    }
-    return JSON.stringify(response);
+    console.log('Total: ' + total.toFixed(precision) + ' kB');
 }
 
 function selectCommentFromStandardError(comments) {
@@ -338,7 +305,7 @@ function selectCommentFromStandardError(comments) {
     for (var id in comments) {
         var comment = comments[id];
         var indexOfLast = cumulativeErrors.length - 1;
-        cumulativeErrors.push(cumulativeErrors[indexOfLast] + comment['sem']);
+        cumulativeErrors.push(cumulativeErrors[indexOfLast] + comment.sem);
         commentIDs.push(id);
     }
 
@@ -354,27 +321,59 @@ function selectCommentFromStandardError(comments) {
 }
 
 function selectComments(method) {
-    if (!(SELECTED_COMMENTS_KEY in localStorage) && COMMENTS_KEY in localStorage) {
-        var comments = JSON.parse(localStorage.getItem(COMMENTS_KEY));
+    var selectedComments = new Resource('selected-comments');
+    if (!selectedComments.exists() && Resource.exists('comments')) {
+        selectedComments.data = {};
+        var comments = Resource.load('comments');
+        var numToSelect = Math.min(comments.default_sample_size,
+                                   Object.keys(comments.data).length);
 
-        var selectedComments = {};
-        var numToSelect = Math.min(DEFAULT_NUM_COMMENTS_TO_SELECT,
-                                   Object.keys(comments).length);
         for (var index = 0; index < numToSelect; index++) {
-            var commentID = method(comments);
-            selectedComments[commentID] = comments[commentID];
-            delete comments[commentID];
+            var commentID = method(comments.data);
+            selectedComments.data[commentID] = comments.data[commentID];
+            delete comments.data[commentID];
         }
 
-        localStorage.setItem(SELECTED_COMMENTS_KEY, JSON.stringify(selectedComments));
+        selectedComments.put();
     }
 }
 
-$(document).ready(function() {
+function getNestedValue(obj, path) {
+    if (path.length === 0) {
+        return obj;
+    }
+    var first = path[0], rest = path.slice(1);
+    return first in obj ? getNestedValue(obj[first], rest) : null;
+}
+
+function setNestedValue(obj, path, value) {
+    if (path.length === 0) {
+        return value;
+    }
+    var first = path[0], rest = path.slice(1);
+    obj[first] = setNestedValue(obj[first] || {}, rest, value);
+    return obj;
+}
+
+function getResponseValue(path) {
+    var currentResponseName = Resource.load('current').data;
+    var response = Resource.load(currentResponseName);
+    return getNestedValue(response.data, path);
+}
+
+function setResponseValue(path, value) {
+    var currentResponseName = Resource.load('current').data;
+    var response = Resource.load(currentResponseName);
+    setNestedValue(response.data, path, value);
+    response.put();
+}
+
+function main() {
     csrfSetup();
+    initializeResources();
     recordCurrentLanguage();
-    invalidateOldCurrentResponseKey();
+    refreshResources();
     pushCompletedResponses();
-    fetchComments();
-    fetchQualitativeQuestions();
-});
+}
+
+$(document).ready(main);

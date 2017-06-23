@@ -22,12 +22,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'iiksdwha(f!g0!_=*#xcejemib2jvr(y#jfg%_gi+dmx#yizq+'
+SECRET_KEY = '<secret-key>'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', 'opinion.berkeley.edu']
 
 
 # Application definition
@@ -90,6 +90,12 @@ DATABASES = {
     }
 }
 
+if DEBUG and False:
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
 
@@ -108,7 +114,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-HTML_MINIFY = False
+HTML_MINIFY = not DEBUG
 
 LANGUAGES = (
     ('en', _('English')),
@@ -132,18 +138,9 @@ USE_L10N = True
 
 USE_TZ = True
 
-# CELERY STUFF
-BROKER_URL = 'redis://localhost:6379'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'
-CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'Africa/Nairobi'
+URL_ROOT = '/'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
-# STATIC_ROOT = os.path.join(PROJECT_ROOT, 'pcari')
-# STATIC_URL = '/static/'
-
-URL_ROOT = 'http://opinion.berkeley.edu'
-STATIC_URL = '/static/'
+STATIC_URL = os.path.join(URL_ROOT, '/static/')
+STATIC_ROOT = os.path.join(BASE_DIR, 'pcari', 'static')

@@ -97,3 +97,6 @@ ENV/
 
 # macOS file finder files
 *.DS_Store
+
+# Minified static assets
+*.min.*

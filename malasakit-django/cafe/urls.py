@@ -1,4 +1,5 @@
-"""cafe URL Configuration
+"""
+cafe URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/1.9/topics/http/urls/
@@ -13,12 +14,15 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
+
 from django.conf.urls import include, url
 from django.conf.urls.i18n import i18n_patterns
 from django.contrib.auth import views as auth_views
 from django.contrib import admin
 
 from django.views.generic import TemplateView
+
+from pcari.urls import ajax_urlpatterns
 
 # pylint: disable=invalid-name
 urlpatterns = [
@@ -27,7 +31,6 @@ urlpatterns = [
         TemplateView.as_view(template_name='sw.js',
                              content_type='application/javascript'),
         name='sw.js'),
-
 
     # Admin site password reset
     url(r'^admin/password_reset/', auth_views.password_reset, name='admin_password_reset'),
@@ -38,7 +41,14 @@ urlpatterns = [
 
     # Admin site
     url(r'^admin/', admin.site.urls),
+
+    # AJAX endpoints
+    url(r'^api/', include(ajax_urlpatterns)),
 ]
 
 # Translate all pcari urls
 urlpatterns += i18n_patterns(url(r'^', include('pcari.urls')))
+
+# Error handlers
+handler404 = 'pcari.views.handle_page_not_found'
+handler500 = 'pcari.views.handle_internal_server_error'

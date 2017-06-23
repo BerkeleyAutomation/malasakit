@@ -9,7 +9,8 @@ from .models import History
 @receiver(pre_delete)
 def resolve_history_on_deletion(**kwargs):
     """
-    Ensure that child instances do not have a dangling pointer.
+    Ensure that child instances of models that derive from `History` do not
+    have a dangling pointer.
     """
     sender, instance, using = kwargs['sender'], kwargs['instance'], kwargs['using']
     if issubclass(sender, History):
