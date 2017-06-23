@@ -17,6 +17,7 @@ from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_GET, require_POST
 from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _
 import numpy as np
 
 # Local modules and models
@@ -373,3 +374,16 @@ def personal_information(request):
 def end(request):
     """ Render an end-of-survey page. """
     return render(request, 'end.html')
+
+
+def handle_page_not_found(request):
+    context = {'heading': _('Page Not Found'),
+               'message': _('The requested page does not appear to exist.')}
+    return render(request, 'error.html', context)
+
+
+def handle_internal_server_error(request):
+    context = {'heading': _('Internal Error'),
+               'message': _('The server is currently experiencing some issues. '
+                            'Please let the maintainers know immediately.')}
+    return render(request, 'error.html', context)

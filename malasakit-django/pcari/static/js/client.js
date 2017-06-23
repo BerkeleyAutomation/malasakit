@@ -1,35 +1,10 @@
 /** client.js -- Response and comment storage and transmission
- *
- *  Uses the `localStorage` API and AJAX calls to store comments and responses
- *  locally.
  */
 
-// TODO: refactor the API with less redundancy
+/*
+const DEFAULT_TIMEOUT = 5000;
+const RESOURCE_MAP_NAME = 'resources';
 
-const CURRENT_RESPONSE_KEY = 'current';
-const RESPONSE_KEY_PREFIX = 'user-';
-const CURRENT_RESPONSE_LIFETIME = 24*60*60*1000;
-const RESPONSE_PUSH_ENDPOINT = 'save-response/';
-const RESPONSE_PUSH_TIMEOUT = 5000;
-
-const COMMENTS_KEY = 'comments';
-const COMMENTS_TIMESTAMP_KEY = 'comments-timestamp';
-const COMMENTS_LIFETIME = 12*60*60*1000;
-const COMMENTS_FETCH_ENDPOINT = 'fetch-comments/';
-const COMMENTS_FETCH_TIMEOUT = 5000;
-const SELECTED_COMMENTS_KEY = 'selected-comments';
-const DEFAULT_NUM_COMMENTS_TO_SELECT = 8;
-
-const QUALITATIVE_QUESTIONS_KEY = 'qualitative-questions';
-const QUALITATIVE_QUESTIONS_FETCH_ENDPOINT = 'fetch-qualitative-questions/';
-const QUALITATIVE_QUESTIONS_FETCH_TIMEOUT = 5000;
-
-const EMPTY_RESPONSE = {
-    'question-ratings': {},
-    'comments': {},
-    'comment-ratings': {},
-    'respondent-data': {},
-};
 
 const DEFAULT_LANGUAGE = 'tl';
 
@@ -65,9 +40,163 @@ function csrfSetup() {
             }
         }
     });
-    console.log('AJAX with CSRF token usage initialized');
- }
+}
 
+function currentTimestamp() {
+    return new Date().getTime();
+}
+
+class Resource {
+    constructor(name, start=null, lifetime=0) {
+        this.name = name;
+        this.start = start === null ? currentTimestamp() : start;
+        this.lifetime = lifetime === Infinity ? null : lifetime;
+    }
+
+    get stale() {
+        var now = currentTimestamp();
+        return now - this.start > this.lifetime;
+    }
+
+    pull() {
+        if (this.endpoint !== undefined) {
+            $.ajax(this.endpoint, {
+                timeout: this.timeout || DEFAULT_TIMEOUT,
+                success: function(data) {
+                    this.put(data);
+                },
+            });
+        }
+    }
+
+    get() {
+        return Resource.get(this.name);
+    }
+
+    put(value) {
+        Resource.put(this.name, value);
+    }
+
+    delete() {
+        Resource.delete(this.name);
+    }
+
+    exists() {
+        return Resource.exists(this.name);
+    }
+
+    static get(name) {
+        return JSON.parse(localStorage.getItem(name));
+    }
+
+    static put(name, value) {
+        localStorage.setItem(name, JSON.stringify(value));
+    }
+
+    static delete(name) {
+        localStorage.removeItem(name);
+    }
+
+    static exists(name) {
+        return Resource.get(name) !== null;
+    }
+}
+
+
+class ResourceMap {
+    static var
+}
+
+
+
+function initializeResourceMap(initialResources) {
+    var mapResource = new Resource(RESOURCE_MAP_NAME, lifetime=Infinity);
+    initialResources.push(resourceMapMeta);
+    if (!Resource.exists(RESOURCE_MAP_NAME)) {
+        var resourcesMap = {};
+        resources.forEach(function(resource) {
+            resourcesMap[resource.name] = resource;
+        });
+    }
+    mapResource.put(resourcesMap);
+}
+
+initializeResourceMap([
+    new Resource('current-response', lifetime=12*60*60*1000),
+    new Resource('comments', lifetime=12*60*60*1000),
+    new Resource('qualitative-questions', lifetime=60*1000),
+]);
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+const VERBOSE = true;
+
+function currentTimestamp() {
+    return new Date().getTime();
+}
+
+function initializeResource(name, value) {
+    localStorage.setValue
+}
+
+function isStale(resourceName) {
+    var now = currentTimestamp();
+    var lifetime = RESOURCES[resourceName].lifetime || 0;
+    return start - now > lifetime;
+}
+
+function initializeResponse() {
+    //
+}
+
+
+// TODO: refactor the API with less redundancy
+
+const CURRENT_RESPONSE_KEY = 'current';
+const RESPONSE_KEY_PREFIX = 'user-';
+const CURRENT_RESPONSE_LIFETIME = 24*60*60*1000;
+const RESPONSE_PUSH_ENDPOINT = '/pcari/save-response/';
+const RESPONSE_PUSH_TIMEOUT = 5000;
+
+const COMMENTS_KEY = 'comments';
+const COMMENTS_TIMESTAMP_KEY = 'comments-timestamp';
+const COMMENTS_LIFETIME = 12*60*60*1000;
+const COMMENTS_FETCH_ENDPOINT = '/pcari/fetch-comments/';
+const COMMENTS_FETCH_TIMEOUT = 5000;
+const SELECTED_COMMENTS_KEY = 'selected-comments';
+const DEFAULT_NUM_COMMENTS_TO_SELECT = 8;
+
+const QUALITATIVE_QUESTIONS_KEY = 'qualitative-questions';
+const QUALITATIVE_QUESTIONS_FETCH_ENDPOINT = '/pcari/fetch-qualitative-questions/';
+const QUALITATIVE_QUESTIONS_FETCH_TIMEOUT = 5000;
+
+const EMPTY_RESPONSE = {
+    'question-ratings': {},
+    'comments': {},
+    'comment-ratings': {},
+    'respondent-data': {},
+};
+
+ */
+
+
+/*
 function getCurrentTimestamp() {
     return new Date().getTime();
 }
@@ -196,7 +325,8 @@ function fetchQualitativeQuestions() {
     });
 }
 
-/** Mid-level API */
+
+
 
 function followPath(response, path) {
     for (var index in path) {
@@ -246,7 +376,8 @@ function deleteResponseValue(path, verbose = true) {
     });
 }
 
-/** High-level API */
+
+
 
 function bindListener(element, eventName, callback) {
     element.on(eventName, function() {
@@ -389,3 +520,4 @@ $(document).ready(function() {
     fetchComments();
     fetchQualitativeQuestions();
 });
+*/
