@@ -55,7 +55,7 @@ class ResponseSaveTestCase(TestCase):
         self.client = Client()
 
     def push(self, responses):
-        http_response = self.client.post(reverse('pcari:save-response'),
+        http_response = self.client.post(reverse('save-response'),
                                          data=json.dumps(responses),
                                          content_type='application/json')
         return http_response

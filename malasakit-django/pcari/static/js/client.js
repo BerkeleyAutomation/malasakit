@@ -7,8 +7,18 @@
  */
 
 const DEFAULT_LANGUAGE = 'tl';
+
 const API_URL_ROOT = '/api';
 const RESPONSE_SAVE_ENDPOINT = API_URL_ROOT + '/save-response/';
+
+const DEFAULT_TIMEOUT = 5000;
+
+const EMPTY_RESPONSE = {
+    'question-ratings': {},
+    'comments': {},
+    'comment-ratings': {},
+    'respondent-data': {},
+};
 
 function getCurrentTimestamp() {
     return new Date().getTime();
@@ -38,7 +48,7 @@ class Resource {
     }
 
     exists() {
-        return this.get() !== null;
+        return localStorage.getItem(this.name) !== null;
     }
 
     get() {
@@ -51,6 +61,10 @@ class Resource {
 
     delete() {
         localStorage.removeItem(this.name);
+    }
+
+    updateTimestamp() {
+        this.timestamp = getCurrentTimestamp();
     }
 }
 
@@ -65,17 +79,13 @@ class ResourceMap extends Resource {
         }
     }
 
-    register(resource) {
-        this.resources[resource.name] = resource;
-    }
-
-    registerNew(resource) {
-        if (!(resource.name in this.resources)) {
-            this.register(resource);
+    register(resource, initialOnly=false) {
+        if (!initialOnly || !(resource.name in this.resources)) {
+            this.resources[resource.name] = resource;
         }
     }
 
-    save() {
+    putAll() {
         this.put(this.resources);
     }
 }
@@ -84,19 +94,51 @@ const ASSETS_MAP = new ResourceMap('assets-map');
 const RESPONSE_STORAGE_MAP = new ResourceMap('response-storage-map');
 
 function initializeResourceMaps() {
-    ASSETS_MAP.registerNew(new Resource('comments', 12*60*60*1000, {
-        endpoint: API_URL_ROOT + '/fetch-comments/'
-    }));
-    ASSETS_MAP.registerNew(new Resource('qualitative-questions', 0, {
-        endpoint: API_URL_ROOT + '/fetch-qualitative-questions/'
-    }));
-    ASSETS_MAP.registerNew(new Resource('current', 12*60*60*1000));
-    ASSETS_MAP.save();
-    RESPONSE_STORAGE_MAP.save();
+    ASSETS_MAP.register(new Resource('comments', 12*60*60*1000, {
+        endpoint: API_URL_ROOT + '/fetch-comments/',
+        timeout: 5000,
+        default_num_to_sample: 8,
+    }), true);
+    ASSETS_MAP.register(new Resource('qualitative-questions', 0, {
+        endpoint: API_URL_ROOT + '/fetch-qualitative-questions/',
+        timeout: 5000,
+    }), true);
+    ASSETS_MAP.register(new Resource('current', 12*60*60*1000), true);
+    ASSETS_MAP.putAll();
+    RESPONSE_STORAGE_MAP.putAll();
+}
+
+function refreshAssetsMap() {
+    for (var name in ASSETS_MAP.resources) {
+        var resource = ASSETS_MAP.resources[name];
+        if (resource.stale || !resource.exists()) {
+            if (resource.url !== undefined) {
+                $.ajax(resource.url, {
+                    timeout: resource.timeout || DEFAULT_TIMEOUT,
+                    success: function(data) {
+                        resource.put(data);
+                        resource.updateTimestamp();
+                    },
+                    failure: function(data) {
+                        console.log('Failed to update resource');
+                    },
+                })
+            } else {
+                resource.delete();
+            }
+        }
+    }
+    ASSETS_MAP.putAll();
 }
 
 function initializeNewResponse() {
-    ASSETS_MAP.resources.current.put(getCurrentTimestamp());
+    var id = getCurrentTimestamp().toString();
+    ASSETS_MAP.resources.current.put(id);
+
+    var response = new Resource(id, Infinity);
+    response.put(EMPTY_RESPONSE);
+    RESPONSE_STORAGE_MAP.register(response);
+    RESPONSE_STORAGE_MAP.putAll();
 }
 
 function pushCompletedResponses() {
@@ -104,8 +146,10 @@ function pushCompletedResponses() {
     for (var id in RESPONSE_STORAGE_MAP.resources) {
         if (id !== currentID) {
             var responseResource = RESPONSE_STORAGE_MAP.resources[id];
-            $.ajax(ASSETS_MAP.resources['response-endpoint'].get(), {
+            $.ajax(RESPONSE_SAVE_ENDPOINT, {
+                method: 'POST',
                 data: responseResource.get(),
+                timeout: DEFAULT_TIMEOUT,
                 success: function() {
                     console.log(':: Successfully pushed data for ' + id);
                     responseResource.delete();
@@ -117,3 +161,54 @@ function pushCompletedResponses() {
         }
     }
 }
+
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function csrfSafeMethod(method) {
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+
+function csrfSetup() {
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                var csrftoken = getCookie('csrftoken');
+                xhr.setRequestHeader('X-CSRFToken', csrftoken);
+            }
+        }
+    });
+    console.log('AJAX with CSRF token usage initialized');
+}
+
+function displayLocalStorageUsage(precision=3) {
+    var total = 0;
+    for (var index = 0; index < localStorage.length; index++) {
+        var key = localStorage.key(index);
+        var data = localStorage.getItem(key);
+        var usage = 2 * data.length / 1000;  // 2 bytes per char, in kB
+        total += usage;
+        console.log(key + ': ' + usage.toFixed(precision) + ' kB');
+    }
+    console.log('Total: ' + total.toFixed(precision) + ' kB');
+}
+
+function main() {
+    csrfSetup();
+    initializeResourceMaps();
+    refreshAssetsMap();
+}
+
+$(document).ready(main);
