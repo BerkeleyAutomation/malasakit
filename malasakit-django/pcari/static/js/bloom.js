@@ -1,6 +1,8 @@
 /** bloom.js
  */
 
+/*
+
 // The Base64 representation of a PNG of `fa-comment` from Font Awesome
 const ICON_IMAGE = 'iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAABDklEQVR4nNXVzyqEURzG8c+8+Z/i'
                  + 'DmwkKymRspNbsLBxA27AzkLZyF7Kn4XsJEulRsMVuAHJhiZRUzKpGYuZt6bXyzDOSZ56luf7PefX'
@@ -162,3 +164,5 @@ $(document).ready(function() {
     setNextButtonStatus();
     $(window).resize(renderComments);
 });
+
+*/
