@@ -6,6 +6,8 @@
 {% block scripts %}
   <script>
     $(document).ready(function() {
+      displayNoCurrentRespondentError();
+
       function initializeField(inputElement, path, preprocess = x => x) {
         inputElement.on('input', function() {
           var value = preprocess($(this).val()) || null;

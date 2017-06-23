@@ -4,8 +4,8 @@
 @import 'typography';
 
 @green: rgb(19, 184, 60);
-@yellow: rgb(213, 205, 29);
-@red: rgb(226, 44, 44);
+@yellow: rgb(205, 210, 90);
+@red: rgb(217, 74, 74);
 @blue: rgb(63, 169, 228);
 @light-gray: rgb(240, 240, 240);
 
@@ -162,6 +162,12 @@ ul.button-group {
 .error {
   color: white;
   background-color: @red;
+  a {
+    color: #a8c0d5;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }
 
 img {
@@ -360,4 +366,11 @@ input:checked + .slider:before {
 
 td {
   padding: 0 0.4rem;
+}
+
+.banner {
+  box-sizing: border-box;
+  padding: 0.5rem;
+  border-radius: 0.2rem;
+  width: 100%;
 }

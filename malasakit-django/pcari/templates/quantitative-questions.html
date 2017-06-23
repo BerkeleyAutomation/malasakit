@@ -11,6 +11,8 @@
     const SKIPPED = -1, NOT_SCORED = -2;
 
     $(document).ready(function() {
+      displayNoCurrentRespondentError();
+
       $('input.quantitative-input').each(function() {
         var inputElement = $(this);
         var questionID = inputElement.attr('target-id');

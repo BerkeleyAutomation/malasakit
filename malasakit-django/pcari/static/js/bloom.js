@@ -178,6 +178,7 @@ function setNextButtonStatus() {
 }
 
 $(document).ready(function() {
+    displayNoCurrentRespondentError();
     selectComments(selectCommentFromStandardError);
     resetBloom();
     $(window).resize(renderComments);

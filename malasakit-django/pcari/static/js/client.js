@@ -21,6 +21,21 @@ const EMPTY_RESPONSE = {
     'respondent-data': {},
 };
 
+function displayError(message) {
+    var bannerMarkup = '<p class="error banner">' + message + '</p>';
+    $('header > .container').append(bannerMarkup);
+}
+
+function displayNoCurrentRespondentError() {
+    var current = Resource.load('current');
+    if (!isResponseName(current.data)) {
+        var language = $('html').attr('lang') || DEFAULT_LANGUAGE;
+        var landingURL = APP_URL_ROOT + '/' + language + '/landing';
+        displayError("It appears you're editing an old response, so your answers may not be saved. "
+                   + 'You should start a <a href="' + landingURL + '">new response</a>.');
+    }
+}
+
 function redirect(url) {
     $(location).attr('href', url);
 }
@@ -177,7 +192,7 @@ function initializeResources() {
 }
 
 function isResponseName(resourceName) {
-    return resourceName.startsWith(RESPONSE_KEY_PREFIX);
+    return resourceName !== null && resourceName.startsWith(RESPONSE_KEY_PREFIX);
 }
 
 function initializeNewResponse() {

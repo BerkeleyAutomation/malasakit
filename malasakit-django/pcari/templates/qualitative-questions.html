@@ -9,6 +9,8 @@
 {% block scripts %}
   <script>
     $(document).ready(function() {
+      displayNoCurrentRespondentError();
+
       $('input[type=text], textarea').each(function() {
         var inputElement = $(this);
         var questionID = inputElement.attr('question-id');
