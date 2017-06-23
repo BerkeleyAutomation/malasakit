@@ -7,12 +7,12 @@
  */
 
 const DEFAULT_LANGUAGE = 'tl';
+const DEFAULT_TIMEOUT = 5000;
 
 const API_URL_ROOT = '/api';
 const RESPONSE_SAVE_ENDPOINT = API_URL_ROOT + '/save-response/';
 
-const DEFAULT_TIMEOUT = 5000;
-
+const RESPONSE_KEY_PREFIX = 'response-';
 const EMPTY_RESPONSE = {
     'question-ratings': {},
     'comments': {},
@@ -25,26 +25,51 @@ function getCurrentTimestamp() {
 }
 
 class Resource {
-    constructor(name, lifetime=0, other={}) {
+    constructor(name, timestamp=null, lifetime=0, endpoint=null,
+                timeout=DEFAULT_TIMEOUT, data=null) {
         this.name = name;
+        this.timestamp = timestamp;
         // JSON cannot represent `Infinity`, so this is the sentinel value
         // for the lifetime of a resource that does not expire
         this.lifetime = lifetime === Infinity ? null : lifetime;
-
-        for (var key in other) {
-            if (!(key in this)) {
-                this[key] = other[key];
-            }
-        }
+        this.endpoint = endpoint;
+        this.timeout = timeout;
+        this.data = data;
     }
 
-    get stale() {
-        if (this.timestamp !== undefined && this.lifetime !== null) {
-            var now = getCurrentTimestamp();
-            var timedelta = now - this.timestamp;
-            return timedelta > this.lifetime;
+    static make(obj) {
+        // Wrap a raw JavaScript object with the `Resource` class
+        return new Resource(obj.name, obj.timestamp, obj.lifetime,
+                            obj.endpoint, obj.timeout, obj.data);
+    }
+
+    static load(name) {
+        var rawResource = JSON.parse(localStorage.getItem(name));
+        return Resource.make(rawResource);
+    }
+
+    static loadNames() {
+        var names = [];
+        for (var index = 0; index < localStorage.length; index++) {
+            names.push(localStorage.key(index));
         }
-        return false;
+        return names;
+    }
+
+    static exists(name) {
+        return localStorage.getItem(name) !== null;
+    }
+
+    static get(name) {
+        return JSON.parse(localStorage.getItem(name));
+    }
+
+    static put(name, resource) {
+        localStorage.setItem(name, JSON.stringify(resource));
+    }
+
+    static delete(name) {
+        localStorage.removeItem(name);
     }
 
     exists() {
@@ -52,11 +77,11 @@ class Resource {
     }
 
     get() {
-        return JSON.parse(localStorage.getItem(this.name));
+        return Resource.load(this.name);
     }
 
-    put(value) {
-        localStorage.setItem(this.name, JSON.stringify(value));
+    put() {
+        localStorage.setItem(this.name, JSON.stringify(this));
     }
 
     delete() {
@@ -67,14 +92,26 @@ class Resource {
         this.timestamp = getCurrentTimestamp();
     }
 
+    get stale() {
+        if (this.timestamp === undefined) {
+            return true;
+        } else if (this.lifetime === null || !isFinite(this.lifetime)) {
+            return false;
+        }
+        var now = getCurrentTimestamp();
+        var timedelta = now - this.timestamp;
+        return timedelta > this.lifetime;
+    }
+
     fetch() {
         var resource = this;  // Alias to avoid conflicts in callbacks
         if (resource.endpoint !== undefined) {
             $.ajax(resource.endpoint, {
                 timeout: resource.timeout || DEFAULT_TIMEOUT,
                 success: function(data) {
-                    resource.put(data);
+                    resource.data = data;
                     resource.updateTimestamp();
+                    resource.put();
                     console.log('Successfully fetched ' + resource.name);
                 },
                 failure: function() {
@@ -83,100 +120,105 @@ class Resource {
             });
         }
     }
+
+    push(deleteOnSuccess=true) {
+        var resource = this;  // Alias for callbacks
+        if (resource.endpoint !== undefined) {
+            $.ajax(resource.endpoint, {
+                method: 'POST',
+                data: JSON.stringify(this),
+                timeout: resource.timeout || DEFAULT_TIMEOUT,
+                success: function() {
+                    console.log('Successfully pushed ' + resource.name);
+                    if (deleteOnSuccess) {
+                        resource.delete();
+                    }
+                },
+                failure: function() {
+                    console.log('Failed to push data for ' + resource.name);
+                },
+            })
+        }
+    }
 }
 
-class ResourceMap extends Resource {
-    constructor(name, lifetime=Infinity) {
-        super(name, lifetime);
-        this.resources = this.get() || {};
-        for (var name in this.resources) {
-            var skeleton = this.resources[name];
-            this.resources[name] = new Resource(skeleton.name,
-                                                skeleton.lifetime, skeleton);
+function initializeResources() {
+    var comments = new Resource('comments', null, 12*60*60*1000,
+                                API_URL_ROOT + '/fetch-comments/');
+    var qualitativeQuestions = new Resource('qualitative-questions', null, 0,
+                                            API_URL_ROOT + '/fetch-qualitative-questions/');
+    var current = new Resource('current', null, 12*60*60*1000);
+    var initialResources = [comments, qualitativeQuestions, current];
+
+    comments.default_sample_size = 8;
+    current.updateTimestamp();
+
+    for (var index in initialResources) {
+        var resource = initialResources[index];
+        if (!resource.exists()) {
+            resource.put();
+        } else {
+            initialResources[index] = Resource.load(resource.name);
         }
     }
 
-    register(resource, initialOnly=false) {
-        if (!initialOnly || !(resource.name in this.resources)) {
-            this.resources[resource.name] = resource;
-        }
-    }
-
-    putAll() {
-        this.put(this.resources);
-    }
+    return initialResources;
 }
 
-const ASSETS_MAP = new ResourceMap('assets-map');
-const RESPONSE_STORAGE_MAP = new ResourceMap('response-storage-map');
+function isResponseName(resourceName) {
+    return resourceName.startsWith(RESPONSE_KEY_PREFIX);
+}
 
-function initializeResourceMaps() {
-    ASSETS_MAP.register(new Resource('comments', 12*60*60*1000, {
-        endpoint: API_URL_ROOT + '/fetch-comments/',
-        timeout: 5000,
-        default_num_to_sample: 8,
-    }), true);
-    ASSETS_MAP.register(new Resource('qualitative-questions', 0, {
-        endpoint: API_URL_ROOT + '/fetch-qualitative-questions/',
-        timeout: 5000,
-    }), true);
-    ASSETS_MAP.register(new Resource('current', 12*60*60*1000), true);
-    ASSETS_MAP.putAll();
-    RESPONSE_STORAGE_MAP.putAll();
+function initializeNewResponse() {
+    var now = getCurrentTimestamp();
+    var responseKey = RESPONSE_KEY_PREFIX + now.toString();
+    var response = new Resource(responseKey, now, Infinity,
+                                API_URL_ROOT + '/save-response/',
+                                DEFAULT_TIMEOUT, EMPTY_RESPONSE);
+    response.put();
+
+    var current = Resource.load('current');
+    current.data = responseKey;
+    current.updateTimestamp();
+    current.put();
 }
 
 function recordCurrentLanguage() {
     var language = $('html').attr('lang') || DEFAULT_LANGUAGE;
-    var currentID = ASSETS_MAP.resources.current.get();
-    if (currentID !== null) {
-        var resource = RESPONSE_STORAGE_MAP.resources[currentID];
-        var response = resource.get();
-        response['respondent-data'].language = language;
-        resource.put(response);
+    var current = Resource.load('current');
+    if (current.data !== null) {
+        var response = Resource.load(current.data);
+        response.data['respondent-data'].language = language;
+        response.put();
     }
 }
 
-function refreshAssets() {
-    for (var name in ASSETS_MAP.resources) {
-        var resource = ASSETS_MAP.resources[name];
-        if (resource.stale || !resource.exists()) {
-            if (resource.endpoint !== undefined) {
+function refreshResources() {
+    var resourceNames = Resource.loadNames();
+    for (var index in resourceNames) {
+        var name = resourceNames[index];
+        if (!isResponseName(name)) {
+            var resource = Resource.load(name);
+            if (resource.stale && resource.endpoint !== undefined) {
                 resource.fetch();
-            } else {
-                resource.delete();
             }
         }
     }
-    ASSETS_MAP.putAll();
-}
 
-function initializeNewResponse() {
-    var id = getCurrentTimestamp().toString();
-    ASSETS_MAP.resources.current.put(id);
-
-    var response = new Resource(id, Infinity);
-    response.put(EMPTY_RESPONSE);
-    RESPONSE_STORAGE_MAP.register(response);
-    RESPONSE_STORAGE_MAP.putAll();
+    var current = Resource.load('current');
+    if (current.stale) {
+        current.data = null;
+        current.put();
+    }
 }
 
 function pushCompletedResponses() {
-    var currentID = ASSETS_MAP.resources.current.get();
-    for (var id in RESPONSE_STORAGE_MAP.resources) {
-        if (id !== currentID) {
-            var responseResource = RESPONSE_STORAGE_MAP.resources[id];
-            $.ajax(RESPONSE_SAVE_ENDPOINT, {
-                method: 'POST',
-                data: JSON.stringify(responseResource.get()),
-                timeout: DEFAULT_TIMEOUT,
-                success: function() {
-                    console.log(':: Successfully pushed data for ' + id);
-                    responseResource.delete();
-                },
-                failure: function() {
-                    console.log(':: Failed to push data for ' + id);
-                },
-            });
+    var resourceNames = Resource.loadNames();
+    var currentResponseName = Resource.load('current').data;
+    for (var name in resourceNames) {
+        if (isResponseName(name) && name !== currentResponseName) {
+            var response = localStorage.load(name);
+            response.push();
         }
     }
 }
@@ -226,9 +268,9 @@ function displayLocalStorageUsage(precision=3) {
 
 function main() {
     csrfSetup();
-    initializeResourceMaps();
+    initializeResources();
     recordCurrentLanguage();
-    refreshAssets();
+    refreshResources();
     pushCompletedResponses();
 }
 

@@ -8,39 +8,6 @@
 
 {% block scripts %}
   <script>
-    const RATING_ID_PREFIX = 'rating-';
-
-    $(document).ready(function() {
-      $('input[type=range], input[type=number]').each(function() {
-        if (this.id.startsWith(RATING_ID_PREFIX)) {
-          var questionID = this.id.substring(RATING_ID_PREFIX.length);
-          var path = ['question-ratings', questionID];
-          if (getResponseValue(path) === null) {
-            setResponseValue(path, [parseInt($(this).val())]);
-          }
-          bindHistoryStoreListener($(this), path, parseInt);
-        }
-      });
-      $('button.skip').each(function() {
-        $(this).click(function() {
-          var sliderID = '#' + RATING_ID_PREFIX + this.id;
-          var disabled = $(sliderID).prop('disabled');
-          var path = ['question-ratings', this.id];
-          var history = getResponseValue(path);
-          if (!disabled) {
-            history.push(-1);
-            $(this).text('Answer Question');
-            $(this).css('background-color', '#1dc752');
-          } else {
-            history.push(history[history.length - 2]);
-            $(this).text('Skip Question');
-            $(this).css('background-color', 'rgb(63, 169, 228)');
-          }
-          setResponseValue(path, history);
-          $('#' + RATING_ID_PREFIX + this.id).prop('disabled', !disabled);
-        });
-      });
-    });
   </script>
 {% endblock %}
 
