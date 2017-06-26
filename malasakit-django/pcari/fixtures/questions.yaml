@@ -4,6 +4,12 @@
     prompt: What number am I thinking of?
     tag: test-quant-question
 
+- model: pcari.quantitativequestion
+  pk: 2
+  fields:
+    prompt: How old is my dog?
+    tag: test-quant-question
+
 - model: pcari.qualitativequestion
   pk: 1
   fields:
