@@ -138,9 +138,9 @@ USE_L10N = True
 
 USE_TZ = True
 
-URL_ROOT = '/'  # Change to `/pcari/` in production
+URL_ROOT = '/' if DEBUG else '/pcari/'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
-STATIC_URL = os.path.join(URL_ROOT, '/static/')
+STATIC_URL = os.path.join(URL_ROOT, 'static/')
