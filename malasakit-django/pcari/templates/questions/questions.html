@@ -1,0 +1,23 @@
+{% load i18n %}
+
+{% if type == 'range' %}
+  {% with left_text=question.left_text right_text=question.right_text %}
+    {% include 'questions/range.html' %}
+  {% endwith %}
+
+{% elif type == 'number' %}
+  {% with left_text=question.left_text right_text=question.right_text %}
+    {% include 'questions/number.html' %}
+  {% endwith %}
+
+{% elif type == 'select' %}
+  {% with options=question.options %}
+    {% include 'questions/select.html' %}
+  {% endwith %}
+
+{% elif ype == 'radio' %}
+  {% with options=question.options %}
+    {% include 'questions/radio.html' %}
+  {% endwith %}
+
+{% endif %}

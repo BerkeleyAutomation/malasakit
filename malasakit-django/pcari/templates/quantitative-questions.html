@@ -8,32 +8,88 @@
 
 {% block scripts %}
   <script>
-    const RATING_ID_PREFIX = 'rating-';
+    const SKIPPED = -1, NOT_SCORED = -2;
 
     $(document).ready(function() {
-      $('input[type=range], input[type=number]').each(function() {
-        if (this.id.startsWith(RATING_ID_PREFIX)) {
-          var questionID = this.id.substring(RATING_ID_PREFIX.length);
-          var path = ['question-ratings', questionID];
-          if (getResponseValue(path) === null) {
-            setResponseValue(path, [parseInt($(this).val())]);
-          }
-          bindHistoryStoreListener($(this), path, parseInt);
+      displayNoCurrentRespondentError();
+
+      $('input.quantitative-input').each(function() {
+        var inputElement = $(this);
+        var questionID = inputElement.attr('target-id');
+        var path = ['question-ratings', questionID];
+
+        function getValue() {
+          var value = parseInt(inputElement.val());
+          return isNaN(value) ? NOT_SCORED : value;
         }
+
+        if (getResponseValue(path) === null) {
+          setResponseValue(path, [getValue()]);
+        } else {
+          var history = getResponseValue(path);
+          var lastScore = history[history.length - 1];
+          inputElement.val(lastScore === -2 ? '' : lastScore.toString());
+        }
+
+        inputElement.on('change', function() {
+          var history = getResponseValue(path);
+          history.push(getValue());
+          console.log('Quantitative question', questionID, 'history:', history);
+          setResponseValue(path, history);
+        });
+      });
+
+      $('input.skip').each(function() {
+        var toggleButton = $(this);
+        var questionID = toggleButton.attr('target-id');
+        var path = ['question-ratings', questionID];
+
+        function setStatus(disabled) {
+          var questionInput = 'input.quantitative-input[target-id='
+                              + questionID + ']';
+          toggleButton.prop('checked', disabled);
+          $(questionInput).prop('disabled', disabled);
+        }
+
+        toggleButton.on('change', function() {
+          var disabled = toggleButton.prop('checked');
+          setStatus(disabled);
+
+          var history = getResponseValue(path);
+          if (disabled) {
+            history.push(SKIPPED);
+            setResponseValue(path, history);
+          } else {
+            history.push(history[history.length - 2]);  // second to last
+            setResponseValue(path, history);
+          }
+        });
+
+        var history = getResponseValue(path);
+        setStatus(history[history.length - 1] === SKIPPED);
       });
     });
   </script>
 {% endblock %}
 
 {% block content %}
-  <ol>
+  <ol id="quantitative-questions">
     {% for question in questions %}
       <li>
-        {% include 'rating-slider.html' with question=question %}
+        <p class="prompt">{% trans question.prompt %}</p>
+        {% with type=question.input_type id=question.id %}
+          {% include 'questions/questions.html' %}
+        {% endwith %}
+        <ul class="button-group">
+          <label class="switch">
+            <input type="checkbox" class="skip" target-id="{{ question.id }}">
+            <div class="slider round"></div>
+          </label>
+          <p>Skip Question</p>
+        </ul>
       </li>
     {% endfor %}
   </ol>
-  <div class="nav-button">
-    <a href="{% url 'pcari:response-histograms' %}">{% trans 'Next' %}</a>
-  </div>
+  {% url 'pcari:rate-comments' as next_link %}
+  {% include 'nav-buttons.html' %}
 {% endblock %}

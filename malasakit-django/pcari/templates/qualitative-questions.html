@@ -8,14 +8,22 @@
 
 {% block scripts %}
   <script>
-    const COMMENT_ID_PREFIX = 'comment-';
-
     $(document).ready(function() {
+      displayNoCurrentRespondentError();
+
       $('input[type=text], textarea').each(function() {
-        if (this.id.startsWith(COMMENT_ID_PREFIX)) {
-          var commentID = this.id.substring(COMMENT_ID_PREFIX.length);
-          var path = ['comments', commentID];
-          bindValueStoreListener($(this), path);
+        var inputElement = $(this);
+        var questionID = inputElement.attr('question-id');
+        var path = ['comments', questionID];
+
+        inputElement.on('input', function() {
+          var text = inputElement.val().trim();
+          setResponseValue(path, text);
+        });
+
+        var comment = getResponseValue(path);
+        if (comment !== null) {
+          inputElement.val(comment);
         }
       });
     });
@@ -23,15 +31,17 @@
 {% endblock %}
 
 {% block content %}
-  <ol>
-    {% for qid, prompt in questions %}
+  <ol id="qualitative-questions">
+    {% for question in questions %}
       <li>
-        <p class="prompt">{{ prompt }}</p>
-        <textarea id="comment-{{ qid }}" class="comment"></textarea>
+        <p class="prompt">{{ question.prompt }}</p>
+        <div class="container">
+          <textarea question-id="{{ question.id }}" class="comment"></textarea>
+        </div>
       </li>
     {% endfor %}
   </ol>
-  <div class="nav-button">
-    <a href="{% url 'pcari:end' %}">{% trans 'Next' %}</a>
-  </div>
+  {% url 'pcari:rate-comments' as previous_link %}
+  {% url 'pcari:personal-information' as next_link %}
+  {% include 'nav-buttons.html' %}
 {% endblock %}
