@@ -1,3 +1,7 @@
+"""
+This module defines unit tests.
+"""
+
 from __future__ import unicode_literals
 import json
 import random
@@ -46,6 +50,29 @@ class UserFeedbackTestCase(TestCase):
     def test_comment_word_count(self):
         self.assertEqual(Comment.objects.get(id=1).word_count, 1)
         self.assertEqual(Comment.objects.get(id=2).word_count, 2)
+
+
+class ResourceFetchTestCase(TestCase):
+    def setUp(self):
+        self.client = Client()
+
+        # TODO: mock up qualitative question instances
+
+    def test_fetch_qualitative_questions(self):
+        response = self.client.get(reverse('fetch-qualitative-questions'))
+        data = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(isinstance(data, dict))
+
+        for key in data:
+            question_id = int(key)
+            translated_prompts = data[key]
+            self.assertTrue(isinstance(translated_prompts, dict))
+            question = QualitativeQuestion.objects.get(id=question_id)
+
+    def test_fetch_comments(self):
+        pass
 
 
 class ResponseSaveTestCase(TestCase):
@@ -111,3 +138,11 @@ class ResponseSaveTestCase(TestCase):
         self.assertEqual(http_response.status_code, 400)
         self.assertEqual(QuantitativeQuestionRating.objects.count(), 0)
         self.assertEqual(Respondent.objects.count(), 0)
+
+
+class PageMarkupTestCase(TestCase):
+    """ This test inspects all HTML served to the client. """
+    def setUp(self):
+        self.client = Client()
+
+    # TODO: use `bs4` to parse pages
