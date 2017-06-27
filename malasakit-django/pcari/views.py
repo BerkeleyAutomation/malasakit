@@ -3,6 +3,7 @@ This module defines the application's views, which are needed to render pages.
 """
 
 # Standard library
+from __future__ import unicode_literals
 import datetime
 import logging
 import json
@@ -22,6 +23,7 @@ from django.urls import reverse
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _, ugettext
 import numpy as np
+import unicodecsv as csv
 
 # Local modules and models
 from .models import Respondent
@@ -347,8 +349,23 @@ def save_response(request):
     return HttpResponse()
 
 
-def export_csv(response, model):
-    pass
+def export_csv(stream, queryset):
+    concrete_fields = [
+        field for field in queryset.model._meta.get_fields()
+        if field.concrete and (
+            not field.is_relation or field.one_to_one or
+            field.many_to_one and field.related_model
+        )
+    ]
+    field_names = [unicode(field.get_attname()) for field in concrete_fields]
+
+    writer = csv.writer(stream, encoding='utf-8')
+    writer.writerow(field_names)
+
+    for instance in queryset.iterator():
+        row = [getattr(instance, field_name) for field_name in field_names]
+        row = [unicode(cell) if cell is not None else '' for cell in row]
+        writer.writerow(row)
 
 
 def generate_export_filename(model_name, data_format):
@@ -367,6 +384,11 @@ def export_data(request):
                    parameter.
             data_format: The name of the data format (default: csv). Supported
                          options are: csv.
+            active-only: A boolean indicating whether to export active
+                         instances only (default: true). See the `History`
+                         model for more information.
+            keys: A comma-separated list of primary keys (default: select all
+                  instances).
 
     Returns:
         An `HttpResponse` that contains a file.
@@ -375,9 +397,8 @@ def export_data(request):
     export_functions = {
         'csv': export_csv,
     }
-
     try:
-        export_function = export_functions[data_format]
+        export = export_functions[data_format]
     except KeyError:
         return HttpResponseBadRequest('no such data format')
 
@@ -386,12 +407,22 @@ def export_data(request):
         model = MODELS[model_name]
     except KeyError:
         return HttpResponseBadRequest('no such model')
+    queryset = model.objects
+
+    active_only = request.GET.get('active-only', 'true') == 'true'
+    if active_only:
+        queryset = queryset.filter(active=True)
+
+    primary_keys = request.GET.get('keys', None)
+    if primary_keys is not None:
+        primary_keys = list(map(int, primary_keys.split(',')))
+        queryset = queryset.filter(pk__in=primary_keys)
 
     filename = generate_export_filename(model_name, data_format)
     content_type, _ = mimetypes.guess_type(filename)
     response = HttpResponse(content_type=content_type)
     response['Content-Disposition'] = 'attachment; filename="{0}"'.format(filename)
-    export_function(response, model)
+    export(response, queryset)
     return response
 
 

@@ -12,6 +12,21 @@ from .models import History
 
 admin.site.site_header = admin.site.site_title = 'Malasakit'
 
+"""
+default_admin_register = admin.register
+def register_wrapper(model):
+    def register_wrapper_inner(admin):
+        def export_as_csv(self, request, queryset):
+            pass
+
+        admin.export_as_csv = export_as_csv
+        admin.actions += ('export_as_csv', )
+        return default_admin_register()
+    return register_wrapper_inner
+
+admin.register = register_wrapper
+"""
+
 
 class HistoryAdmin(admin.ModelAdmin):
     """
@@ -101,15 +116,19 @@ class CommentAdmin(ResponseAdmin):
     # Enables search
     search_fields = ('message', 'tag')
 
-    actions = ['flag_comments', 'unflag_comments']
+    actions = ('flag_comments', 'unflag_comments')
 
     def flag_comments(self, request, queryset):
         num_flagged = queryset.update(flagged=True)
-        self.message_user(request, '{0} comments successfully flagged.'.format(num_flagged))
+        message = '{0} comment{1} successfully flagged.'
+        message = message.format(num_flagged, 's' if num_flagged != 1 else '')
+        self.message_user(request, message)
 
     def unflag_comments(self, request, queryset):
         num_unflagged = queryset.update(flagged=False)
-        self.message_user(request, '{0} comments successfully unflagged'.format(num_unflagged))
+        message = '{0} comment{1} successfully unflagged.'
+        message = message.format(num_unflagged, 's' if num_unflagged != 1 else '')
+        self.message_user(request, message)
 
 
 @admin.register(QuantitativeQuestionRating)
