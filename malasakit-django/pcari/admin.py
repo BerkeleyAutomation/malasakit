@@ -2,6 +2,9 @@
 This module defines how Django should render the admin panel.
 """
 
+from urllib import urlencode
+
+from django.shortcuts import redirect, reverse
 from django.contrib import admin
 
 from .models import QualitativeQuestion, QuantitativeQuestion
@@ -9,23 +12,7 @@ from .models import CommentRating, Comment
 from .models import QuantitativeQuestionRating, Respondent
 from .models import History
 
-
 admin.site.site_header = admin.site.site_title = 'Malasakit'
-
-"""
-default_admin_register = admin.register
-def register_wrapper(model):
-    def register_wrapper_inner(admin):
-        def export_as_csv(self, request, queryset):
-            pass
-
-        admin.export_as_csv = export_as_csv
-        admin.actions += ('export_as_csv', )
-        return default_admin_register()
-    return register_wrapper_inner
-
-admin.register = register_wrapper
-"""
 
 
 class HistoryAdmin(admin.ModelAdmin):
@@ -231,3 +218,18 @@ class RespondentAdmin(HistoryAdmin):
     # Enables search
     search_fields = ('gender', 'location', 'language',
                      'submitted_personal_data', 'completed_survey')
+
+
+def export_selected_as_csv(modeladmin, request, queryset):
+    primary_keys = ','.join(map(str, queryset.values_list('pk', flat=True)))
+    parameters = {
+        'model': queryset.model.__name__,
+        'data_format': 'csv',
+        'keys': primary_keys,
+    }
+
+    url = reverse('export-data') + '?' + urlencode(parameters)
+    return redirect(url)
+export_selected_as_csv.short_description = 'Export selected as CSV'
+
+admin.site.add_action(export_selected_as_csv)

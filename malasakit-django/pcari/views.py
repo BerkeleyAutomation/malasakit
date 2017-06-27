@@ -384,11 +384,8 @@ def export_data(request):
                    parameter.
             data_format: The name of the data format (default: csv). Supported
                          options are: csv.
-            active-only: A boolean indicating whether to export active
-                         instances only (default: true). See the `History`
-                         model for more information.
             keys: A comma-separated list of primary keys (default: select all
-                  instances).
+                  instances). Only works for numeric primary keys.
 
     Returns:
         An `HttpResponse` that contains a file.
@@ -408,10 +405,6 @@ def export_data(request):
     except KeyError:
         return HttpResponseBadRequest('no such model')
     queryset = model.objects
-
-    active_only = request.GET.get('active-only', 'true') == 'true'
-    if active_only:
-        queryset = queryset.filter(active=True)
 
     primary_keys = request.GET.get('keys', None)
     if primary_keys is not None:
