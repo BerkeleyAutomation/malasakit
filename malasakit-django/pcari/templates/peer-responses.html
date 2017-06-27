@@ -25,27 +25,26 @@
   </p>
   <ol>
     {% for question in questions %}
-      <li>
-        <p>
-          {% trans 'For the question' %}
-        </p>
-        <blockquote>
-          {% trans question.prompt %}
-        </blockquote>
-        <p>
-          {% with num_ratings=question.num_ratings mode=question.mode_score mean=question.mean_score|floatformat %}
-            {% blocktrans trimmed %}
-              <strong>{{ num_ratings }}</strong> other respondents rated this statement.
-            {% endblocktrans %}
-            {% if num_ratings > 0 %}
+      {% with num_ratings=question.num_ratings mode=question.mode_score mean=question.mean_score|floatformat %}
+        {% if num_ratings > 0 %}
+          <li>
+            <p>
               {% blocktrans trimmed %}
-                The most common score was <strong>{{ mode }}</strong>, and
-                the average score was <strong>{{ mean }}</strong>.
+                <strong>{{ num_ratings }}</strong> other people answered this question:
               {% endblocktrans %}
-            {% endif %}
-          {% endwith %}
-        </p>
-      </li>
+            </p>
+            <blockquote>
+              {% trans question.prompt %}
+            </blockquote>
+            <p>
+              {% blocktrans trimmed %}
+                The most common answer was <strong>{{ mode }}</strong>.<br>
+                The average answer was <strong>{{ mean }}</strong>.
+              {% endblocktrans %}
+            </p>
+          </li>
+        {% endif %}
+      {% endwith %}
     {% endfor %}
   </ol>
   {% url 'pcari:end' as next_link %}
