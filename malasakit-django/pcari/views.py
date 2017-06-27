@@ -3,9 +3,11 @@ This module defines the application's views, which are needed to render pages.
 """
 
 # Standard library
+import datetime
 import logging
 import json
 import math
+import mimetypes
 import random
 import time
 
@@ -25,6 +27,7 @@ import numpy as np
 from .models import Respondent
 from .models import QuantitativeQuestion, QualitativeQuestion
 from .models import Comment, CommentRating, QuantitativeQuestionRating
+from .models import MODELS
 
 DEFAULT_LANGUAGE = settings.LANGUAGE_CODE
 DEFAULT_COMMENT_LIMIT = 1000  # Default maximum number of comments to send
@@ -342,6 +345,54 @@ def save_response(request):
     for instance in model_instances:
         instance.save()
     return HttpResponse()
+
+
+def export_csv(response, model):
+    pass
+
+
+def generate_export_filename(model_name, data_format):
+    now = datetime.datetime.now()
+    return model_name + '-' + now.strftime('%Y-%m-%d') + '.' + data_format
+
+
+@profile
+def export_data(request):
+    """
+    Export data for a model as a file.
+
+    Args:
+        request: A request object that supports the following GET parameters:
+            model: The name of the model to export data for. This is a requred
+                   parameter.
+            data_format: The name of the data format (default: csv). Supported
+                         options are: csv.
+
+    Returns:
+        An `HttpResponse` that contains a file.
+    """
+    data_format = request.GET.get('format', 'csv')
+    export_functions = {
+        'csv': export_csv,
+    }
+
+    try:
+        export_function = export_functions[data_format]
+    except KeyError:
+        return HttpResponseBadRequest('no such data format')
+
+    try:
+        model_name = request.GET['model']
+        model = MODELS[model_name]
+    except KeyError:
+        return HttpResponseBadRequest('no such model')
+
+    filename = generate_export_filename(model_name, data_format)
+    content_type, _ = mimetypes.guess_type(filename)
+    response = HttpResponse(content_type=content_type)
+    response['Content-Disposition'] = 'attachment; filename="{0}"'.format(filename)
+    export_function(response, model)
+    return response
 
 
 @profile
