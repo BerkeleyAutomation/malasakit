@@ -5,7 +5,8 @@ from django.urls import reverse
 
 from django.conf import settings
 
-from random import randint
+from random import choice, randint
+import string
 
 from .models import Respondent
 from .models import QuantitativeQuestion, QualitativeQuestion
@@ -137,7 +138,7 @@ class TestDriver(webdriver.Chrome):
     """Up one more level- behavior at the view level (i.e. randomly fill out)
     view and return the responses"""
 
-    def quant_questions_random_responses(self):
+    def quant_questions_random_responses(self, screenshot=True):
         """Randomly assigns answers to each quantitative question, and returns
         the answers in a list. Assumes driver is at quantitative questions view.
         Includes skipping (-1)."""
@@ -153,16 +154,52 @@ class TestDriver(webdriver.Chrome):
             responses.append(res)
             self.respond_quant_question(q, res)
 
-        self.get_screenshot_as_file('qq.png')
+        if screenshot:
+            self.get_screenshot_as_file('qq.png')
         return responses
 
-    def rate_comments_random_responses(self):
+    def rate_comments_random_responses(self, screenshot=True):
         """Randomly selects some comments and responds to them."""
+
         pass
+
+    def personal_info_random_responses(self, screenshot=True):
+        """Randomly assigns answers to personal information questions-
+        age, gender, province, and barangay. Assumes driver is at
+        personal information view. Returns a dict where each key is each
+        attribute"""
+        age_input = self.find_element_by_id('age') # number-only input text box
+        gender_input = self.find_element_by_id('gender') # dropdown
+        province_input = self.find_element_by_id('province') # dropdown
+        barangay_input = self.find_element_by_id('barangay') # input text box
+
+        personal_info = {
+            'age': randint(0,99),
+            'gender': randint(0,2),
+            'province': randint(0, 100),
+            'barangay': randString()
+        }
+
+        self.set_text_box_val(age_input, personal_info['age'])
+        self.set_select_val_by_ind(gender_input, personal_info['gender'])
+        self.set_select_val_by_ind(province_input, personal_info['province'])
+        #TODO: how many?
+        self.set_text_box_val(barangay_input, personal_info['barangay'])
+
+        if screenshot:
+            self.get_screenshot_as_file('pi.png')
+
+        return personal_info
+
+
+def randString(n=10):
+    """Returns a random string of uppercase characters of length n"""
+    return ''.join(choice(string.ascii_uppercase) for _ in range(n))
+
 
 
 class PageLoadTestCase(StaticLiveServerTestCase):
-    fixtures = ['questions.yaml', 'user-generated.yaml']
+    fixtures = ['selenium-questions.yaml', 'selenium-users.yaml']
 
     def setUp(self):
         """Selenium setup goes here; running headless Chrome"""
@@ -175,21 +212,27 @@ class PageLoadTestCase(StaticLiveServerTestCase):
         # self.driver = webdriver.Chrome(chrome_options=options)
 
     def test_quant(self):
+        print "********* TEST QUANTITATIVE QUESTIONS *********"
         options = webdriver.ChromeOptions()
         options.add_argument('headless')
+        options.add_argument('verbose')
         options.add_argument('window-size=720x960')
         driver = TestDriver(options=options)
 
         driver.get("%s%s" % (self.live_server_url,
                              reverse('pcari:quantitative-questions')))
-        # driver.get_screenshot_as_file('qq.png')
+
         responses = driver.quant_questions_random_responses()
+
+        print(driver.get_log('browser'))
         print(responses)
 
 
     def test_bloom(self):
+        print "********* TEST COMMENT BLOOM *********"
         options = webdriver.ChromeOptions()
         options.add_argument('headless')
+        options.add_argument('verbose')
         options.add_argument('window-size=720x960')
         driver = TestDriver(options=options)
 
@@ -197,6 +240,27 @@ class PageLoadTestCase(StaticLiveServerTestCase):
                              reverse('pcari:rate-comments')))
         driver.get_screenshot_as_file('bloom.png')
         print(driver.get_log('browser'))
+        driver.find_element_by_css_selector("a[href='%s']" % (
+            reverse('pcari:qualitative-questions')
+        )).click()
+        driver.get_screenshot_as_file('qual-q.png')
+
+    def test_personal_info(self):
+        print "********* TEST PERSONAL INFO *********"
+        options = webdriver.ChromeOptions()
+        options.add_argument('headless')
+        options.add_argument('verbose')
+        options.add_argument('window-size=720x960')
+        driver = TestDriver(options=options)
+
+        driver.get("%s%s" % (self.live_server_url,
+                             reverse('pcari:personal-information')))
+
+        personal_data = driver.personal_info_random_responses()
+
+        print(driver.get_log('browser'))
+        print(personal_data)
+
 
 
     # def test_basic_flow(self):
