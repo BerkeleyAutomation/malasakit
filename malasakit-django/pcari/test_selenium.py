@@ -42,8 +42,9 @@ Writing multiple levels. Interfacing with a single UI element, responding to a q
 class TestDriver(webdriver.Chrome):
     """WebDriver with additional easy-to-use methods for manipulating UI
     elements"""
-    def __init__(self, options):
-        webdriver.Chrome.__init__(self, chrome_options=options)
+    def __init__(self, desired_capabilities=None,chrome_options=None):
+        webdriver.Chrome.__init__(self, chrome_options=chrome_options,
+                                  desired_capabilities=desired_capabilities)
 
     """Interfacing with individual UI elements"""
 
@@ -191,6 +192,14 @@ class TestDriver(webdriver.Chrome):
 
         return personal_info
 
+    """Utility stuff"""
+    def print_log(self, log):
+        """Prints a log from driver.get_log."""
+        for entry in log:
+            print '{:<12} {:<10} {}'.format(
+                entry['source'], entry['level'],
+                entry['message'])
+
 
 def randString(n=10):
     """Returns a random string of uppercase characters of length n"""
@@ -205,60 +214,61 @@ class PageLoadTestCase(StaticLiveServerTestCase):
         """Selenium setup goes here; running headless Chrome"""
         # Concern: localStorage and ServiceWorker stuff may persist
         # between tests so we might want to initialize new driver
+        # Less of an issue because one test case (class) is only supposed
+        # to test one thing
 
-        # options = webdriver.ChromeOptions()
-        # options.add_argument('headless')
-        # options.add_argument('window-size=720x960')
-        # self.driver = webdriver.Chrome(chrome_options=options)
+        # Initialize with options for ChromeDriver
+        options = webdriver.ChromeOptions()
+        options.add_argument('headless')
+        options.add_argument('window-size=720x960')
+
+        # Convert to general DesiredCapabilities object
+        capabilities = options.to_capabilities()
+        capabilities['loggingPrefs'] = {
+            'driver': 'INFO',
+            'browser': 'INFO'
+        }
+        # in order to capture normal console.log output
+
+        self.driver = TestDriver(desired_capabilities=capabilities)
+
 
     def test_quant(self):
         print "********* TEST QUANTITATIVE QUESTIONS *********"
-        options = webdriver.ChromeOptions()
-        options.add_argument('headless')
-        options.add_argument('verbose')
-        options.add_argument('window-size=720x960')
-        driver = TestDriver(options=options)
+        # options = webdriver.ChromeOptions()
+        # options.add_argument('headless')
+        # options.add_argument('verbose')
+        # options.add_argument('window-size=720x960')
+        # driver = TestDriver(options=options)
 
-        driver.get("%s%s" % (self.live_server_url,
+        self.driver.get("%s%s" % (self.live_server_url,
                              reverse('pcari:quantitative-questions')))
 
-        responses = driver.quant_questions_random_responses()
+        responses = self.driver.quant_questions_random_responses()
 
-        print(driver.get_log('browser'))
+        self.driver.print_log(self.driver.get_log('browser'))
         print(responses)
 
 
     def test_bloom(self):
         print "********* TEST COMMENT BLOOM *********"
-        options = webdriver.ChromeOptions()
-        options.add_argument('headless')
-        options.add_argument('verbose')
-        options.add_argument('window-size=720x960')
-        driver = TestDriver(options=options)
-
-        driver.get("%s%s" % (self.live_server_url,
+        self.driver.get("%s%s" % (self.live_server_url,
                              reverse('pcari:rate-comments')))
-        driver.get_screenshot_as_file('bloom.png')
-        print(driver.get_log('browser'))
-        driver.find_element_by_css_selector("a[href='%s']" % (
+        self.driver.get_screenshot_as_file('bloom.png')
+        self.driver.print_log(self.driver.get_log('browser'))
+        self.driver.find_element_by_css_selector("a[href='%s']" % (
             reverse('pcari:qualitative-questions')
         )).click()
-        driver.get_screenshot_as_file('qual-q.png')
+        self.driver.get_screenshot_as_file('qual-q.png')
 
     def test_personal_info(self):
         print "********* TEST PERSONAL INFO *********"
-        options = webdriver.ChromeOptions()
-        options.add_argument('headless')
-        options.add_argument('verbose')
-        options.add_argument('window-size=720x960')
-        driver = TestDriver(options=options)
-
-        driver.get("%s%s" % (self.live_server_url,
+        self.driver.get("%s%s" % (self.live_server_url,
                              reverse('pcari:personal-information')))
 
-        personal_data = driver.personal_info_random_responses()
+        personal_data = self.driver.personal_info_random_responses()
 
-        print(driver.get_log('browser'))
+        self.driver.print_log(self.driver.get_log('browser'))
         print(personal_data)
 
 
