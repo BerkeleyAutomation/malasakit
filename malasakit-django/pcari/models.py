@@ -90,7 +90,7 @@ def accepts_ratings(ratings_model, keyword):
 
         def mean_score(self):
             scores = [instance.score for instance in self.select_ratings()]
-            return float(sum(scores))/len(scores)
+            return float(sum(scores))/len(scores) if scores else float('nan')
 
         def num_ratings(self):
             return len(self.select_ratings())
@@ -103,8 +103,10 @@ def accepts_ratings(ratings_model, keyword):
                 The most common answer to the question (an integer).
             """
             scores = [instance.score for instance in self.select_ratings()]
-            frequencies = Counter(scores)
-            return frequencies.most_common(1)[0][0]
+            if scores:
+                frequencies = Counter(scores)
+                return frequencies.most_common(1)[0][0]
+            return float('nan')
 
         def stdev(self):
             """
