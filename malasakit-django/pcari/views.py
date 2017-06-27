@@ -171,7 +171,7 @@ def fetch_comments(request):
     except ValueError as error:
         return HttpResponseBadRequest(str(error))
 
-    comments = Comment.objects.filter(active=True).filter(flagged=False)
+    comments = list(Comment.objects.filter(active=True).filter(flagged=False).all())
     if len(comments) > limit:
         comments = random.sample(comments, limit)
 

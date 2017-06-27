@@ -81,6 +81,14 @@ class CommentRatingAdmin(ResponseAdmin):
     search_fields = ('score_history_text', 'comment__message')
 
 
+def flag_comments(modeladmin, request, queryset):
+    queryset.update(flagged=True)
+
+
+def unflag_comments(modeladmin, request, queryset):
+    queryset.update(flagged=False)
+
+
 @admin.register(Comment)
 class CommentAdmin(ResponseAdmin):
     """
@@ -100,6 +108,8 @@ class CommentAdmin(ResponseAdmin):
 
     # Enables search
     search_fields = ('message', 'tag')
+
+    actions = [flag_comments, unflag_comments]
 
 
 @admin.register(QuantitativeQuestionRating)
