@@ -139,13 +139,13 @@ class TestDriver(webdriver.Chrome):
     """Up one more level- behavior at the view level (i.e. randomly fill out)
     view and return the responses"""
 
-    def quant_questions_random_responses(self, screenshot=True):
+    def quant_questions_random_responses(self):
         """Randomly assigns answers to each quantitative question, and returns
         the answers in a list. Assumes driver is at quantitative questions view.
         Includes skipping (-1)."""
 
         quant_q_list = self.find_element_by_id('quantitative-questions') \
-        .find_elements_by_tag_name('li')
+                           .find_elements_by_tag_name('li')
 
         print("number of quantitative questions:", len(quant_q_list))
 
@@ -155,16 +155,31 @@ class TestDriver(webdriver.Chrome):
             responses.append(res)
             self.respond_quant_question(q, res)
 
-        if screenshot:
-            self.get_screenshot_as_file('qq.png')
         return responses
 
-    def rate_comments_random_responses(self, screenshot=True):
-        """Randomly selects some comments and responds to them."""
+    def rate_comments_random_responses(self):
+        """Randomly selects some comments and responds to them. Assumes driver
+        is at rate comments view.
+        TODO: Figure out a way to know which comments were responded to"""
 
-        pass
+        return None
 
-    def personal_info_random_responses(self, screenshot=True):
+    def qual_questions_random_responses(self):
+        """Randomly writes a response to a qualitative question. Returns the
+        response. Assumes driver is at qualitiative question view."""
+        responses = []
+
+        qual_q_list = self.find_element_by_id('qualitative-questions') \
+                          .find_elements_by_tag_name('textarea')
+
+        for q in qual_q_list:
+            res = randString(20)
+            responses.append(res)
+            self.set_text_box_val(q, res)
+
+        return responses
+
+    def personal_info_random_responses(self):
         """Randomly assigns answers to personal information questions-
         age, gender, province, and barangay. Assumes driver is at
         personal information view. Returns a dict where each key is each
@@ -177,7 +192,7 @@ class TestDriver(webdriver.Chrome):
         personal_info = {
             'age': randint(0,99),
             'gender': randint(0,2),
-            'province': randint(0, 100),
+            'province': randint(0, 50),
             'barangay': randString()
         }
 
@@ -186,9 +201,6 @@ class TestDriver(webdriver.Chrome):
         self.set_select_val_by_ind(province_input, personal_info['province'])
         #TODO: how many?
         self.set_text_box_val(barangay_input, personal_info['barangay'])
-
-        if screenshot:
-            self.get_screenshot_as_file('pi.png')
 
         return personal_info
 
@@ -220,7 +232,7 @@ class PageLoadTestCase(StaticLiveServerTestCase):
         # Initialize with options for ChromeDriver
         options = webdriver.ChromeOptions()
         options.add_argument('headless')
-        options.add_argument('window-size=720x960')
+        options.add_argument('window-size=480x720')
 
         # Convert to general DesiredCapabilities object
         capabilities = options.to_capabilities()
@@ -232,14 +244,16 @@ class PageLoadTestCase(StaticLiveServerTestCase):
 
         self.driver = TestDriver(desired_capabilities=capabilities)
 
+    def landing(self):
+        print "********* TEST LANDING PAGE ********"
+        self.driver.get("%s%s" % (self.live_server_url,
+                                  reverse("pcari:landing")))
+        self.driver.print_log(self.driver.get_log('browser'))
+        self.driver.get_screenshot_as_file('landing.png')
 
-    def test_quant(self):
+
+    def quant_questions(self):
         print "********* TEST QUANTITATIVE QUESTIONS *********"
-        # options = webdriver.ChromeOptions()
-        # options.add_argument('headless')
-        # options.add_argument('verbose')
-        # options.add_argument('window-size=720x960')
-        # driver = TestDriver(options=options)
 
         self.driver.get("%s%s" % (self.live_server_url,
                              reverse('pcari:quantitative-questions')))
@@ -248,20 +262,34 @@ class PageLoadTestCase(StaticLiveServerTestCase):
 
         self.driver.print_log(self.driver.get_log('browser'))
         print(responses)
+        self.driver.get_screenshot_as_file('quant-questions.png')
 
 
-    def test_bloom(self):
+    def rate_comments(self):
         print "********* TEST COMMENT BLOOM *********"
         self.driver.get("%s%s" % (self.live_server_url,
                              reverse('pcari:rate-comments')))
-        self.driver.get_screenshot_as_file('bloom.png')
+        comments_rated = self.driver.rate_comments_random_responses()
         self.driver.print_log(self.driver.get_log('browser'))
-        self.driver.find_element_by_css_selector("a[href='%s']" % (
-            reverse('pcari:qualitative-questions')
-        )).click()
-        self.driver.get_screenshot_as_file('qual-q.png')
 
-    def test_personal_info(self):
+        self.driver.get_screenshot_as_file('rate-comments.png')
+
+        # self.driver.find_element_by_css_selector("a[href='%s']" % (
+        #     reverse('pcari:qualitative-questions')
+        # )).click()
+
+    def qual_questions(self):
+        print "********* TEST QUALTITATIVE QUESTIONS *********"
+        self.driver.get("%s%s" % (self.live_server_url,
+                                  reverse('pcari:qualitative-questions')))
+        qual_responses = self.driver.qual_questions_random_responses()
+
+        self.driver.print_log(self.driver.get_log('browser'))
+        print(qual_responses)
+        self.driver.get_screenshot_as_file('qual-questions.png')
+
+
+    def personal_info(self):
         print "********* TEST PERSONAL INFO *********"
         self.driver.get("%s%s" % (self.live_server_url,
                              reverse('pcari:personal-information')))
@@ -271,6 +299,13 @@ class PageLoadTestCase(StaticLiveServerTestCase):
         self.driver.print_log(self.driver.get_log('browser'))
         print(personal_data)
 
+    def test_urls(self):
+        """TEMP: just hits all of the methods, doesn't click & flow yet"""
+        self.landing()
+        self.quant_questions()
+        self.rate_comments()
+        self.qual_questions()
+        self.personal_info()
 
 
     # def test_basic_flow(self):
