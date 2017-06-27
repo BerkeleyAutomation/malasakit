@@ -15,7 +15,7 @@ import json
 # Public-facing models (parent models are excluded)
 __all__ = ['Comment', 'QuantitativeQuestionRating', 'CommentRating',
            'QualitativeQuestion', 'QuantitativeQuestion', 'Respondent',
-           'OptionQuestion', 'OptionResponse']
+           'OptionQuestion', 'OptionResponse', 'MODELS']
 
 from django.conf import settings
 from django.db import models
@@ -577,3 +577,10 @@ class Respondent(History):
     @property
     def comments_made(self):
         return Comment.objects.filter(respondent=self).all()
+
+
+# A lookup table by name
+MODELS = {model.__name__: model for model in [Comment, QuantitativeQuestionRating,
+                                              CommentRating, QualitativeQuestion,
+                                              QuantitativeQuestion, Respondent,
+                                              OptionQuestion, OptionResponse]}

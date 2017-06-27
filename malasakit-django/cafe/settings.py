@@ -27,7 +27,7 @@ SECRET_KEY = '<secret-key>'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', 'opinion.berkeley.edu']
+ALLOWED_HOSTS = ['opinion.berkeley.edu'] if not DEBUG else ['*']
 
 
 # Application definition
