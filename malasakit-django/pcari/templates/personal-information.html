@@ -49,43 +49,45 @@
 {% block main-heading %}{% trans 'Personal Information' %}{% endblock %}
 
 {% block content %}
-  <div class="container center">
-    {% blocktrans trimmed %}
-      All questions on this page are strictly optional.
-      Your responses will be anonymous.
-    {% endblocktrans %}
+  <div class="container">
+    <p class="center">
+      {% blocktrans trimmed %}
+        All questions on this page are strictly optional.
+        Your responses will be anonymous.
+      {% endblocktrans %}
+    </p>
+    <table>
+      <tr>
+        <td>{% trans 'Age' %}</td>
+        <td><input id="age" type="number" min="1" max="120"></td>
+      </tr>
+      <tr>
+        <td>{% trans 'Gender' %}</td>
+        <td>
+          <select id="gender">
+            <option value="" selected>{% trans 'Select gender' %}</option>
+            <option value="M">{% trans 'Male' %}</option>
+            <option value="F">{% trans 'Female' %}</option>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td>{% trans 'Province' %}</td>
+        <td>
+          <select id="province">
+            <option value="" selected>{% trans 'Select province' %}</option>
+            {% for code, name in province_names %}
+              <option value="{{ code }}">{{ name }}</option>
+            {% endfor %}
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td>{% trans 'Barangay' %}</td>
+        <td><input id="barangay" type="text"></td>
+      </tr>
+    </table>
   </div>
-  <table style="margin: 0 auto;">
-    <tr>
-      <td>{% trans 'Age' %}</td>
-      <td><input id="age" type="number" min="1" max="120"></td>
-    </tr>
-    <tr>
-      <td>{% trans 'Gender' %}</td>
-      <td>
-        <select id="gender">
-          <option value="" selected>{% trans 'Select gender' %}</option>
-          <option value="M">{% trans 'Male' %}</option>
-          <option value="F">{% trans 'Female' %}</option>
-        </select>
-      </td>
-    </tr>
-    <tr>
-      <td>{% trans 'Province' %}</td>
-      <td>
-        <select id="province">
-          <option value="" selected>{% trans 'Select province' %}</option>
-          {% for code, name in province_names %}
-            <option value="{{ code }}">{{ name }}</option>
-          {% endfor %}
-        </select>
-      </td>
-    </tr>
-    <tr>
-      <td>{% trans 'Barangay' %}</td>
-      <td><input id="barangay" type="text"></td>
-    </tr>
-  </table>
   <div class="modal">
     <div class="modal-container">
       <p>
