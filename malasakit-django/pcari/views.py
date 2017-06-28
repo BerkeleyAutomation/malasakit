@@ -445,7 +445,6 @@ def export_data(request):
         queryset = queryset.filter(pk__in=primary_keys)
 
     filename = generate_export_filename(model_name, data_format)
-    print(filename)
     content_type, _ = mimetypes.guess_type(filename)
     response = HttpResponse(content_type=content_type)
     response['Content-Disposition'] = 'attachment; filename="{0}"'.format(filename)
