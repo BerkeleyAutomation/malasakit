@@ -9,8 +9,18 @@
 @blue: rgb(63, 169, 228);
 @light-gray: rgb(240, 240, 240);
 
-body {
+html, body {
+  height: 100%;
   margin: 0;
+  padding: 0;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  padding: 1rem auto;
+  margin: 0 auto;
+  display: block;
 }
 
 a {
@@ -174,12 +184,6 @@ ul.button-group {
   }
 }
 
-img {
-  display: block;
-  max-width: 100%;
-  margin: 0 auto;
-}
-
 #main-heading {
   text-align: center;
 }
@@ -316,6 +320,7 @@ textarea.comment {
 }
 
 .slider {
+  padding-right: 1rem;
   position: absolute;
   cursor: pointer;
   top: .25rem;
