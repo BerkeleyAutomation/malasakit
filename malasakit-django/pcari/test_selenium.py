@@ -5,6 +5,8 @@ from django.urls import reverse
 
 from django.conf import settings
 
+import json
+
 from random import choice, randint
 import string
 
@@ -168,8 +170,10 @@ class TestDriver(webdriver.Chrome):
     view and return the responses"""
 
     def quant_questions_random_responses(self):
-        """Randomly assigns answers to each quantitative question, and returns
-        the answers in a list. Assumes driver is at quantitative questions view.
+        """Randomly assigns answers sequences to each quantitative question, by
+        setting slider positions of each question multiple times. Returns
+        answers in a list of lists where each inner list is the rating sequence
+        that was inputted. Assumes driver is at quantitative questions view.
         Includes skipping (-1)."""
 
         quant_q_list = self.find_element_by_id('quantitative-questions') \
@@ -179,9 +183,13 @@ class TestDriver(webdriver.Chrome):
 
         responses = []
         for q in quant_q_list:
-            res = randint(-1, 9)
-            responses.append(res)
-            self.respond_quant_question(q, res)
+            num_changes = randint(1, 8)
+            res_history = []
+            for _ in range(num_changes):
+                res = randint(-1, 9)
+                res_history.append(res)
+                self.respond_quant_question(q, res)
+            responses.append(res_history)
 
         return responses
 
@@ -256,11 +264,50 @@ class TestDriver(webdriver.Chrome):
                 entry['source'], entry['level'],
                 entry['message'])
 
+    def get_local_storage(self):
+        """Gets browser localStorage and converts to a Pythong dict"""
+
+        def strip_output(s):
+            """Removes console stuff and redundant backslashes from
+            console log strings.
+
+            The 'message' field of a log entry that Selenium obtains from
+            ChromeDriver is not just what is printed to the console- it includes
+            other info about line numbers and sources. Additionally, strings
+            are sometimes escaped when they need not be. This makes it difficult
+            to parse out JSON strings that we obtain from LocalStorage.
+            """
+            s = s[s.find("\"") + 1:s.rfind("\"")]
+            s = s.replace("\\","")
+            return s
+
+        script_get_ls_keys = """Object.keys(localStorage).forEach(function(s){
+            console.log(s);
+        })"""
+
+        script_get_ls_values = """Object.values(localStorage).
+        forEach(function (s) {
+            console.log(s)
+        })"""
+
+        local_storage = {}
+        self.execute_script(script_get_ls_keys)
+        keys = [strip_output(entry['message']) \
+                for entry in self.get_log('browser')]
+
+        self.execute_script(script_get_ls_values)
+        vals = [json.loads(strip_output(entry['message'])) \
+                for entry in self.get_log('browser')]
+
+        for k, v in zip(keys, vals):
+            local_storage[k] = v
+
+        return local_storage
+
 
 def randString(n=10):
     """Returns a random string of uppercase characters of length n"""
     return ''.join(choice(string.ascii_uppercase) for _ in range(n))
-
 
 
 class PageLoadTestCase(StaticLiveServerTestCase):
@@ -272,6 +319,16 @@ class PageLoadTestCase(StaticLiveServerTestCase):
         # between tests so we might want to initialize new driver
         # Less of an issue because one test case (class) is only supposed
         # to test one thing
+
+        # Initialize dictionary to keep track of randomized inputs (organized
+        # by view) These will be checked against the database/LocalStorage.
+        self.inputs = {
+            'quantitative-questions': None,
+            'rate-comments': None,
+            'qualitative-questions': None,
+            'personal-information': None
+        }
+
 
         # Initialize with options for ChromeDriver
         options = webdriver.ChromeOptions()
@@ -290,6 +347,8 @@ class PageLoadTestCase(StaticLiveServerTestCase):
         self.driver.get("%s%s" % (self.live_server_url,
                                   reverse("pcari:landing")))
 
+    """Methods for testing views. Each one should push inputs to corresponding
+    key in dictionary self.inputs."""
 
     def landing(self):
         print "********* TEST LANDING PAGE ********"
@@ -307,10 +366,10 @@ class PageLoadTestCase(StaticLiveServerTestCase):
         # check that we're actually on the page
         assert reverse('pcari:quantitative-questions') in self.driver.current_url
 
-        responses = self.driver.quant_questions_random_responses()
+        self.inputs['quantitative_questions'] = \
+                            self.driver.quant_questions_random_responses()
 
         self.driver.print_log(self.driver.get_log('browser'))
-        print(responses)
         self.driver.get_screenshot_as_file('quant-questions.png')
         self.driver.find_element_by_css_selector("a[href='%s']" % (reverse(
             'pcari:rate-comments'
@@ -321,9 +380,9 @@ class PageLoadTestCase(StaticLiveServerTestCase):
         # check that we're actually on the page
         assert reverse('pcari:rate-comments') in self.driver.current_url
 
-        comments_rated = self.driver.rate_comments_random_responses()
+        self.inputs['rate-comments'] = \
+                            self.driver.rate_comments_random_responses()
         self.driver.print_log(self.driver.get_log('browser'))
-        print(comments_rated)
 
         self.driver.get_screenshot_as_file('rate-comments.png')
 
@@ -336,10 +395,10 @@ class PageLoadTestCase(StaticLiveServerTestCase):
         # check that we're actually on the page
         assert reverse('pcari:qualitative-questions') in self.driver.current_url
 
-        qual_responses = self.driver.qual_questions_random_responses()
+        self.inputs['qualitative-questions'] = \
+                                self.driver.qual_questions_random_responses()
 
         self.driver.print_log(self.driver.get_log('browser'))
-        print(qual_responses)
         self.driver.get_screenshot_as_file('qual-questions.png')
 
         self.driver.find_element_by_css_selector("a[href='%s']" % (
@@ -354,10 +413,10 @@ class PageLoadTestCase(StaticLiveServerTestCase):
         self.driver.get("%s%s" % (self.live_server_url,
                              reverse('pcari:personal-information')))
 
-        personal_data = self.driver.personal_info_random_responses()
+        self.inputs['personal-info'] = \
+                                    self.driver.personal_info_random_responses()
 
         self.driver.print_log(self.driver.get_log('browser'))
-        print(personal_data)
         self.driver.get_screenshot_as_file('personal-info.png')
 
     def test_urls(self):
@@ -367,3 +426,33 @@ class PageLoadTestCase(StaticLiveServerTestCase):
         self.rate_comments()
         self.qual_questions()
         self.personal_info()
+
+        print self.inputs
+        print self.driver.get_local_storage()
+
+        # script_get_ls_keys = """Object.keys(localStorage).forEach(function(s){
+        #     console.log(s);
+        # })"""
+
+        # def strip_output(s):
+        #     """Removes 'console-api 372:20' BS and redundant backslashes from
+        #     console log strings
+
+        #     TODO: FLESH OUT"""
+        #     s = s[s.find("\"") + 1:s.rfind("\"")]
+        #     s = s.replace("\\","")
+        #     return s
+
+        # self.driver.execute_script(script_get_ls_keys)
+        # # self.driver.print_log(self.driver.get_log('browser'))
+        # for entry in self.driver.get_log('browser'):
+        #     print strip_output(entry['message'])
+
+        # script_get_ls_values = """Object.values(localStorage).forEach(function (s) {
+        #     console.log(s)
+        # })"""
+
+        # self.driver.execute_script(script_get_ls_values)
+        # # self.driver.print_log(self.driver.get_log('browser'))
+        # for entry in self.driver.get_log('browser'):
+        #     print json.loads(strip_output(entry['message']))
