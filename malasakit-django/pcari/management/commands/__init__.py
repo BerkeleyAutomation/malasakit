@@ -4,9 +4,8 @@ This module defines common command templates.
 
 from django.core.exceptions import FieldDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
-from django.db.models import Model
 
-from pcari import models
+from pcari.models import MODELS
 
 
 class BatchProcessingCommand(BaseCommand):
@@ -47,8 +46,9 @@ class BatchProcessingCommand(BaseCommand):
             model_name, field_name = components
 
             try:
-                model = getattr(models, model_name)
-                assert issubclass(model, Model), 'not a Django model'
+                model = MODELS.get(model_name)
+                if model is None:
+                    raise ValueError('not a Django model')
                 field = model._meta.get_field(field_name)
                 self.precondition_check(options, model, field)
             except Exception as exc:

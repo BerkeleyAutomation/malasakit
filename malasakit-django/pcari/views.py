@@ -3,9 +3,12 @@ This module defines the application's views, which are needed to render pages.
 """
 
 # Standard library
+from __future__ import unicode_literals
+import datetime
 import logging
 import json
 import math
+import mimetypes
 import random
 import time
 
@@ -13,6 +16,7 @@ import time
 from django.apps import apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
+from django.contrib.admin.views.decorators import staff_member_required
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_GET, require_POST
@@ -20,11 +24,14 @@ from django.urls import reverse
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _, ugettext
 import numpy as np
+from openpyxl import Workbook
+import unicodecsv as csv
 
 # Local modules and models
 from .models import Respondent
 from .models import QuantitativeQuestion, QualitativeQuestion
 from .models import Comment, CommentRating, QuantitativeQuestionRating
+from .models import MODELS, get_concrete_fields
 
 DEFAULT_LANGUAGE = settings.LANGUAGE_CODE
 DEFAULT_COMMENT_LIMIT = 1000  # Default maximum number of comments to send
@@ -171,7 +178,7 @@ def fetch_comments(request):
     except ValueError as error:
         return HttpResponseBadRequest(str(error))
 
-    comments = list(Comment.objects.filter(active=True).all())
+    comments = list(Comment.objects.filter(active=True).filter(flagged=False).all())
     if len(comments) > limit:
         comments = random.sample(comments, limit)
 
@@ -342,6 +349,107 @@ def save_response(request):
     for instance in model_instances:
         instance.save()
     return HttpResponse()
+
+
+def export_csv(stream, queryset):
+    """
+    Export the given `QuerySet` as comma-separated values to a stream.
+
+    Args:
+        stream: A `file`-like object with a `write` method.
+        queryset: A Django `QuerySet` of instances to export.
+
+    Returns:
+        None. Has a side effect of writing to the `stream`.
+    """
+    concrete_fields = get_concrete_fields(queryset.model)
+    field_names = [unicode(field.get_attname()) for field in concrete_fields]
+
+    writer = csv.writer(stream, encoding='utf-8')
+    writer.writerow(field_names)
+
+    for instance in queryset.iterator():
+        row = [getattr(instance, field_name) for field_name in field_names]
+        row = [unicode(cell) if cell is not None else '' for cell in row]
+        writer.writerow(row)
+
+
+def export_excel(stream, queryset):
+    """
+    Export the given `QuerySet` as an Excel spreadsheet.
+
+    Args:
+        stream: A `file`-like object with a `write` method.
+        queryset: A Django `QuerySet` of instances to export.
+
+    Returns:
+        None. Has a side effect of writing to the `stream`.
+    """
+    concrete_fields = get_concrete_fields(queryset.model)
+    field_names = [unicode(field.get_attname()) for field in concrete_fields]
+
+    workbook = Workbook(write_only=True)
+    worksheet = workbook.create_sheet(queryset.model.__name__)
+    worksheet.append(field_names)
+
+    for instance in queryset.iterator():
+        row = [getattr(instance, field_name) for field_name in field_names]
+        worksheet.append(row)
+
+    workbook.save(stream)
+
+
+def generate_export_filename(model_name, data_format):
+    now = datetime.datetime.now()
+    return model_name + '-' + now.strftime('%Y-%m-%d') + '.' + data_format
+
+
+@profile
+@staff_member_required
+def export_data(request):
+    """
+    Export data for a model as a file.
+
+    Args:
+        request: A request object that supports the following GET parameters:
+            model: The name of the model to export data for. This is a requred
+                   parameter.
+            data_format: The name of the data format (default: csv). Supported
+                         options are: csv.
+            keys: A comma-separated list of primary keys (default: select all
+                  instances). Only works for numeric primary keys.
+
+    Returns:
+        An `HttpResponse` that contains a file.
+    """
+    data_format = request.GET.get('format', 'csv')
+    export_functions = {
+        'csv': export_csv,
+        'xlsx': export_excel,
+    }
+    try:
+        export = export_functions[data_format]
+    except KeyError:
+        return HttpResponseBadRequest('no such data format')
+
+    try:
+        model_name = request.GET['model']
+        model = MODELS[model_name]
+    except KeyError:
+        return HttpResponseBadRequest('no such model')
+    queryset = model.objects
+
+    primary_keys = request.GET.get('keys', None)
+    if primary_keys is not None:
+        primary_keys = list(map(int, primary_keys.split(',')))
+        queryset = queryset.filter(pk__in=primary_keys)
+
+    filename = generate_export_filename(model_name, data_format)
+    content_type, _ = mimetypes.guess_type(filename)
+    response = HttpResponse(content_type=content_type)
+    response['Content-Disposition'] = 'attachment; filename="{0}"'.format(filename)
+    export(response, queryset)
+    return response
 
 
 @profile
