@@ -11,6 +11,7 @@ from .models import QualitativeQuestion, QuantitativeQuestion
 from .models import CommentRating, Comment
 from .models import QuantitativeQuestionRating, Respondent
 from .models import History
+from .models import get_direct_fields
 
 admin.site.site_header = admin.site.site_title = 'Malasakit'
 
@@ -32,8 +33,9 @@ class HistoryAdmin(admin.ModelAdmin):
         super(HistoryAdmin, self).save_model(request, obj, form, change)
 
     def get_readonly_fields(self, request, obj=None):
-        if obj and issubclass(obj.__class__, History) and not obj.active:
-            field_names = [field.name for field in obj.get_direct_fields()]
+        model = obj.__class__
+        if obj and issubclass(model, History) and not obj.active:
+            field_names = [field.name for field in get_direct_fields(model)]
             field_names.remove('active')
             return field_names
         return self.readonly_fields + ('predecessor', )
@@ -106,12 +108,18 @@ class CommentAdmin(ResponseAdmin):
     actions = ('flag_comments', 'unflag_comments')
 
     def flag_comments(self, request, queryset):
+        """
+        Flag selected comments in bulk and inform the user how many were flagged.
+        """
         num_flagged = queryset.update(flagged=True)
         message = '{0} comment{1} successfully flagged.'
         message = message.format(num_flagged, 's' if num_flagged != 1 else '')
         self.message_user(request, message)
 
     def unflag_comments(self, request, queryset):
+        """
+        Unflag selected comments in bulk and inform how many were unflagged.
+        """
         num_unflagged = queryset.update(flagged=False)
         message = '{0} comment{1} successfully unflagged.'
         message = message.format(num_unflagged, 's' if num_unflagged != 1 else '')
@@ -221,15 +229,34 @@ class RespondentAdmin(HistoryAdmin):
 
 
 def export_selected_as_csv(modeladmin, request, queryset):
+    """ Export the selected model instances as comma-separated values (CSV). """
+    # pylint: disable=unused-argument
     primary_keys = ','.join(map(str, queryset.values_list('pk', flat=True)))
     parameters = {
         'model': queryset.model.__name__,
-        'data_format': 'csv',
+        'format': 'csv',
         'keys': primary_keys,
     }
 
     url = reverse('export-data') + '?' + urlencode(parameters)
     return redirect(url)
-export_selected_as_csv.short_description = 'Export selected as CSV'
 
+export_selected_as_csv.short_description = 'Export selected rows as CSV'
 admin.site.add_action(export_selected_as_csv)
+
+
+def export_selected_as_xlsx(modeladmin, request, queryset):
+    """ Export the selected model instances as an Excel spreadsheet. """
+    # pylint: disable=unused-argument
+    primary_keys = ','.join(map(str, queryset.values_list('pk', flat=True)))
+    parameters = {
+        'model': queryset.model.__name__,
+        'format': 'xlsx',
+        'keys': primary_keys,
+    }
+
+    url = reverse('export-data') + '?' + urlencode(parameters)
+    return redirect(url)
+
+export_selected_as_xlsx.short_description = 'Export selected rows as an Excel spreadsheet'
+admin.site.add_action(export_selected_as_xlsx)
