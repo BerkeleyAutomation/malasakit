@@ -24,6 +24,7 @@ https://docs.djangoproject.com/en/1.10/topics/testing/tools/#liveservertestcase
 Tests to include:
 - Loading and clicking through webpage
 - Language works
+- Changing language does not remove user input
 - Bloom works
 - LocalStorage is behaving correctly (online case)
 - ServiceWorker is registered
@@ -103,8 +104,35 @@ class TestDriver(webdriver.Chrome):
         """Given a comment bubble element, clicks it and sets the slider to a
         given value.
 
-        TODO: Fix PCA in test fixtures before implementing"""
-        pass
+        Assumption: clicking a comment pops up a hover div with a slider,
+        submit and skip buttons.
+
+        Will throw an error if the click is unsuccessful
+
+        Args:
+            element: the bubble to be clicked
+            val: int, must fall between -1 (skipped) and slider max
+        """
+        # Click the bubble
+        element.click()
+        # attempt to find element with class 'modal-container'- this is the
+        # hover div
+        hover_div = self.find_element_by_class_name('modal-container')
+
+        slider = hover_div.find_element_by_class_name('quantitative-input')
+        submit = hover_div.find_element_by_id('submit')
+        skip = hover_div.find_element_by_id('skip')
+
+        slider_max = int(slider.get_attribute('max'))
+
+        assert (val >= -1 and val <= slider_max), """val must be between
+        %d and %d but it was %d""" % (-1, slider_max, val)
+
+        if val == -1:
+            skip.click()
+        else:
+            self.set_slider_val(slider, val)
+            submit.click()
 
     def respond_quant_question(self, element, val):
         """Given a quantitative question bounding element (contains both the
@@ -159,10 +187,25 @@ class TestDriver(webdriver.Chrome):
 
     def rate_comments_random_responses(self):
         """Randomly selects some comments and responds to them. Assumes driver
-        is at rate comments view.
+        is at rate comments view. Returns a list of comment ratings.
+
+        Assumes comment bubbles are in <image> tags, which can be clicked.
         TODO: Figure out a way to know which comments were responded to"""
 
-        return None
+        bubbles = self.find_elements_by_tag_name('image')
+        count = randint(2, len(bubbles)) # rate a random number of comments
+        responses = []
+
+        for _ in range(count):
+            # randomly draw a comment bubble from the list and respond to it
+            res = randint(-1,9)
+            responses.append(res)
+            self.respond_comment(choice(bubbles), res)
+            # because responding to one redraws all, we need to "refresh" and
+            # pull from the DOM again
+            bubbles = self.find_elements_by_tag_name('image')
+
+        return responses
 
     def qual_questions_random_responses(self):
         """Randomly writes a response to a qualitative question. Returns the
@@ -205,6 +248,7 @@ class TestDriver(webdriver.Chrome):
         return personal_info
 
     """Utility stuff"""
+
     def print_log(self, log):
         """Prints a log from driver.get_log."""
         for entry in log:
@@ -243,54 +287,70 @@ class PageLoadTestCase(StaticLiveServerTestCase):
         # in order to capture normal console.log output
 
         self.driver = TestDriver(desired_capabilities=capabilities)
+        self.driver.get("%s%s" % (self.live_server_url,
+                                  reverse("pcari:landing")))
+
 
     def landing(self):
         print "********* TEST LANDING PAGE ********"
-        self.driver.get("%s%s" % (self.live_server_url,
-                                  reverse("pcari:landing")))
+        # check that we're actually on the page
+        assert reverse('pcari:landing') in self.driver.current_url
+
         self.driver.print_log(self.driver.get_log('browser'))
         self.driver.get_screenshot_as_file('landing.png')
-
+        self.driver.find_element_by_css_selector("a[href='%s']" % (reverse(
+            'pcari:quantitative-questions'
+        ))).click()
 
     def quant_questions(self):
         print "********* TEST QUANTITATIVE QUESTIONS *********"
-
-        self.driver.get("%s%s" % (self.live_server_url,
-                             reverse('pcari:quantitative-questions')))
+        # check that we're actually on the page
+        assert reverse('pcari:quantitative-questions') in self.driver.current_url
 
         responses = self.driver.quant_questions_random_responses()
 
         self.driver.print_log(self.driver.get_log('browser'))
         print(responses)
         self.driver.get_screenshot_as_file('quant-questions.png')
-
+        self.driver.find_element_by_css_selector("a[href='%s']" % (reverse(
+            'pcari:rate-comments'
+        ))).click()
 
     def rate_comments(self):
         print "********* TEST COMMENT BLOOM *********"
-        self.driver.get("%s%s" % (self.live_server_url,
-                             reverse('pcari:rate-comments')))
+        # check that we're actually on the page
+        assert reverse('pcari:rate-comments') in self.driver.current_url
+
         comments_rated = self.driver.rate_comments_random_responses()
         self.driver.print_log(self.driver.get_log('browser'))
+        print(comments_rated)
 
         self.driver.get_screenshot_as_file('rate-comments.png')
 
-        # self.driver.find_element_by_css_selector("a[href='%s']" % (
-        #     reverse('pcari:qualitative-questions')
-        # )).click()
+        self.driver.find_element_by_css_selector("a[href='%s']" % (
+            reverse('pcari:qualitative-questions')
+        )).click()
 
     def qual_questions(self):
         print "********* TEST QUALTITATIVE QUESTIONS *********"
-        self.driver.get("%s%s" % (self.live_server_url,
-                                  reverse('pcari:qualitative-questions')))
+        # check that we're actually on the page
+        assert reverse('pcari:qualitative-questions') in self.driver.current_url
+
         qual_responses = self.driver.qual_questions_random_responses()
 
         self.driver.print_log(self.driver.get_log('browser'))
         print(qual_responses)
         self.driver.get_screenshot_as_file('qual-questions.png')
 
+        self.driver.find_element_by_css_selector("a[href='%s']" % (
+            reverse('pcari:personal-information')
+        )).click()
 
     def personal_info(self):
         print "********* TEST PERSONAL INFO *********"
+        # check that we're actually on the page
+        assert reverse('pcari:personal-information') in self.driver.current_url
+
         self.driver.get("%s%s" % (self.live_server_url,
                              reverse('pcari:personal-information')))
 
@@ -298,38 +358,12 @@ class PageLoadTestCase(StaticLiveServerTestCase):
 
         self.driver.print_log(self.driver.get_log('browser'))
         print(personal_data)
+        self.driver.get_screenshot_as_file('personal-info.png')
 
     def test_urls(self):
-        """TEMP: just hits all of the methods, doesn't click & flow yet"""
+        """Clicks through views in appropriate order"""
         self.landing()
         self.quant_questions()
         self.rate_comments()
         self.qual_questions()
         self.personal_info()
-
-
-    # def test_basic_flow(self):
-    #     """Loads landing page and attempts to proceed through the app
-    #     as normal, creating random responses. Checks for successful
-    #     submission."""
-
-    #     # How many respondents are in the db?
-    #     respondent_count = Respondent.objects.count()
-
-    #     # Load Landing Page
-    #     self.driver.get("%s%s" % (self.live_server_url,
-    #                               reverse('pcari:landing')))
-    #     self.driver.get_screenshot_as_file('landing.png')
-
-    #     # Begin Survey (Advance to Personal Information
-    #     begin_button = self.driver.find_element_by_css_selector("a[href='%s']"
-    #                                 % (reverse('pcari:personal-information')))
-    #     begin_button.click()
-    #     self.driver.get_screenshot_as_file('personal-info.png')
-
-
-    #     # Advance to Quantiatative Questions
-    #     quant_button = self.driver.find_element_by_css_selector("a[href='%s']"
-    #                                 % (reverse('pcari:quantitative-questions')))
-    #     quant_button.click()
-    #     self.driver.get_screenshot_as_file('quant-qs.png')
