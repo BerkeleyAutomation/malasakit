@@ -406,6 +406,7 @@ def generate_export_filename(model_name, data_format):
 
 @profile
 @staff_member_required
+@require_GET
 def export_data(request):
     """
     Export data for a model as a file.
@@ -452,6 +453,21 @@ def export_data(request):
     return response
 
 
+@require_GET
+def fetch_location_data(request):
+    """
+    Fetch in-memory location data as JSON.
+
+    The data are structured as a doubly-nested object. The top-level object has
+    province names as keys. The values of this top-level object are objects
+    with city or municipality names as keys, and lists of barangay names as
+    values.
+    """
+    # pylint: disable=unused-argument
+    app_config = apps.get_app_config('pcari')
+    return JsonResponse(app_config.resources.get('location-data', {}))
+
+
 @profile
 def index(request):
     """ Redirect the user to the `landing` page. """
@@ -496,10 +512,7 @@ def qualitative_questions(request):
 @profile
 def personal_information(request):
     """ Render a page asking respondents for personal information. """
-    config = apps.get_app_config('pcari')
-    context = {'province_names': [(province_name['code'], province_name['name'])
-                                  for province_name in config.province_names]}
-    return render(request, 'personal-information.html', context)
+    return render(request, 'personal-information.html')
 
 
 @profile
