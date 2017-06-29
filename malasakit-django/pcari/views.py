@@ -406,6 +406,7 @@ def generate_export_filename(model_name, data_format):
 
 @profile
 @staff_member_required
+@require_GET
 def export_data(request):
     """
     Export data for a model as a file.
@@ -450,6 +451,20 @@ def export_data(request):
     response['Content-Disposition'] = 'attachment; filename="{0}"'.format(filename)
     export(response, queryset)
     return response
+
+
+@require_GET
+def fetch_location_data(request):
+    """
+    Fetch in-memory location data as JSON.
+
+    The data are structured as a doubly-nested object. The top-level object has
+    province names as keys. The values of this top-level object are objects
+    with city or municipality names as keys, and lists of barangay names as
+    values.
+    """
+    app_config = apps.get_app_config('pcari')
+    return JsonResponse(app_config.resources.get('location-data', {}))
 
 
 @profile

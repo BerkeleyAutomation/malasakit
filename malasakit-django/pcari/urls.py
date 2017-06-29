@@ -37,4 +37,6 @@ ajax_urlpatterns = [
         name='fetch-qualitative-questions'),
     url(r'^save-response/$', views.save_response, name='save-response'),
     url(r'^export-data/$', views.export_data, name='export-data'),
+    url(r'^fetch-location-data/$', views.fetch_location_data,
+        name='fetch-location-data'),
 ]
