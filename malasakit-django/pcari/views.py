@@ -34,7 +34,7 @@ from .models import Comment, CommentRating, QuantitativeQuestionRating
 from .models import MODELS, get_concrete_fields
 
 DEFAULT_LANGUAGE = settings.LANGUAGE_CODE
-DEFAULT_COMMENT_LIMIT = 1000  # Default maximum number of comments to send
+DEFAULT_COMMENT_LIMIT = 500   # Default maximum number of comments to send
 DEFAULT_STANDARD_ERROR = 4.5  # For comments with fewer than two ratings
 STANDARD_ERROR_PRECISION = 6  # Number of decimal places
 
@@ -57,8 +57,8 @@ def profile(function):
         result = function(*args, **kwargs)
         end_time = time.time()
         time_elapsed = end_time - start_time
-        message = 'Call to "{}" took {:.3f} seconds'
-        LOGGER.log(logging.DEBUG, message.format(function.__name__, time_elapsed))
+        LOGGER.log(logging.DEBUG, 'Call to "%s" took %.3f seconds',
+                   function.__name__, time_elapsed)
         return result
     return wrapper
 
@@ -178,9 +178,12 @@ def fetch_comments(request):
     except ValueError as error:
         return HttpResponseBadRequest(str(error))
 
-    comments = list(Comment.objects.filter(active=True).filter(flagged=False).all())
-    if len(comments) > limit:
-        comments = random.sample(comments, limit)
+
+    comments = Comment.objects.filter(active=True).filter(flagged=False)
+    comments = comments.exclude(message=None).exclude(message='')
+    comment_ids = comments.values_list('id', flat=True)
+    if len(comment_ids) > limit:
+        comment_ids = random.sample(comment_ids, limit)
 
     ratings_data = generate_ratings_matrix()
     respondent_id_map, _, ratings = ratings_data
@@ -188,24 +191,24 @@ def fetch_comments(request):
     components = calculate_principal_components(normalized_ratings, 2)
 
     data = {}
-    for comment in comments:
-        if comment.message:
-            standard_error = comment.standard_error
-            row_index = respondent_id_map[comment.respondent.id]
+    for comment_id in comment_ids:
+        comment = Comment.objects.get(id=comment_id)
+        standard_error = comment.standard_error
+        row_index = respondent_id_map[comment.respondent.id]
 
-            # Projects the ratings by this comment's author onto the first two
-            # principal components
-            position = list(np.round(components.dot(normalized_ratings[row_index, :]), 6))
+        # Projects the ratings by this comment's author onto the first two
+        # principal components
+        position = list(np.round(components.dot(normalized_ratings[row_index, :]), 6))
 
-            if math.isnan(standard_error):
-                standard_error = DEFAULT_STANDARD_ERROR
-            data[str(comment.id)] = {
-                'msg': comment.message,
-                'sem': round(standard_error, STANDARD_ERROR_PRECISION),
-                'pos': position,
-                'tag': comment.tag,
-                'qid': comment.question_id
-            }
+        if math.isnan(standard_error):
+            standard_error = DEFAULT_STANDARD_ERROR
+        data[str(comment.id)] = {
+            'msg': comment.message,
+            'sem': round(standard_error, STANDARD_ERROR_PRECISION),
+            'pos': position,
+            'tag': comment.tag,
+            'qid': comment.question_id
+        }
 
     return JsonResponse(data)
 
@@ -348,7 +351,7 @@ def save_response(request):
 
     for instance in model_instances:
         instance.save()
-        LOGGER.log(logging.DEBUG, 'Saved instance {0}'.format(instance))
+        LOGGER.log(logging.DEBUG, 'Saved instance %s', instance)
     return HttpResponse()
 
 
