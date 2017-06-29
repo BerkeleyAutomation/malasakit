@@ -190,8 +190,6 @@ class TestDriver(webdriver.Chrome):
         quant_q_list = self.find_element_by_id('quantitative-questions') \
                            .find_elements_by_tag_name('li')
 
-        print("number of quantitative questions:", len(quant_q_list))
-
         responses = []
         for q in quant_q_list:
             num_changes = randint(1, 8)
@@ -281,7 +279,9 @@ class TestDriver(webdriver.Chrome):
                 entry['message'])
 
     def get_local_storage(self):
-        """Gets browser localStorage and converts to a Pythong dict"""
+        """Gets browser localStorage and converts to a Python dict. IMPORTANT:
+        Purges the log before executing scripts; any other log output that has
+        been accumulated will be lost. """
 
         def strip_output(s):
             """Removes console stuff and redundant backslashes from
@@ -296,6 +296,8 @@ class TestDriver(webdriver.Chrome):
             s = s[s.find("\"") + 1:s.rfind("\"")]
             s = s.replace("\\","")
             return s
+
+        self.get_log('browser') # purges log
 
         script_get_ls_keys = """Object.keys(localStorage).forEach(function(s){
             console.log(s);
@@ -371,7 +373,7 @@ class PageLoadTestCase(StaticLiveServerTestCase):
         # check that we're actually on the page
         assert reverse('pcari:landing') in self.driver.current_url
 
-        self.driver.print_log(self.driver.get_log('browser'))
+        # self.driver.print_log(self.driver.get_log('browser'))
         self.driver.get_screenshot_as_file('landing.png')
         self.driver.find_element_by_css_selector("a[href='%s']" % (reverse(
             'pcari:quantitative-questions'
@@ -385,7 +387,7 @@ class PageLoadTestCase(StaticLiveServerTestCase):
         self.inputs['quantitative_questions'] = \
                             self.driver.quant_questions_random_responses()
 
-        self.driver.print_log(self.driver.get_log('browser'))
+        # self.driver.print_log(self.driver.get_log('browser'))
         self.driver.get_screenshot_as_file('quant-questions.png')
         self.driver.find_element_by_css_selector("a[href='%s']" % (reverse(
             'pcari:rate-comments'
@@ -398,7 +400,7 @@ class PageLoadTestCase(StaticLiveServerTestCase):
 
         self.inputs['rate-comments'] = \
                             self.driver.rate_comments_random_responses()
-        self.driver.print_log(self.driver.get_log('browser'))
+        # self.driver.print_log(self.driver.get_log('browser'))
 
         self.driver.get_screenshot_as_file('rate-comments.png')
 
@@ -414,7 +416,7 @@ class PageLoadTestCase(StaticLiveServerTestCase):
         self.inputs['qualitative-questions'] = \
                                 self.driver.qual_questions_random_responses()
 
-        self.driver.print_log(self.driver.get_log('browser'))
+        # self.driver.print_log(self.driver.get_log('browser'))
         self.driver.get_screenshot_as_file('qual-questions.png')
 
         self.driver.find_element_by_css_selector("a[href='%s']" % (
@@ -432,20 +434,29 @@ class PageLoadTestCase(StaticLiveServerTestCase):
         self.inputs['personal-info'] = \
                                     self.driver.personal_info_random_responses()
 
-        self.driver.print_log(self.driver.get_log('browser'))
+        # self.driver.print_log(self.driver.get_log('browser'))
         self.driver.get_screenshot_as_file('personal-info.png')
 
-    def test_flow_local_storage(self):
-        """Clicks through views in appropriate order"""
-        self.landing()
-        self.quant_questions()
-        self.rate_comments()
-        self.qual_questions()
-        self.personal_info()
+    def check_script_and_local_storage(self):
+        """Final check before submission: look for any errors in JavaScript
+        that didn't break flow, purge log, grab LocalStorage, and check
+        its correctness (against randomized inputs)."""
+        print "********* TEST SCRIPT ERRORS AND LOCAL STORAGE *********"
+
+        for entry in self.driver.get_log('browser'):
+            self.assertTrue(entry['level'] != 'SEVERE') # no uncaught errors
 
         print self.inputs
         local_storage = self.driver.get_local_storage()
         current_user = local_storage[local_storage['current']['data']]
         print current_user
 
-        # test quantitative responses
+    def test_flow_local_storage(self):
+        """Clicks through views in appropriate order"""
+        print('')
+        self.landing()
+        self.quant_questions()
+        self.rate_comments()
+        self.qual_questions()
+        self.personal_info()
+        self.check_script_and_local_storage()
