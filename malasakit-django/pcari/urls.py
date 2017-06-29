@@ -23,12 +23,6 @@ urlpatterns = [
     url(r'^personal-information/$', views.personal_information,
         name='personal-information'),
     url(r'^end/$', views.end, name='end'),
-
-    # ServiceWorker script- special case
-    url(r'^sw.js$',
-        TemplateView.as_view(template_name='sw.js',
-                             content_type='application/javascript'),
-        name='sw.js'),
 ]
 
 ajax_urlpatterns = [
