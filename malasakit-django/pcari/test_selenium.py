@@ -103,7 +103,7 @@ class TestDriver(webdriver.Chrome):
 
     """Up one level- individual question-answering in each view"""
 
-    def respond_comment(self, element, val):
+    def respond_comment(self, element, history):
         """Given a comment bubble element, clicks it and sets the slider to a
         given value.
 
@@ -114,7 +114,8 @@ class TestDriver(webdriver.Chrome):
 
         Args:
             element: the bubble to be clicked
-            val: int, must fall between -1 (skipped) and slider max
+            history: list of ints, all must fall between -1 (skipped) and slider
+                     max. Slider will be moved around multiple times.
         """
         # Click the bubble
         element.click()
@@ -128,16 +129,23 @@ class TestDriver(webdriver.Chrome):
 
         slider_max = int(slider.get_attribute('max'))
 
-        assert (val >= -1 and val <= slider_max), """val must be between
-        %d and %d but it was %d""" % (-1, slider_max, val)
+        assert all([val >= -1 and val <= slider_max] for val in history), \
+        """history values must be between %d and %d""" % (-1, slider_max)
 
-        if val == -1:
-            skip.click()
-        else:
-            self.set_slider_val(slider, val)
-            submit.click()
+        assert (-1 not in history or history.index(-1) == -1
+                or history.index(-1) + 1 == len(history)), """history must only
+                have -1s at end if they exist."""
+        # skipping a question knocks it out
 
-    def respond_quant_question(self, element, val):
+        for val in history:
+            if val == -1:
+                skip.click()
+                return # quit early. this is suboptimal, should write better.
+            else:
+                self.set_slider_val(slider, val)
+        submit.click()
+
+    def respond_quant_question(self, element, history):
         """Given a quantitative question bounding element (contains both the
         slider and the skip switch), responds with a given value.
 
@@ -147,25 +155,27 @@ class TestDriver(webdriver.Chrome):
 
         Args:
             element: bounding element containing both slider and skip switch
-            val: int, must fall between -1 (skipped) and slider max
+            history: list of ints, all must fall between -1 (skipped) and slider
+                     max. Slider will be moved around multiple times.
         """
         slider = element.find_element_by_class_name('quantitative-input')
         skip = element.find_element_by_class_name('switch')
 
         slider_max = int(slider.get_attribute('max'))
 
-        assert (val >= -1 and val <= slider_max), """val must be between
-        %d and %d but it was %d""" % (-1, slider_max, val)
+        assert all([val >= -1 and val <= slider_max] for val in history), \
+        """history values must be between %d and %d""" % (-1, slider_max)
 
-        # if we want to change slider value and it's currently -1, we have to
-        # hit the skip button
-        if not slider.is_enabled():
-            skip.click()
+        for val in history:
+            # if we want to change slider value and it's currently -1, we have to
+            # hit the skip button
+            if not slider.is_enabled():
+                skip.click()
 
-        if val == -1:
-            skip.click()
-        else:
-            self.set_slider_val(slider, val)
+            if val == -1:
+                skip.click()
+            else:
+                self.set_slider_val(slider, val)
 
     """Up one more level- behavior at the view level (i.e. randomly fill out)
     view and return the responses"""
@@ -185,11 +195,8 @@ class TestDriver(webdriver.Chrome):
         responses = []
         for q in quant_q_list:
             num_changes = randint(1, 8)
-            res_history = []
-            for _ in range(num_changes):
-                res = randint(-1, 9)
-                res_history.append(res)
-                self.respond_quant_question(q, res)
+            res_history = [randint(-1, 9) for _ in range(num_changes)]
+            self.respond_quant_question(q, res_history)
             responses.append(res_history)
 
         return responses
@@ -205,11 +212,17 @@ class TestDriver(webdriver.Chrome):
         count = randint(2, len(bubbles)) # rate a random number of comments
         responses = []
 
-        for _ in range(count):
+        for i in range(count):
             # randomly draw a comment bubble from the list and respond to it
-            res = randint(-1,9)
-            responses.append(res)
-            self.respond_comment(choice(bubbles), res)
+            num_changes = randint(1, 8)
+            res_history = [randint(0, 9) for _ in range(num_changes)]
+
+            if i == 0:
+                res_history.append(-1)
+                # test a skip, -1 will skip the question at the end.
+
+            self.respond_comment(choice(bubbles), res_history)
+            responses.append(res_history)
             # because responding to one redraws all, we need to "refresh" and
             # pull from the DOM again
             bubbles = self.find_elements_by_tag_name('image')
@@ -239,19 +252,21 @@ class TestDriver(webdriver.Chrome):
         age_input = self.find_element_by_id('age') # number-only input text box
         gender_input = self.find_element_by_id('gender') # dropdown
         province_input = self.find_element_by_id('province') # dropdown
+        city_input = self.find_element_by_id('city-or-municipality')
         barangay_input = self.find_element_by_id('barangay') # input text box
 
         personal_info = {
             'age': randint(0,99),
             'gender': randint(0,2),
-            'province': randint(0, 50),
+            'province': randString(),
+            'city': randString(),
             'barangay': randString()
         }
 
         self.set_text_box_val(age_input, personal_info['age'])
         self.set_select_val_by_ind(gender_input, personal_info['gender'])
-        self.set_select_val_by_ind(province_input, personal_info['province'])
-        #TODO: how many?
+        self.set_text_box_val(province_input, personal_info['province'])
+        self.set_text_box_val(city_input, personal_info['city'])
         self.set_text_box_val(barangay_input, personal_info['barangay'])
 
         return personal_info
@@ -420,7 +435,7 @@ class PageLoadTestCase(StaticLiveServerTestCase):
         self.driver.print_log(self.driver.get_log('browser'))
         self.driver.get_screenshot_as_file('personal-info.png')
 
-    def test_urls(self):
+    def test_flow_local_storage(self):
         """Clicks through views in appropriate order"""
         self.landing()
         self.quant_questions()
@@ -430,31 +445,7 @@ class PageLoadTestCase(StaticLiveServerTestCase):
 
         print self.inputs
         local_storage = self.driver.get_local_storage()
-        print local_storage[local_storage['current']['data']]
+        current_user = local_storage[local_storage['current']['data']]
+        print current_user
 
-        # script_get_ls_keys = """Object.keys(localStorage).forEach(function(s){
-        #     console.log(s);
-        # })"""
-
-        # def strip_output(s):
-        #     """Removes 'console-api 372:20' BS and redundant backslashes from
-        #     console log strings
-
-        #     TODO: FLESH OUT"""
-        #     s = s[s.find("\"") + 1:s.rfind("\"")]
-        #     s = s.replace("\\","")
-        #     return s
-
-        # self.driver.execute_script(script_get_ls_keys)
-        # # self.driver.print_log(self.driver.get_log('browser'))
-        # for entry in self.driver.get_log('browser'):
-        #     print strip_output(entry['message'])
-
-        # script_get_ls_values = """Object.values(localStorage).forEach(function (s) {
-        #     console.log(s)
-        # })"""
-
-        # self.driver.execute_script(script_get_ls_values)
-        # # self.driver.print_log(self.driver.get_log('browser'))
-        # for entry in self.driver.get_log('browser'):
-        #     print json.loads(strip_output(entry['message']))
+        # test quantitative responses
