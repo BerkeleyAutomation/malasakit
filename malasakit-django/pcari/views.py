@@ -463,6 +463,7 @@ def fetch_location_data(request):
     with city or municipality names as keys, and lists of barangay names as
     values.
     """
+    # pylint: disable=unused-argument
     app_config = apps.get_app_config('pcari')
     return JsonResponse(app_config.resources.get('location-data', {}))
 
