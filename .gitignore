@@ -79,6 +79,7 @@ ENV/
 *.sqlite3-journal
 *.json
 *.csv
+*.xlsx
 
 # macOS file finder files
 *.DS_Store
