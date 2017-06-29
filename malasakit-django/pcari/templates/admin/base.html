@@ -1,0 +1,9 @@
+{% extends 'admin/base.html' %}
+
+{% block userlinks %}
+  {% if user.is_staff %}
+    <a href="{% url 'admin:configuration' %}">Configuration</a> /
+  {% endif %}
+  <a href="{% url 'admin:analytics' %}">Analytics</a> /
+  {{ block.super }}
+{% endblock %}

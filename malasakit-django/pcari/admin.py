@@ -4,7 +4,9 @@ This module defines how Django should render the admin panel.
 
 from urllib import urlencode
 
-from django.shortcuts import redirect, reverse
+from django.shortcuts import redirect, reverse, render
+from django.views.decorators.http import require_POST
+from django.conf.urls import url
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import User, Group
@@ -22,9 +24,22 @@ class MalasakitAdminSite(admin.AdminSite):
     def get_urls(self):
         urls = super(MalasakitAdminSite, self).get_urls()
         urls += [
-            # url(),
+            url(r'^configuration', self.configuration, name='configuration'),
+            url(r'^analytics', self.analytics, name='analytics'),
+            url(r'^change-bloom-icon/', self.change_bloom_icon,
+                name='change-bloom-icon'),
         ]
         return urls
+
+    def configuration(self, request):
+        return render(request, 'admin/configuration.html')
+
+    def analytics(self, request):
+        return render(request, 'admin/analytics.html')
+
+    @require_POST
+    def change_bloom_icon(self, request):
+        return 'OK'
 
 # pylint: disable=invalid-name
 site = MalasakitAdminSite()
