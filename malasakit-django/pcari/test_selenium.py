@@ -7,7 +7,7 @@ from django.conf import settings
 
 import json
 
-from random import choice, randint
+from random import choice, randint, sample
 import string
 
 from .models import Respondent
@@ -193,7 +193,7 @@ class TestDriver(webdriver.Chrome):
         responses = []
         for q in quant_q_list:
             num_changes = randint(1, 8)
-            res_history = [randint(-1, 9) for _ in range(num_changes)]
+            res_history = sample(range(0,10), num_changes) # unique
             self.respond_quant_question(q, res_history)
             responses.append(res_history)
 
@@ -213,7 +213,7 @@ class TestDriver(webdriver.Chrome):
         for i in range(count):
             # randomly draw a comment bubble from the list and respond to it
             num_changes = randint(1, 8)
-            res_history = [randint(0, 9) for _ in range(num_changes)]
+            res_history = sample(range(0,10), num_changes) # unique
 
             if i == 0:
                 res_history.append(-1)
@@ -384,7 +384,7 @@ class PageLoadTestCase(StaticLiveServerTestCase):
         # check that we're actually on the page
         assert reverse('pcari:quantitative-questions') in self.driver.current_url
 
-        self.inputs['quantitative_questions'] = \
+        self.inputs['quantitative-questions'] = \
                             self.driver.quant_questions_random_responses()
 
         # self.driver.print_log(self.driver.get_log('browser'))
@@ -446,10 +446,41 @@ class PageLoadTestCase(StaticLiveServerTestCase):
         for entry in self.driver.get_log('browser'):
             self.assertTrue(entry['level'] != 'SEVERE') # no uncaught errors
 
-        print self.inputs
         local_storage = self.driver.get_local_storage()
-        current_user = local_storage[local_storage['current']['data']]
-        print current_user
+        current_user = local_storage[local_storage['current']['data']]['data']
+
+        # test quant question answers
+        for k in current_user['question-ratings'].keys():
+            i = int(k) - 1 # keys are 1-indexed and strings
+            # additionally, score histories on client side have a leading 0
+            ls_list = current_user['question-ratings'][k][1:]
+            expected_list = self.inputs['quantitative-questions'][i]
+            self.assertListEqual(ls_list, expected_list,
+                                 msg="""Incorrect history on quant q %s (index
+                                 %s), expected %s but got %s""" % (k, i,
+                                               expected_list, ls_list))
+
+        # test number of comments rated
+        expected_num_comments_rated = len(self.inputs['rate-comments'])
+        ls_num_comments_rated = len(current_user['comment-ratings'])
+        self.assertEqual(ls_num_comments_rated, expected_num_comments_rated)
+
+        # test qual question answers
+        for k in current_user['comments'].keys():
+            i = int(k) - 1 # keys are 1-indexed and strings
+            comment = current_user['comments'][k]
+            expected_comment = self.inputs['qualitative-questions'][i]
+            self.assertEqual(comment, expected_comment)
+
+        # test personal info
+        self.assertEqual(current_user['respondent-data']['province'],
+                         self.inputs['personal-info']['province'])
+        self.assertEqual(current_user['respondent-data']['age'],
+                         self.inputs['personal-info']['age'])
+        self.assertEqual(current_user['respondent-data']['city-or-municipality'],
+                         self.inputs['personal-info']['city'])
+        self.assertEqual(current_user['respondent-data']['barangay'],
+                         self.inputs['personal-info']['barangay'])
 
     def test_flow_local_storage(self):
         """Clicks through views in appropriate order"""
