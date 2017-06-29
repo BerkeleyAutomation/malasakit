@@ -177,15 +177,13 @@ def fetch_comments(request):
     except ValueError as error:
         return HttpResponseBadRequest(str(error))
 
-
     comments = Comment.objects.filter(active=True).filter(flagged=False)
     comments = comments.exclude(message=None).exclude(message='')
     comment_ids = comments.values_list('id', flat=True)
     if len(comment_ids) > limit:
         comment_ids = random.sample(comment_ids, limit)
 
-    ratings_data = generate_ratings_matrix()
-    respondent_id_map, _, ratings = ratings_data
+    respondent_id_map, _, ratings = generate_ratings_matrix()
     normalized_ratings = normalize_ratings_matrix(ratings)
     components = calculate_principal_components(normalized_ratings, 2)
 
@@ -196,15 +194,13 @@ def fetch_comments(request):
         row_index = respondent_id_map[comment.respondent.id]
 
         # Projects the ratings by this comment's author onto the first two
-        # principal components
-        position = list(np.round(components.dot(normalized_ratings[row_index, :]), 6))
-
+        # principal components to generate the position (`pos`).
         if math.isnan(standard_error):
             standard_error = DEFAULT_STANDARD_ERROR
         data[str(comment.id)] = {
             'msg': comment.message,
             'sem': round(standard_error, STANDARD_ERROR_PRECISION),
-            'pos': position,
+            'pos': list(np.round(components.dot(normalized_ratings[row_index, :]), 6)),
             'tag': comment.tag,
             'qid': comment.question_id
         }

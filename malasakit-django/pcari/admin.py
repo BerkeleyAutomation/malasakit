@@ -6,6 +6,8 @@ from urllib import urlencode
 
 from django.shortcuts import redirect, reverse
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin, GroupAdmin
+from django.contrib.auth.models import User, Group
 
 from .models import QualitativeQuestion, QuantitativeQuestion
 from .models import CommentRating, Comment
@@ -13,7 +15,21 @@ from .models import QuantitativeQuestionRating, Respondent
 from .models import History
 from .models import get_direct_fields
 
-admin.site.site_header = admin.site.site_title = 'Malasakit'
+
+class MalasakitAdminSite(admin.AdminSite):
+    site_header = site_title = 'Malasakit'
+
+    def get_urls(self):
+        urls = super(MalasakitAdminSite, self).get_urls()
+        urls += [
+            # url(),
+        ]
+        return urls
+
+# pylint: disable=invalid-name
+site = MalasakitAdminSite()
+site.register(User, UserAdmin)
+site.register(Group, GroupAdmin)
 
 
 class HistoryAdmin(admin.ModelAdmin):
@@ -56,7 +72,7 @@ class ResponseAdmin(HistoryAdmin):
     ordering = ('-timestamp',)
 
 
-@admin.register(CommentRating)
+@admin.register(CommentRating, site=site)
 class CommentRatingAdmin(ResponseAdmin):
     """
     Customizes admin change page function for `CommentRating`s.
@@ -85,7 +101,7 @@ class CommentRatingAdmin(ResponseAdmin):
     search_fields = ('score_history_text', 'comment__message')
 
 
-@admin.register(Comment)
+@admin.register(Comment, site=site)
 class CommentAdmin(ResponseAdmin):
     """
     Customizes admin change page functionality for `Comment`s.
@@ -126,7 +142,7 @@ class CommentAdmin(ResponseAdmin):
         self.message_user(request, message)
 
 
-@admin.register(QuantitativeQuestionRating)
+@admin.register(QuantitativeQuestionRating, site=site)
 class QuantitativeQuestionRatingAdmin(ResponseAdmin):
     """
     Customizes admin change page functionality for
@@ -165,7 +181,7 @@ class QuestionAdmin(HistoryAdmin):
     list_select_related = True
 
 
-@admin.register(QualitativeQuestion)
+@admin.register(QualitativeQuestion, site=site)
 class QualitativeQuestionAdmin(QuestionAdmin):
     """
     Customizes admin change page functionality for `QualitativeQuestionAdmin`.
@@ -181,7 +197,7 @@ class QualitativeQuestionAdmin(QuestionAdmin):
     search_fields = ('prompt', 'tag')
 
 
-@admin.register(QuantitativeQuestion)
+@admin.register(QuantitativeQuestion, site=site)
 class QuantitativeQuestionAdmin(QuestionAdmin):
     """
     Customizes admin change page functionality for `QuantitativeQuestionAdmin`.
@@ -197,7 +213,7 @@ class QuantitativeQuestionAdmin(QuestionAdmin):
     search_fields = ('prompt', 'tag')
 
 
-@admin.register(Respondent)
+@admin.register(Respondent, site=site)
 class RespondentAdmin(HistoryAdmin):
     """
     Customizes admin change page functionality for `RespondentAdmin`.
@@ -242,7 +258,7 @@ def export_selected_as_csv(modeladmin, request, queryset):
     return redirect(url)
 
 export_selected_as_csv.short_description = 'Export selected rows as CSV'
-admin.site.add_action(export_selected_as_csv)
+site.add_action(export_selected_as_csv)
 
 
 def export_selected_as_xlsx(modeladmin, request, queryset):
@@ -259,4 +275,4 @@ def export_selected_as_xlsx(modeladmin, request, queryset):
     return redirect(url)
 
 export_selected_as_xlsx.short_description = 'Export selected rows as an Excel spreadsheet'
-admin.site.add_action(export_selected_as_xlsx)
+site.add_action(export_selected_as_xlsx)
