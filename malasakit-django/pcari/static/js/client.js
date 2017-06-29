@@ -242,9 +242,10 @@ function refreshResources() {
 }
 
 function postprocess(responseData) {
-    var barangay = responseData['respondent-data'].barangay || '(No barangay)';
-    var province = responseData['respondent-data'].province || '(No province)';
-    responseData['respondent-data'].location = province + ', ' + barangay;
+    var province = responseData['respondent-data']['province'] || '(No province)';
+    var cityOrMunicipality = responseData['respondent-data']['city-or-municipality'] || '(No city or municipality)';
+    var barangay = responseData['respondent-data']['barangay'] || '(No barangay)';
+    responseData['respondent-data'].location = province + ', ' + cityOrMunicipality + ', ' + barangay;
 }
 
 function pushCompletedResponses() {

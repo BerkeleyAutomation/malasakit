@@ -511,10 +511,7 @@ def qualitative_questions(request):
 @profile
 def personal_information(request):
     """ Render a page asking respondents for personal information. """
-    config = apps.get_app_config('pcari')
-    context = {'province_names': [(province_name['code'], province_name['name'])
-                                  for province_name in config.province_names]}
-    return render(request, 'personal-information.html', context)
+    return render(request, 'personal-information.html')
 
 
 @profile
