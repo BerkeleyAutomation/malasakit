@@ -96,8 +96,9 @@ class TestDriver(webdriver.Chrome):
         assert (val >= min_range and val <= max_range), """val must be between
         %d and %d but it was %d""" % (min_range, max_range, val)
 
-        script = "$('input.quantitative-input[target-id=%s]').val(%s)" \
-        % (element.get_attribute("target-id"), val)
+        script = """$('input.quantitative-input[target-id=%s]')
+                .val(%s).trigger('change')""" \
+                % (element.get_attribute("target-id"), val)
         self.execute_script(script)
 
     """Up one level- individual question-answering in each view"""
@@ -333,7 +334,7 @@ class PageLoadTestCase(StaticLiveServerTestCase):
         # Initialize with options for ChromeDriver
         options = webdriver.ChromeOptions()
         options.add_argument('headless')
-        options.add_argument('window-size=480x720')
+        options.add_argument('window-size=480x800')
 
         # Convert to general DesiredCapabilities object
         capabilities = options.to_capabilities()
@@ -428,7 +429,8 @@ class PageLoadTestCase(StaticLiveServerTestCase):
         self.personal_info()
 
         print self.inputs
-        print self.driver.get_local_storage()
+        local_storage = self.driver.get_local_storage()
+        print local_storage[local_storage['current']['data']]
 
         # script_get_ls_keys = """Object.keys(localStorage).forEach(function(s){
         #     console.log(s);
