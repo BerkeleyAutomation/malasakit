@@ -13,7 +13,6 @@ import random
 import time
 
 # Third-party libraries
-from django.apps import apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
@@ -451,21 +450,6 @@ def export_data(request):
     response['Content-Disposition'] = 'attachment; filename="{0}"'.format(filename)
     export(response, queryset)
     return response
-
-
-@require_GET
-def fetch_location_data(request):
-    """
-    Fetch in-memory location data as JSON.
-
-    The data are structured as a doubly-nested object. The top-level object has
-    province names as keys. The values of this top-level object are objects
-    with city or municipality names as keys, and lists of barangay names as
-    values.
-    """
-    # pylint: disable=unused-argument
-    app_config = apps.get_app_config('pcari')
-    return JsonResponse(app_config.resources.get('location-data', {}))
 
 
 @profile
