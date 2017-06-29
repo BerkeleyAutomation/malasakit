@@ -57,8 +57,8 @@ def profile(function):
         result = function(*args, **kwargs)
         end_time = time.time()
         time_elapsed = end_time - start_time
-        message = 'Call to {} took {:.3f} seconds'
-        LOGGER.log(logging.INFO, message.format(function.__name__, time_elapsed))
+        message = 'Call to "{}" took {:.3f} seconds'
+        LOGGER.log(logging.DEBUG, message.format(function.__name__, time_elapsed))
         return result
     return wrapper
 
@@ -348,9 +348,11 @@ def save_response(request):
 
     for instance in model_instances:
         instance.save()
+        LOGGER.log(logging.DEBUG, 'Saved instance {0}'.format(instance))
     return HttpResponse()
 
 
+@profile
 def export_csv(stream, queryset):
     """
     Export the given `QuerySet` as comma-separated values to a stream.
@@ -374,6 +376,7 @@ def export_csv(stream, queryset):
         writer.writerow(row)
 
 
+@profile
 def export_excel(stream, queryset):
     """
     Export the given `QuerySet` as an Excel spreadsheet.

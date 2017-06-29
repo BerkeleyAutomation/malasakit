@@ -77,6 +77,30 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'cafe.wsgi.application'
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '[%(asctime)s] %(levelname)s :: %(message)s',
+        },
+    },
+    'handlers': {
+        'pcari': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'pcari.log'),
+            'formatter': 'simple',
+        },
+    },
+    'loggers': {
+        'pcari': {
+            'handlers': ['pcari'],
+            'level': 'DEBUG',
+        },
+    },
+}
+
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases

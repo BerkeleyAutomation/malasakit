@@ -24,20 +24,6 @@ class PCARIConfig(AppConfig):
         super(PCARIConfig, self).__init__(*args, **kwargs)
         self.resources = {}
 
-    def initialize_logger(self):
-        """ Configure a logger for printing to standard output. """
-        logger = logging.getLogger(self.name)
-        logger.setLevel(logging.DEBUG)
-
-        # formatter = logging.Formatter('[%(asctime)s] %(levelname)s :: %(message)s')
-
-        # console_handler = logging.StreamHandler(sys.stdout)
-        # console_handler.setLevel(logging.DEBUG)
-        # console_handler.setFormatter(formatter)
-        # logger.addHandler(console_handler)
-
-        logger.log(logging.INFO, 'Logging initialized')
-
     def load_resources(self):
         """ Load resources into memory. """
         for filename in self.RESOURCE_FILENAMES:
@@ -59,5 +45,4 @@ class PCARIConfig(AppConfig):
     def ready(self):
         # pylint: disable=unused-variable
         from . import signals
-        self.initialize_logger()
         self.load_resources()
