@@ -68,9 +68,9 @@ def accepts_ratings(ratings_model, keyword):
     """
     def ratings_aggregator(target_model):
         """ A decorator that wraps a model that can be rated. """
-        def select_ratings(self, answered=True):
+        def select_scores(self, answered=True):
             """
-            Select ratings attached to this target model instance.
+            Select scores attached to this target model instance.
 
             Args:
                 answered: When `True`, select only ratings where the respondent
@@ -82,18 +82,19 @@ def accepts_ratings(ratings_model, keyword):
                 A `list` containing this question's or comment's ratings.
             """
             query = ratings_model.objects.filter(**{keyword: self})
+            score_histories = query.values_list('score_history_text', flat=True)
+            scores = [int(history.split(',')[-1]) for history in score_histories]
             if answered:
-                excluded_ratings = [Rating.NOT_RATED, Rating.SKIPPED]
-                return [instance for instance in query
-                        if instance.score not in excluded_ratings]
-            return list(query.all())
+                excluded = [Rating.NOT_RATED, Rating.SKIPPED]
+                scores = [score for score in scores if score in excluded]
+            return scores
 
         def mean_score(self):
-            scores = [instance.score for instance in self.select_ratings()]
+            scores = self.select_scores()
             return float(sum(scores))/len(scores) if scores else float('nan')
 
         def num_ratings(self):
-            return len(self.select_ratings())
+            return len(self.select_scores())
 
         def mode_score(self):
             """
@@ -102,7 +103,7 @@ def accepts_ratings(ratings_model, keyword):
             Returns:
                 The most common answer to the question (an integer).
             """
-            scores = [instance.score for instance in self.select_ratings()]
+            scores = self.select_scores()
             if scores:
                 frequencies = Counter(scores)
                 return frequencies.most_common(1)[0][0]
@@ -115,7 +116,7 @@ def accepts_ratings(ratings_model, keyword):
             Returns:
                 `float('nan')` if the number of samples is fewer than two.
             """
-            scores = [instance.score for instance in self.select_ratings()]
+            scores = self.select_scores()
             if len(scores) < 2:
                 return float('nan')
             mean_score = float(sum(scores))/len(scores)
@@ -133,7 +134,7 @@ def accepts_ratings(ratings_model, keyword):
             return (self.stdev/num_ratings**0.5 if num_ratings > 0
                     else float('nan'))
 
-        target_model.select_ratings = select_ratings
+        target_model.select_scores = select_scores
         target_model.mean_score = property(mean_score)
         target_model.mode_score = property(mode_score)
         target_model.num_ratings = property(num_ratings)
