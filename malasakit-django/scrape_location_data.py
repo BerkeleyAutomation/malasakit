@@ -28,5 +28,5 @@ for index, row in enumerate(worksheet.rows):
     elif level is not None and level != 'Reg':
         pass
 
-with open('location-data.json', 'w+') as json_file:
+with open('pcari/config/location-data.json', 'w+') as json_file:
     json.dump(location_data, json_file)

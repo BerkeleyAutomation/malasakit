@@ -2,6 +2,7 @@
 
 from __future__ import unicode_literals
 
+import json
 import logging
 import os
 
@@ -17,6 +18,12 @@ class PCARIConfig(AppConfig):
     name = 'pcari'
     verbose_name = 'PCARI'
 
+    RESOURCE_FILENAMES = ['data/location-data.json']
+
+    def __init__(self, *args, **kwargs):
+        super(PCARIConfig, self).__init__(*args, **kwargs)
+        self.resources = {}
+
     def initialize_logger(self):
         """ Configure a logger for printing to standard output. """
         logger = logging.getLogger(self.name)
@@ -31,24 +38,26 @@ class PCARIConfig(AppConfig):
 
         logger.log(logging.INFO, 'Logging initialized')
 
-    def read_province_names(self):
-        """ Read the names of provinces in the Phillipines. """
-        # pylint: disable=attribute-defined-outside-init
-        logger = logging.getLogger(self.name)
-        path = os.path.join(settings.BASE_DIR, PCARIConfig.name,
-                            'config', 'province-names.yaml')
+    def load_resources(self):
+        """ Load resources into memory. """
+        for filename in self.RESOURCE_FILENAMES:
+            filename = os.path.join(settings.BASE_DIR, 'pcari', filename)
+            root, extension = os.path.splitext(filename)
+            name = os.path.basename(root)
 
-        if os.path.exists(path):
-            with open(path) as names_file:
-                self.province_names = yaml.load(names_file)
-                logger.log(logging.INFO, 'Successfully loaded province names')
-        else:
-            self.province_names = []
-            logger.log(logging.WARNING,
-                       'Could not find province names file at: ' + path)
+            try:
+                with open(filename) as resource_file:
+                    if extension == '.json':
+                        self.resources[name] = json.load(resource_file)
+                    elif extension == '.yaml':
+                        self.resources[name] = yaml.load(resource_file)
+                    else:
+                        raise ValueError('unsupported extension')
+            except IOError:
+                self.resources[name] = {}
 
     def ready(self):
         # pylint: disable=unused-variable
         from . import signals
         self.initialize_logger()
-        self.read_province_names()
+        self.load_resources()
