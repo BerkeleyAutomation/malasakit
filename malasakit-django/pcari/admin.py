@@ -3,7 +3,9 @@ This module defines how Django should render the admin panel.
 """
 
 from urllib import urlencode
+import os
 
+from django.conf import settings
 from django.shortcuts import redirect, reverse, render
 from django.views.decorators.http import require_POST
 from django.conf.urls import url
@@ -34,12 +36,22 @@ class MalasakitAdminSite(admin.AdminSite):
         return urls
 
     def configuration(self, request):
-        return render(request, 'admin/configuration.html', self.each_context(request))
+        context = self.each_context(request)
+        if 'messages' in request.session:
+            context['messages'] = request.session['messages']
+            del request.session['messages']
+        return render(request, 'admin/configuration.html', context)
 
     def analytics(self, request):
         return render(request, 'admin/analytics.html', self.each_context(request))
 
     def change_bloom_icon(self, request):
+        uploaded_file = request.FILES['bloom-icon']
+        path = os.path.join(settings.STATIC_ROOT, 'img', 'bloom-icon')
+        with open(path, 'wb+') as destination:
+            for chunk in uploaded_file.chunks():
+                destination.write(chunk)
+        request.session['messages'] = ['Successfully uploaded bloom icon.']
         return redirect(reverse('admin:configuration'))
 
 # pylint: disable=invalid-name

@@ -5,14 +5,7 @@
 {% block extrastyle %}
   {{ block.super }}
   <style>
-    input[type="file"] {
-      opacity: 0;
-      overflow: hidden;
-      position: absolute;
-      z-index: -1;
-    }
-
-    label {
+    input[type="file"]#bloom-icon::-webkit-file-upload-button {
       font-size: 12.5px;
       background: #79aec8;
       padding: 10px 15px;
@@ -22,12 +15,12 @@
       cursor: pointer;
     }
 
-    label:hover {
+    input[type="file"]#bloom-icon::-webkit-file-upload-button:hover {
       background: #609ab6;
     }
 
     .card-container {
-      max-width: 320px;
+      max-width: 480px;
     }
 
     .card {
@@ -44,10 +37,9 @@
     <div class="module inline-group card-container">
       <h2>Change bloom icon</h2>
       <div class="card">
-        <form action="{% url 'admin:change-bloom-icon' %}" method="POST">
+        <form action="{% url 'admin:change-bloom-icon' %}" method="POST" enctype="multipart/form-data">
           {% csrf_token %}
-          <input type="file" id="bloom-icon">
-          <label for="bloom-icon">Upload file</label>
+          <input id="bloom-icon" type="file" name="bloom-icon" accept="image/*">
           <input type="submit">
         </form>
       </div>
