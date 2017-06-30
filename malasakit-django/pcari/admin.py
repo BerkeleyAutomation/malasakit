@@ -23,6 +23,10 @@ from .models import get_direct_fields
 
 
 class MalasakitAdminSite(admin.AdminSite):
+    """
+    A custom admin site for Malasakit with augmented configuration and analytics
+    functionality.
+    """
     site_header = site_title = 'Malasakit'
 
     def get_urls(self):
@@ -38,6 +42,7 @@ class MalasakitAdminSite(admin.AdminSite):
         return urls
 
     def configuration(self, request):
+        """ Render a page for staff users to configure the application. """
         context = self.each_context(request)
         if 'messages' in request.session:
             context['messages'] = request.session['messages']
@@ -48,6 +53,8 @@ class MalasakitAdminSite(admin.AdminSite):
         return render(request, 'admin/analytics.html', self.each_context(request))
 
     def change_bloom_icon(self, request):
+        """ Save an image file of a custom bloom icon. """
+        # pylint: disable=no-self-use
         uploaded_file = request.FILES['bloom-icon']
         image_data = b64encode(uploaded_file.read())
         content_type = uploaded_file.content_type
@@ -291,8 +298,8 @@ def export_selected_as_csv(modeladmin, request, queryset):
         'keys': primary_keys,
     }
 
-    url = reverse('export-data') + '?' + urlencode(parameters)
-    return redirect(url)
+    api_url = reverse('export-data') + '?' + urlencode(parameters)
+    return redirect(api_url)
 
 export_selected_as_csv.short_description = 'Export selected rows as CSV'
 site.add_action(export_selected_as_csv)
@@ -308,8 +315,8 @@ def export_selected_as_xlsx(modeladmin, request, queryset):
         'keys': primary_keys,
     }
 
-    url = reverse('export-data') + '?' + urlencode(parameters)
-    return redirect(url)
+    api_url = reverse('export-data') + '?' + urlencode(parameters)
+    return redirect(api_url)
 
 export_selected_as_xlsx.short_description = 'Export selected rows as an Excel spreadsheet'
 site.add_action(export_selected_as_xlsx)
