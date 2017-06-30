@@ -24,8 +24,8 @@ from .models import get_direct_fields
 
 class MalasakitAdminSite(admin.AdminSite):
     """
-    A custom admin site for Malasakit with augmented configuration and analytics
-    functionality.
+    A custom admin site for Malasakit with augmented configuration and
+    statistics functionality.
     """
     site_header = site_title = 'Malasakit'
 
@@ -34,8 +34,8 @@ class MalasakitAdminSite(admin.AdminSite):
         urls += [
             url(r'^configuration/$', self.admin_view(self.configuration),
                 name='configuration'),
-            url(r'^analytics/$', self.admin_view(self.analytics),
-                name='analytics'),
+            url(r'^statistics/$', self.admin_view(self.statistics),
+                name='statistics'),
             url(r'^change-bloom-icon/$', self.admin_view(require_POST(self.change_bloom_icon)),
                 name='change-bloom-icon'),
         ]
@@ -49,8 +49,8 @@ class MalasakitAdminSite(admin.AdminSite):
             del request.session['messages']
         return render(request, 'admin/configuration.html', context)
 
-    def analytics(self, request):
-        return render(request, 'admin/analytics.html', self.each_context(request))
+    def statistics(self, request):
+        return render(request, 'admin/statistics.html', self.each_context(request))
 
     def change_bloom_icon(self, request):
         """ Save an image file of a custom bloom icon. """

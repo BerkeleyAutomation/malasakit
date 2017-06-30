@@ -1,0 +1,15 @@
+{% extends 'admin/base_site.html' %}
+
+{% load i18n %}
+
+{% block title %}{% trans 'Statistics' %}{% endblock %}
+
+{% block extrahead %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+{% endblock %}
+
+{% block content %}
+  <div id="content-main">
+    <h1>{% trans 'Statistics' %}</h1>
+  </div>
+{% endblock %}

@@ -235,6 +235,20 @@ def fetch_qualitative_questions(request):
 
 
 @profile
+@require_GET
+@staff_member_required
+def fetch_question_ratings(request):
+    ratings = QuantitativeQuestionRating.objects
+    ratings = ratings.filter(active=True).filter(question__active=True)
+    return JsonResponse({
+        str(rating.id): {
+            'qid': rating.question_id,
+            'score': rating.score,
+        } for rating in ratings
+    })
+
+
+@profile
 def make_question_ratings(respondent, responses):
     """ Generate new quantitative question model instances. """
     for question_id, scores in responses.get('question-ratings', {}).iteritems():
