@@ -77,6 +77,38 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'cafe.wsgi.application'
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '[%(asctime)s] %(levelname)s :: %(message)s',
+        },
+    },
+    'handlers': {
+        'pcari-file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'pcari.log'),
+            'formatter': 'simple',
+        },
+        'pcari-console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    'loggers': {
+        'pcari': {
+            'handlers': ['pcari-file'],
+            'level': 'DEBUG',
+        },
+    },
+}
+
+if DEBUG:
+    LOGGING['loggers']['pcari']['handlers'].append('pcari-console')
+
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
@@ -143,4 +175,6 @@ URL_ROOT = '/'  # Change to `/pcari/` in production
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
+if DEBUG:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'pcari', 'static')
 STATIC_URL = os.path.join(URL_ROOT, '/static/')

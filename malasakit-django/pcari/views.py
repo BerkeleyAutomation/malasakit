@@ -13,7 +13,6 @@ import random
 import time
 
 # Third-party libraries
-from django.apps import apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
@@ -34,7 +33,7 @@ from .models import Comment, CommentRating, QuantitativeQuestionRating
 from .models import MODELS, get_concrete_fields
 
 DEFAULT_LANGUAGE = settings.LANGUAGE_CODE
-DEFAULT_COMMENT_LIMIT = 1000  # Default maximum number of comments to send
+DEFAULT_COMMENT_LIMIT = 500   # Default maximum number of comments to send
 DEFAULT_STANDARD_ERROR = 4.5  # For comments with fewer than two ratings
 STANDARD_ERROR_PRECISION = 6  # Number of decimal places
 
@@ -57,8 +56,8 @@ def profile(function):
         result = function(*args, **kwargs)
         end_time = time.time()
         time_elapsed = end_time - start_time
-        message = 'Call to {} took {:.3f} seconds'
-        LOGGER.log(logging.INFO, message.format(function.__name__, time_elapsed))
+        LOGGER.log(logging.DEBUG, 'Call to "%s" took %.3f seconds',
+                   function.__name__, time_elapsed)
         return result
     return wrapper
 
@@ -178,34 +177,33 @@ def fetch_comments(request):
     except ValueError as error:
         return HttpResponseBadRequest(str(error))
 
-    comments = list(Comment.objects.filter(active=True).filter(flagged=False).all())
-    if len(comments) > limit:
-        comments = random.sample(comments, limit)
+    comments = Comment.objects.filter(active=True).filter(flagged=False)
+    comments = comments.exclude(message=None).exclude(message='')
+    comment_ids = comments.values_list('id', flat=True)
+    if len(comment_ids) > limit:
+        comment_ids = random.sample(comment_ids, limit)
 
-    ratings_data = generate_ratings_matrix()
-    respondent_id_map, _, ratings = ratings_data
+    respondent_id_map, _, ratings = generate_ratings_matrix()
     normalized_ratings = normalize_ratings_matrix(ratings)
     components = calculate_principal_components(normalized_ratings, 2)
 
     data = {}
-    for comment in comments:
-        if comment.message:
-            standard_error = comment.standard_error
-            row_index = respondent_id_map[comment.respondent.id]
+    for comment_id in comment_ids:
+        comment = Comment.objects.get(id=comment_id)
+        standard_error = comment.standard_error
+        row_index = respondent_id_map[comment.respondent.id]
 
-            # Projects the ratings by this comment's author onto the first two
-            # principal components
-            position = list(np.round(components.dot(normalized_ratings[row_index, :]), 6))
-
-            if math.isnan(standard_error):
-                standard_error = DEFAULT_STANDARD_ERROR
-            data[str(comment.id)] = {
-                'msg': comment.message,
-                'sem': round(standard_error, STANDARD_ERROR_PRECISION),
-                'pos': position,
-                'tag': comment.tag,
-                'qid': comment.question_id
-            }
+        # Projects the ratings by this comment's author onto the first two
+        # principal components to generate the position (`pos`).
+        if math.isnan(standard_error):
+            standard_error = DEFAULT_STANDARD_ERROR
+        data[str(comment.id)] = {
+            'msg': comment.message,
+            'sem': round(standard_error, STANDARD_ERROR_PRECISION),
+            'pos': list(np.round(components.dot(normalized_ratings[row_index, :]), 6)),
+            'tag': comment.tag,
+            'qid': comment.question_id
+        }
 
     return JsonResponse(data)
 
@@ -348,9 +346,11 @@ def save_response(request):
 
     for instance in model_instances:
         instance.save()
+        LOGGER.log(logging.DEBUG, 'Saved instance %s', instance)
     return HttpResponse()
 
 
+@profile
 def export_csv(stream, queryset):
     """
     Export the given `QuerySet` as comma-separated values to a stream.
@@ -374,6 +374,7 @@ def export_csv(stream, queryset):
         writer.writerow(row)
 
 
+@profile
 def export_excel(stream, queryset):
     """
     Export the given `QuerySet` as an Excel spreadsheet.
@@ -451,21 +452,6 @@ def export_data(request):
     response['Content-Disposition'] = 'attachment; filename="{0}"'.format(filename)
     export(response, queryset)
     return response
-
-
-@require_GET
-def fetch_location_data(request):
-    """
-    Fetch in-memory location data as JSON.
-
-    The data are structured as a doubly-nested object. The top-level object has
-    province names as keys. The values of this top-level object are objects
-    with city or municipality names as keys, and lists of barangay names as
-    values.
-    """
-    # pylint: disable=unused-argument
-    app_config = apps.get_app_config('pcari')
-    return JsonResponse(app_config.resources.get('location-data', {}))
 
 
 @profile
