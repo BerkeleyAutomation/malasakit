@@ -4,6 +4,7 @@ This module defines how Django should render the admin panel.
 
 from base64 import b64encode
 import json
+import math
 import os
 from urllib import urlencode
 
@@ -170,10 +171,22 @@ class CommentAdmin(ResponseAdmin):
     """
     Customizes admin change page functionality for `Comment`s.
     """
+    def display_mean_score(self, comment):
+        # pylint: disable=no-self-use
+        mean_score = comment.mean_score
+        return str(round(mean_score, 3)) if not math.isnan(mean_score) else '(No ratings)'
+    display_mean_score.short_description = 'Mean score'
+
+    def display_num_ratings(self, comment):
+        # pylint: disable=no-self-use
+        return comment.num_ratings
+    display_num_ratings.short_description = 'Number of ratings'
+
     # Columns to display in the Comment change list page, in order from left to
     # right
     list_display = ('respondent', 'message', 'timestamp', 'language',
-                    'flagged', 'tag', 'active')
+                    'flagged', 'tag', 'active', 'display_mean_score',
+                    'display_num_ratings')
 
     # By default first column listed in list_display is clickable; this makes
     # `message` column clickable
