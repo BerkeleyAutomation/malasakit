@@ -23,11 +23,11 @@
       Below, you can see how the other respondents answered the quantitative questions.
     {% endblocktrans %}
   </p>
-  <ol>
+  <peer-responses>
     {% for question in questions %}
-      {% with num_ratings=question.num_ratings mode=question.mode_score mean=question.mean_score|floatformat %}
-        {% if num_ratings > 0 %}
-          <li>
+      <div class="boxed">
+        {% with num_ratings=question.num_ratings mode=question.mode_score mean=question.mean_score|floatformat %}
+          {% if num_ratings > 0 %}
             <p>
               {% blocktrans trimmed %}
                 <strong>{{ num_ratings }}</strong> other people answered this question:
@@ -36,17 +36,21 @@
             <blockquote>
               {% trans question.prompt %}
             </blockquote>
-            <p>
+            <div class="bubbled">
               {% blocktrans trimmed %}
-                The most common answer was <strong>{{ mode }}</strong>.<br>
-                The average answer was <strong>{{ mean }}</strong>.
+                Your answer: <strong>{{ user-rating }}</strong>
               {% endblocktrans %}
-            </p>
-          </li>
-        {% endif %}
-      {% endwith %}
+            </div>
+            <div class="bubbled">
+              {% blocktrans trimmed %}
+                Average answer: <strong>{{ mean }}</strong>
+              {% endblocktrans %}
+            </div>
+          {% endif %}
+        {% endwith %}
+      </div>
     {% endfor %}
-  </ol>
+  </peer-responses>
   {% url 'pcari:end' as next_link %}
   {% include 'nav-buttons.html' %}
 {% endblock %}
