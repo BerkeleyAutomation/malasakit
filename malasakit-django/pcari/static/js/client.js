@@ -171,9 +171,9 @@ class Resource {
 
 function initializeResources() {
     var comments = new Resource('comments', null, 12*60*60*1000,
-                                API_URL_ROOT + '/fetch-comments/');
+                                API_URL_ROOT + '/fetch/comments/');
     var qualitativeQuestions = new Resource('qualitative-questions', null, 0,
-                                            API_URL_ROOT + '/fetch-qualitative-questions/');
+                                            API_URL_ROOT + '/fetch/qualitative-questions/');
     var current = new Resource('current', null, 12*60*60*1000);
     var locationData = new Resource('location-data', null, 12*60*60*1000,
                                     STATIC_URL_ROOT + '/data/location-data.json');
