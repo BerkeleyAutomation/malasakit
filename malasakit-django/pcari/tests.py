@@ -19,7 +19,8 @@ from .models import Comment, QuantitativeQuestionRating, CommentRating
 
 PAGE_ENDPOINTS = ['landing', 'quantitative-questions', 'peer-responses',
                   'rate-comments', 'personal-information', 'end']
-API_RETRIEVAL_ENDPOINTS = ['fetch-comments', 'fetch-qualitative-questions']
+API_RETRIEVAL_ENDPOINTS = ['fetch/comments', 'fetch/qualitative-questions']
+HTTP_OK = 200
 
 
 def generate_page_urls(endpoints=PAGE_ENDPOINTS):
@@ -163,34 +164,67 @@ class PageMarkupTestCase(TestCase):
 
 
 class PerformanceTestCase(TestCase):
-    """ Test the runtime of public-facing endpoints. """
-    ITERATIONS = 100
-
-    ACCEPTABLE_SPEED_THRESHOLD = 0.95
-    ACCEPTABLE_SPEED_TIMEOUT = 0.25  # seconds
-
+    """
+    Test the runtime of public-facing pages and API endpoints.
+    """
     def setUp(self):
         self.client = Client()
 
-    def percentage_acceptable(self, runtimes):
-        return sum(runtime < self.ACCEPTABLE_SPEED_TIMEOUT
-                   for runtime in runtimes)/len(runtimes)
+        qualitative_question = QualitativeQuestion()
+        qualitative_question.save()
 
-    def test_page_runtimes(self):
+        for _ in range(10):
+            QuantitativeQuestion().save()
+
+        for _ in range(2000):
+            respondent = Respondent()
+            respondent.save()
+
+            questions = list(QuantitativeQuestion.objects.all())
+            questions = random.sample(questions, random.randint(0, len(questions)))
+            for question in questions:
+                QuantitativeQuestionRating(question=question, respondent=respondent,
+                                           score=random.randint(-2, 9)).save()
+
+            comment = Comment(question=qualitative_question, language='en', respondent=respondent)
+            comment.save()
+
+            num_ratings = random.randrange(10)
+            for _ in range(num_ratings):
+                respondent = Respondent()
+                respondent.save()
+
+                score = random.randint(-2, 9)
+                rating = CommentRating(comment=comment, score=score,
+                                       respondent=respondent)
+                rating.save()
+
+    def validate_runtimes(self, urls, threshold=0.95, timeout=1, visits=100):
+        """ Visit a list of URLs in sequence, and validate runtimes. """
         runtimes = {}
-        for _ in range(self.ITERATIONS):
-            for url in generate_page_urls():
-                if url not in runtimes:
-                    runtimes[url] = []
+        for url in urls:
+            runtimes[url] = []
 
+        for _ in range(visits):
+            for url in urls:
                 start = time.time()
                 response = self.client.get(url)
-                self.assertEqual(response.status_code, 200)
                 end = time.time()
-
+                self.assertEqual(response.status_code, HTTP_OK)
                 time_elapsed = end - start
                 runtimes[url].append(time_elapsed)
 
-        for url in generate_page_urls():
-            self.assertGreater(self.percentage_acceptable(runtimes[url]),
-                               self.ACCEPTABLE_SPEED_THRESHOLD)
+        for url, url_runtimes in runtimes.items():
+            percentage_ok = sum(runtime < timeout for runtime in url_runtimes)
+            runtimes_repr = ', '.join(str(round(runtime, 3)) for runtime in url_runtimes)
+            message = 'Runtimes for "{0}": {1}'.format(url, runtimes_repr)
+            self.assertGreater(percentage_ok, threshold, message)
+
+    def test_page_runtimes(self):
+        self.validate_runtimes(list(generate_page_urls()), timeout=0.1)
+
+    def test_api_runtimes(self):
+        urls = [os.path.join(settings.URL_ROOT, 'api', endpoint, '')
+                for endpoint in API_RETRIEVAL_ENDPOINTS]
+
+        self.validate_runtimes(urls)

@@ -11,7 +11,7 @@ CLEANTEXT_TARGETS=Comment.message Respondent.location
 DB_TRANS_TARGETS=QuantitativeQuestion.prompt QuantitativeQuestion.left_text QuantitativeQuestion.right_text QualitativeQuestion.prompt
 LOCALES=tl
 
-all: lint test
+all: preparetrans compiletrans lint test
 
 test:
 	cd $(DJANGO_PROJECT_ROOT) && python2 manage.py test
@@ -19,6 +19,7 @@ test:
 lint: $(LINT_TARGETS:%.py=$(DJANGO_PROJECT_ROOT)/%.py)
 	$(LINT_CMD) $(LINT_OPTIONS) $^
 
+# Clean database
 cleandb:
 	cd $(DJANGO_PROJECT_ROOT) && python2 manage.py cleantext $(CLEANTEXT_TARGETS)
 
@@ -27,3 +28,7 @@ preparetrans:
 	cd $(DJANGO_PROJECT_ROOT) && python2 manage.py makedbtrans -o locale/db.pot $(DB_TRANS_TARGETS)
 	cd $(DJANGO_PROJECT_ROOT) && python2 manage.py makemessages --locale=$(LOCALES)
 	rm $(DJANGO_PROJECT_ROOT)/locale/db.pot
+
+# Compile translations
+compiletrans:
+	cd $(DJANGO_PROJECT_ROOT) && python2 manage.py compilemessages
