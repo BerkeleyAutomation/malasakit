@@ -86,6 +86,8 @@ class HistoryAdmin(admin.ModelAdmin):
     """
     save_as_continue = False
 
+    actions = ('mark_active', 'mark_inactive')
+
     def save_model(self, request, obj, form, change):
         if change and issubclass(obj.__class__, History):
             old_instance = obj.__class__.objects.get(id=obj.id)
@@ -103,6 +105,20 @@ class HistoryAdmin(admin.ModelAdmin):
             field_names.remove('active')
             return field_names
         return self.readonly_fields + ('predecessor', )
+
+    def mark_active(self, request, queryset):
+        """ Mark selected instances as active in bulk. """
+        num_marked = queryset.update(active=True)
+        message = '{0} row{1} successfully marked as active.'
+        message = message.format(num_marked, 's' if num_marked != 1 else '')
+        self.message_user(request, message)
+
+    def mark_inactive(self, request, queryset):
+        """ Mark selected instances as inactive in bulk. """
+        num_marked = queryset.update(active=False)
+        message = '{0} row{1} successfully marked as inactive.'
+        message = message.format(num_marked, 's' if num_marked != 1 else '')
+        self.message_user(request, message)
 
 
 class ResponseAdmin(HistoryAdmin):
