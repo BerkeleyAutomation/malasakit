@@ -87,11 +87,12 @@
           {% include 'questions/questions.html' %}
         {% endwith %}
         <ul class="button-group">
-          <label class="switch">
-            <input type="checkbox" class="skip" target-id="{{ question.id }}">
-            <div class="slider round"></div>
-          </label>
-          <p>Skip Question</p>
+          <li>
+            <button id="skip" class="red">{% trans 'Skip' %}</button>
+          </li>
+          <li>
+            <button id="submit" class="blue">{% trans 'Submit' %}</button>
+          </li>
         </ul>
       </li>
     {% endfor %}
