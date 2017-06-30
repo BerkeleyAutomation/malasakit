@@ -81,7 +81,17 @@
             position: 'bottom'
           },
           scales: {
+            xAxes: [{
+              scaleLabel: {
+                display: true,
+                labelString: 'Rating'
+              }
+            }],
             yAxes: [{
+              scaleLabel: {
+                display: true,
+                labelString: 'Number of respondents'
+              },
               ticks: {
                 beginAtZero:true
               }
