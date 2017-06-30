@@ -28,7 +28,7 @@ import unicodecsv as csv
 
 # Local modules and models
 from .models import Respondent
-from .models import QuantitativeQuestion, QualitativeQuestion
+from .models import Question, QuantitativeQuestion, QualitativeQuestion
 from .models import Comment, CommentRating, QuantitativeQuestionRating
 from .models import MODELS, get_concrete_fields
 
@@ -208,36 +208,68 @@ def fetch_comments(request):
     return JsonResponse(data)
 
 
+def translate(text, language_code):
+    translation.activate(language_code)
+    return ugettext(text)
+
+
+def serialize_question_data(question_model, active_only=True):
+    """
+    Retrieve question data in a JSON-ready format.
+
+    Args:
+        question_model: A model to query.
+        active_only: Whether to fetch only active questions (default: True).
+
+    Returns:
+        A dictionary whose keys are unique question identifiers as strings and
+        whose values are a nested dictionary of translated prompts. This prompt
+        dictionary has language codes as keys and translated prompts as values.
+    """
+    assert issubclass(question_model, Question)
+    query = question_model.objects
+    if active_only:
+        query = query.filter(active=True)
+    return {
+        str(question.id): {
+            code: translate(question.prompt, code)
+            for code, _ in settings.LANGUAGES
+        } for question in query.iterator()
+    }
+
+
+@profile
+@require_GET
+def fetch_quantitative_questions(request):
+    """ Fetch quantitative question data as JSON. """
+    # pylint: disable=unused-argument
+    return JsonResponse(serialize_question_data(QuantitativeQuestion))
+
+
 @profile
 @require_GET
 def fetch_qualitative_questions(request):
+    """ Fetch all qualitative question data as JSON. """
+    # pylint: disable=unused-argument
+    return JsonResponse(serialize_question_data(QualitativeQuestion))
+
+
+@profile
+@require_GET
+def fetch_question_ratings(request):
     """
-    Fetch all qualitative question data as JSON.
+    Fetch quantitative question ratings as JSON.
 
     Args:
         request: The request is ignored.
 
     Returns:
-        A `JsonResponse` containing a JSON object mapping qualitative question
-        identifiers to objects that map language codes to translated prompts.
+        A `JsonResponse` containing a JSON object mapping quantitative question
+        rating identifiers to rating objects, each with two keys:
+            qid: The quantitative question identifier.
+            score: How this question was rated.
     """
     # pylint: disable=unused-argument
-    def translate(text, language_code):
-        translation.activate(language_code)
-        return ugettext(text)
-
-    return JsonResponse({
-        str(question.id): {
-            code: translate(question.prompt, code)
-            for code, name in settings.LANGUAGES
-        } for question in QualitativeQuestion.objects.filter(active=True).all()
-    })
-
-
-@profile
-@require_GET
-@staff_member_required
-def fetch_question_ratings(request):
     ratings = QuantitativeQuestionRating.objects
     ratings = ratings.filter(active=True).filter(question__active=True)
     return JsonResponse({
