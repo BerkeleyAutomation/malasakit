@@ -86,7 +86,7 @@ def accepts_ratings(ratings_model, keyword):
             scores = [int(history.split(',')[-1]) for history in score_histories]
             if answered:
                 excluded = [Rating.NOT_RATED, Rating.SKIPPED]
-                scores = [score for score in scores if score in excluded]
+                scores = [score for score in scores if score not in excluded]
             return scores
 
         def mean_score(self):
