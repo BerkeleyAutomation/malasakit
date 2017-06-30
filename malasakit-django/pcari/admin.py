@@ -59,7 +59,11 @@ class MalasakitAdminSite(admin.AdminSite):
         image_data = b64encode(uploaded_file.read())
         content_type = uploaded_file.content_type
 
-        path = os.path.join(settings.STATIC_ROOT, 'data', 'bloom-icon.json')
+        parent_dir = os.path.join(settings.STATIC_ROOT, 'data')
+        if not os.path.exists(parent_dir):
+            os.mkdir(parent_dir)
+
+        path = os.path.join(parent_dir, 'bloom-icon.json')
         with open(path, 'wb+') as destination:
             obj = {
                 'content-type': content_type,
