@@ -3,16 +3,19 @@ This module defines the application's views, which are needed to render pages.
 """
 
 # Standard library
+from __future__ import unicode_literals
+import datetime
 import logging
 import json
 import math
+import mimetypes
 import random
 import time
 
 # Third-party libraries
-from django.apps import apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
+from django.contrib.admin.views.decorators import staff_member_required
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_GET, require_POST
@@ -20,14 +23,17 @@ from django.urls import reverse
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _, ugettext
 import numpy as np
+from openpyxl import Workbook
+import unicodecsv as csv
 
 # Local modules and models
 from .models import Respondent
 from .models import QuantitativeQuestion, QualitativeQuestion
 from .models import Comment, CommentRating, QuantitativeQuestionRating
+from .models import MODELS, get_concrete_fields
 
 DEFAULT_LANGUAGE = settings.LANGUAGE_CODE
-DEFAULT_COMMENT_LIMIT = 1000  # Default maximum number of comments to send
+DEFAULT_COMMENT_LIMIT = 500   # Default maximum number of comments to send
 DEFAULT_STANDARD_ERROR = 4.5  # For comments with fewer than two ratings
 STANDARD_ERROR_PRECISION = 6  # Number of decimal places
 
@@ -50,8 +56,8 @@ def profile(function):
         result = function(*args, **kwargs)
         end_time = time.time()
         time_elapsed = end_time - start_time
-        message = 'Call to {} took {:.3f} seconds'
-        LOGGER.log(logging.INFO, message.format(function.__name__, time_elapsed))
+        LOGGER.log(logging.DEBUG, 'Call to "%s" took %.3f seconds',
+                   function.__name__, time_elapsed)
         return result
     return wrapper
 
@@ -171,34 +177,33 @@ def fetch_comments(request):
     except ValueError as error:
         return HttpResponseBadRequest(str(error))
 
-    comments = list(Comment.objects.filter(active=True).all())
-    if len(comments) > limit:
-        comments = random.sample(comments, limit)
+    comments = Comment.objects.filter(active=True).filter(flagged=False)
+    comments = comments.exclude(message=None).exclude(message='')
+    comment_ids = comments.values_list('id', flat=True)
+    if len(comment_ids) > limit:
+        comment_ids = random.sample(comment_ids, limit)
 
-    ratings_data = generate_ratings_matrix()
-    respondent_id_map, _, ratings = ratings_data
+    respondent_id_map, _, ratings = generate_ratings_matrix()
     normalized_ratings = normalize_ratings_matrix(ratings)
     components = calculate_principal_components(normalized_ratings, 2)
 
     data = {}
-    for comment in comments:
-        if comment.message:
-            standard_error = comment.standard_error
-            row_index = respondent_id_map[comment.respondent.id]
+    for comment_id in comment_ids:
+        comment = Comment.objects.get(id=comment_id)
+        standard_error = comment.standard_error
+        row_index = respondent_id_map[comment.respondent.id]
 
-            # Projects the ratings by this comment's author onto the first two
-            # principal components
-            position = list(np.round(components.dot(normalized_ratings[row_index, :]), 6))
-
-            if math.isnan(standard_error):
-                standard_error = DEFAULT_STANDARD_ERROR
-            data[str(comment.id)] = {
-                'msg': comment.message,
-                'sem': round(standard_error, STANDARD_ERROR_PRECISION),
-                'pos': position,
-                'tag': comment.tag,
-                'qid': comment.question_id
-            }
+        # Projects the ratings by this comment's author onto the first two
+        # principal components to generate the position (`pos`).
+        if math.isnan(standard_error):
+            standard_error = DEFAULT_STANDARD_ERROR
+        data[str(comment.id)] = {
+            'msg': comment.message,
+            'sem': round(standard_error, STANDARD_ERROR_PRECISION),
+            'pos': list(np.round(components.dot(normalized_ratings[row_index, :]), 6)),
+            'tag': comment.tag,
+            'qid': comment.question_id
+        }
 
     return JsonResponse(data)
 
@@ -341,7 +346,112 @@ def save_response(request):
 
     for instance in model_instances:
         instance.save()
+        LOGGER.log(logging.DEBUG, 'Saved instance %s', instance)
     return HttpResponse()
+
+
+@profile
+def export_csv(stream, queryset):
+    """
+    Export the given `QuerySet` as comma-separated values to a stream.
+
+    Args:
+        stream: A `file`-like object with a `write` method.
+        queryset: A Django `QuerySet` of instances to export.
+
+    Returns:
+        None. Has a side effect of writing to the `stream`.
+    """
+    concrete_fields = get_concrete_fields(queryset.model)
+    field_names = [unicode(field.get_attname()) for field in concrete_fields]
+
+    writer = csv.writer(stream, encoding='utf-8')
+    writer.writerow(field_names)
+
+    for instance in queryset.iterator():
+        row = [getattr(instance, field_name) for field_name in field_names]
+        row = [unicode(cell) if cell is not None else '' for cell in row]
+        writer.writerow(row)
+
+
+@profile
+def export_excel(stream, queryset):
+    """
+    Export the given `QuerySet` as an Excel spreadsheet.
+
+    Args:
+        stream: A `file`-like object with a `write` method.
+        queryset: A Django `QuerySet` of instances to export.
+
+    Returns:
+        None. Has a side effect of writing to the `stream`.
+    """
+    concrete_fields = get_concrete_fields(queryset.model)
+    field_names = [unicode(field.get_attname()) for field in concrete_fields]
+
+    workbook = Workbook(write_only=True)
+    worksheet = workbook.create_sheet(queryset.model.__name__)
+    worksheet.append(field_names)
+
+    for instance in queryset.iterator():
+        row = [getattr(instance, field_name) for field_name in field_names]
+        worksheet.append(row)
+
+    workbook.save(stream)
+
+
+def generate_export_filename(model_name, data_format):
+    now = datetime.datetime.now()
+    return model_name + '-' + now.strftime('%Y-%m-%d') + '.' + data_format
+
+
+@profile
+@staff_member_required
+@require_GET
+def export_data(request):
+    """
+    Export data for a model as a file.
+
+    Args:
+        request: A request object that supports the following GET parameters:
+            model: The name of the model to export data for. This is a requred
+                   parameter.
+            data_format: The name of the data format (default: csv). Supported
+                         options are: csv.
+            keys: A comma-separated list of primary keys (default: select all
+                  instances). Only works for numeric primary keys.
+
+    Returns:
+        An `HttpResponse` that contains a file.
+    """
+    data_format = request.GET.get('format', 'csv')
+    export_functions = {
+        'csv': export_csv,
+        'xlsx': export_excel,
+    }
+    try:
+        export = export_functions[data_format]
+    except KeyError:
+        return HttpResponseBadRequest('no such data format')
+
+    try:
+        model_name = request.GET['model']
+        model = MODELS[model_name]
+    except KeyError:
+        return HttpResponseBadRequest('no such model')
+    queryset = model.objects
+
+    primary_keys = request.GET.get('keys', None)
+    if primary_keys is not None:
+        primary_keys = list(map(int, primary_keys.split(',')))
+        queryset = queryset.filter(pk__in=primary_keys)
+
+    filename = generate_export_filename(model_name, data_format)
+    content_type, _ = mimetypes.guess_type(filename)
+    response = HttpResponse(content_type=content_type)
+    response['Content-Disposition'] = 'attachment; filename="{0}"'.format(filename)
+    export(response, queryset)
+    return response
 
 
 @profile
@@ -388,10 +498,7 @@ def qualitative_questions(request):
 @profile
 def personal_information(request):
     """ Render a page asking respondents for personal information. """
-    config = apps.get_app_config('pcari')
-    context = {'province_names': [(province_name['code'], province_name['name'])
-                                  for province_name in config.province_names]}
-    return render(request, 'personal-information.html', context)
+    return render(request, 'personal-information.html')
 
 
 @profile

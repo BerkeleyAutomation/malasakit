@@ -9,8 +9,9 @@
 const DEFAULT_LANGUAGE = 'tl';
 const DEFAULT_TIMEOUT = 5000;
 
-const APP_URL_ROOT = '';
+const APP_URL_ROOT = '';  // TODO: Change to `/pcari` in production
 const API_URL_ROOT = APP_URL_ROOT + '/api';
+const STATIC_URL_ROOT = APP_URL_ROOT + '/static';
 const RESPONSE_SAVE_ENDPOINT = API_URL_ROOT + '/save-response/';
 
 const RESPONSE_KEY_PREFIX = 'response-';
@@ -174,7 +175,11 @@ function initializeResources() {
     var qualitativeQuestions = new Resource('qualitative-questions', null, 0,
                                             API_URL_ROOT + '/fetch-qualitative-questions/');
     var current = new Resource('current', null, 12*60*60*1000);
-    var initialResources = [comments, qualitativeQuestions, current];
+    var locationData = new Resource('location-data', null, 12*60*60*1000,
+                                    STATIC_URL_ROOT + '/data/location-data.json');
+    var bloomIcon = new Resource('bloom-icon', null, 0, STATIC_URL_ROOT + '/data/bloom-icon.json');
+    var initialResources = [comments, qualitativeQuestions, current,
+                            locationData, bloomIcon];
 
     comments.default_sample_size = 8;
     current.updateTimestamp();
@@ -239,9 +244,10 @@ function refreshResources() {
 }
 
 function postprocess(responseData) {
-    var barangay = responseData['respondent-data'].barangay || '(No barangay)';
-    var province = responseData['respondent-data'].province || '(No province)';
-    responseData['respondent-data'].location = province + ', ' + barangay;
+    var province = responseData['respondent-data']['province'] || '(No province)';
+    var cityOrMunicipality = responseData['respondent-data']['city-or-municipality'] || '(No city or municipality)';
+    var barangay = responseData['respondent-data']['barangay'] || '(No barangay)';
+    responseData['respondent-data'].location = province + ', ' + cityOrMunicipality + ', ' + barangay;
 }
 
 function pushCompletedResponses() {

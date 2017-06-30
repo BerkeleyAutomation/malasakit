@@ -15,7 +15,7 @@ import json
 # Public-facing models (parent models are excluded)
 __all__ = ['Comment', 'QuantitativeQuestionRating', 'CommentRating',
            'QualitativeQuestion', 'QuantitativeQuestion', 'Respondent',
-           'OptionQuestion', 'OptionResponse']
+           'OptionQuestion', 'OptionResponse', 'MODELS']
 
 from django.conf import settings
 from django.db import models
@@ -68,9 +68,9 @@ def accepts_ratings(ratings_model, keyword):
     """
     def ratings_aggregator(target_model):
         """ A decorator that wraps a model that can be rated. """
-        def select_ratings(self, answered=True):
+        def select_scores(self, answered=True):
             """
-            Select ratings attached to this target model instance.
+            Select scores attached to this target model instance.
 
             Args:
                 answered: When `True`, select only ratings where the respondent
@@ -82,18 +82,19 @@ def accepts_ratings(ratings_model, keyword):
                 A `list` containing this question's or comment's ratings.
             """
             query = ratings_model.objects.filter(**{keyword: self})
+            score_histories = query.values_list('score_history_text', flat=True)
+            scores = [int(history.split(',')[-1]) for history in score_histories]
             if answered:
-                excluded_ratings = [Rating.NOT_RATED, Rating.SKIPPED]
-                return [instance for instance in query
-                        if instance.score not in excluded_ratings]
-            return list(query.all())
+                excluded = [Rating.NOT_RATED, Rating.SKIPPED]
+                scores = [score for score in scores if score not in excluded]
+            return scores
 
         def mean_score(self):
-            scores = [instance.score for instance in self.select_ratings()]
+            scores = self.select_scores()
             return float(sum(scores))/len(scores) if scores else float('nan')
 
         def num_ratings(self):
-            return len(self.select_ratings())
+            return len(self.select_scores())
 
         def mode_score(self):
             """
@@ -102,7 +103,7 @@ def accepts_ratings(ratings_model, keyword):
             Returns:
                 The most common answer to the question (an integer).
             """
-            scores = [instance.score for instance in self.select_ratings()]
+            scores = self.select_scores()
             if scores:
                 frequencies = Counter(scores)
                 return frequencies.most_common(1)[0][0]
@@ -115,7 +116,7 @@ def accepts_ratings(ratings_model, keyword):
             Returns:
                 `float('nan')` if the number of samples is fewer than two.
             """
-            scores = [instance.score for instance in self.select_ratings()]
+            scores = self.select_scores()
             if len(scores) < 2:
                 return float('nan')
             mean_score = float(sum(scores))/len(scores)
@@ -133,7 +134,7 @@ def accepts_ratings(ratings_model, keyword):
             return (self.stdev/num_ratings**0.5 if num_ratings > 0
                     else float('nan'))
 
-        target_model.select_ratings = select_ratings
+        target_model.select_scores = select_scores
         target_model.mean_score = property(mean_score)
         target_model.mode_score = property(mode_score)
         target_model.num_ratings = property(num_ratings)
@@ -159,6 +160,19 @@ def validate_has_input_type(model):
     return model
 
 
+def get_concrete_fields(model):
+    return [field for field in model._meta.get_fields()
+            if not field.is_relation
+                or field.one_to_one
+                or (field.many_to_one and field.related_model)
+    ]
+
+
+def get_direct_fields(model):
+    return [field for field in model._meta.get_fields()
+            if not field.auto_created or field.concrete]
+
+
 class History(models.Model):
     """
     The `History` abstract model records how one model instance derives from
@@ -182,10 +196,6 @@ class History(models.Model):
                                     null=True, default=None)
     active = models.BooleanField(default=True)
 
-    def get_direct_fields(self):
-        return [field for field in self.__class__._meta.get_fields()
-                if not field.auto_created or field.concrete]
-
     def make_copy(self):
         """
         Make a copy of the current model, excluding unique fields.
@@ -195,7 +205,7 @@ class History(models.Model):
         """
         model = self.__class__
         copy = model()
-        for field in self.get_direct_fields():
+        for field in get_direct_fields(model):
             if field.editable and not field.unique:
                 value = getattr(self, field.name)
                 setattr(copy, field.name, value)
@@ -214,7 +224,7 @@ class History(models.Model):
         """
         model = self.__class__
         assert isinstance(other, model)
-        for field in self.get_direct_fields():
+        for field in get_direct_fields(model):
             if getattr(self, field.name) != getattr(other, field.name):
                 yield field.name
 
@@ -577,3 +587,10 @@ class Respondent(History):
     @property
     def comments_made(self):
         return Comment.objects.filter(respondent=self).all()
+
+
+# A lookup table by name
+MODELS = {model.__name__: model for model in [Comment, QuantitativeQuestionRating,
+                                              CommentRating, QualitativeQuestion,
+                                              QuantitativeQuestion, Respondent,
+                                              OptionQuestion, OptionResponse]}

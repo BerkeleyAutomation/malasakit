@@ -2,12 +2,22 @@
  */
 
 // The Base64 representation of a PNG of `fa-comment` from Font Awesome
-const ICON_IMAGE = 'iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAABDklEQVR4nNXVzyqEURzG8c+8+Z/i'
-                 + 'DmwkKymRspNbsLBxA27AzkLZyF7Kn4XsJEulRsMVuAHJhiZRUzKpGYuZt6bXyzDOSZ56luf7PefX'
-                 + 'qR9/mDGs4QxPqGf6jEusY+In4DmUcoDteoX5r8Dd2OkAnO0e+rLwXpwHgKctob9VsB0QnvYohc9G'
-                 + 'gKdd0DTFEhzDTUTBfQFV9IiTtwTlSHB4SFCMKCjCNGrCz7+GqdS0EUGw2fqUAvYDwg+R5M1sBS+/'
-                 + 'AL9itXnhT7PbAbiKA4xmYVnTIO4wnCMuY6h5poJbXOMCpxo7o222cm5XweJ3DrfLko/f9QQjIeDj'
-                 + 'GnOs41FjaUyGAKcZwDJm0BUS/P/zDqZIDzgtIDS2AAAAAElFTkSuQmCC';
+var ICON_IMAGE = 'iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAABDklEQVR4nNXVzyqEURzG8c+8+Z/i'
+               + 'DmwkKymRspNbsLBxA27AzkLZyF7Kn4XsJEulRsMVuAHJhiZRUzKpGYuZt6bXyzDOSZ56luf7PefX'
+               + 'qR9/mDGs4QxPqGf6jEusY+In4DmUcoDteoX5r8Dd2OkAnO0e+rLwXpwHgKctob9VsB0QnvYohc9G'
+               + 'gKdd0DTFEhzDTUTBfQFV9IiTtwTlSHB4SFCMKCjCNGrCz7+GqdS0EUGw2fqUAvYDwg+R5M1sBS+/'
+               + 'AL9itXnhT7PbAbiKA4xmYVnTIO4wnCMuY6h5poJbXOMCpxo7o222cm5XweJ3DrfLko/f9QQjIeDj'
+               + 'GnOs41FjaUyGAKcZwDJm0BUS/P/zDqZIDzgtIDS2AAAAAElFTkSuQmCC';
+
+var CONTENT_TYPE = 'image/png';
+
+if (Resource.exists('bloom-icon')) {
+    var resource = Resource.load('bloom-icon');
+    if (resource.data !== null) {
+        ICON_IMAGE = resource.data['encoded-image'];
+        CONTENT_TYPE = resource.data['content-type'];
+    }
+}
 
 const NO_TAG_PLACEHOLDER = '(?)';
 const MIN_REQUIRED_COMMENT_RATINGS = 2;
@@ -144,7 +154,7 @@ function renderComments() {
         startCommentRating(node.commentID);
     });
     nodes.append('image')
-         .attr('xlink:href', 'data:image/png;base64,' + ICON_IMAGE);
+         .attr('xlink:href', 'data:' + CONTENT_TYPE + ';base64,' + ICON_IMAGE);
     nodes.append('text').text(node => node.tag).attr('x', 30).attr('y', 15)
          .attr('fill', '#1371ad');
 
