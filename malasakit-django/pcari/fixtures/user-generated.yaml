@@ -17,31 +17,31 @@
 - model: pcari.quantitativequestionrating
   fields:
     respondent_id: 1
-    score_history_text: '3'
+    score: 3
     question_id: 1
     timestamp: 2017-06-01 00:00:00
 - model: pcari.quantitativequestionrating
   fields:
     respondent_id: 2
-    score_history_text: '0'
+    score: 0
     question_id: 1
     timestamp: 2017-06-01 00:00:01
 - model: pcari.quantitativequestionrating
   fields:
     respondent_id: 3
-    score_history_text: '1'
+    score: 1
     question_id: 1
     timestamp: 2017-06-01 00:00:02
 - model: pcari.quantitativequestionrating
   fields:
     respondent_id: 4
-    score_history_text: '-1'
+    score: -1
     question_id: 1
     timestamp: 2017-06-01 00:00:03
 - model: pcari.quantitativequestionrating
   fields:
     respondent_id: 5
-    score_history_text: '-2'
+    score: -2
     question_id: 1
     timestamp: 2017-06-01 00:00:04
 

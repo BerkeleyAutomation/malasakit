@@ -45,7 +45,7 @@ class UserFeedbackTestCase(TestCase):
         prev_respondent = random.sample(prev_respondents, 1)[0]
         with self.assertRaises(IntegrityError):
             QuantitativeQuestionRating(respondent=prev_respondent,
-                                       score_history_text='2',
+                                       score=2,
                                        question=self.quant_question).save()
 
     def test_quantitative_question_rating_timestamp_order(self):
@@ -119,13 +119,13 @@ class ResponseSaveTestCase(TestCase):
 
         http_response = self.push({
             'question-ratings': {
-                '1': [4]
+                '1': 4
             },
             'comments': {
                 '1': 'hello world',
             },
             'comment-ratings': {
-                str(comment.id): [2]
+                str(comment.id): 2
             },
             'respondent-data': {
                 'language': 'tl'
