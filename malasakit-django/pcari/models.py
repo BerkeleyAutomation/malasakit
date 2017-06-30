@@ -82,12 +82,10 @@ def accepts_ratings(ratings_model, keyword):
                 A `list` containing this question's or comment's ratings.
             """
             query = ratings_model.objects.filter(**{keyword: self})
-            score_histories = query.values_list('score_history_text', flat=True)
-            scores = [int(history.split(',')[-1]) for history in score_histories]
             if answered:
                 excluded = [Rating.NOT_RATED, Rating.SKIPPED]
-                scores = [score for score in scores if score not in excluded]
-            return scores
+                query = query.exclude(score__in=excluded)
+            return query.values_list('score', flat=True)
 
         def mean_score(self):
             scores = self.select_scores()

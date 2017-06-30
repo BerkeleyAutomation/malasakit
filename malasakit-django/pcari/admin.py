@@ -163,7 +163,7 @@ class CommentRatingAdmin(ResponseAdmin):
     readonly_fields = ('timestamp', )
 
     # Enables search
-    search_fields = ('score_history_text', 'comment__message')
+    search_fields = ('score', 'comment__message')
 
 
 @admin.register(Comment, site=site)
@@ -246,7 +246,7 @@ class QuantitativeQuestionRatingAdmin(ResponseAdmin):
     readonly_fields = ('timestamp', )
 
     # Enables search
-    search_fields = ('question__prompt', 'score_history_text')
+    search_fields = ('question__prompt', 'score')
 
 
 class QuestionAdmin(HistoryAdmin):
