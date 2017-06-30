@@ -25,7 +25,7 @@ API_RETRIEVAL_ENDPOINTS = ['fetch-comments', 'fetch-qualitative-questions']
 def generate_page_urls(endpoints=PAGE_ENDPOINTS):
     for code, _ in settings.LANGUAGES:
         for endpoint in endpoints:
-            yield os.path.join(settings.URL_ROOT, code, endpoint)
+            yield os.path.join(settings.URL_ROOT, code, endpoint, '/')
 
 
 class UserFeedbackTestCase(TestCase):
@@ -165,8 +165,9 @@ class PageMarkupTestCase(TestCase):
 class PerformanceTestCase(TestCase):
     """ Test the runtime of public-facing endpoints. """
     ITERATIONS = 100
+
     ACCEPTABLE_SPEED_THRESHOLD = 0.95
-    ACCEPTABLE_SPEED_TIMEOUT = 0.5  # seconds
+    ACCEPTABLE_SPEED_TIMEOUT = 0.25  # seconds
 
     def setUp(self):
         self.client = Client()
@@ -184,6 +185,7 @@ class PerformanceTestCase(TestCase):
 
                 start = time.time()
                 response = self.client.get(url)
+                print(response.content)
                 end = time.time()
 
                 time_elapsed = end - start
