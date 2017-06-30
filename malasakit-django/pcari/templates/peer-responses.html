@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+
+{% block title %}{% trans 'Peer Responses' %}{% endblock %}
+{% block main-heading %}{% trans 'Peer Responses' %}{% endblock %}
+
+{% block scripts %}
+  <script>
+    $(document).ready(function() {
+      var current = Resource.load('current');
+      current.data = null;
+      current.put();
+      pushCompletedResponses();
+      Resource.delete('selected-comments');
+    });
+  </script>
+{% endblock %}
+
+{% block content %}
+  <p>
+    {% blocktrans trimmed %}
+      Below, you can see how the other respondents answered the quantitative questions.
+    {% endblocktrans %}
+  </p>
+  <ol>
+    {% for question in questions %}
+      <li>
+        <p>
+          {% trans 'For the question' %}
+        </p>
+        <blockquote>
+          {% trans question.prompt %}
+        </blockquote>
+        <p>
+          {% with num_ratings=question.num_ratings mode=question.mode_score mean=question.mean_score|floatformat %}
+            {% blocktrans trimmed %}
+              <strong>{{ num_ratings }}</strong> other respondents rated this statement.
+            {% endblocktrans %}
+            {% if num_ratings > 0 %}
+              {% blocktrans trimmed %}
+                The most common score was <strong>{{ mode }}</strong>, and
+                the average score was <strong>{{ mean }}</strong>.
+              {% endblocktrans %}
+            {% endif %}
+          {% endwith %}
+        </p>
+      </li>
+    {% endfor %}
+  </ol>
+  {% url 'pcari:end' as next_link %}
+  {% include 'nav-buttons.html' %}
+{% endblock %}

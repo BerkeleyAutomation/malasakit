@@ -9,11 +9,13 @@ Attributes:
 """
 
 from __future__ import unicode_literals
+from collections import Counter
+import json
 
 # Public-facing models (parent models are excluded)
 __all__ = ['Comment', 'QuantitativeQuestionRating', 'CommentRating',
            'QualitativeQuestion', 'QuantitativeQuestion', 'Respondent',
-           'LANGUAGES']
+           'OptionQuestion', 'OptionResponse', 'MODELS']
 
 from django.conf import settings
 from django.db import models
@@ -66,9 +68,9 @@ def accepts_ratings(ratings_model, keyword):
     """
     def ratings_aggregator(target_model):
         """ A decorator that wraps a model that can be rated. """
-        def select_ratings(self, answered=True):
+        def select_scores(self, answered=True):
             """
-            Select ratings attached to this target model instance.
+            Select scores attached to this target model instance.
 
             Args:
                 answered: When `True`, select only ratings where the respondent
@@ -77,30 +79,44 @@ def accepts_ratings(ratings_model, keyword):
                           ratings returned are guaranteed to be nonnegative.
 
             Returns:
-                A Django `QuerySet` containing this question's or comment's
-                ratings.
+                A `list` containing this question's or comment's ratings.
             """
             query = ratings_model.objects.filter(**{keyword: self})
+            score_histories = query.values_list('score_history_text', flat=True)
+            scores = [int(history.split(',')[-1]) for history in score_histories]
             if answered:
-                excluded_ratings = [Rating.NOT_RATED, Rating.SKIPPED]
-                return query.exclude(score__in=excluded_ratings)
-            return query
+                excluded = [Rating.NOT_RATED, Rating.SKIPPED]
+                scores = [score for score in scores if score not in excluded]
+            return scores
 
         def mean_score(self):
-            scores = self.select_ratings().values_list('score', flat=True)
-            return float(sum(scores))/len(scores)
+            scores = self.select_scores()
+            return float(sum(scores))/len(scores) if scores else float('nan')
 
         def num_ratings(self):
-            return self.select_ratings().count()
+            return len(self.select_scores())
+
+        def mode_score(self):
+            """
+            Compute the statistical mode.
+
+            Returns:
+                The most common answer to the question (an integer).
+            """
+            scores = self.select_scores()
+            if scores:
+                frequencies = Counter(scores)
+                return frequencies.most_common(1)[0][0]
+            return float('nan')
 
         def stdev(self):
             """
-            Computed the sample standard deviation.
+            Compute the sample standard deviation.
 
             Returns:
                 `float('nan')` if the number of samples is fewer than two.
             """
-            scores = self.select_ratings().values_list('score', flat=True)
+            scores = self.select_scores()
             if len(scores) < 2:
                 return float('nan')
             mean_score = float(sum(scores))/len(scores)
@@ -118,8 +134,9 @@ def accepts_ratings(ratings_model, keyword):
             return (self.stdev/num_ratings**0.5 if num_ratings > 0
                     else float('nan'))
 
-        target_model.select_ratings = select_ratings
+        target_model.select_scores = select_scores
         target_model.mean_score = property(mean_score)
+        target_model.mode_score = property(mode_score)
         target_model.num_ratings = property(num_ratings)
         target_model.stdev = property(stdev)
         target_model.standard_error = property(standard_error)
@@ -127,7 +144,108 @@ def accepts_ratings(ratings_model, keyword):
     return ratings_aggregator
 
 
-class Response(models.Model):
+def validate_has_input_type(model):
+    """
+    A decorator that checks that the given model has an `input_type` attribute.
+
+    Args:
+        model: The model to validate.
+
+    Returns:
+        The `model` passed in.
+    """
+    if not hasattr(model, 'input_type'):
+        raise AttributeError('Model ' + model.__name__ +
+                             ' must have `input_type` attribute.')
+    return model
+
+
+def get_concrete_fields(model):
+    return [field for field in model._meta.get_fields()
+            if not field.is_relation
+                or field.one_to_one
+                or (field.many_to_one and field.related_model)
+    ]
+
+
+def get_direct_fields(model):
+    return [field for field in model._meta.get_fields()
+            if not field.auto_created or field.concrete]
+
+
+class History(models.Model):
+    """
+    The `History` abstract model records how one model instance derives from
+    another.
+
+    The database should be insert-only such that when updating a field of a
+    model instance, a new instance is created, rather than overwriting the
+    attribute of an old instance. This model effectively does the bookkeeping
+    necessary so that we can see which instances are active and how they have
+    changed over time.
+
+    Attributes:
+        predecessor: A reference to the instance this instance is based on. If
+                     this instance is the first of its kind (e.g., a new
+                     question), this reference should be set to `None`.
+        active: Whether this instance is considered usable or not. Typically,
+                when a new model instance is created from an old one, the old
+                one is marked as inactive.
+    """
+    predecessor = models.ForeignKey('self', on_delete=models.SET_NULL,
+                                    null=True, default=None)
+    active = models.BooleanField(default=True)
+
+    def make_copy(self):
+        """
+        Make a copy of the current model, excluding unique fields.
+
+        Returns:
+            An unsaved copy of `self`.
+        """
+        model = self.__class__
+        copy = model()
+        for field in get_direct_fields(model):
+            if field.editable and not field.unique:
+                value = getattr(self, field.name)
+                setattr(copy, field.name, value)
+
+        return copy
+
+    def diff(self, other):
+        """
+        Find the fields where the two instances have different values.
+
+        Args:
+            other: An instance of the same model.
+
+        Returns:
+            A generator of field names where the two instances differ.
+        """
+        model = self.__class__
+        assert isinstance(other, model)
+        for field in get_direct_fields(model):
+            if getattr(self, field.name) != getattr(other, field.name):
+                yield field.name
+
+    @property
+    def predecessors(self):
+        """
+        Yields a sequence of predecessors, from the most recent to the original.
+
+        Returns:
+            A generator of model instances.
+        """
+        current = self
+        while current.predecessor is not None:
+            current = current.predecessor
+            yield current
+
+    class Meta:
+        abstract = True
+
+
+class Response(History):
     """
     A `Response` is an abstract model of user-generated data.
 
@@ -151,14 +269,39 @@ class Rating(Response):
                    submitted (that is, a default value).
         SKIPPED: A sentinel value assigned to a `Rating` where the user
                  intentionally chose to decline rating a question or a comment.
-        score: An integer that quantifies a rating. (No scale is provided, by
-               design. Interpreting the `score` is the responsibility of
-               clients of this model.)
+        score_history_text: The internal string representation of a rating's
+                            scoring history. (That is, a list of other
+                            responses considered by the respondent before
+                            settling on a final `score`.)
+        score_history: A Python list of integers that acts as a proxy for
+                       `score_history_text`. This is the preferred way of
+                       interacting with the score history.
+        score: A read-only integer that quantifies a rating. (No scale is
+               provided, by design. Interpreting the `score` is the
+               responsibility of clients of this model.)
     """
+    SCORE_HISTORY_TEXT_DELIMIETER = ','
+
     NOT_RATED = -2
     SKIPPED = -1
 
-    score = models.SmallIntegerField(default=NOT_RATED)
+    score_history_text = models.CharField(max_length=256,
+                                          default=str(NOT_RATED),
+                                          validators=[])
+
+    @property
+    def score_history(self):
+        scores = self.score_history_text.split(Rating.SCORE_HISTORY_TEXT_DELIMIETER)
+        return list(map(int, map(unicode.strip, scores)))
+
+    @score_history.setter
+    def score_history(self, scores):
+        self.score_history_text = Rating.SCORE_HISTORY_TEXT_DELIMIETER.join(map(str, scores))
+
+    @property
+    def score(self):
+        scores = self.score_history
+        return scores[-1] if scores else Rating.NOT_RATED
 
     class Meta:
         abstract = True
@@ -177,8 +320,8 @@ class QuantitativeQuestionRating(Rating):
                                  on_delete=models.CASCADE)
 
     def __unicode__(self):
-        template = 'QuantitativeQuestion {0}: {1}'
-        return template.format(self.question_id, self.score)
+        template = 'Rating {1} to {0}'
+        return template.format(self.question, self.score)
 
     class Meta:
         unique_together = ('respondent', 'question')
@@ -194,7 +337,7 @@ class CommentRating(Rating):
     comment = models.ForeignKey('Comment', on_delete=models.CASCADE)
 
     def __unicode__(self):
-        return 'Comment {0}: {1}'.format(self.comment_id, self.score)
+        return 'Rating {1} to {0}'.format(self.comment, self.score)
 
     class Meta:
         unique_together = ('respondent', 'comment')
@@ -227,16 +370,21 @@ class Comment(Response):
     >>> comment.word_count
     2
     """
+    MAX_COMMENT_DISPLAY_LEN = 140
+
     question = models.ForeignKey('QualitativeQuestion',
                                  on_delete=models.CASCADE)
-    language = models.CharField(max_length=25, choices=LANGUAGES)
+    language = models.CharField(max_length=2, choices=LANGUAGES)
     message = models.TextField(blank=True, null=True)
     flagged = models.BooleanField(default=False)
     tag = models.CharField(max_length=256, blank=True, default='')
 
     def __unicode__(self):
         if self.message is not None and self.message.strip():
-            return '"{0}"'.format(self.message)
+            message = self.message
+            if len(message) > self.MAX_COMMENT_DISPLAY_LEN:
+                message = message[:self.MAX_COMMENT_DISPLAY_LEN] + ' ...'
+            return 'Comment {1}: "{0}"'.format(message, self.id)
         return '-- Empty response --'
 
     @property
@@ -244,7 +392,7 @@ class Comment(Response):
         return len(self.message.split())
 
 
-class Question(models.Model):
+class Question(History):
     """
     A `Question` models a prompt presented to the user that requires a
     response.
@@ -264,6 +412,7 @@ class Question(models.Model):
         abstract = True
 
 
+@validate_has_input_type
 class QualitativeQuestion(Question):
     """
     A `QualitativeQuestion` is a `Question` that asks for a comment.
@@ -272,31 +421,106 @@ class QualitativeQuestion(Question):
         comments: A Django `QuerySet` of `Comment`s in response to this
                   question.
     """
+    input_type = 'textarea'
+
     def __unicode__(self):
-        return 'QualitativeQuestion {0}: "{1}"'.format(self.id, self.prompt)
+        return 'Qualitative question {0}: "{1}"'.format(self.id, self.prompt)
 
     @property
     def comments(self):
         return Comment.objects.filter(question=self)
 
 
+@validate_has_input_type
 @accepts_ratings(QuantitativeQuestionRating, 'question')
 class QuantitativeQuestion(Question):
     """
     A `QuantitativeQuestion` is a `Question` that asks for a numeric rating.
 
     Attributes:
-        left_text: The text that is rendered on the left end of the slider.
-        right_text: The text that is rendered on the right end of the slider.
+        left_text: The text that is rendered on the left end of a slider.
+        right_text: The text that is rendered on the right end of a slider.
+        min_score: The smallest possible score for this question.
+        max_score: The largest possible score for this question.
+        input_type: A string specifying how the input should be rendered:
+            range: The question displays as a slider.
+            number: The question displays as a number-specific text field.
     """
+    INPUT_TYPES = (
+        ('range', 'range'),
+        ('number', 'number')
+    )
+
     left_text = models.TextField(blank=True)
     right_text = models.TextField(blank=True)
+    min_score = models.SmallIntegerField(default=0, null=True, blank=True)
+    max_score = models.SmallIntegerField(default=9, null=True, blank=True)
+    input_type = models.CharField(max_length=16, choices=INPUT_TYPES,
+                                  default='range', blank=True)
 
     def __unicode__(self):
-        return 'QuantitativeQuestion {0}: "{1}"'.format(self.id, self.prompt)
+        return 'Quantitative question {0}: "{1}"'.format(self.id, self.prompt)
 
 
-class Respondent(models.Model):
+@validate_has_input_type
+class OptionQuestion(Question):
+    """
+    An `OptionQuestion` is a `Question` that asks the respondent to select one
+    option from a set of unordered choices.
+
+    Attributes:
+        options_as_json: A string representation of a JSON list specifying
+                         the options.
+        options: A wrapper around `options_as_json` that automatically
+                 serializes and unserializes a Python list of options. This is
+                 the preferred way of manipulating the list of options.
+        input_type: A string specifying how the input should be rendered:
+            select: Render the question as a dropdown menu.
+            radio: Render the question as a list of radio buttons.
+    """
+    INPUT_TYPES = (
+        ('select', 'select'),
+        ('radio', 'radio')
+    )
+
+    options_as_json = models.TextField(blank=True)
+    input_type = models.CharField(max_length=16, choices=INPUT_TYPES,
+                                  default='select', blank=True)
+
+    @property
+    def options(self):
+        return json.loads(self.options_as_json)
+
+    @options.setter
+    def options(self, options_list):
+        self.options_as_json = json.dumps(list(options_list))
+
+    def __unicode__(self):
+        return 'Option question {0}: "{1}"'.format(self.id, self.prompt)
+
+
+class OptionResponse(Response):
+    """
+    An `OptionResponse` is a response to an `OptionQuestion`.
+
+    Attributes:
+        question: A reference to the `OptionQuestion` this selection is in
+                  response to.
+        option: The option selected by the respondent. This must be an element
+                of `question.options`.
+    """
+    question = models.ForeignKey('OptionQuestion', on_delete=models.CASCADE)
+    option = models.TextField(blank=True)
+
+    def __unicode__(self):
+        template = 'Option response {0}: "{1}"'
+        return template.format(self.question_id, self.option)
+
+    class Meta:
+        unique_together = ('respondent', 'question')
+
+
+class Respondent(History):
     """
     A `Respondent` represents a one-time participant in a survey.
 
@@ -342,17 +566,31 @@ class Respondent(models.Model):
     completed_survey = models.BooleanField(default=False)
 
     def __unicode__(self):
-        return '{0}'.format(self.id)
+        return 'Respondent {0}'.format(self.id)
 
-    @property
     def num_questions_rated(self):
-        questions = QuantitativeQuestionRating.objects.filter(respondent=self)
-        return questions.count()
+        ratings = QuantitativeQuestionRating.objects.filter(respondent=self).all()
+        return sum(1 for rating in ratings if rating.score not in
+                   [Rating.NOT_RATED, Rating.SKIPPED])
 
-    @property
+    num_questions_rated.short_description = 'Number of questions rated'
+    num_questions_rated = property(num_questions_rated)
+
     def num_comments_rated(self):
-        return CommentRating.objects.filter(respondent=self).count()
+        ratings = CommentRating.objects.filter(respondent=self).all()
+        return sum(1 for rating in ratings if rating.score not in
+                   [Rating.NOT_RATED, Rating.SKIPPED])
+
+    num_comments_rated.short_description = 'Number of comments rated'
+    num_comments_rated = property(num_comments_rated)
 
     @property
     def comments_made(self):
         return Comment.objects.filter(respondent=self).all()
+
+
+# A lookup table by name
+MODELS = {model.__name__: model for model in [Comment, QuantitativeQuestionRating,
+                                              CommentRating, QualitativeQuestion,
+                                              QuantitativeQuestion, Respondent,
+                                              OptionQuestion, OptionResponse]}

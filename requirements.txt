@@ -4,5 +4,6 @@ numpy==1.12.1
 MySQL-python==1.2.5
 pylint==1.7.1
 pylint_django==0.7.2
-pyyaml
+pyyaml==3.12
 django-htmlmin==0.10.0
+unicodecsv==0.14.1

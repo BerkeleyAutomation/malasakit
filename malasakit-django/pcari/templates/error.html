@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+
+{% block title %}Error{% endblock %}
+{% block main-heading %}Error: {{ heading }}{% endblock %}
+
+{% block content %}
+  <p class="error">
+    {% trans message %}
+  </p>
+  {% url 'pcari:landing' as next_link %}
+  {% include 'nav-buttons.html' with next_text='Continue' %}
+{% endblock %}

@@ -16,18 +16,18 @@ from django.utils.translation import ugettext_lazy as _
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# PROJECT_ROOT = os.path.normpath(os.path.dirname(__file__))
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'iiksdwha(f!g0!_=*#xcejemib2jvr(y#jfg%_gi+dmx#yizq+'
+SECRET_KEY = '<secret-key>'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['opinion.berkeley.edu'] if not DEBUG else ['*']
 
 
 # Application definition
@@ -77,6 +77,38 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'cafe.wsgi.application'
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '[%(asctime)s] %(levelname)s :: %(message)s',
+        },
+    },
+    'handlers': {
+        'pcari-file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'pcari.log'),
+            'formatter': 'simple',
+        },
+        'pcari-console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    'loggers': {
+        'pcari': {
+            'handlers': ['pcari-file'],
+            'level': 'DEBUG',
+        },
+    },
+}
+
+if DEBUG:
+    LOGGING['loggers']['pcari']['handlers'].append('pcari-console')
+
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
@@ -89,6 +121,12 @@ DATABASES = {
         'PASSWORD': os.environ.get('mysql_pass'),
     }
 }
+
+if DEBUG:
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
@@ -108,7 +146,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-HTML_MINIFY = False
+HTML_MINIFY = not DEBUG
 
 LANGUAGES = (
     ('en', _('English')),
@@ -132,18 +170,11 @@ USE_L10N = True
 
 USE_TZ = True
 
-# CELERY STUFF
-BROKER_URL = 'redis://localhost:6379'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'
-CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'Africa/Nairobi'
+URL_ROOT = '/'  # Change to `/pcari/` in production
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
-# STATIC_ROOT = os.path.join(PROJECT_ROOT, 'pcari')
-# STATIC_URL = '/static/'
-
-URL_ROOT = 'http://opinion.berkeley.edu'
-STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
+if DEBUG:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'pcari', 'static')
+STATIC_URL = os.path.join(URL_ROOT, '/static/')

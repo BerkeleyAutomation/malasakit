@@ -8,13 +8,13 @@
 {% block scripts %}
   <script>
     $(document).ready(function() {
-      $('#next').click(initializeNewResponse);
-    })
+      $('#next').on('click', initializeNewResponse);
+    });
   </script>
 {% endblock %}
 
 {% block content %}
-  <p>
+  <p class="center">
     {% blocktrans trimmed %}
       How prepared are you in times of disaster?
       {{ num_responses }} barangay citizens have responded.
@@ -22,7 +22,7 @@
     {% endblocktrans %}
   </p>
   <img src="{% static 'img/landing1.jpg' %}">
-  <div id="next" class="nav-button">
-    <a href="{% url 'pcari:personal-information' %}">{% trans 'Begin' %}</a>
-  </div>
+  {% url 'pcari:quantitative-questions' as next_link %}
+  {% trans 'Begin' as next_label %}
+  {% include 'nav-buttons.html' %}
 {% endblock %}

@@ -27,7 +27,8 @@ class UserFeedbackTestCase(TestCase):
                             QuantitativeQuestionRating.objects.all()]
         prev_respondent = random.sample(prev_respondents, 1)[0]
         with self.assertRaises(IntegrityError):
-            QuantitativeQuestionRating(respondent=prev_respondent, score=2,
+            QuantitativeQuestionRating(respondent=prev_respondent,
+                                       score_history_text='2',
                                        question=self.quant_question).save()
 
     def test_quantitative_question_rating_timestamp_order(self):
@@ -54,7 +55,7 @@ class ResponseSaveTestCase(TestCase):
         self.client = Client()
 
     def push(self, responses):
-        http_response = self.client.post(reverse('pcari:save-response'),
+        http_response = self.client.post(reverse('save-response'),
                                          data=json.dumps(responses),
                                          content_type='application/json')
         return http_response
