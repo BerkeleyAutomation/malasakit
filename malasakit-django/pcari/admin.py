@@ -24,22 +24,23 @@ class MalasakitAdminSite(admin.AdminSite):
     def get_urls(self):
         urls = super(MalasakitAdminSite, self).get_urls()
         urls += [
-            url(r'^configuration', self.configuration, name='configuration'),
-            url(r'^analytics', self.analytics, name='analytics'),
-            url(r'^change-bloom-icon/', self.change_bloom_icon,
+            url(r'^configuration/$', self.admin_view(self.configuration),
+                name='configuration'),
+            url(r'^analytics/$', self.admin_view(self.analytics),
+                name='analytics'),
+            url(r'^change-bloom-icon/$', self.admin_view(require_POST(self.change_bloom_icon)),
                 name='change-bloom-icon'),
         ]
         return urls
 
     def configuration(self, request):
-        return render(request, 'admin/configuration.html')
+        return render(request, 'admin/configuration.html', self.each_context(request))
 
     def analytics(self, request):
-        return render(request, 'admin/analytics.html')
+        return render(request, 'admin/analytics.html', self.each_context(request))
 
-    @require_POST
     def change_bloom_icon(self, request):
-        return 'OK'
+        return redirect(reverse('admin:configuration'))
 
 # pylint: disable=invalid-name
 site = MalasakitAdminSite()
