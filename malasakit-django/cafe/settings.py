@@ -100,11 +100,14 @@ LOGGING = {
     },
     'loggers': {
         'pcari': {
-            'handlers': ['pcari-file', 'pcari-console'],
+            'handlers': ['pcari-file'],
             'level': 'DEBUG',
         },
     },
 }
+
+if DEBUG:
+    LOGGING['loggers']['pcari']['handlers'].append('pcari-console')
 
 
 # Database
