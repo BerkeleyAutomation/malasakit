@@ -75,28 +75,23 @@
 {% block content %}
   <p class="instructions">
     {% blocktrans trimmed %}
-      Each question below either asks you to move a slider knob or enter a number.
-      You may also skip a question by touching the switch next to the "Skip Question" label.
+      The question below either asks you to move a slider knob or enter a number.
     {% endblocktrans %}
   </p>
+  <hr>
   <ol id="quantitative-questions">
-    {% for question in questions %}
+    <p class="prompt">{% trans question.prompt %}</p>
+    {% with type=question.input_type id=question.id %}
+      {% include 'questions/questions.html' %}
+    {% endwith %}
+    <ul class="button-group">
       <li>
-        <p class="prompt">{% trans question.prompt %}</p>
-        {% with type=question.input_type id=question.id %}
-          {% include 'questions/questions.html' %}
-        {% endwith %}
-        <ul class="button-group">
-          <li>
-            <button id="skip" class="red">{% trans 'Skip' %}</button>
-          </li>
-          <li>
-            <button id="submit" class="blue">{% trans 'Submit' %}</button>
-          </li>
-        </ul>
+        <button id="skip" class="red">{% trans 'Skip' %}</button>
       </li>
-    {% endfor %}
+      <li>
+        <button id="submit" class="blue">{% trans 'Submit' %}</button>
+      </li>
+    </ul>
   </ol>
-  {% url 'pcari:rate-comments' as next_link %}
   {% include 'nav-buttons.html' %}
 {% endblock %}

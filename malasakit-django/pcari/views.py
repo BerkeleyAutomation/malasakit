@@ -469,7 +469,7 @@ def landing(request):
 @profile
 def quantitative_questions(request):
     """ Render a page asking respondents to rate statements. """
-    context = {'questions': QuantitativeQuestion.objects.filter(active=True).all()}
+    context = {'question': QuantitativeQuestion.objects.filter(active=True).all()[0]}
     return render(request, 'quantitative-questions.html', context)
 
 
