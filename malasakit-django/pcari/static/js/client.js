@@ -177,8 +177,9 @@ function initializeResources() {
     var current = new Resource('current', null, 12*60*60*1000);
     var locationData = new Resource('location-data', null, 12*60*60*1000,
                                     STATIC_URL_ROOT + '/data/location-data.json');
+    var bloomIcon = new Resource('bloom-icon', null, 0, STATIC_URL_ROOT + '/data/bloom-icon.json');
     var initialResources = [comments, qualitativeQuestions, current,
-                            locationData];
+                            locationData, bloomIcon];
 
     comments.default_sample_size = 8;
     current.updateTimestamp();

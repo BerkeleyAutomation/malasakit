@@ -2,8 +2,10 @@
 This module defines how Django should render the admin panel.
 """
 
-from urllib import urlencode
+from base64 import b64encode
+import json
 import os
+from urllib import urlencode
 
 from django.conf import settings
 from django.shortcuts import redirect, reverse, render
@@ -47,10 +49,17 @@ class MalasakitAdminSite(admin.AdminSite):
 
     def change_bloom_icon(self, request):
         uploaded_file = request.FILES['bloom-icon']
-        path = os.path.join(settings.STATIC_ROOT, 'img', 'bloom-icon')
+        image_data = b64encode(uploaded_file.read())
+        content_type = uploaded_file.content_type
+
+        path = os.path.join(settings.STATIC_ROOT, 'data', 'bloom-icon.json')
         with open(path, 'wb+') as destination:
-            for chunk in uploaded_file.chunks():
-                destination.write(chunk)
+            obj = {
+                'content-type': content_type,
+                'encoded-image': image_data,
+            }
+            json.dump(obj, destination)
+
         request.session['messages'] = ['Successfully uploaded bloom icon.']
         return redirect(reverse('admin:configuration'))
 
