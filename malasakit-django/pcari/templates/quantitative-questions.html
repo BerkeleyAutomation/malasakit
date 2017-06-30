@@ -81,7 +81,7 @@
   </p>
   <ol id="quantitative-questions">
     {% for question in questions %}
-      <li class="boxed">
+      <li>
         <p class="prompt">{% trans question.prompt %}</p>
         {% with type=question.input_type id=question.id %}
           {% include 'questions/questions.html' %}
