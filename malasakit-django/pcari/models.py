@@ -19,6 +19,7 @@ __all__ = ['Comment', 'QuantitativeQuestionRating', 'CommentRating',
 
 from django.conf import settings
 from django.db import models
+from django.utils.functional import cached_property
 
 LANGUAGES = settings.LANGUAGES
 
@@ -133,11 +134,11 @@ def accepts_ratings(ratings_model, keyword):
                     else float('nan'))
 
         target_model.select_scores = select_scores
-        target_model.mean_score = property(mean_score)
-        target_model.mode_score = property(mode_score)
-        target_model.num_ratings = property(num_ratings)
-        target_model.stdev = property(stdev)
-        target_model.standard_error = property(standard_error)
+        target_model.mean_score = cached_property(mean_score)
+        target_model.mode_score = cached_property(mode_score)
+        target_model.num_ratings = cached_property(num_ratings)
+        target_model.stdev = cached_property(stdev)
+        target_model.standard_error = cached_property(standard_error)
         return target_model
     return ratings_aggregator
 
