@@ -8,7 +8,7 @@ from django.core.management.commands import makemessages
 
 
 class Command(makemessages.Command):
-    """ Extends the default `makemessages` command. """
+    """ Extend the default `makemessages` command. """
     def write_po_file(self, potfile, locale):
         """
         Before merging the `.pot` file with an existing `.po` file, merge other

@@ -4,6 +4,7 @@ This module defines how Django should render the admin panel.
 
 from base64 import b64encode
 import json
+import math
 import os
 from urllib import urlencode
 
@@ -24,8 +25,8 @@ from .models import get_direct_fields
 
 class MalasakitAdminSite(admin.AdminSite):
     """
-    A custom admin site for Malasakit with augmented configuration and analytics
-    functionality.
+    A custom admin site for Malasakit with augmented configuration and
+    statistics functionality.
     """
     site_header = site_title = 'Malasakit'
 
@@ -34,8 +35,8 @@ class MalasakitAdminSite(admin.AdminSite):
         urls += [
             url(r'^configuration/$', self.admin_view(self.configuration),
                 name='configuration'),
-            url(r'^analytics/$', self.admin_view(self.analytics),
-                name='analytics'),
+            url(r'^statistics/$', self.admin_view(self.statistics),
+                name='statistics'),
             url(r'^change-bloom-icon/$', self.admin_view(require_POST(self.change_bloom_icon)),
                 name='change-bloom-icon'),
         ]
@@ -49,8 +50,8 @@ class MalasakitAdminSite(admin.AdminSite):
             del request.session['messages']
         return render(request, 'admin/configuration.html', context)
 
-    def analytics(self, request):
-        return render(request, 'admin/analytics.html', self.each_context(request))
+    def statistics(self, request):
+        return render(request, 'admin/statistics.html', self.each_context(request))
 
     def change_bloom_icon(self, request):
         """ Save an image file of a custom bloom icon. """
@@ -86,6 +87,8 @@ class HistoryAdmin(admin.ModelAdmin):
     """
     save_as_continue = False
 
+    actions = ('mark_active', 'mark_inactive')
+
     def save_model(self, request, obj, form, change):
         if change and issubclass(obj.__class__, History):
             old_instance = obj.__class__.objects.get(id=obj.id)
@@ -103,6 +106,20 @@ class HistoryAdmin(admin.ModelAdmin):
             field_names.remove('active')
             return field_names
         return self.readonly_fields + ('predecessor', )
+
+    def mark_active(self, request, queryset):
+        """ Mark selected instances as active in bulk. """
+        num_marked = queryset.update(active=True)
+        message = '{0} row{1} successfully marked as active.'
+        message = message.format(num_marked, 's' if num_marked != 1 else '')
+        self.message_user(request, message)
+
+    def mark_inactive(self, request, queryset):
+        """ Mark selected instances as inactive in bulk. """
+        num_marked = queryset.update(active=False)
+        message = '{0} row{1} successfully marked as inactive.'
+        message = message.format(num_marked, 's' if num_marked != 1 else '')
+        self.message_user(request, message)
 
 
 class ResponseAdmin(HistoryAdmin):
@@ -146,7 +163,7 @@ class CommentRatingAdmin(ResponseAdmin):
     readonly_fields = ('timestamp', )
 
     # Enables search
-    search_fields = ('score_history_text', 'comment__message')
+    search_fields = ('score', 'comment__message')
 
 
 @admin.register(Comment, site=site)
@@ -154,10 +171,22 @@ class CommentAdmin(ResponseAdmin):
     """
     Customizes admin change page functionality for `Comment`s.
     """
+    def display_mean_score(self, comment):
+        # pylint: disable=no-self-use
+        mean_score = comment.mean_score
+        return str(round(mean_score, 3)) if not math.isnan(mean_score) else '(No ratings)'
+    display_mean_score.short_description = 'Mean score'
+
+    def display_num_ratings(self, comment):
+        # pylint: disable=no-self-use
+        return comment.num_ratings
+    display_num_ratings.short_description = 'Number of ratings'
+
     # Columns to display in the Comment change list page, in order from left to
     # right
     list_display = ('respondent', 'message', 'timestamp', 'language',
-                    'flagged', 'tag', 'active')
+                    'flagged', 'tag', 'active', 'display_mean_score',
+                    'display_num_ratings')
 
     # By default first column listed in list_display is clickable; this makes
     # `message` column clickable
@@ -217,7 +246,7 @@ class QuantitativeQuestionRatingAdmin(ResponseAdmin):
     readonly_fields = ('timestamp', )
 
     # Enables search
-    search_fields = ('question__prompt', 'score_history_text')
+    search_fields = ('question__prompt', 'score')
 
 
 class QuestionAdmin(HistoryAdmin):

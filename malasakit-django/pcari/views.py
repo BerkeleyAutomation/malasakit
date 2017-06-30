@@ -28,14 +28,13 @@ import unicodecsv as csv
 
 # Local modules and models
 from .models import Respondent
-from .models import QuantitativeQuestion, QualitativeQuestion
+from .models import Question, QuantitativeQuestion, QualitativeQuestion
 from .models import Comment, CommentRating, QuantitativeQuestionRating
 from .models import MODELS, get_concrete_fields
 
 DEFAULT_LANGUAGE = settings.LANGUAGE_CODE
-DEFAULT_COMMENT_LIMIT = 500   # Default maximum number of comments to send
+DEFAULT_COMMENT_LIMIT = 300   # Default maximum number of comments to send
 DEFAULT_STANDARD_ERROR = 4.5  # For comments with fewer than two ratings
-STANDARD_ERROR_PRECISION = 6  # Number of decimal places
 
 LOGGER = logging.getLogger('pcari')
 
@@ -63,44 +62,36 @@ def profile(function):
 
 
 @profile
-def generate_ratings_matrix(respondents=None):
+def generate_ratings_matrix():
     """
-    Fetches quantitative question ratings in the form of a numpy matrix.
+    Fetch quantitative question ratings in the form of a NumPy matrix.
 
-    Each row corresponds to one respondent and each column corresponds to one
-    question. Missing values are filled in with `np.nan`.
-
-    Because we only pull the fields we need from the ORM, this function should
-    run relatively quickly (on the order of milliseconds).
-
-    Args:
-        respondents: A `QuerySet` of respondents to select ratings from. If
-                     `None` (which is the default value), select all
-                     respondents.
+    Each row in the matrix is the ratings of one respondent, and each column is
+    the ratings for one question.
 
     Returns:
-        respondent_id_map: A length-`m` dictionary mapping respondent IDs to
-                           row indices.
-        question_id_map: A lenght-`n` dictionary mapping quantitative question
-                         IDs to column indices.
+        respondent_id_map: A length-`m` dictionary mapping respondent identifiers
+                           to matrix row indicies.
+        question_id_map: A length-`n` dictionary mapping quantitative question
+                         identifiers to matrix column indicies.
         ratings_matrix: A `m` x `n` NumPy array of ratings.
-    """
-    if respondents is None:
-        respondents = Respondent.objects.all()
 
-    respondent_ids = respondents.values_list('id', flat=True)
-    question_ids = QuantitativeQuestion.objects.values_list('id', flat=True)
+    Only active respondents, active questions, and active ratings are used.
+    """
+    respondent_ids = Respondent.objects.filter(active=True).values_list('id', flat=True)
+    question_ids = QuantitativeQuestion.objects.filter(active=True).values_list('id', flat=True)
+
     respondent_id_map = {key: index for index, key in enumerate(respondent_ids)}
     question_id_map = {key: index for index, key in enumerate(question_ids)}
 
-    shape = (len(respondent_id_map), len(question_id_map))
+    shape = len(respondent_id_map), len(question_id_map)
     ratings_matrix = np.full(shape, np.nan)
 
-    features = 'respondent_id', 'question_id', 'score_history_text'
-    values = QuantitativeQuestionRating.objects.values_list(*features)
-    for respondent_id, question_id, score_history_text in values:
-        score = score_history_text.split(QuantitativeQuestionRating
-                                         .SCORE_HISTORY_TEXT_DELIMIETER)[-1]
+    features = 'respondent_id', 'question_id', 'score'
+    values = QuantitativeQuestionRating.objects.filter(respondent__active=True,
+                                                       question__active=True,
+                                                       active=True).values_list(*features)
+    for respondent_id, question_id, score in values:
         row_index = respondent_id_map[respondent_id]
         column_index = question_id_map[question_id]
         ratings_matrix[row_index, column_index] = score
@@ -111,41 +102,36 @@ def generate_ratings_matrix(respondents=None):
 @profile
 def normalize_ratings_matrix(ratings_matrix):
     """
-    Normalize a ratings matrix.
-
-    In this context, a normalized matrix is one where the mean row is the zero
-    vector, and `np.nan` values are replaced by zero. (If the bias, or mean, is
-    readded to every row, the missing values are replaced by its column's mean.)
+    Normalize a ratings matrix so the ellipsoid of ratings is centered at the
+    origin, and missing values are imputed with zero. (That is, the mean of the
+    column before centering.)
 
     Args:
-        ratings_matrix: A `m` x `n` matrix of ratings, where each row
-                        represents a respondent.
+        ratings_matrix: A `m` x `n` matrix of ratings.
 
     Returns:
-        A `m` x `n` matrix of normalized ratings, which is guaranteed to have
-        no `np.nan` values.
+        A `m` x `n` matrix of normalized ratings with no `np.nan` values.
     """
-    mean_ratings = np.nanmean(ratings_matrix, axis=0)
-    normalized_ratings_matrix = np.nan_to_num(ratings_matrix - mean_ratings)
-    return normalized_ratings_matrix
+    means_of_columns = np.nanmean(ratings_matrix, axis=0)
+    return np.nan_to_num(ratings_matrix - means_of_columns)
 
 
 @profile
 def calculate_principal_components(normalized_ratings, num_components=2):
     """
-    Calculates the first `n` principal components of a normalized quantitative
-    question ratings matrix.
+    Calculate the principal components of a normalized ratings matrix.
 
     Args:
-        num_components: number of principal components to calculate (`n`).
+        normalized_ratings: A normalized ratings matrix (as provided by
+                            `normalize_ratings_matrix`).
+        num_components: The number of principal components to select (`p`).
 
     Returns:
-        A `n` x `q` Numpy matrix, where `q` is number of quantitative
-        questions. Each row is a principal component.
+        A `p` x `n` NumPy array whose rows are principal components (`n` is the
+        number of features).
     """
-    results = np.linalg.svd(normalized_ratings, full_matrices=False)
-    components = results[-1]
-    return components[:num_components]  # Slice the first `n` rows
+    _, _, covariance_matrix = np.linalg.svd(normalized_ratings, full_matrices=False)
+    return covariance_matrix[:num_components]
 
 
 @profile
@@ -177,19 +163,17 @@ def fetch_comments(request):
     except ValueError as error:
         return HttpResponseBadRequest(str(error))
 
-    comments = Comment.objects.filter(active=True).filter(flagged=False)
-    comments = comments.exclude(message=None).exclude(message='')
-    comment_ids = comments.values_list('id', flat=True)
-    if len(comment_ids) > limit:
-        comment_ids = random.sample(comment_ids, limit)
+    query = Comment.objects.filter(active=True).filter(flagged=False)
+    comments = query.exclude(message=None).exclude(message='').all()
+    if len(comments) > limit:
+        comments = random.sample(comments, limit)
 
     respondent_id_map, _, ratings = generate_ratings_matrix()
     normalized_ratings = normalize_ratings_matrix(ratings)
     components = calculate_principal_components(normalized_ratings, 2)
 
     data = {}
-    for comment_id in comment_ids:
-        comment = Comment.objects.get(id=comment_id)
+    for comment in comments:
         standard_error = comment.standard_error
         row_index = respondent_id_map[comment.respondent.id]
 
@@ -199,8 +183,8 @@ def fetch_comments(request):
             standard_error = DEFAULT_STANDARD_ERROR
         data[str(comment.id)] = {
             'msg': comment.message,
-            'sem': round(standard_error, STANDARD_ERROR_PRECISION),
-            'pos': list(np.round(components.dot(normalized_ratings[row_index, :]), 6)),
+            'sem': round(standard_error, 3),
+            'pos': list(np.round(components.dot(normalized_ratings[row_index, :]), 3)),
             'tag': comment.tag,
             'qid': comment.question_id
         }
@@ -208,41 +192,85 @@ def fetch_comments(request):
     return JsonResponse(data)
 
 
+def translate(text, language_code):
+    translation.activate(language_code)
+    return ugettext(text)
+
+
+def serialize_question_data(question_model, active_only=True):
+    """
+    Retrieve question data in a JSON-ready format.
+
+    Args:
+        question_model: A model to query.
+        active_only: Whether to fetch only active questions (default: True).
+
+    Returns:
+        A dictionary whose keys are unique question identifiers as strings and
+        whose values are a nested dictionary of translated prompts. This prompt
+        dictionary has language codes as keys and translated prompts as values.
+    """
+    assert issubclass(question_model, Question)
+    query = question_model.objects
+    if active_only:
+        query = query.filter(active=True)
+    return {
+        str(question.id): {
+            code: translate(question.prompt, code)
+            for code, _ in settings.LANGUAGES
+        } for question in query.iterator()
+    }
+
+
+@profile
+@require_GET
+def fetch_quantitative_questions(request):
+    """ Fetch quantitative question data as JSON. """
+    # pylint: disable=unused-argument
+    return JsonResponse(serialize_question_data(QuantitativeQuestion))
+
+
 @profile
 @require_GET
 def fetch_qualitative_questions(request):
+    """ Fetch all qualitative question data as JSON. """
+    # pylint: disable=unused-argument
+    return JsonResponse(serialize_question_data(QualitativeQuestion))
+
+
+@profile
+@require_GET
+def fetch_question_ratings(request):
     """
-    Fetch all qualitative question data as JSON.
+    Fetch quantitative question ratings as JSON.
 
     Args:
         request: The request is ignored.
 
     Returns:
-        A `JsonResponse` containing a JSON object mapping qualitative question
-        identifiers to objects that map language codes to translated prompts.
+        A `JsonResponse` containing a JSON object mapping quantitative question
+        rating identifiers to rating objects, each with two keys:
+            qid: The quantitative question identifier.
+            score: How this question was rated.
     """
     # pylint: disable=unused-argument
-    def translate(text, language_code):
-        translation.activate(language_code)
-        return ugettext(text)
-
+    ratings = QuantitativeQuestionRating.objects
+    ratings = ratings.filter(active=True).filter(question__active=True)
     return JsonResponse({
-        str(question.id): {
-            code: translate(question.prompt, code)
-            for code, name in settings.LANGUAGES
-        } for question in QualitativeQuestion.objects.filter(active=True).all()
+        str(rating.id): {
+            'qid': rating.question_id,
+            'score': rating.score,
+        } for rating in ratings
     })
 
 
 @profile
 def make_question_ratings(respondent, responses):
     """ Generate new quantitative question model instances. """
-    for question_id, scores in responses.get('question-ratings', {}).iteritems():
+    for question_id, score in responses.get('question-ratings', {}).iteritems():
         question = QuantitativeQuestion(id=int(question_id))
-        rating = QuantitativeQuestionRating(respondent=respondent,
-                                            question=question)
-        rating.score_history = scores
-        yield rating
+        yield QuantitativeQuestionRating(respondent=respondent,
+                                         question=question, score=score)
 
 
 @profile
@@ -263,11 +291,9 @@ def make_comments(respondent, responses):
 @profile
 def make_comment_ratings(respondent, responses):
     """ Generate new comment rating instances. """
-    for comment_id, scores in responses.get('comment-ratings', {}).iteritems():
+    for comment_id, score in responses.get('comment-ratings', {}).iteritems():
         comment = Comment.objects.get(id=int(comment_id))
-        rating = CommentRating(respondent=respondent, comment=comment)
-        rating.score_history = scores
-        yield rating
+        yield CommentRating(respondent=respondent, comment=comment, score=score)
 
 
 @profile
@@ -295,7 +321,7 @@ def save_response(request):
 
         {
             "question-ratings": {
-                <qid>: [<score-history>],
+                <qid>: <score>,
                 ...
             },
             "comments": [
@@ -303,7 +329,7 @@ def save_response(request):
                 ...
             ],
             "comment-ratings": [
-                <cid>: [<score-history>],
+                <cid>: <score>,
                 ...
             ],
             "respondent-data": {
