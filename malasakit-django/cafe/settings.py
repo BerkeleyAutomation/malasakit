@@ -177,4 +177,4 @@ URL_ROOT = '/' if DEBUG else '/pcari/'
 STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
 if DEBUG:
     STATIC_ROOT = os.path.join(BASE_DIR, 'pcari', 'static')
-STATIC_URL = os.path.join(URL_ROOT, '/static/')
+STATIC_URL = os.path.join(URL_ROOT, 'static/')

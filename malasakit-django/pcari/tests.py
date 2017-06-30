@@ -4,8 +4,11 @@ This module defines unit tests.
 
 from __future__ import unicode_literals
 import json
+import os
 import random
+import time
 
+from django.conf import settings
 from django.db import IntegrityError
 from django.test import TestCase, Client
 from django.urls import reverse
@@ -13,6 +16,16 @@ from django.urls import reverse
 from .models import Respondent
 from .models import QuantitativeQuestion, QualitativeQuestion
 from .models import Comment, QuantitativeQuestionRating, CommentRating
+
+PAGE_ENDPOINTS = ['landing', 'quantitative-questions', 'peer-responses',
+                  'rate-comments', 'personal-information', 'end']
+API_RETRIEVAL_ENDPOINTS = ['fetch-comments', 'fetch-qualitative-questions']
+
+
+def generate_page_urls(endpoints=PAGE_ENDPOINTS):
+    for code, _ in settings.LANGUAGES:
+        for endpoint in endpoints:
+            yield os.path.join(settings.URL_ROOT, code, endpoint)
 
 
 class UserFeedbackTestCase(TestCase):
@@ -145,4 +158,37 @@ class PageMarkupTestCase(TestCase):
     def setUp(self):
         self.client = Client()
 
-    # TODO: use `bs4` to parse pages
+    def test_html_validity(self):
+        pass
+
+
+class PerformanceTestCase(TestCase):
+    """ Test the runtime of public-facing endpoints. """
+    ITERATIONS = 100
+    ACCEPTABLE_SPEED_THRESHOLD = 0.95
+    ACCEPTABLE_SPEED_TIMEOUT = 0.5  # seconds
+
+    def setUp(self):
+        self.client = Client()
+
+    def percentage_acceptable(self, runtimes):
+        return sum(runtime < self.ACCEPTABLE_SPEED_TIMEOUT
+                   for runtime in runtimes)/len(runtimes)
+
+    def test_page_runtimes(self):
+        runtimes = {}
+        for _ in range(self.ITERATIONS):
+            for url in generate_page_urls():
+                if url not in runtimes:
+                    runtimes[url] = []
+
+                start = time.time()
+                response = self.client.get(url)
+                end = time.time()
+
+                time_elapsed = end - start
+                runtimes[url].append(time_elapsed)
+
+        for url in generate_page_urls():
+            self.assertGreater(self.percentage_acceptable(runtimes[url]),
+                               self.ACCEPTABLE_SPEED_THRESHOLD)
