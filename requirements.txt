@@ -1,4 +1,4 @@
-django==1.10.5
+django==1.11
 openpyxl==2.4.7
 numpy==1.12.1
 MySQL-python==1.2.5
