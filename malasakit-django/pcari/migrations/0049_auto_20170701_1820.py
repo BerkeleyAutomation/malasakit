@@ -6,13 +6,114 @@ from django.db import migrations, models
 import django.db.models.deletion
 
 
+def populate_respondents_forward(apps, schema_editor):
+    Respondent = apps.get_model('pcari', 'Respondent')
+    UserData = apps.get_model('pcari', 'UserData')
+    db_alias = schema_editor.connection.alias
+
+    for user_data in UserData.objects.using(db_alias).all():
+        Respondent.objects.using(db_alias).create(
+            id=user_data.user_id,
+            age=(None if user_data.age <= 0 else user_data.age),
+            location=('' if user_data.barangay is None else user_data.barangay),
+            gender=('' if user_data.gender is None else user_data.gender),
+            language=('tl' if user_data.language == 'Filipino' else 'en'),
+        )
+
+
 def populate_quantitative_question_ratings_forward(apps, schema_editor):
     QuantitativeQuestionRating = apps.get_model('pcari', 'QuantitativeQuestionRating')
+    QuantitativeQuestion = apps.get_model('pcari', 'QuantitativeQuestion')
     Rating = apps.get_model('pcari', 'Rating')
     db_alias = schema_editor.connection.alias
 
-    for rating in Rating.objects.all():
-        pass
+    for rating in Rating.objects.using(db_alias).all():
+        question = QuantitativeQuestion.objects.get(qid=rating.qid)
+        question.save()
+        QuantitativeQuestionRating.objects.using(db_alias).create(
+            respondent_id=rating.user_id,
+            question_id=question.id,
+            timestamp=rating.date,
+            score=rating.score,
+        )
+
+
+def add_qualitative_question_forward(apps, schema_editor):
+    QualitativeQuestion = apps.get_model('pcari', 'QualitativeQuestion')
+    db_alias = schema_editor.connection.alias
+    QualitativeQuestion.objects.using(db_alias).get_or_create(
+        prompt='How could your Barangay help you better prepare for a disaster?',
+        tag='Preparedness Suggestion',
+    )
+
+
+def populate_comments_forward(apps, schema_editor):
+    Comment = apps.get_model('pcari', 'Comment')
+    QualitativeQuestion = apps.get_model('pcari', 'QualitativeQuestion')
+    db_alias = schema_editor.connection.alias
+
+    for comment in Comment.objects.using(db_alias).all():
+        comment.respondent_id = comment.user_id
+        comment.language = 'en' if comment.original_language == 'English' else 'tl'
+        comment.message = comment.comment if comment.language == 'en' else comment.filipino_comment
+        comment.question = QualitativeQuestion.objects.first()
+        comment.save()
+
+        if comment.comment.strip() and comment.filipino_comment.strip():
+            other_language = 'tl' if comment.language == 'en' else 'en'
+            other_message = comment.filipino_comment if other_language == 'tl' else comment.comment
+            Comment.objects.using(db_alias).create(
+                respondent_id=comment.respondent_id,
+                language=other_language,
+                message=other_message.strip(),
+                predecessor=comment,
+                tag=comment.tag,
+                timestamp=comment.timestamp,
+                question=comment.question,
+                user_id=comment.user_id,  # Will be deleted
+            )
+
+
+def populate_comment_ratings_forward(apps, schema_editor):
+    CommentRating = apps.get_model('pcari', 'CommentRating')
+    Comment = apps.get_model('pcari', 'Comment')
+    Respondent = apps.get_model('pcari', 'Respondent')
+    db_alias = schema_editor.connection.alias
+
+    for rating in CommentRating.objects.using(db_alias).all():
+        if rating.cid == -1:
+            rating.delete()
+        else:
+            try:
+                rating.comment = Comment.objects.using(db_alias).get(id=rating.cid)
+            except Comment.DoesNotExist:
+                print('=> Deleting comment rating (no comment)')
+                rating.delete()
+
+            try:
+                rating.respondent = Respondent.objects.using(db_alias).get(id=rating.user_id)
+            except Respondent.DoesNotExist:
+                print('=> Deleting comment rating (no respondent)')
+
+            rating.save()
+
+
+def delete_duplicate_comment_ratings_forward(apps, schema_editor):
+    CommentRating = apps.get_model('pcari', 'CommentRating')
+    db_alias = schema_editor.connection.alias
+
+    id_pairs = list(CommentRating.objects.using(db_alias).values_list('respondent_id', 'comment_id'))
+    duplicate_id_pairs = [id_pair for id_pair in id_pairs if id_pairs.count(id_pair) > 1]
+
+    for respondent_id, comment_id in set(duplicate_id_pairs):
+        query = CommentRating.objects.using(db_alias)
+        query = query.filter(respondent_id=respondent_id, comment_id=comment_id)
+        assert query.count() > 1
+
+        rating_to_keep = query.first()
+        for rating in query.exclude(id=rating_to_keep.id).all():
+            print('=> Deleting duplicate comment rating')
+            rating.delete()
 
 
 class Migration(migrations.Migration):
@@ -75,6 +176,29 @@ class Migration(migrations.Migration):
                 'abstract': False,
             },
         ),
+        migrations.RunPython(populate_respondents_forward),
+        migrations.AlterField(
+            model_name='quantitativequestion',
+            name='qid',
+            field=models.IntegerField(),
+        ),
+        migrations.AddField(
+            model_name='quantitativequestion',
+            name='id',
+            field=models.AutoField(auto_created=True, default=None, primary_key=True, serialize=False, verbose_name='ID'),
+            preserve_default=False,
+        ),
+        migrations.AddField(
+            model_name='quantitativequestionrating',
+            name='question',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ratings', to='pcari.QuantitativeQuestion'),
+        ),
+        migrations.AddField(
+            model_name='quantitativequestionrating',
+            name='respondent',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='pcari.Respondent'),
+        ),
+        migrations.RunPython(populate_quantitative_question_ratings_forward),
         migrations.RemoveField(
             model_name='flaggedcomment',
             name='user',
@@ -117,29 +241,13 @@ class Migration(migrations.Migration):
         ),
         migrations.RemoveField(
             model_name='comment',
-            name='comment',
-        ),
-        migrations.RemoveField(
-            model_name='comment',
-            name='filipino_comment',
-        ),
-        migrations.RemoveField(
-            model_name='comment',
             name='number_rated',
-        ),
-        migrations.RemoveField(
-            model_name='comment',
-            name='original_language',
         ),
         migrations.RemoveField(
             model_name='comment',
             name='se',
         ),
         migrations.RemoveField(
-            model_name='comment',
-            name='user',
-        ),
-        migrations.RemoveField(
             model_name='qualitativequestion',
             name='filipino_question',
         ),
@@ -150,78 +258,6 @@ class Migration(migrations.Migration):
         migrations.RemoveField(
             model_name='qualitativequestion',
             name='question',
-        ),
-        migrations.RemoveField(
-            model_name='quantitativequestion',
-            name='average_score',
-        ),
-        migrations.RemoveField(
-            model_name='quantitativequestion',
-            name='filipino_question',
-        ),
-        migrations.RemoveField(
-            model_name='quantitativequestion',
-            name='filipino_tag',
-        ),
-        migrations.RemoveField(
-            model_name='quantitativequestion',
-            name='number_rated',
-        ),
-        migrations.RemoveField(
-            model_name='quantitativequestion',
-            name='qid',
-        ),
-        migrations.RemoveField(
-            model_name='quantitativequestion',
-            name='question',
-        ),
-        migrations.AddField(
-            model_name='comment',
-            name='active',
-            field=models.BooleanField(default=True),
-        ),
-        migrations.AddField(
-            model_name='comment',
-            name='flagged',
-            field=models.BooleanField(default=False),
-        ),
-        migrations.AddField(
-            model_name='comment',
-            name='language',
-            field=models.CharField(choices=[(b'en', 'English'), (b'tl', 'Filipino')], default=None, max_length=8),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name='comment',
-            name='message',
-            field=models.TextField(blank=True, default=''),
-        ),
-        migrations.AddField(
-            model_name='comment',
-            name='predecessor',
-            field=models.ForeignKey(default=None, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='successors', to='pcari.Comment'),
-        ),
-        migrations.AddField(
-            model_name='comment',
-            name='question',
-            field=models.ForeignKey(default=None, on_delete=django.db.models.deletion.CASCADE, related_name='comments', to='pcari.QualitativeQuestion'),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name='commentrating',
-            name='active',
-            field=models.BooleanField(default=True),
-        ),
-        migrations.AddField(
-            model_name='commentrating',
-            name='comment',
-            field=models.ForeignKey(default=None, on_delete=django.db.models.deletion.CASCADE, related_name='ratings', to='pcari.Comment'),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name='commentrating',
-            name='predecessor',
-            field=models.ForeignKey(default=None, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='successors', to='pcari.CommentRating'),
         ),
         migrations.AddField(
             model_name='qualitativequestion',
@@ -249,16 +285,119 @@ class Migration(migrations.Migration):
             name='tag',
             field=models.CharField(blank=True, default='', max_length=256),
         ),
+        migrations.RunPython(add_qualitative_question_forward),
         migrations.AddField(
+            model_name='comment',
+            name='language',
+            field=models.CharField(choices=[(b'en', 'English'), (b'tl', 'Filipino')], default='', max_length=8),
+            preserve_default=False,
+        ),
+        migrations.AddField(
+            model_name='comment',
+            name='message',
+            field=models.TextField(blank=True, default=''),
+        ),
+        migrations.AddField(
+            model_name='comment',
+            name='predecessor',
+            field=models.ForeignKey(default=None, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='successors', to='pcari.Comment'),
+        ),
+        migrations.AddField(
+            model_name='comment',
+            name='respondent',
+            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='pcari.Respondent'),
+            preserve_default=False,
+        ),
+        migrations.AddField(
+            model_name='comment',
+            name='question',
+            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, related_name='comments', to='pcari.QualitativeQuestion'),
+            preserve_default=False,
+        ),
+        migrations.RunPython(populate_comments_forward),
+        migrations.RemoveField(
+            model_name='comment',
+            name='comment',
+        ),
+        migrations.RemoveField(
+            model_name='comment',
+            name='filipino_comment',
+        ),
+        migrations.RemoveField(
+            model_name='comment',
+            name='original_language',
+        ),
+        migrations.RemoveField(
+            model_name='comment',
+            name='user',
+        ),
+        migrations.RemoveField(
             model_name='quantitativequestion',
+            name='average_score',
+        ),
+        migrations.RemoveField(
+            model_name='quantitativequestion',
+            name='filipino_question',
+        ),
+        migrations.RemoveField(
+            model_name='quantitativequestion',
+            name='filipino_tag',
+        ),
+        migrations.RemoveField(
+            model_name='quantitativequestion',
+            name='number_rated',
+        ),
+        migrations.RemoveField(
+            model_name='quantitativequestion',
+            name='qid',
+        ),
+        migrations.AlterField(
+            model_name='quantitativequestion',
+            name='question',
+            field=models.TextField(blank=True, default=''),
+        ),
+        migrations.RenameField(
+            model_name='quantitativequestion',
+            old_name='question',
+            new_name='prompt',
+        ),
+        migrations.AddField(
+            model_name='comment',
             name='active',
             field=models.BooleanField(default=True),
         ),
         migrations.AddField(
-            model_name='quantitativequestion',
-            name='id',
-            field=models.AutoField(auto_created=True, default=None, primary_key=True, serialize=False, verbose_name='ID'),
+            model_name='comment',
+            name='flagged',
+            field=models.BooleanField(default=False),
+        ),
+        migrations.AddField(
+            model_name='commentrating',
+            name='active',
+            field=models.BooleanField(default=True),
+        ),
+        migrations.AddField(
+            model_name='commentrating',
+            name='comment',
+            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, related_name='ratings', to='pcari.Comment'),
             preserve_default=False,
+        ),
+        migrations.AddField(
+            model_name='commentrating',
+            name='respondent',
+            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='pcari.Respondent'),
+            preserve_default=False,
+        ),
+        migrations.RunPython(populate_comment_ratings_forward),
+        migrations.AddField(
+            model_name='commentrating',
+            name='predecessor',
+            field=models.ForeignKey(default=None, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='successors', to='pcari.CommentRating'),
+        ),
+        migrations.AddField(
+            model_name='quantitativequestion',
+            name='active',
+            field=models.BooleanField(default=True),
         ),
         migrations.AddField(
             model_name='quantitativequestion',
@@ -284,11 +423,6 @@ class Migration(migrations.Migration):
             model_name='quantitativequestion',
             name='predecessor',
             field=models.ForeignKey(default=None, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='successors', to='pcari.QuantitativeQuestion'),
-        ),
-        migrations.AddField(
-            model_name='quantitativequestion',
-            name='prompt',
-            field=models.TextField(blank=True, default=''),
         ),
         migrations.AddField(
             model_name='quantitativequestion',
@@ -323,31 +457,9 @@ class Migration(migrations.Migration):
             name='UserProgression',
         ),
         migrations.AddField(
-            model_name='quantitativequestionrating',
-            name='question',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ratings', to='pcari.QuantitativeQuestion'),
-        ),
-        migrations.AddField(
-            model_name='quantitativequestionrating',
-            name='respondent',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='pcari.Respondent'),
-        ),
-        migrations.AddField(
             model_name='optionquestionchoice',
             name='respondent',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='pcari.Respondent'),
-        ),
-        migrations.AddField(
-            model_name='comment',
-            name='respondent',
-            field=models.ForeignKey(default=None, on_delete=django.db.models.deletion.CASCADE, to='pcari.Respondent'),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name='commentrating',
-            name='respondent',
-            field=models.ForeignKey(default=None, on_delete=django.db.models.deletion.CASCADE, to='pcari.Respondent'),
-            preserve_default=False,
         ),
         migrations.RemoveField(
             model_name='commentrating',
@@ -361,6 +473,7 @@ class Migration(migrations.Migration):
             model_name='commentrating',
             name='user',
         ),
+        migrations.RunPython(delete_duplicate_comment_ratings_forward),
         migrations.AlterUniqueTogether(
             name='commentrating',
             unique_together=set([('respondent', 'comment')]),
