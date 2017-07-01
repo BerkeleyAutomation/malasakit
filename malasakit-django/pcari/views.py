@@ -92,9 +92,11 @@ def generate_ratings_matrix():
                                                        question__active=True,
                                                        active=True).values_list(*features)
     for respondent_id, question_id, score in values:
-        row_index = respondent_id_map[respondent_id]
-        column_index = question_id_map[question_id]
-        ratings_matrix[row_index, column_index] = score
+        if score not in [QuantitativeQuestionRating.SKIPPED,
+                         QuantitativeQuestionRating.NOT_RATED]:
+            row_index = respondent_id_map[respondent_id]
+            column_index = question_id_map[question_id]
+            ratings_matrix[row_index, column_index] = score
 
     return respondent_id_map, question_id_map, ratings_matrix
 
