@@ -19,7 +19,8 @@ import numpy as np
 from .models import Respondent
 from .models import QuantitativeQuestion, QualitativeQuestion
 from .models import Comment, QuantitativeQuestionRating, CommentRating
-from .views import generate_ratings_matrix, normalize_ratings_matrix
+from .views import (generate_ratings_matrix, normalize_ratings_matrix,
+                    calculate_principal_components)
 
 PAGE_ENDPOINTS = ['landing', 'quantitative-questions', 'peer-responses',
                   'rate-comments', 'personal-information', 'end']
@@ -287,3 +288,19 @@ class PCACorrectnessTestCase(TestCase):
 
             error = np.linalg.norm(expected - actual)
             self.assertAlmostEqual(error, 0)
+
+    def test_calculate_principal_components(self):
+        _, _, ratings_matrix = generate_ratings_matrix()
+        normalized_ratings = normalize_ratings_matrix(ratings_matrix)
+
+        actual_components = calculate_principal_components(normalized_ratings, 2)
+        expected_components = np.array([[1, 0],
+                                        [0, 1]])
+
+        for actual, expected in zip(actual_components, expected_components):
+            # The SVD is not unique, so to check that the calculated components
+            # are correct, we need only check every pair of components is
+            # parallel.
+            self.assertEqual(np.linalg.norm(expected), 1)
+            self.assertEqual(np.linalg.norm(actual), 1)
+            self.assertAlmostEqual(abs(np.dot(actual, expected)), 1)
