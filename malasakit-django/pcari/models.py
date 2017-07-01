@@ -1,11 +1,5 @@
 """
 This module defines the structure of the data.
-
-Attributes:
-    LANGUAGES: A tuple of pairs (tuples of size two), each of which has a
-               language code as the first entry and the language name as
-               the second. The two-letter language code should be taken
-               from the ISO 639-1 standard.
 """
 
 from __future__ import unicode_literals
@@ -33,7 +27,8 @@ def accepts_ratings(ratings_model, keyword):
     ratings dynamically by pulling records from other models on-the-fly.
     These statistics include:
       * the number of ratings,
-      * the mean rating, and
+      * the mean rating,
+      * the standard deviation of the ratings, and
       * the standard error of the ratings.
 
     Args:
@@ -332,17 +327,6 @@ class Comment(Response):
              is not user-generated.)
         word_count: The number of words in the `message` (words are delimited
                     with contiguous whitespace).
-
-    Example usage:
-
-    >>> respondent = Respondent()
-    >>> question = QualitativeQuestion(prompt='How is the weather?')
-    >>> comment = Comment(question=question, respondent=respondent,
-    ...                   language='en', message='Not raining.')
-    >>> comment.message
-    'Not raining.'
-    >>> comment.word_count
-    2
     """
     MAX_COMMENT_DISPLAY_LEN = 140
 
@@ -543,9 +527,9 @@ class Respondent(History):
         return 'Respondent {0}'.format(self.id)
 
     def num_questions_rated(self):
-        ratings = QuantitativeQuestionRating.objects.filter(respondent=self).all()
-        return sum(1 for rating in ratings if rating.score not in
-                   [Rating.NOT_RATED, Rating.SKIPPED])
+        ratings = QuantitativeQuestionRating.objects.filter(respondent=self)
+        ratings = ratings.exclude(rating__in=[Rating.NOT_RATED, Rating.SKIPPED])
+        return ratings.count()
 
     num_questions_rated.short_description = 'Number of questions rated'
     num_questions_rated = property(num_questions_rated)

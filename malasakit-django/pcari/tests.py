@@ -45,6 +45,10 @@ def generate_page_urls(endpoints=PAGE_ENDPOINTS):
             yield os.path.join(settings.URL_ROOT, code, endpoint, '')
 
 
+class HistoryTrackingTestCase(TestCase):
+    pass
+
+
 class UserFeedbackTestCase(TestCase):
     fixtures = ['questions.yaml', 'user-generated.yaml']
 
@@ -179,7 +183,7 @@ class PageMarkupTestCase(TestCase):
         pass
 
 
-class PerformanceTestCase(TestCase):
+class RetrievalPerformanceTestCase(TestCase):
     """
     Test the runtime of public-facing pages and API endpoints.
     """
@@ -290,12 +294,13 @@ class PCACorrectnessTestCase(TestCase):
             self.assertAlmostEqual(error, 0)
 
     def test_calculate_principal_components(self):
-        _, _, ratings_matrix = generate_ratings_matrix()
-        normalized_ratings = normalize_ratings_matrix(ratings_matrix)
+        normalized_ratings = normalize_ratings_matrix(np.array([[9, 6],
+                                                                [0, np.nan],
+                                                                [0, np.nan]]))
 
         actual_components = calculate_principal_components(normalized_ratings, 2)
         expected_components = np.array([[1, 0],
-                                        [0, 1]])
+                                        [0, 1]])  # Calculated by hand
 
         for actual, expected in zip(actual_components, expected_components):
             # The SVD is not unique, so to check that the calculated components
@@ -304,3 +309,7 @@ class PCACorrectnessTestCase(TestCase):
             self.assertEqual(np.linalg.norm(expected), 1)
             self.assertEqual(np.linalg.norm(actual), 1)
             self.assertAlmostEqual(abs(np.dot(actual, expected)), 1)
+
+
+class PCAEmptyDatabaseTestCase(TestCase):
+    """  """
