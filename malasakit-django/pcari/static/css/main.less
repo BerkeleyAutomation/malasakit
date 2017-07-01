@@ -62,12 +62,6 @@ nav {
   flex-flow: row wrap;
 }
 
-input[type=range] {
-  flex-basis: 50%;
-  order: 2;
-  margin: 1rem 1rem;
-}
-
 .label {
   box-sizing: border-box;
   padding-right: 1rem;
@@ -232,6 +226,9 @@ hr {
 
 input[type=range] {
   -webkit-appearance: none;
+  flex-basis: 50%;
+  order: 2;
+  margin: 1rem 1rem;
 
   &:focus {
     outline: none;
@@ -266,6 +263,14 @@ input[type=range] {
     border-radius: 50%;
     margin-top: -0.4rem;
   }
+}
+
+output {
+  text-align: center;
+  border: 1px solid goldenrod;
+  padding: 0.2rem;
+  border-radius: 0.2rem;
+  min-width: 2rem;
 }
 
 input[type=number], input[type=text], select {
