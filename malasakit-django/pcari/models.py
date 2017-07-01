@@ -371,7 +371,7 @@ class OptionQuestion(Question):
     )
 
     _options_text = models.TextField(blank=True, default=json.dumps([]))
-    input_type = models.CharField(max_length=16, choices=INPUT_TYPES,
+    input_type = models.CharField(max_length=16, choices=INPUT_TYPE_CHOICES,
                                   default='select')
 
     @property
