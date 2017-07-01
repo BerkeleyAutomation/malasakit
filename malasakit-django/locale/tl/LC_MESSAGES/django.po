@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-23 22:47+0000\n"
+"POT-Creation-Date: 2017-07-01 22:11+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -61,12 +61,39 @@ msgstr ""
 msgid "How could your Barangay help you better prepare for a disaster?"
 msgstr ""
 
-#: cafe/settings.py:120
+#: cafe/settings.py:152
 msgid "English"
 msgstr ""
 
-#: cafe/settings.py:121
+#: cafe/settings.py:153
 msgid "Filipino"
+msgstr ""
+
+#: pcari/templates/admin/base.html:7
+msgid "Configuration"
+msgstr ""
+
+#: pcari/templates/admin/base.html:9 pcari/templates/admin/statistics.html:5
+#: pcari/templates/admin/statistics.html:158
+msgid "Statistics"
+msgstr ""
+
+#: pcari/templates/admin/configuration.html:5
+#: pcari/templates/admin/configuration.html:38
+msgid "Site configuration"
+msgstr ""
+
+#: pcari/templates/admin/configuration.html:40
+msgid "Change bloom icon"
+msgstr ""
+
+#: pcari/templates/admin/configuration.html:45
+#: pcari/templates/rate-comments.html:41
+msgid "Submit"
+msgstr ""
+
+#: pcari/templates/admin/statistics.html:160
+msgid "Quantitative question rating distributions"
 msgstr ""
 
 #: pcari/templates/base.html:53
@@ -118,68 +145,73 @@ msgstr ""
 msgid "For the question"
 msgstr ""
 
-#: pcari/templates/peer-responses.html:36
+#: pcari/templates/peer-responses.html:37
 #, python-format
 msgid ""
-"<strong>%(num_ratings)s</strong> other respondents rated this statement, the "
-"most common score was <strong>%(mode)s</strong>, and the average score was "
-"<strong>%(mean)s</strong>."
+"<strong>%(num_ratings)s</strong> other respondents rated this statement."
 msgstr ""
 
-#: pcari/templates/personal-information.html:48
-#: pcari/templates/personal-information.html:49
+#: pcari/templates/peer-responses.html:41
+#, python-format
+msgid ""
+"The most common score was <strong>%(mode)s</strong>, and the average score "
+"was <strong>%(mean)s</strong>."
+msgstr ""
+
+#: pcari/templates/personal-information.html:88
+#: pcari/templates/personal-information.html:89
 msgid "Personal Information"
 msgstr ""
 
-#: pcari/templates/personal-information.html:53
+#: pcari/templates/personal-information.html:93
 msgid ""
 "All questions on this page are strictly optional. Your responses will be "
 "anonymous."
 msgstr ""
 
-#: pcari/templates/personal-information.html:60
+#: pcari/templates/personal-information.html:100
 msgid "Age"
 msgstr "Edad"
 
-#: pcari/templates/personal-information.html:64
+#: pcari/templates/personal-information.html:104
 msgid "Gender"
 msgstr "Kasarian"
 
-#: pcari/templates/personal-information.html:67
+#: pcari/templates/personal-information.html:107
 msgid "Select gender"
 msgstr ""
 
-#: pcari/templates/personal-information.html:68
+#: pcari/templates/personal-information.html:108
 msgid "Male"
 msgstr "Lalaki"
 
-#: pcari/templates/personal-information.html:69
+#: pcari/templates/personal-information.html:109
 msgid "Female"
 msgstr "Babae"
 
-#: pcari/templates/personal-information.html:74
+#: pcari/templates/personal-information.html:114
 msgid "Province"
 msgstr ""
 
-#: pcari/templates/personal-information.html:77
-msgid "Select province"
+#: pcari/templates/personal-information.html:121
+msgid "City or Municipality"
 msgstr ""
 
-#: pcari/templates/personal-information.html:85
+#: pcari/templates/personal-information.html:128
 msgid "Barangay"
 msgstr "Barangay"
 
-#: pcari/templates/personal-information.html:92
+#: pcari/templates/personal-information.html:138
 msgid ""
 "You are about to submit your response, and will no longer be able to edit "
 "your answers. Do you wish to continue?"
 msgstr ""
 
-#: pcari/templates/personal-information.html:99
+#: pcari/templates/personal-information.html:145
 msgid "Yes"
 msgstr ""
 
-#: pcari/templates/personal-information.html:102
+#: pcari/templates/personal-information.html:148
 msgid "No"
 msgstr ""
 
@@ -224,27 +256,23 @@ msgstr ""
 msgid "The comment was:"
 msgstr ""
 
-#: pcari/templates/rate-comments.html:41
-msgid "Submit"
-msgstr ""
-
 #: pcari/templates/rate-comments.html:44
 msgid "Skip"
 msgstr ""
 
-#: pcari/views.py:406
+#: pcari/views.py:535
 msgid "Page Not Found"
 msgstr ""
 
-#: pcari/views.py:407
+#: pcari/views.py:536
 msgid "The requested page does not appear to exist."
 msgstr ""
 
-#: pcari/views.py:414
+#: pcari/views.py:543
 msgid "Internal Error"
 msgstr ""
 
-#: pcari/views.py:415
+#: pcari/views.py:544
 msgid ""
 "The server is currently experiencing some issues. Please let the maintainers "
 "know immediately."
