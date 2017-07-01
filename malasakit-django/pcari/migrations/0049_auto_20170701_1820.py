@@ -18,6 +18,8 @@ def populate_respondents_forward(apps, schema_editor):
             location=('' if user_data.barangay is None else user_data.barangay),
             gender=('' if user_data.gender is None else user_data.gender),
             language=('tl' if user_data.language == 'Filipino' else 'en'),
+            submitted_personal_data=True,
+            completed_survey=True,
         )
 
 

@@ -54,12 +54,15 @@ class StatisticsMixin:
     def scores(self):
         """ Access a list of scores. """
         active_ratings = self.ratings.filter(active=True)
-        return active_ratings.values_list('scores', flat=True)
+        excluded = [Rating.SKIPPED, Rating.NOT_RATED]
+        active_ratings = active_ratings.exclude(score__in=excluded)
+        return active_ratings.values_list('score', flat=True)
 
-    @property
     def num_ratings(self):
         """ Return the number of ratings for this instance. """
         return len(self.scores)
+    num_ratings.short_description = 'Number of ratings'
+    num_ratings = property(num_ratings)
 
     @property
     def mean_score(self):
@@ -86,7 +89,7 @@ class StatisticsMixin:
         return (sum(squared_residuals)/(len(scores) - 1))**0.5
 
     @property
-    def score_std_error(self):
+    def score_sem(self):
         """ Calculate the standard error of the mean of the scores. """
         num_ratings = self.num_ratings
         if num_ratings > 1:
@@ -455,17 +458,15 @@ class Respondent(History):
 
     def num_questions_rated(self):
         ratings = QuantitativeQuestionRating.objects.filter(respondent=self)
-        ratings = ratings.exclude(rating__in=[Rating.NOT_RATED, Rating.SKIPPED])
+        ratings = ratings.exclude(score__in=[Rating.NOT_RATED, Rating.SKIPPED])
         return ratings.count()
-
     num_questions_rated.short_description = 'Number of questions rated'
     num_questions_rated = property(num_questions_rated)
 
     def num_comments_rated(self):
         ratings = CommentRating.objects.filter(respondent=self)
-        ratings = ratings.exclude(rating__in=[Rating.NOT_RATED, Rating.SKIPPED])
+        ratings = ratings.exclude(score__in=[Rating.NOT_RATED, Rating.SKIPPED])
         return ratings.count()
-
     num_comments_rated.short_description = 'Number of comments rated'
     num_comments_rated = property(num_comments_rated)
 

@@ -143,8 +143,8 @@ class CommentRatingAdmin(ResponseAdmin):
     Customizes admin change page function for `CommentRating`s.
     """
     def get_comment_message(self, comment_rating):
-        # pylint: disable=no-self-use
-        return comment_rating.comment.message
+        message = comment_rating.comment.message
+        return message if message.strip() else self.empty_value_display
     get_comment_message.short_description = 'Comment message'
 
     # Columns to display in the Comment change list page, in order from left to
@@ -171,26 +171,25 @@ class CommentAdmin(ResponseAdmin):
     """
     Customizes admin change page functionality for `Comment`s.
     """
+    def display_message(self, comment):
+        return comment.message if comment.message.strip() else self.empty_value_display
+    display_message.short_description = 'Message'
+
     def display_mean_score(self, comment):
         # pylint: disable=no-self-use
         mean_score = comment.mean_score
         return str(round(mean_score, 3)) if not math.isnan(mean_score) else '(No ratings)'
     display_mean_score.short_description = 'Mean score'
 
-    def display_num_ratings(self, comment):
-        # pylint: disable=no-self-use
-        return comment.num_ratings
-    display_num_ratings.short_description = 'Number of ratings'
-
     # Columns to display in the Comment change list page, in order from left to
     # right
-    list_display = ('respondent', 'message', 'timestamp', 'language',
+    list_display = ('respondent', 'display_message', 'timestamp', 'language',
                     'flagged', 'tag', 'active', 'display_mean_score',
-                    'display_num_ratings')
+                    'num_ratings')
 
     # By default first column listed in list_display is clickable; this makes
     # `message` column clickable
-    list_display_links = ('message',)
+    list_display_links = ('display_message',)
 
     # Specify which columns we want filtering capabilities for
     list_filter = ('timestamp', 'language', 'flagged', 'tag', 'active')
@@ -295,9 +294,13 @@ class RespondentAdmin(HistoryAdmin):
     """
     Customizes admin change page functionality for `RespondentAdmin`.
     """
+    def display_location(self, respondent):
+        return respondent.location if respondent.location.strip() else self.empty_value_display
+    display_location.short_description = 'Location'
+
     def comments_made(self, respondent):
         # pylint: disable=no-self-use
-        comments = list(respondent.comments_made)
+        comments = list(respondent.comments)
         return '(No comments)' if not comments else ''.join(map(str, comments))
 
     # Empty responses (recorded as None) will be replaced by this placeholder
@@ -308,8 +311,8 @@ class RespondentAdmin(HistoryAdmin):
 
     # Columns to display in the Comment change list page, in order from left to
     # right
-    list_display = ('id', 'comments_made', 'age', 'gender', 'location', 'language',
-                    'submitted_personal_data', 'completed_survey',
+    list_display = ('id', 'comments_made', 'age', 'gender', 'display_location',
+                    'language', 'submitted_personal_data', 'completed_survey',
                     'num_questions_rated', 'num_comments_rated', 'active')
 
     # Specify which columns we want filtering capabilities for
