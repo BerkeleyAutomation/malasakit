@@ -8,6 +8,7 @@ import logging
 import os
 import random
 import time
+import warnings
 
 from django.conf import settings
 from django.db import IntegrityError
@@ -18,14 +19,23 @@ import numpy as np
 from .models import Respondent
 from .models import QuantitativeQuestion, QualitativeQuestion
 from .models import Comment, QuantitativeQuestionRating, CommentRating
-from .views import generate_ratings_matrix
+from .views import generate_ratings_matrix, normalize_ratings_matrix
 
 PAGE_ENDPOINTS = ['landing', 'quantitative-questions', 'peer-responses',
                   'rate-comments', 'personal-information', 'end']
 API_RETRIEVAL_ENDPOINTS = ['fetch/comments', 'fetch/qualitative-questions']
 HTTP_OK = 200
 
-logging.disable(logging.INFO)
+logging.disable(logging.CRITICAL)
+
+
+def ignore_warnings(function):
+    def wrapper(*args, **kwargs):
+        warnings.filterwarnings('ignore')
+        result = function(*args, **kwargs)
+        warnings.resetwarnings()
+        return result
+    return wrapper
 
 
 def generate_page_urls(endpoints=PAGE_ENDPOINTS):
@@ -234,19 +244,46 @@ class PerformanceTestCase(TestCase):
         self.validate_runtimes(urls)
 
 
-class PCATestCase(TestCase):
+class PCACorrectnessTestCase(TestCase):
     """ Test the correctness of the principal component analysis. """
     fixtures = ['pca-test-data.yaml']
 
     def test_ratings_matrix_entries(self):
-        r, c, ratings_matrix = generate_ratings_matrix()
-        self.assertEqual(ratings_matrix.shape, (3, 2))
-        self.assertEqual(ratings_matrix[r[1], c[1]], 9)
-        self.assertEqual(ratings_matrix[r[2], c[1]], 0)
-        self.assertEqual(ratings_matrix[r[3], c[1]], 1)
-        self.assertEqual(ratings_matrix[r[1], c[2]], 6)
-        self.assertTrue(np.isnan(ratings_matrix[r[2], c[2]]))
-        self.assertTrue(np.isnan(ratings_matrix[r[3], c[2]]))
+        results = generate_ratings_matrix()
+        respondent_id_map, question_id_map, ratings_matrix = results
+        indices = lambda respondent_id, question_id: (respondent_id_map[respondent_id],
+                                                      question_id_map[question_id])
 
+        self.assertEqual(ratings_matrix.shape, (3, 2))
+        self.assertEqual(ratings_matrix[indices(1, 1)], 9)
+        self.assertEqual(ratings_matrix[indices(2, 1)], 0)
+        self.assertEqual(ratings_matrix[indices(3, 1)], 1)
+        self.assertEqual(ratings_matrix[indices(1, 2)], 6)
+        self.assertTrue(np.isnan(ratings_matrix[indices(2, 2)]))
+        self.assertTrue(np.isnan(ratings_matrix[indices(3, 2)]))
+
+    @ignore_warnings
     def test_ratings_matrix_normalization(self):
-        pass
+        input_matrices = [
+            np.array([[9, 6],
+                      [0, np.nan],
+                      [1, np.nan]]),
+            np.array([[0, 1, 2, np.nan],
+                      [np.nan, np.nan, 3, np.nan]]),
+        ]
+        expected_matrices = [
+            np.array([[9 - 10.0/3, 0],
+                      [-10.0/3, 0],
+                      [1 - 10.0/3, 0]]),
+            np.array([[0, 0, -0.5, 0],
+                      [0, 0, 0.5, 0]]),
+        ]
+        for input_matrix, expected in zip(input_matrices, expected_matrices):
+            actual = normalize_ratings_matrix(input_matrix)
+
+            self.assertEqual(actual.shape, input_matrix.shape)
+            self.assertEqual(expected.shape, input_matrix.shape)
+            self.assertEqual(actual.shape, expected.shape)
+
+            error = np.linalg.norm(expected - actual)
+            self.assertAlmostEqual(error, 0)

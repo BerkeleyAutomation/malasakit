@@ -9,6 +9,10 @@
 - model: pcari.respondent
   pk: 3
   fields: {}
+- model: pcari.respondent
+  pk: 4
+  fields:
+    active: false
 
 - model: pcari.quantitativequestion
   pk: 1
@@ -16,6 +20,10 @@
 - model: pcari.quantitativequestion
   pk: 2
   fields: {}
+- model: pcari.quantitativequestion
+  pk: 3
+  fields:
+    active: false
 
 - model: pcari.quantitativequestionrating
   pk: 1
