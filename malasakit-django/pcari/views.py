@@ -71,9 +71,9 @@ def generate_ratings_matrix():
 
     Returns:
         respondent_id_map: A length-`m` dictionary mapping respondent identifiers
-                           to matrix row indicies.
+            to matrix row indicies.
         question_id_map: A length-`n` dictionary mapping quantitative question
-                         identifiers to matrix column indicies.
+            identifiers to matrix column indicies.
         ratings_matrix: A `m` x `n` NumPy array of ratings.
 
     Only active respondents, active questions, and active ratings are used.
@@ -87,16 +87,18 @@ def generate_ratings_matrix():
     shape = len(respondent_id_map), len(question_id_map)
     ratings_matrix = np.full(shape, np.nan)
 
-    features = 'respondent_id', 'question_id', 'score'
     values = QuantitativeQuestionRating.objects.filter(respondent__active=True,
                                                        question__active=True,
-                                                       active=True).values_list(*features)
+                                                       active=True)
+    excluded = [QuantitativeQuestionRating.SKIPPED,
+                QuantitativeQuestionRating.NOT_RATED]
+    features = 'respondent_id', 'question_id', 'score'
+    values = values.exclude(score__in=excluded).values_list(*features)
+
     for respondent_id, question_id, score in values:
-        if score not in [QuantitativeQuestionRating.SKIPPED,
-                         QuantitativeQuestionRating.NOT_RATED]:
-            row_index = respondent_id_map[respondent_id]
-            column_index = question_id_map[question_id]
-            ratings_matrix[row_index, column_index] = score
+        row_index = respondent_id_map[respondent_id]
+        column_index = question_id_map[question_id]
+        ratings_matrix[row_index, column_index] = score
 
     return respondent_id_map, question_id_map, ratings_matrix
 
@@ -125,7 +127,7 @@ def calculate_principal_components(normalized_ratings, num_components=2):
 
     Args:
         normalized_ratings: A normalized ratings matrix (as provided by
-                            `normalize_ratings_matrix`).
+            `normalize_ratings_matrix`).
         num_components: The number of principal components to select (`p`).
 
     Returns:
@@ -166,7 +168,7 @@ def fetch_comments(request):
         return HttpResponseBadRequest(str(error))
 
     query = Comment.objects.filter(active=True).filter(flagged=False)
-    comments = query.exclude(message=None).exclude(message='').all()
+    comments = query.exclude(message='').all()
     if len(comments) > limit:
         comments = random.sample(comments, limit)
 
@@ -176,7 +178,7 @@ def fetch_comments(request):
 
     data = {}
     for comment in comments:
-        standard_error = comment.standard_error
+        standard_error = comment.score_sem
         row_index = respondent_id_map[comment.respondent.id]
 
         # Projects the ratings by this comment's author onto the first two
@@ -270,32 +272,24 @@ def fetch_question_ratings(request):
 def make_question_ratings(respondent, responses):
     """ Generate new quantitative question model instances. """
     for question_id, score in responses.get('question-ratings', {}).iteritems():
-        question = QuantitativeQuestion(id=int(question_id))
         yield QuantitativeQuestionRating(respondent=respondent,
-                                         question=question, score=score)
+                                         question_id=int(question_id), score=score)
 
 
 @profile
 def make_comments(respondent, responses):
     """ Generate new comment model instances. """
     for question_id, message in responses.get('comments', {}).iteritems():
-        question = QualitativeQuestion(id=int(question_id))
-
-        # Replaces empty messages with None so they can show up as placeholders in admin
-        message = message.strip()
-        if not message:
-            message = None
-
-        yield Comment(respondent=respondent, question=question,
-                      language=respondent.language, message=message)
+        yield Comment(respondent=respondent, question_id=int(question_id),
+                      language=respondent.language, message=message.strip())
 
 
 @profile
 def make_comment_ratings(respondent, responses):
     """ Generate new comment rating instances. """
     for comment_id, score in responses.get('comment-ratings', {}).iteritems():
-        comment = Comment.objects.get(id=int(comment_id))
-        yield CommentRating(respondent=respondent, comment=comment, score=score)
+        yield CommentRating(respondent=respondent, comment_id=int(comment_id),
+                            score=score)
 
 
 @profile
@@ -443,11 +437,11 @@ def export_data(request):
     Args:
         request: A request object that supports the following GET parameters:
             model: The name of the model to export data for. This is a requred
-                   parameter.
+                parameter.
             data_format: The name of the data format (default: csv). Supported
-                         options are: csv.
+                options are: csv.
             keys: A comma-separated list of primary keys (default: select all
-                  instances). Only works for numeric primary keys.
+                instances). Only works for numeric primary keys.
 
     Returns:
         An `HttpResponse` that contains a file.

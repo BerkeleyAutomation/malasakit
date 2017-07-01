@@ -45,7 +45,7 @@ urlpatterns = [
     url(r'^admin/', site.urls),
 
     # AJAX endpoints
-    url(r'^api/', include(ajax_urlpatterns)),
+    url(r'^api/', include(api_urlpatterns)),
 ]
 
 # Translate all `pcari` urls

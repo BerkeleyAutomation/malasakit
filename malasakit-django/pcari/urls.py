@@ -24,7 +24,7 @@ urlpatterns = [
     url(r'^end/$', views.end, name='end'),
 ]
 
-ajax_urlpatterns = [
+api_urlpatterns = [
     url(r'^fetch/comments/$', views.fetch_comments, name='fetch-comments'),
     url(r'^fetch/quantitative-questions', views.fetch_quantitative_questions,
         name='fetch_quantitative_questions'),
