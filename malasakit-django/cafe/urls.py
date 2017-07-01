@@ -21,7 +21,7 @@ from django.contrib.auth import views as auth_views
 from django.views.generic import TemplateView
 
 from pcari.admin import site
-from pcari.urls import ajax_urlpatterns
+from pcari.urls import api_urlpatterns
 
 # pylint: disable=invalid-name
 urlpatterns = [

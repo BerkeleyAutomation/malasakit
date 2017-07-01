@@ -8,7 +8,7 @@ LINT_OPTIONS=--output-format=colorized --rcfile=.pylintrc
 LINT_TARGETS=cafe/settings.py cafe/urls.py cafe/wsgi.py pcari/management/commands/__init__.py pcari/management/commands/cleantext.py pcari/management/commands/makedbtrans.py pcari/management/commands/makemessages.py pcari/templatetags/localize_url.py pcari/admin.py pcari/apps.py pcari/signals.py pcari/urls.py pcari/views.py
 
 CLEANTEXT_TARGETS=Comment.message Respondent.location
-DB_TRANS_TARGETS=QuantitativeQuestion.prompt QuantitativeQuestion.left_text QuantitativeQuestion.right_text QualitativeQuestion.prompt
+DB_TRANS_TARGETS=QuantitativeQuestion.prompt QuantitativeQuestion.left_anchor QuantitativeQuestion.right_anchor QualitativeQuestion.prompt
 LOCALES=tl
 
 all: preparetrans compiletrans lint test
@@ -21,7 +21,7 @@ lint: $(LINT_TARGETS:%.py=$(DJANGO_PROJECT_ROOT)/%.py)
 
 # Clean database
 cleandb:
-	cd $(DJANGO_PROJECT_ROOT) && python2 manage.py cleantext $(CLEANTEXT_TARGETS)
+#	cd $(DJANGO_PROJECT_ROOT) && python2 manage.py cleantext $(CLEANTEXT_TARGETS)
 
 # Prepare translations
 preparetrans:
