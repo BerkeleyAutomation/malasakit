@@ -1,0 +1,11 @@
+{% extends 'admin/base.html' %}
+
+{% load i18n %}
+
+{% block userlinks %}
+  {% if user.is_staff %}
+    <a href="{% url 'admin:configuration' %}">{% trans 'Configuration' %}</a> /
+  {% endif %}
+  <a href="{% url 'admin:statistics' %}">{% trans 'Statistics' %}</a> /
+  {{ block.super }}
+{% endblock %}

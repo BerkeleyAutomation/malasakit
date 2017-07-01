@@ -1,3 +1,5 @@
+# A toy case for testing PCA correctness
+
 - model: pcari.respondent
   pk: 1
   fields: {}
@@ -9,55 +11,53 @@
   fields: {}
 - model: pcari.respondent
   pk: 4
+  fields:
+    active: false
+
+- model: pcari.quantitativequestion
+  pk: 1
   fields: {}
-- model: pcari.respondent
-  pk: 5
+- model: pcari.quantitativequestion
+  pk: 2
   fields: {}
+- model: pcari.quantitativequestion
+  pk: 3
+  fields:
+    active: false
 
 - model: pcari.quantitativequestionrating
-  fields:
-    respondent_id: 1
-    score: 3
-    question_id: 1
-    timestamp: "2011-09-01T13:20:30+03:00"
-- model: pcari.quantitativequestionrating
-  fields:
-    respondent_id: 2
-    score: 0
-    question_id: 1
-    timestamp: "2011-09-01T13:20:30+03:00"
-- model: pcari.quantitativequestionrating
-  fields:
-    respondent_id: 3
-    score: 1
-    question_id: 1
-    timestamp: "2011-09-01T13:20:30+03:00"
-- model: pcari.quantitativequestionrating
-  fields:
-    respondent_id: 4
-    score: -1
-    question_id: 1
-    timestamp: "2011-09-01T13:20:30+03:00"
-- model: pcari.quantitativequestionrating
-  fields:
-    respondent_id: 5
-    score: -2
-    question_id: 1
-    timestamp: "2011-09-01T13:20:30+03:00"
-
-- model: pcari.comment
   pk: 1
   fields:
-    respondent_id: 1
-    message: bob
-    language: en
     question_id: 1
+    respondent_id: 1
+    score: 9
     timestamp: "2011-09-01T13:20:30+03:00"
-- model: pcari.comment
+- model: pcari.quantitativequestionrating
   pk: 2
   fields:
-    respondent_id: 2
-    message: race car
-    language: en
     question_id: 1
+    respondent_id: 2
+    score: 0
+    timestamp: "2011-09-01T13:20:30+03:00"
+- model: pcari.quantitativequestionrating
+  pk: 3
+  fields:
+    question_id: 1
+    respondent_id: 3
+    score: 1
+    timestamp: "2011-09-01T13:20:30+03:00"
+- model: pcari.quantitativequestionrating
+  pk: 4
+  fields:
+    question_id: 2
+    respondent_id: 1
+    score: 6
+    timestamp: "2011-09-01T13:20:30+03:00"
+# Skip respondent 2 rating question 2
+- model: pcari.quantitativequestionrating
+  pk: 5
+  fields:
+    question_id: 2
+    respondent_id: 3
+    score: -1
     timestamp: "2011-09-01T13:20:30+03:00"

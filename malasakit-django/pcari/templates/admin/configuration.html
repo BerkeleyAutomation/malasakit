@@ -1,0 +1,50 @@
+{% extends 'admin/base_site.html' %}
+
+{% load i18n %}
+
+{% block title %}{% trans 'Site configuration' %}{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <style>
+    input[type="file"]#bloom-icon::-webkit-file-upload-button {
+      font-size: 12.5px;
+      background: #79aec8;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    input[type="file"]#bloom-icon::-webkit-file-upload-button:hover {
+      background: #609ab6;
+    }
+
+    .card-container {
+      max-width: 480px;
+    }
+
+    .card {
+      background-color: #f8f8f8;
+      text-align: center;
+      padding: 0.5rem;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div id="content-main">
+    <h1>{% trans 'Site configuration' %}</h1>
+    <div class="module inline-group card-container">
+      <h2>{% trans 'Change bloom icon' %}</h2>
+      <div class="card">
+        <form action="{% url 'admin:change-bloom-icon' %}" method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input id="bloom-icon" type="file" name="bloom-icon" accept="image/*">
+          <input type="submit" value="{% trans 'Submit' %}">
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -3,7 +3,6 @@ This module defines how URLs should route to views.
 """
 
 from django.conf.urls import url
-from django.views.generic import TemplateView
 
 from . import views
 
@@ -23,18 +22,16 @@ urlpatterns = [
     url(r'^personal-information/$', views.personal_information,
         name='personal-information'),
     url(r'^end/$', views.end, name='end'),
-
-    # ServiceWorker script- special case
-    url(r'^sw.js$',
-        TemplateView.as_view(template_name='sw.js',
-                             content_type='application/javascript'),
-        name='sw.js'),
 ]
 
-ajax_urlpatterns = [
-    url(r'^fetch-comments/$', views.fetch_comments, name='fetch-comments'),
-    url(r'^fetch-qualitative-questions/$', views.fetch_qualitative_questions,
+api_urlpatterns = [
+    url(r'^fetch/comments/$', views.fetch_comments, name='fetch-comments'),
+    url(r'^fetch/quantitative-questions', views.fetch_quantitative_questions,
+        name='fetch_quantitative_questions'),
+    url(r'^fetch/qualitative-questions/$', views.fetch_qualitative_questions,
         name='fetch-qualitative-questions'),
+    url(r'^fetch/question-ratings/$', views.fetch_question_ratings,
+        name='fetch-question-ratings'),
     url(r'^save-response/$', views.save_response, name='save-response'),
     url(r'^export-data/$', views.export_data, name='export-data'),
 ]

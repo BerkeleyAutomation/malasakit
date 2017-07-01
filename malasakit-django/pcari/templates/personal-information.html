@@ -23,9 +23,49 @@
       initializeField($('#age'), ['respondent-data', 'age'], parseInt);
       initializeField($('#gender'), ['respondent-data', 'gender']);
       initializeField($('#province'), ['respondent-data', 'province']);
+      initializeField($('#city-or-municipality'), ['respondent-data', 'city-or-municipality']);
       initializeField($('#barangay'), ['respondent-data', 'barangay']);
 
       setResponseValue(['respondent-data', 'submitted-personal-data'], true);
+
+      var locationData = Resource.load('location-data').data;
+
+      $('#provinces').empty();
+      for (var province in locationData) {
+        $('#provinces').append($('<option>' + province + '</option>'));
+      }
+
+      function setCitiesAndMunicipalities() {
+        var province = $('#province').val().toUpperCase();
+        var nextInput = $('#cities-and-municipalities');
+        nextInput.empty();
+        if (province in locationData) {
+          var citiesAndMunicipalities = locationData[province];
+          for (var cityOrMunicipality in citiesAndMunicipalities) {
+            nextInput.append($('<option>' + cityOrMunicipality + '</option>'));
+          }
+        }
+      }
+
+      function setBarangays() {
+        var province = $('#province').val().toUpperCase();
+        var cityOrMunicipality = $('#city-or-municipality').val().toUpperCase();
+        var nextInput = $('#barangays');
+        nextInput.empty();
+        if (province in locationData && cityOrMunicipality in locationData[province]) {
+          var barangays = locationData[province][cityOrMunicipality];
+          for (var index in barangays) {
+            var barangay = barangays[index];
+            nextInput.append($('<option>' + barangay + '</option>'));
+          }
+        }
+      }
+
+      $('#province').on('change', setCitiesAndMunicipalities);
+      setCitiesAndMunicipalities();
+
+      $('#city-or-municipality').on('change', setBarangays);
+      setBarangays();
 
       $('#next > a').on('click', function(event) {
         event.preventDefault();
@@ -56,38 +96,43 @@
         Your responses will be anonymous.
       {% endblocktrans %}
     </p>
-    <table>
-      <tr>
-        <td>{% trans 'Age' %}</td>
-        <td><input id="age" type="number" min="1" max="120"></td>
-      </tr>
-      <tr>
-        <td>{% trans 'Gender' %}</td>
-        <td>
-          <select id="gender">
-            <option value="" selected>{% trans 'Select gender' %}</option>
-            <option value="M">{% trans 'Male' %}</option>
-            <option value="F">{% trans 'Female' %}</option>
-          </select>
-        </td>
-      </tr>
-      <tr>
-        <td>{% trans 'Province' %}</td>
-        <td>
-          <select id="province">
-            <option value="" selected>{% trans 'Select province' %}</option>
-            {% for code, name in province_names %}
-              <option value="{{ code }}">{{ name }}</option>
-            {% endfor %}
-          </select>
-        </td>
-      </tr>
-      <tr>
-        <td>{% trans 'Barangay' %}</td>
-        <td><input id="barangay" type="text"></td>
-      </tr>
-    </table>
-  </div>
+  <table style="margin: 0 auto;">
+    <tr>
+      <td>{% trans 'Age' %}</td>
+      <td><input id="age" type="number" min="1" max="120"></td>
+    </tr>
+    <tr>
+      <td>{% trans 'Gender' %}</td>
+      <td>
+        <select id="gender">
+          <option value="" selected>{% trans 'Select gender' %}</option>
+          <option value="M">{% trans 'Male' %}</option>
+          <option value="F">{% trans 'Female' %}</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td>{% trans 'Province' %}</td>
+      <td>
+        <input id="province" type="text" list="provinces">
+        <datalist id="provinces"></datalist>
+      </td>
+    </tr>
+    <tr>
+      <td>{% trans 'City or Municipality' %}</td>
+      <td>
+        <input id="city-or-municipality" type="text" list="cities-and-municipalities">
+        <datalist id="cities-and-municipalities"></datalist>
+      </td>
+    </tr>
+    <tr>
+      <td>{% trans 'Barangay' %}</td>
+      <td>
+        <input id="barangay" type="text" list="barangays">
+        <datalist id="barangays"></datalist>
+      </td>
+    </tr>
+  </table>
   <div class="modal">
     <div class="modal-container">
       <p>
