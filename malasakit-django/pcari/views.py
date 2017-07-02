@@ -28,7 +28,7 @@ import unicodecsv as csv
 
 # Local modules and models
 from .models import Respondent
-from .models import Question, QuantitativeQuestion, QualitativeQuestion
+from .models import QuantitativeQuestion, QualitativeQuestion
 from .models import Comment, CommentRating, QuantitativeQuestionRating
 from .models import MODELS, get_concrete_fields
 

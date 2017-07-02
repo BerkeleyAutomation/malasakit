@@ -58,8 +58,8 @@
       var max = questionData['max-score'] || 9;
 
       var prompt = questionData['prompts'][language];
-      var left_anchor = questionData['left-anchors'][language] + 'Hello world';
-      var right_anchor = questionData['right-anchors'][language] + 'Hello world';
+      var left_anchor = questionData['left-anchors'][language];
+      var right_anchor = questionData['right-anchors'][language];
 
       $('#prompt').text(prompt);
       if (questionData['input-type'] === 'range') {
