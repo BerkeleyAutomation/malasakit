@@ -19,6 +19,7 @@ from collections import Counter
 import json
 
 from django.conf import settings
+from django.core.validators import RegexValidator, MaxValueValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -120,7 +121,7 @@ class History(models.Model):
             a field, the old one is marked as inactive.
     """
     predecessor = models.ForeignKey('self', on_delete=models.SET_NULL,
-                                    null=True, default=None,
+                                    null=True, blank=True, default=None,
                                     related_name='successors')
     active = models.BooleanField(default=True)
 
@@ -224,6 +225,19 @@ class QuantitativeQuestionRating(Rating):
                                  on_delete=models.CASCADE,
                                  related_name='ratings')
 
+    def clean(self):
+        super(QuantitativeQuestionRating, self).clean()
+        min_score = self.question.min_score
+        if min_score is None:
+            min_score = float('-inf')
+        max_score = self.question.max_score
+        if max_score is None:
+            max_score = float('inf')
+
+        if not (lower <= self.score <= upper):
+            raise ValidationError(_('Score not in min and max bounds'),
+                                  code='score-out-of-bounds')
+
     def __unicode__(self):
         template = 'Rating {0} to {1}'
         return template.format(self.score, self.question)
@@ -270,7 +284,8 @@ class Comment(Response, StatisticsMixin):
     question = models.ForeignKey('QualitativeQuestion',
                                  on_delete=models.CASCADE,
                                  related_name='comments')
-    language = models.CharField(max_length=8, choices=LANGUAGES)
+    language = models.CharField(max_length=8, choices=LANGUAGES, blank=True,
+                                default='')
     message = models.TextField(blank=True, default='')
     flagged = models.BooleanField(default=False)
     tag = models.CharField(max_length=256, blank=True, default='')
@@ -350,13 +365,6 @@ class QuantitativeQuestion(Question, StatisticsMixin):
     input_type = models.CharField(max_length=16, choices=INPUT_TYPE_CHOICES,
                                   default='range')
 
-    def clean(self):
-        lower = self.min_score if self.min_score is not None else float('-inf')
-        upper = self.max_score if self.max_score is not None else float('inf')
-        if not (lower <= self.score <= upper):
-            raise ValidationError(_('Score not in min and max bounds'),
-                                  code='score-out-of-bounds')
-
     def __unicode__(self):
         return 'Quantitative question {0}: "{1}"'.format(self.id, self.prompt)
 
@@ -412,6 +420,15 @@ class OptionQuestionChoice(Response):
                                  related_name='selections')
     option = models.TextField(blank=True)
 
+    def clean_fields(self, exclude=None):
+        super(OptionQuestionChoice, self).clean_fields(exclude)
+        exclude = [] if exclude is None else exclude
+        if 'option' not in exclude:
+            if self.option not in question.options:
+                raise ValidationError(_('"%(option)s" is not a valid option'),
+                                      code='invalid-selection',
+                                      params={'option': str(self.option)})
+
     def __unicode__(self):
         template = 'Option question choice {0}: "{1}"'
         return template.format(self.question_id, self.option)
@@ -457,11 +474,13 @@ class Respondent(History):
         ('F', 'Female'),
     )
 
-    age = models.PositiveSmallIntegerField(default=None, null=True)
+    age = models.PositiveSmallIntegerField(default=None, null=True, blank=True,
+                                           validators=[MaxValueValidator(120)])
     gender = models.CharField(max_length=1, choices=GENDERS, blank=True,
-                              default='')
+                              default='', validators=[RegexValidator(r'^(|M|F)$')])
     location = models.CharField(max_length=512, blank=True, default='')
-    language = models.CharField(max_length=8, choices=LANGUAGES)
+    language = models.CharField(max_length=8, choices=LANGUAGES, blank=True,
+                                default='')
     submitted_personal_data = models.BooleanField(default=False)
     completed_survey = models.BooleanField(default=False)
 

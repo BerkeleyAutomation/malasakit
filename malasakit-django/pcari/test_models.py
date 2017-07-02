@@ -23,12 +23,14 @@ class StatisticsTests(TestCase):
     def setUpTestData(cls):
         cls.question = QuantitativeQuestion.objects.create()
         QuantitativeQuestionRating.objects.bulk_create([
+            # `-1` (skipped) should be filtered out
             QuantitativeQuestionRating(
                 question=cls.question,
                 score=score,
                 respondent=Respondent.objects.create(language='en')
             ) for score in [-1, 9, 3, 3, 4, -1]
         ] + [
+            # A bunch of inactive ratings that should be filtered out
             QuantitativeQuestionRating(
                 question=cls.question,
                 score=random.randint(-2, 9),
@@ -46,12 +48,14 @@ class StatisticsTests(TestCase):
             respondent=Respondent.objects.create(language='en'),
         )
         CommentRating.objects.bulk_create([
+            # `-2` (not rated) should be filtered out
             CommentRating(
                 comment=cls.comment,
                 score=score,
                 respondent=Respondent.objects.create(language='en')
             ) for score in [-2, 0, 3]
         ] + [
+            # A bunch of inactive ratings that should be filtered out
             CommentRating(
                 comment=cls.comment,
                 score=random.randint(-2, 9),
@@ -125,6 +129,7 @@ class PropertyTests(TestCase):
         scores = [
             random.randrange(10) for _ in range(num_questions_rated)
         ] + [
+            # A bunch of scores that should be filtered out
             random.choice([QuantitativeQuestionRating.NOT_RATED,
                            QuantitativeQuestionRating.SKIPPED])
             for _ in range(num_questions_presented - num_questions_rated)
@@ -151,6 +156,7 @@ class PropertyTests(TestCase):
         scores = [
             random.randrange(10) for _ in range(num_comments_rated)
         ] + [
+            # A bunch of scores that should be filtered out
             random.choice([QuantitativeQuestionRating.NOT_RATED,
                            QuantitativeQuestionRating.SKIPPED])
             for _ in range(num_comments_presented - num_comments_rated)
@@ -179,6 +185,8 @@ class HistoryTests(TestCase):
     def test_make_copy(self):
         respondent = Respondent.objects.create(age=1, gender='M', location='?')
         copy = respondent.make_copy()
+        copy.save()
+        self.assertNotEqual(respondent, copy)
         self.assertEqual(respondent.age, copy.age)
         self.assertEqual(respondent.gender, copy.gender)
         self.assertEqual(respondent.location, copy.location)
@@ -192,7 +200,7 @@ class HistoryTests(TestCase):
         respondent2.save()
         self.assertEqual(set(respondent1.diff(respondent2)), {'id'})
 
-    def test_no_grandparent_deletion(self):
+    def test_simple_parent_deletion(self):
         parent = QuantitativeQuestion.objects.create(prompt='Hello world',
                                                      active=True)
         child = QuantitativeQuestion.objects.create(prompt='Hello World',
