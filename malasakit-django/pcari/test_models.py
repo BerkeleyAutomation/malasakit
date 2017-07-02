@@ -1,3 +1,5 @@
+""" This module defines unit tests of model behavior. """
+
 from __future__ import unicode_literals
 import math
 import random
@@ -180,6 +182,18 @@ class PropertyTests(TestCase):
         CommentRating.objects.all().delete()
         self.assertEqual(respondent.num_comments_rated, 0)
 
+    def test_auto_add_timestamp_order(self):
+        question = QuantitativeQuestion.objects.create()
+        questions = [
+            QuantitativeQuestionRating.objects.create(
+                question=question,
+                respondent=Respondent.objects.create(),
+                score=random.randint(-2, 9)
+            ) for _ in range(random.randrange(100))
+        ]
+        for first, second in zip(questions[:-1], questions[1:]):
+            self.assertLess(first.timestamp, second.timestamp)
+
 
 class HistoryTests(TestCase):
     """ Ensure history is tracked correctly. """
@@ -256,6 +270,7 @@ class HistoryTests(TestCase):
 
 
 class IntegrityTests(TransactionTestCase):
+    """ Ensure the data passes tests for uniqueness and not being null. """
     def test_rating_respondent_unique_together(self):
         respondent = Respondent.objects.create()
         question = QuantitativeQuestion.objects.create()
@@ -285,12 +300,13 @@ class IntegrityTests(TransactionTestCase):
 
 
 class ValidationTests(TestCase):
+    """ Ensure validation catches invalid input while allowing valid input. """
     def test_quantitative_question_rating_bound_validation(self):
         unbounded_question = QuantitativeQuestion.objects.create(
             min_score=None,
             max_score=None
         )
-        for _ in range(100):
+        for _ in range(random.randrange(100)):
             QuantitativeQuestionRating(respondent=Respondent.objects.create(),
                                        score=random.randint(-10000, 10000),
                                        question=unbounded_question).full_clean()

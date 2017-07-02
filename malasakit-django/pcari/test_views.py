@@ -1,5 +1,5 @@
 """
-This module defines unit tests.
+This module defines unit tests for views.
 """
 
 from __future__ import unicode_literals
@@ -43,26 +43,6 @@ def generate_page_urls(endpoints=PAGE_ENDPOINTS):
     for code, _ in settings.LANGUAGES:
         for endpoint in endpoints:
             yield os.path.join(settings.URL_ROOT, code, endpoint, '')
-
-
-class UserFeedbackTestCase(TestCase):
-    fixtures = ['questions.yaml', 'user-generated.yaml']
-
-    # def test_quantitative_question_rating_timestamp_order(self):
-    #     timestamps = [rating.timestamp for rating in
-    #                   QuantitativeQuestionRating.objects.all()]
-    #     for first, second in zip(timestamps[:-1], timestamps[1:]):
-    #         self.assertLessEqual(first, second)
-
-    # def test_comment_retrieval(self):
-    #     comments = self.qual_question.comments
-    #     self.assertEqual(comments.count(), 2)
-    #     messages = [comment.message for comment in comments.all()]
-    #     self.assertEqual(messages, ['bob', 'race car'])
-
-    # def test_comment_word_count(self):
-    #     self.assertEqual(Comment.objects.get(id=1).word_count, 1)
-    #     self.assertEqual(Comment.objects.get(id=2).word_count, 2)
 
 
 class ResourceFetchTestCase(TestCase):
