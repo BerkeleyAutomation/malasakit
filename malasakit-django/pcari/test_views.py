@@ -16,11 +16,11 @@ from django.test import TestCase, Client
 from django.urls import reverse
 import numpy as np
 
-from .models import Respondent
-from .models import QuantitativeQuestion, QualitativeQuestion
-from .models import Comment, QuantitativeQuestionRating, CommentRating
-from .views import (generate_ratings_matrix, normalize_ratings_matrix,
-                    calculate_principal_components)
+from pcari.models import Respondent
+from pcari.models import QuantitativeQuestion, QualitativeQuestion
+from pcari.models import Comment, QuantitativeQuestionRating, CommentRating
+from pcari.views import (generate_ratings_matrix, normalize_ratings_matrix,
+                         calculate_principal_components)
 
 PAGE_ENDPOINTS = ['landing', 'quantitative-questions', 'peer-responses',
                   'rate-comments', 'personal-information', 'end']
@@ -57,20 +57,65 @@ class ResourceFetchTestCase(TestCase):
             self.assertEqual(response.charset.lower(), 'utf-8')
 
     def test_fetch_qualitative_questions(self):
-        response = self.client.get(reverse('fetch-qualitative-questions'))
-        data = json.loads(response.content)
+        num_questions = random.randrange(100)
+        QualitativeQuestion.objects.all().delete()
+        for _ in range(num_questions):
+            QualitativeQuestion.objects.create()
 
+        response = self.client.get(reverse('fetch-qualitative-questions'))
         self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
         self.assertTrue(isinstance(data, dict))
+        self.assertEqual(num_questions, len(data))
 
         for key in data:
             question_id = int(key)
             translated_prompts = data[key]
             self.assertTrue(isinstance(translated_prompts, dict))
             question = QualitativeQuestion.objects.get(id=question_id)
+            for code in translated_prompts:
+                self.assertTrue(code in dict(settings.LANGUAGES))
 
     def test_fetch_comments(self):
-        pass
+        num_comments = random.randrange(5, 100)
+        for _ in range(num_comments):
+            comment = Comment.objects.create(
+                question=QualitativeQuestion.objects.create(),
+                respondent=Respondent.objects.create(),
+                message='?',
+            )
+            self.assertEqual(comment.respondent.num_questions_rated, 0)
+
+        for _ in range(random.randrange(100)):
+            # Empty comments are ignored
+            Comment.objects.create(
+                question=QualitativeQuestion.objects.create(),
+                respondent=Respondent.objects.create(),
+                message='',
+            )
+
+        for _ in range(random.randrange(100)):
+            # Flagged comments are ignored
+            Comment.objects.create(
+                question=QualitativeQuestion.objects.create(),
+                respondent=Respondent.objects.create(),
+                flagged=True,
+            )
+
+        response = self.client.get(reverse('fetch-comments'))
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertTrue(isinstance(data, dict))
+        self.assertEqual(num_comments, len(data))
+        for key in data:
+            comment_id, comment_data = int(key), data[key]
+            self.assertTrue(isinstance(comment_data, dict))
+            Comment.objects.get(id=comment_id)
+            # Point is at the origin with no ratings
+            self.assertEqual(comment_data['pos'], [0, 0])
+            self.assertEqual(comment_data['sem'], 4.5)
+            for attribute in 'msg', 'tag', 'qid':
+                self.assertTrue(attribute in comment_data)
 
 
 class ResponseSaveTestCase(TestCase):
