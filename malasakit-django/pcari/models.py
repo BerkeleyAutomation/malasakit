@@ -442,10 +442,12 @@ class Respondent(History):
             entire survey.
         num_questions_rated: The number of `QuantitativeQuestion`'s answered by
             this `Respondent`. From this number, we can infer whether this
-            `Respondent` reached the rating stage of the survey.
+            `Respondent` reached the rating stage of the survey. This excludes
+            questions the respondent skipped or otherwise did not rate.
         num_comments_rated: The number of `Comment`'s reviewed by this
             `Respondent`. Similarly, we can infer user progression from this
-            attribute.
+            attribute. This excludes comments the respondent skipped rating or
+            did not rate.
         comments: A Django `QuerySet` of all comments attached to this
             respondent.
     """

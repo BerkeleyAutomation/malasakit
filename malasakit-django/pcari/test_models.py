@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 import math
+import random
 
 from django.db import IntegrityError
 from django.test import TestCase, TransactionTestCase
@@ -83,7 +84,7 @@ class StatisticsTests(TestCase):
 
 
 class PropertyTests(TestCase):
-    """ Tests other dynamically computed model attributes. """
+    """ Test other dynamically computed model attributes. """
     def test_option_question_choice_wrapping(self):
         question = OptionQuestion.objects.create(
             _options_text='["red", "green", "blue"]',
@@ -102,6 +103,61 @@ class PropertyTests(TestCase):
         self.assertEqual(comment.word_count, 4)
         comment.message = ''
         self.assertEqual(comment.word_count, 0)
+
+    def test_num_questions_rated(self):
+        respondent = Respondent.objects.create()
+        num_questions_presented = random.randrange(100)
+        num_questions_rated = random.randint(0, num_questions_presented)
+        scores = [
+            random.randrange(10) for _ in range(num_questions_rated)
+        ] + [
+            random.choice([QuantitativeQuestionRating.NOT_RATED,
+                           QuantitativeQuestionRating.SKIPPED])
+            for _ in range(num_questions_presented - num_questions_rated)
+        ]
+
+        random.shuffle(scores)
+        for score in scores:
+            QuantitativeQuestionRating.objects.create(
+                question=QuantitativeQuestion.objects.create(),
+                respondent=respondent,
+                score=score,
+            )
+
+        self.assertEqual(respondent.num_questions_rated, num_questions_rated,
+                         'Failed with:' + ', '.join(map(str, scores)))
+        QuantitativeQuestionRating.objects.all().delete()
+        self.assertEqual(respondent.num_questions_rated, 0)
+
+    def test_num_comments_rated(self):
+        respondent = Respondent.objects.create()
+        question = QualitativeQuestion.objects.create()
+        num_comments_presented = random.randrange(100)
+        num_comments_rated = random.randint(0, num_comments_presented)
+        scores = [
+            random.randrange(10) for _ in range(num_comments_rated)
+        ] + [
+            random.choice([QuantitativeQuestionRating.NOT_RATED,
+                           QuantitativeQuestionRating.SKIPPED])
+            for _ in range(num_comments_presented - num_comments_rated)
+        ]
+
+        random.shuffle(scores)
+        for score in scores:
+            comment = Comment.objects.create(
+                respondent=Respondent.objects.create(),
+                question=question,
+            )
+            CommentRating.objects.create(
+                respondent=respondent,
+                comment=comment,
+                score=score
+            )
+
+        self.assertEqual(respondent.num_comments_rated, num_comments_rated,
+                         'Failed with:' + ', '.join(map(str, scores)))
+        CommentRating.objects.all().delete()
+        self.assertEqual(respondent.num_comments_rated, 0)
 
 
 class HistoryTests(TestCase):
@@ -170,21 +226,21 @@ class IntegrityTests(TransactionTestCase):
         rating = QuantitativeQuestionRating.objects.create(
             respondent=respondent,
             question=question,
-            score=0,
+            score=random.randint(-2, 9),
         )
         with self.assertRaises(IntegrityError):
             QuantitativeQuestionRating.objects.create(respondent=respondent,
                                                       question=question,
-                                                      score=1)
+                                                      score=random.randint(-2, 9))
 
         question = QualitativeQuestion.objects.create()
         comment = Comment.objects.create(respondent=Respondent.objects.create(),
                                          question=question)
         rating = CommentRating.objects.create(respondent=respondent,
-                                              comment=comment, score=5)
+                                              comment=comment, score=random.randint(-2, 9))
         with self.assertRaises(IntegrityError):
             CommentRating.objects.create(respondent=respondent, comment=comment,
-                                         score=5)
+                                         score=random.randint(-2, 9))
 
         # OK for one respondent to have two comments for the same quantitative
         # question
