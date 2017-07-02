@@ -113,7 +113,8 @@ class History(models.Model):
     Attributes:
         predecessor: A reference to the instance this instance is based on. If
             this instance is the first of its kind (e.g., a new question), this
-            reference should be `None` (which is the default value).
+            reference should be `None` (which is the default value). The list
+            of predecessors should never be cyclical.
         active: Whether this instance is considered usable or not. Typically,
             when a new model instance is created from an old one when updating
             a field, the old one is marked as inactive.

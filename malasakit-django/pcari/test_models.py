@@ -28,6 +28,13 @@ class StatisticsTests(TestCase):
                 score=score,
                 respondent=Respondent.objects.create(language='en')
             ) for score in [-1, 9, 3, 3, 4, -1]
+        ] + [
+            QuantitativeQuestionRating(
+                question=cls.question,
+                score=random.randint(-2, 9),
+                respondent=Respondent.objects.create(language='en'),
+                active=False
+            ) for _ in range(random.randrange(100))
         ])
 
         cls.question_no_ratings = QuantitativeQuestion.objects.create()
@@ -44,6 +51,13 @@ class StatisticsTests(TestCase):
                 score=score,
                 respondent=Respondent.objects.create(language='en')
             ) for score in [-2, 0, 3]
+        ] + [
+            CommentRating(
+                comment=cls.comment,
+                score=random.randint(-2, 9),
+                respondent=Respondent.objects.create(language='en'),
+                active=False
+            ) for _ in range(random.randrange(100))
         ])
 
     def test_num_ratings(self):
@@ -61,7 +75,7 @@ class StatisticsTests(TestCase):
         self.assertAlmostEqual(self.question.mean_score, 19.0/4)
         self.assertTrue(math.isnan(self.question_no_ratings.mean_score))
         self.assertAlmostEqual(self.comment.mean_score, 1.5)
-        CommentRating.objects.get(score=3).delete()
+        CommentRating.objects.filter(score=3, active=True).delete()
         self.assertAlmostEqual(self.comment.mean_score, 0)
 
     def test_mode_score(self):
@@ -74,7 +88,7 @@ class StatisticsTests(TestCase):
     def test_score_stdev(self):
         self.assertAlmostEqual(self.question.score_stdev, 2.87228132327)
         self.assertAlmostEqual(self.comment.score_stdev, 2.1213203435596424)
-        CommentRating.objects.get(score=3).delete()
+        CommentRating.objects.filter(score=3, active=True).delete()
         self.assertTrue(math.isnan(self.comment.score_stdev))
 
     def test_score_sem(self):
@@ -217,6 +231,19 @@ class HistoryTests(TestCase):
         child2.refresh_from_db()
         self.assertEqual(child1.predecessor, grandparent)
         self.assertEqual(child2.predecessor, grandparent)
+
+    def test_predecessors(self):
+        chain_length = random.randrange(1, 100)
+        current = None
+        primary_keys = []
+        for _ in range(chain_length):
+            current = QualitativeQuestion.objects.create(predecessor=current)
+            primary_keys.append(current.pk)
+
+        self.assertEqual(current.pk, primary_keys.pop())
+        for predecessor in current.predecessors:
+            self.assertEqual(predecessor.pk, primary_keys.pop())
+        self.assertEqual(primary_keys, [])
 
 
 class IntegrityTests(TransactionTestCase):
