@@ -11,7 +11,13 @@
       function initializeField(inputElement, path, preprocess = x => x) {
         inputElement.on('input', function() {
           var value = preprocess($(this).val()) || null;
-          setResponseValue(path, value);
+          if (value === null && path.length > 0) {
+            var respondentData = getResponseValue(['respondent-data']);
+            delete respondentData[path[path.length - 1]];
+            setResponseValue(['respondent-data'], respondentData);
+          } else {
+            setResponseValue(path, value);
+          }
         });
 
         var value = getResponseValue(path);
@@ -143,10 +149,10 @@
       </p>
       <ul class="button-group">
         <li>
-          <button id="submit">{% trans 'Yes' %}</button>
+          <button id="return" class="red">{% trans 'No' %}</button>
         </li>
         <li>
-          <button id="return">{% trans 'No' %}</button>
+          <button id="submit" class="blue">{% trans 'Yes' %}</button>
         </li>
       </ul>
     </div>

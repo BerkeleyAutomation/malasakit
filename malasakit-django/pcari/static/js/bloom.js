@@ -85,8 +85,6 @@ function resetBloom() {
     setNextButtonStatus();
 }
 
-// TODO: number input type for rating?
-
 function startCommentRating(commentID) {
     var qualitativeQuestions = Resource.load('qualitative-questions').data;
     var comments = Resource.load('comments').data;
@@ -104,24 +102,25 @@ function startCommentRating(commentID) {
     inputElement.val(0);
     var path = ['comment-ratings', commentID];
     if (getResponseValue(path) === null) {
-        setResponseValue(path, [parseInt(inputElement.val())]);
+        setResponseValue(path, parseInt(inputElement.val()));
     }
 
+    function updateOutputReading() {
+        $('#quantitative-output').text(inputElement.val().toString() + '/9');
+    };
+
     inputElement.unbind('change');
-    inputElement.on('change', function() {
-        var history = getResponseValue(path);
-        history.push(parseInt(inputElement.val()));
-        console.log('Comment', commentID, 'history:', history);
-        setResponseValue(path, history);
+    inputElement.on('input', function() {
+        updateOutputReading();
+        setResponseValue(path, parseInt(inputElement.val()));
     });
+    updateOutputReading();
 
     $('#submit').on('click', resetBloom);
 
     $('#skip').unbind('click');
     $('#skip').on('click', function() {
-        var history = getResponseValue(path);
-        history.push(-1);
-        setResponseValue(path, history);
+        setResponseValue(path, -1);
         resetBloom();
     });
 }
@@ -146,6 +145,10 @@ function renderComments() {
         }
     }
     var nodeData = makeNodeData(selectedComments, width, height);
+    if (nodeData.length == 0) {
+        $('#no-more-comments-notice').css('display', 'block');
+        return;
+    }
 
     var drag = d3.drag().on('start', startDrag).on('drag', continueDrag).on('end', endDrag);
     var nodes = bloom.selectAll('g').data(nodeData).enter().append('g');

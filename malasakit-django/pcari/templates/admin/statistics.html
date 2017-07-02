@@ -105,7 +105,7 @@
       $.getJSON('/api/fetch/quantitative-questions/', function(data) {
         quantitativeQuestions = data;
         for (var questionID in quantitativeQuestions) {
-          var translations = quantitativeQuestions[questionID];
+          var translations = quantitativeQuestions[questionID].prompts;
           if (language in translations) {
             var prompt = translations[language];
 
