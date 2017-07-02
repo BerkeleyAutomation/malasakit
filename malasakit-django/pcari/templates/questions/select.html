@@ -1,10 +1,8 @@
 {% load i18n %}
 
-<div class="container center">
-  <select target-id="{{ id }}">
-    <option value="" selected>{% trans 'Select your answer' %}</option>
-    {% for option in options %}
-      <option name="{{ option }}" value="{{ option }}">{% trans option %}</option>
-    {% endfor %}
-  </select>
-</div>
+<select target-id="{{ id }}">
+  <option value="" selected>{% trans 'Select your answer' %}</option>
+  {% for option in options %}
+    <option value="{{ option }}">{% trans option %}</option>
+  {% endfor %}
+</select>

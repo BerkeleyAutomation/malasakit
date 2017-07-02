@@ -201,29 +201,17 @@ def translate(text, language_code):
     return ugettext(text)
 
 
-def serialize_question_data(question_model, active_only=True):
-    """
-    Retrieve question data in a JSON-ready format.
-
-    Args:
-        question_model: A model to query.
-        active_only: Whether to fetch only active questions (default: True).
-
-    Returns:
-        A dictionary whose keys are unique question identifiers as strings and
-        whose values are a nested dictionary of translated prompts. This prompt
-        dictionary has language codes as keys and translated prompts as values.
-    """
-    assert issubclass(question_model, Question)
-    query = question_model.objects
-    if active_only:
-        query = query.filter(active=True)
-    return {
+@profile
+@require_GET
+def fetch_qualitative_questions(request):
+    """ Fetch qualitative question data as JSON. """
+    # pylint: disable=unused-argument
+    return JsonResponse({
         str(question.id): {
             code: translate(question.prompt, code)
             for code, _ in settings.LANGUAGES
-        } for question in query.iterator()
-    }
+        } for question in QualitativeQuestion.objects.filter(active=True)
+    })
 
 
 @profile
@@ -231,15 +219,25 @@ def serialize_question_data(question_model, active_only=True):
 def fetch_quantitative_questions(request):
     """ Fetch quantitative question data as JSON. """
     # pylint: disable=unused-argument
-    return JsonResponse(serialize_question_data(QuantitativeQuestion))
-
-
-@profile
-@require_GET
-def fetch_qualitative_questions(request):
-    """ Fetch all qualitative question data as JSON. """
-    # pylint: disable=unused-argument
-    return JsonResponse(serialize_question_data(QualitativeQuestion))
+    return JsonResponse({
+        str(question.id): {
+            'prompts': {
+                code: translate(question.prompt, code)
+                for code, _ in settings.LANGUAGES
+            },
+            'left-anchors': {
+                code: translate(question.left_anchor, code)
+                for code, _ in settings.LANGUAGES
+            },
+            'right-anchors': {
+                code: translate(question.right_anchor, code)
+                for code, _ in settings.LANGUAGES
+            },
+            'min-score': question.min_score,
+            'max-score': question.max_score,
+            'input-type': question.input_type,
+        } for question in QuantitativeQuestion.objects.filter(active=True)
+    })
 
 
 @profile

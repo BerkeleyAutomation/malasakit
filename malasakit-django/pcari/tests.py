@@ -45,10 +45,6 @@ def generate_page_urls(endpoints=PAGE_ENDPOINTS):
             yield os.path.join(settings.URL_ROOT, code, endpoint, '')
 
 
-class HistoryTrackingTestCase(TestCase):
-    pass
-
-
 class UserFeedbackTestCase(TestCase):
     fixtures = ['questions.yaml', 'user-generated.yaml']
 

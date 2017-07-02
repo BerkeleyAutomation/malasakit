@@ -9,16 +9,12 @@
 @blue: rgb(63, 169, 228);
 @light-gray: rgb(240, 240, 240);
 
-html, body {
-  height: 100%;
+body {
   margin: 0;
-  padding: 0;
 }
 
 img {
   max-width: 100%;
-  height: auto;
-  padding: 1rem auto;
   margin: 0 auto;
   display: block;
 }
@@ -62,9 +58,17 @@ nav {
   flex-flow: row wrap;
 }
 
+input[type="range"] {
+  flex-basis: 50%;
+  order: 2;
+  margin: 1rem 0;
+}
+
 .label {
   box-sizing: border-box;
-  flex-basis: 23%;
+  padding-right: 1rem;
+  flex-basis: 25%;
+  padding-bottom: .5rem;
 }
 
 .left-anchor {
@@ -80,7 +84,6 @@ nav {
 }
 
 button {
-  color: white;
   border: none;
   border-radius: 0.2rem;
   padding: 0.5rem 1rem;
@@ -89,45 +92,35 @@ button {
   &:active {
     outline: none;
   }
-  margin: 1rem auto;
-  display: inline-block;
+  &:disabled {
+    cursor: not-allowed;
+  }
+}
+
+#current-answer-notice, #skip-notice {
+  display: none;
 }
 
 .blue {
+  color: white;
   background-color: @blue;
   &:hover {
     background-color: darken(@blue, 20%);
   }
+  &:disabled {
+    background-color: darken(@blue, 30%);
+  }
 }
 
 .red {
+  color: white;
   background-color: @red;
   &:hover {
     background-color: darken(@red, 20%);
   }
 }
 
-ol#quantitative-questions {
-  padding-left: 0;
-  list-style-position: inside;
-  li {
-    p {
-      display: inline-block;
-    }
-  }
-}
-
 @media all and (max-width: 568px) {
-  ol#quantitative-questions {
-    li {
-      margin: 1rem 0;
-      p {
-        display: inline;
-        margin: 0;
-      }
-    }
-  }
-
   input[type=range] {
     flex-basis: 100%;
     padding: 0.5rem 0;
@@ -148,7 +141,6 @@ ul.button-group {
   text-align: center;
   padding-left: 0;
   li {
-    padding: 0 0.5rem;
     display: inline-block;
     margin: 0.5rem;
   }
@@ -184,7 +176,7 @@ ul.button-group {
   color: white;
   background-color: @red;
   a {
-    color: #a8c0d5;
+    color: #a6c5e0;
     &:hover {
       text-decoration: underline;
     }
@@ -197,6 +189,7 @@ ul.button-group {
 
 #footnote {
   font-size: 0.7rem;
+  margin: 0.5rem 0;
 }
 
 hr {
@@ -224,9 +217,6 @@ hr {
 
 input[type=range] {
   -webkit-appearance: none;
-  flex-basis: 50%;
-  order: 2;
-  margin: 1rem 1rem;
 
   &:focus {
     outline: none;
@@ -264,11 +254,11 @@ input[type=range] {
 }
 
 output {
-  text-align: center;
   border: 1px solid goldenrod;
-  padding: 0.2rem;
+  padding: 0 0.2rem;
   border-radius: 0.2rem;
   min-width: 2rem;
+  margin: 0 auto;
 }
 
 input[type=number], input[type=text], select {

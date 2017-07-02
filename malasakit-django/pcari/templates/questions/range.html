@@ -1,17 +1,10 @@
 {% load i18n %}
 
-<script>
-  function outputUpdate(num) {
-    document.querySelector('#output').value = num;
-  }
-</script>
-
-<div class="range-container center">
+<div class="range-container">
   <input class="quantitative-input" target-id="{{ id }}" type="range"
          value="{{ min_score|default:'0' }}" step="{{ step|default:'1' }}"
          min="{{ min_score|default:'0' }}" max="{{ max_score|default:'9' }}">
   <span class="left-anchor">{% trans left_anchor %}</span>
   <span class="right-anchor">{% trans left_anchor %}</span>
-<div class="center">
-  <output for=value id="output">{{ min_score|default:'0' }}</output>
 </div>
+<output>{{ min_score|default:'0' }}</output>

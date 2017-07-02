@@ -31,8 +31,8 @@ function displayNoCurrentRespondentError() {
     var current = Resource.load('current');
     if (!isResponseName(current.data)) {
         var language = $('html').attr('lang') || DEFAULT_LANGUAGE;
-        var landingURL = APP_URL_ROOT + '/' + language + '/landing';
-        displayError("It appears you're editing an old response, so your answers may not be saved. "
+        var landingURL = APP_URL_ROOT + '/' + language + '/landing/';
+        displayError('Your answers are not being saved. '
                    + 'You should start a <a href="' + landingURL + '">new response</a>.');
     }
 }
@@ -174,12 +174,15 @@ function initializeResources() {
                                 API_URL_ROOT + '/fetch/comments/');
     var qualitativeQuestions = new Resource('qualitative-questions', null, 0,
                                             API_URL_ROOT + '/fetch/qualitative-questions/');
+    var quantitativeQuestions = new Resource('quantitative-questions', null, 0,
+                                             API_URL_ROOT + '/fetch/quantitative-questions/');
     var current = new Resource('current', null, 12*60*60*1000);
     var locationData = new Resource('location-data', null, 12*60*60*1000,
                                     STATIC_URL_ROOT + '/data/location-data.json');
     var bloomIcon = new Resource('bloom-icon', null, 0, STATIC_URL_ROOT + '/data/bloom-icon.json');
-    var initialResources = [comments, qualitativeQuestions, current,
-                            locationData, bloomIcon];
+    var initialResources = [comments, qualitativeQuestions,
+                            quantitativeQuestions, current, locationData,
+                            bloomIcon];
 
     comments.default_sample_size = 8;
     current.updateTimestamp();
