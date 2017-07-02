@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 import math
 import random
 
+from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.test import TestCase, TransactionTestCase
 
@@ -282,9 +283,70 @@ class IntegrityTests(TransactionTestCase):
         Comment.objects.create(respondent=respondent, question=question)
         Comment.objects.create(respondent=respondent, question=question)
 
-    def test_mandatory_fields(self):
-        pass
-
 
 class ValidationTests(TestCase):
-    pass
+    def test_quantitative_question_rating_bound_validation(self):
+        unbounded_question = QuantitativeQuestion.objects.create(
+            min_score=None,
+            max_score=None
+        )
+        for _ in range(100):
+            QuantitativeQuestionRating(respondent=Respondent.objects.create(),
+                                       score=random.randint(-10000, 10000),
+                                       question=unbounded_question).full_clean()
+
+        bounded_question = QuantitativeQuestion.objects.create(
+            min_score=0,
+            max_score=20,
+        )
+
+        sentinels = [QuantitativeQuestionRating.SKIPPED,
+                     QuantitativeQuestionRating.NOT_RATED]
+        for score in [random.randint(0, 20) for _ in range(10)] + sentinels:
+            QuantitativeQuestionRating(respondent=Respondent.objects.create(),
+                                       question=bounded_question,
+                                       score=score).full_clean()
+
+        scores = [random.randint(21, 10000) for _ in range(10)]
+        scores += [random.randint(-10000, -3) for _ in range(10)]
+        for score in scores:
+            with self.assertRaises(ValidationError):
+                QuantitativeQuestionRating(respondent=Respondent.objects.create(),
+                                           question=bounded_question,
+                                           score=score).full_clean()
+
+    def test_option_question_choice_validation(self):
+        question = OptionQuestion()
+        question.options = ['a', 'b', 'c']
+        question.save()
+
+        for option in question.options:
+            OptionQuestionChoice(respondent=Respondent.objects.create(),
+                                 question=question, option=option).full_clean()
+
+        for option in ['A', '?', '--', 'd']:
+            with self.assertRaises(ValidationError):
+                OptionQuestionChoice(respondent=Respondent.objects.create(),
+                                     question=question, option=option).full_clean()
+
+    def test_respondent_age_validation(self):
+        for age in [0, 10, 60, 110, 120]:
+            Respondent(age=age).full_clean()
+
+        for age in [-1, 121, 65535]:
+            with self.assertRaises(ValidationError) as context:
+                Respondent(age=age).full_clean()
+            errors = dict(context.exception)
+            self.assertEqual(len(errors), 1)
+            self.assertTrue('age' in errors)
+
+    def test_respondent_gender_validation(self):
+        for gender in ['', 'M', 'F']:
+            Respondent(gender=gender).full_clean()
+
+        for gender in ['m', 'f', '?', 'Male', '**']:
+            with self.assertRaises(ValidationError) as context:
+                Respondent(gender=gender).full_clean()
+            errors = dict(context.exception)
+            self.assertEqual(len(errors), 1)
+            self.assertTrue('gender' in errors)

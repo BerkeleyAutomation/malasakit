@@ -18,8 +18,10 @@ from __future__ import unicode_literals
 from collections import Counter
 import json
 
+from django.core.exceptions import ValidationError
 from django.conf import settings
-from django.core.validators import RegexValidator, MaxValueValidator
+from django.core.validators import RegexValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -234,7 +236,8 @@ class QuantitativeQuestionRating(Rating):
         if max_score is None:
             max_score = float('inf')
 
-        if not (lower <= self.score <= upper):
+        sentinels = [Rating.SKIPPED, Rating.NOT_RATED]
+        if not (min_score <= self.score <= max_score) and self.score not in sentinels:
             raise ValidationError(_('Score not in min and max bounds'),
                                   code='score-out-of-bounds')
 
@@ -424,7 +427,7 @@ class OptionQuestionChoice(Response):
         super(OptionQuestionChoice, self).clean_fields(exclude)
         exclude = [] if exclude is None else exclude
         if 'option' not in exclude:
-            if self.option not in question.options:
+            if self.option not in self.question.options:
                 raise ValidationError(_('"%(option)s" is not a valid option'),
                                       code='invalid-selection',
                                       params={'option': str(self.option)})
@@ -475,7 +478,8 @@ class Respondent(History):
     )
 
     age = models.PositiveSmallIntegerField(default=None, null=True, blank=True,
-                                           validators=[MaxValueValidator(120)])
+                                           validators=[MinValueValidator(0),
+                                                       MaxValueValidator(120)])
     gender = models.CharField(max_length=1, choices=GENDERS, blank=True,
                               default='', validators=[RegexValidator(r'^(|M|F)$')])
     location = models.CharField(max_length=512, blank=True, default='')
