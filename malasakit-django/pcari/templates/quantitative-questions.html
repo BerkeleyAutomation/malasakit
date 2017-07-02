@@ -141,12 +141,14 @@
   <p id="prompt"></p>
   <div id="answer"></div>
   <!-- FIXME: translations -->
-  <p id="current-answer-notice">
-    {% trans 'Your current answer is ' %} <output id="quantitative-output"></output>.
-  </p>
-  <p id="skip-notice">
-    {% trans 'You previously chose to skip this question.' %}
-  </p>
+  <div class="center">
+    <p id="current-answer-notice">
+      {% trans 'Your current answer is ' %} <output id="quantitative-output"></output>.
+    </p>
+    <p id="skip-notice">
+      {% trans 'You previously chose to skip this question.' %}
+    </p>
+  </div>
   <ul class="button-group">
     <li>
       <button id="previous" class="blue">{% trans 'Previous' %}</button>
