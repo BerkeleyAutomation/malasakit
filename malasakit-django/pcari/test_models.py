@@ -89,3 +89,21 @@ class HistoryTests(TestCase):
         respondent2.gender = 'M'
         respondent2.save()
         self.assertEqual(set(respondent1.diff(respondent2)), {'id'})
+
+    def test_no_grandparent_deletion(self):
+        parent = QuantitativeQuestion.objects.create(prompt='Hello world')
+        child = QuantitativeQuestion.objects.create(prompt='Hello World',
+                                                    predecessor=parent)
+        parent.delete()
+        child.refresh_from_db()
+        self.assertEqual(child.predecessor, None)
+
+    def test_grandparent_deletion(self):
+        grandparent = QuantitativeQuestion.objects.create(prompt='hello world')
+        parent = QuantitativeQuestion.objects.create(prompt='Hello world',
+                                                     predecessor=grandparent)
+        child = QuantitativeQuestion.objects.create(prompt='Hello World',
+                                                    predecessor=parent)
+        parent.delete()
+        child.refresh_from_db()
+        self.assertEqual(child.predecessor, grandparent)
