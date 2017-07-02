@@ -75,8 +75,17 @@ class StatisticsTests(TestCase):
 
 class HistoryTests(TestCase):
     def test_make_copy(self):
-        respondent = Respondent.objects.create(age=1, gender='M', location='+')
+        respondent = Respondent.objects.create(age=1, gender='M', location='?')
         copy = respondent.make_copy()
         self.assertEqual(respondent.age, copy.age)
         self.assertEqual(respondent.gender, copy.gender)
         self.assertEqual(respondent.location, copy.location)
+
+    def test_diff(self):
+        respondent1 = Respondent.objects.create(age=12, gender='M', location='?')
+        respondent2 = Respondent.objects.create(age=12, gender='F', location='?')
+        self.assertEqual(set(respondent1.diff(respondent2)), {'id', 'gender'})
+
+        respondent2.gender = 'M'
+        respondent2.save()
+        self.assertEqual(set(respondent1.diff(respondent2)), {'id'})
