@@ -18,7 +18,10 @@ from __future__ import unicode_literals
 from collections import Counter
 import json
 
+from django.core.exceptions import ValidationError
 from django.conf import settings
+from django.core.validators import RegexValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -113,13 +116,14 @@ class History(models.Model):
     Attributes:
         predecessor: A reference to the instance this instance is based on. If
             this instance is the first of its kind (e.g., a new question), this
-            reference should be `None` (which is the default value).
+            reference should be `None` (which is the default value). The list
+            of predecessors should never be cyclical.
         active: Whether this instance is considered usable or not. Typically,
             when a new model instance is created from an old one when updating
             a field, the old one is marked as inactive.
     """
     predecessor = models.ForeignKey('self', on_delete=models.SET_NULL,
-                                    null=True, default=None,
+                                    null=True, blank=True, default=None,
                                     related_name='successors')
     active = models.BooleanField(default=True)
 
@@ -223,6 +227,20 @@ class QuantitativeQuestionRating(Rating):
                                  on_delete=models.CASCADE,
                                  related_name='ratings')
 
+    def clean(self):
+        super(QuantitativeQuestionRating, self).clean()
+        min_score = self.question.min_score
+        if min_score is None:
+            min_score = float('-inf')
+        max_score = self.question.max_score
+        if max_score is None:
+            max_score = float('inf')
+
+        sentinels = [Rating.SKIPPED, Rating.NOT_RATED]
+        if not (min_score <= self.score <= max_score) and self.score not in sentinels:
+            raise ValidationError(_('Score not in min and max bounds'),
+                                  code='score-out-of-bounds')
+
     def __unicode__(self):
         template = 'Rating {0} to {1}'
         return template.format(self.score, self.question)
@@ -269,7 +287,8 @@ class Comment(Response, StatisticsMixin):
     question = models.ForeignKey('QualitativeQuestion',
                                  on_delete=models.CASCADE,
                                  related_name='comments')
-    language = models.CharField(max_length=8, choices=LANGUAGES)
+    language = models.CharField(max_length=8, choices=LANGUAGES, blank=True,
+                                default='')
     message = models.TextField(blank=True, default='')
     flagged = models.BooleanField(default=False)
     tag = models.CharField(max_length=256, blank=True, default='')
@@ -349,13 +368,6 @@ class QuantitativeQuestion(Question, StatisticsMixin):
     input_type = models.CharField(max_length=16, choices=INPUT_TYPE_CHOICES,
                                   default='range')
 
-    def clean(self):
-        lower = self.min_score if self.min_score is not None else float('-inf')
-        upper = self.max_score if self.max_score is not None else float('inf')
-        if not (lower <= self.score <= upper):
-            raise ValidationError(_('Score not in min and max bounds'),
-                                  code='score-out-of-bounds')
-
     def __unicode__(self):
         return 'Quantitative question {0}: "{1}"'.format(self.id, self.prompt)
 
@@ -411,6 +423,15 @@ class OptionQuestionChoice(Response):
                                  related_name='selections')
     option = models.TextField(blank=True)
 
+    def clean_fields(self, exclude=None):
+        super(OptionQuestionChoice, self).clean_fields(exclude)
+        exclude = [] if exclude is None else exclude
+        if 'option' not in exclude:
+            if self.option not in self.question.options:
+                raise ValidationError(_('"%(option)s" is not a valid option'),
+                                      code='invalid-selection',
+                                      params={'option': str(self.option)})
+
     def __unicode__(self):
         template = 'Option question choice {0}: "{1}"'
         return template.format(self.question_id, self.option)
@@ -442,10 +463,12 @@ class Respondent(History):
             entire survey.
         num_questions_rated: The number of `QuantitativeQuestion`'s answered by
             this `Respondent`. From this number, we can infer whether this
-            `Respondent` reached the rating stage of the survey.
+            `Respondent` reached the rating stage of the survey. This excludes
+            questions the respondent skipped or otherwise did not rate.
         num_comments_rated: The number of `Comment`'s reviewed by this
             `Respondent`. Similarly, we can infer user progression from this
-            attribute.
+            attribute. This excludes comments the respondent skipped rating or
+            did not rate.
         comments: A Django `QuerySet` of all comments attached to this
             respondent.
     """
@@ -454,11 +477,14 @@ class Respondent(History):
         ('F', 'Female'),
     )
 
-    age = models.PositiveSmallIntegerField(default=None, null=True)
+    age = models.PositiveSmallIntegerField(default=None, null=True, blank=True,
+                                           validators=[MinValueValidator(0),
+                                                       MaxValueValidator(120)])
     gender = models.CharField(max_length=1, choices=GENDERS, blank=True,
-                              default='')
+                              default='', validators=[RegexValidator(r'^(|M|F)$')])
     location = models.CharField(max_length=512, blank=True, default='')
-    language = models.CharField(max_length=8, choices=LANGUAGES)
+    language = models.CharField(max_length=8, choices=LANGUAGES, blank=True,
+                                default='')
     submitted_personal_data = models.BooleanField(default=False)
     completed_survey = models.BooleanField(default=False)
 

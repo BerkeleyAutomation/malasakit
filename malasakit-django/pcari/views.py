@@ -13,7 +13,7 @@ import random
 import time
 
 # Third-party libraries
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
@@ -27,10 +27,32 @@ from openpyxl import Workbook
 import unicodecsv as csv
 
 # Local modules and models
-from .models import Respondent
-from .models import QuantitativeQuestion, QualitativeQuestion
-from .models import Comment, CommentRating, QuantitativeQuestionRating
-from .models import MODELS, get_concrete_fields
+from pcari.models import Respondent
+from pcari.models import QuantitativeQuestion, QualitativeQuestion
+from pcari.models import Comment, CommentRating, QuantitativeQuestionRating
+from pcari.models import MODELS, get_concrete_fields
+
+__all__ = [
+    'generate_ratings_matrix',
+    'normalize_ratings_matrix',
+    'calculate_principal_components',
+    'fetch_comments',
+    'fetch_qualitative_questions',
+    'fetch_quantitative_questions',
+    'fetch_question_ratings',
+    'save_response',
+    'export_data',
+    'index',
+    'landing',
+    'qualitative_questions',
+    'peer_responses',
+    'rate_comments',
+    'qualitative_questions',
+    'personal_information',
+    'end',
+    'handle_page_not_found',
+    'handle_internal_server_error',
+]
 
 DEFAULT_LANGUAGE = settings.LANGUAGE_CODE
 DEFAULT_COMMENT_LIMIT = 300   # Default maximum number of comments to send
@@ -146,7 +168,7 @@ def fetch_comments(request):
 
     Args:
         request: May contain a `limit` GET parameter that specifies how many
-                 comments to get (by default: 1000).
+            comments to get (by default: 1000).
 
     Returns:
         A `JsonResponse` containing an JSON object mapping comment identifiers
@@ -173,13 +195,17 @@ def fetch_comments(request):
         comments = random.sample(comments, limit)
 
     respondent_id_map, _, ratings = generate_ratings_matrix()
-    normalized_ratings = normalize_ratings_matrix(ratings)
-    components = calculate_principal_components(normalized_ratings, 2)
+    if ratings.size:
+        normalized_ratings = normalize_ratings_matrix(ratings)
+        components = calculate_principal_components(normalized_ratings, 2)
 
     data = {}
     for comment in comments:
         standard_error = comment.score_sem
         row_index = respondent_id_map[comment.respondent.id]
+        position = [0, 0]
+        if ratings.size:
+            position = list(np.round(components.dot(normalized_ratings[row_index, :]), 3))
 
         # Projects the ratings by this comment's author onto the first two
         # principal components to generate the position (`pos`).
@@ -188,7 +214,7 @@ def fetch_comments(request):
         data[str(comment.id)] = {
             'msg': comment.message,
             'sem': round(standard_error, 3),
-            'pos': list(np.round(components.dot(normalized_ratings[row_index, :]), 3)),
+            'pos': position,
             'tag': comment.tag,
             'qid': comment.question_id
         }
@@ -359,7 +385,11 @@ def save_response(request):
 
         for model_generator in model_generator_functions:
             model_instances.extend(model_generator(respondent, responses))
-    except (KeyError, ValueError, ObjectDoesNotExist) as error:
+
+        for instance in model_instances:
+            instance.full_clean()
+    except (KeyError, ValueError, AttributeError, ObjectDoesNotExist,
+            ValidationError) as error:
         respondent.delete()
         LOGGER.log(logging.ERROR, error)
         return HttpResponseBadRequest(str(error))
@@ -491,8 +521,7 @@ def landing(request):
 @profile
 def quantitative_questions(request):
     """ Render a page asking respondents to rate statements. """
-    context = {'question': QuantitativeQuestion.objects.filter(active=True).all()[0]}
-    return render(request, 'quantitative-questions.html', context)
+    return render(request, 'quantitative-questions.html')
 
 
 @profile
