@@ -71,7 +71,7 @@ class Resource {
     }
 
     static load(name) {
-        var rawResource = JSON.parse(localStorage.getItem(name));
+        var rawResource = Resource.get(name);
         return Resource.make(rawResource);
     }
 
