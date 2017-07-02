@@ -91,19 +91,41 @@ class HistoryTests(TestCase):
         self.assertEqual(set(respondent1.diff(respondent2)), {'id'})
 
     def test_no_grandparent_deletion(self):
-        parent = QuantitativeQuestion.objects.create(prompt='Hello world')
+        parent = QuantitativeQuestion.objects.create(prompt='Hello world',
+                                                     active=True)
         child = QuantitativeQuestion.objects.create(prompt='Hello World',
-                                                    predecessor=parent)
+                                                    predecessor=parent,
+                                                    active=False)
         parent.delete()
         child.refresh_from_db()
         self.assertEqual(child.predecessor, None)
+        self.assertFalse(child.active)
 
     def test_grandparent_deletion(self):
-        grandparent = QuantitativeQuestion.objects.create(prompt='hello world')
+        grandparent = QuantitativeQuestion.objects.create(prompt='hello world',
+                                                          active=False)
         parent = QuantitativeQuestion.objects.create(prompt='Hello world',
-                                                     predecessor=grandparent)
+                                                     predecessor=grandparent,
+                                                     active=True)
         child = QuantitativeQuestion.objects.create(prompt='Hello World',
-                                                    predecessor=parent)
+                                                    predecessor=parent,
+                                                    active=False)
         parent.delete()
         child.refresh_from_db()
         self.assertEqual(child.predecessor, grandparent)
+        self.assertTrue(grandparent.active)
+        self.assertFalse(child.active)
+
+    def test_nonlinear_deletion(self):
+        grandparent = QuantitativeQuestion.objects.create(prompt='Hello world')
+        parent = QuantitativeQuestion.objects.create(prompt='Hello world.',
+                                                     predecessor=grandparent)
+        child1 = QuantitativeQuestion.objects.create(prompt='Hello world ...',
+                                                     predecessor=parent)
+        child2 = QuantitativeQuestion.objects.create(prompt='Hello world?',
+                                                     predecessor=parent)
+        parent.delete()
+        child1.refresh_from_db()
+        child2.refresh_from_db()
+        self.assertEqual(child1.predecessor, grandparent)
+        self.assertEqual(child2.predecessor, grandparent)
