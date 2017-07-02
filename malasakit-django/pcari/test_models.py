@@ -1,7 +1,8 @@
 from __future__ import unicode_literals
 import math
 
-from django.test import TestCase
+from django.db import IntegrityError
+from django.test import TestCase, TransactionTestCase
 
 from pcari.models import Respondent
 from pcari.models import QuantitativeQuestion, QualitativeQuestion
@@ -9,6 +10,7 @@ from pcari.models import QuantitativeQuestionRating, Comment, CommentRating
 
 
 class StatisticsTests(TestCase):
+    """ Ensure all descriptive statistics are computed correctly. """
     @classmethod
     def setUpTestData(cls):
         cls.question = QuantitativeQuestion.objects.create()
@@ -74,6 +76,7 @@ class StatisticsTests(TestCase):
 
 
 class HistoryTests(TestCase):
+    """ Ensure history is tracked correctly. """
     def test_make_copy(self):
         respondent = Respondent.objects.create(age=1, gender='M', location='?')
         copy = respondent.make_copy()
@@ -129,3 +132,32 @@ class HistoryTests(TestCase):
         child2.refresh_from_db()
         self.assertEqual(child1.predecessor, grandparent)
         self.assertEqual(child2.predecessor, grandparent)
+
+
+class IntegrityTests(TransactionTestCase):
+    def test_rating_respondent_unique_together(self):
+        respondent = Respondent.objects.create()
+        question = QuantitativeQuestion.objects.create()
+        rating = QuantitativeQuestionRating.objects.create(
+            respondent=respondent,
+            question=question,
+            score=0,
+        )
+        with self.assertRaises(IntegrityError):
+            QuantitativeQuestionRating.objects.create(respondent=respondent,
+                                                      question=question,
+                                                      score=1)
+
+        question = QualitativeQuestion.objects.create()
+        comment = Comment.objects.create(respondent=Respondent.objects.create(),
+                                         question=question)
+        rating = CommentRating.objects.create(respondent=respondent,
+                                              comment=comment, score=5)
+        with self.assertRaises(IntegrityError):
+            CommentRating.objects.create(respondent=respondent, comment=comment,
+                                         score=5)
+
+        # OK for one respondent to have two comments for the same quantitative
+        # question
+        Comment.objects.create(respondent=respondent, question=question)
+        Comment.objects.create(respondent=respondent, question=question)
