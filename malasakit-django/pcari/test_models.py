@@ -1,4 +1,6 @@
-""" This module defines unit tests of model behavior. """
+"""
+This module defines unit tests of model behavior.
+"""
 
 from __future__ import unicode_literals
 import math
