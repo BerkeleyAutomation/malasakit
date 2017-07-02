@@ -4,9 +4,16 @@ import math
 from django.db import IntegrityError
 from django.test import TestCase, TransactionTestCase
 
-from pcari.models import Respondent
-from pcari.models import QuantitativeQuestion, QualitativeQuestion
-from pcari.models import QuantitativeQuestionRating, Comment, CommentRating
+from pcari.models import (
+    Respondent,
+    QuantitativeQuestion,
+    QualitativeQuestion,
+    OptionQuestion,
+    QuantitativeQuestionRating,
+    Comment,
+    CommentRating,
+    OptionQuestionChoice
+)
 
 
 class StatisticsTests(TestCase):
@@ -73,6 +80,28 @@ class StatisticsTests(TestCase):
         self.assertAlmostEqual(self.question.score_sem, 1.436140662)
         self.assertTrue(math.isnan(self.question_no_ratings.score_sem))
         self.assertAlmostEqual(self.comment.score_sem, 1.5)
+
+
+class PropertyTests(TestCase):
+    """ Tests other dynamically computed model attributes. """
+    def test_option_question_choice_wrapping(self):
+        question = OptionQuestion.objects.create(
+            _options_text='["red", "green", "blue"]',
+        )
+        self.assertEqual(question.options, ['red', 'green', 'blue'])
+        question.options = ['orange']
+        question.save()
+        self.assertEqual(question._options_text, '["orange"]')
+
+    def test_comment_word_count(self):
+        question = QualitativeQuestion.objects.create()
+        respondent = Respondent.objects.create()
+        comment = Comment.objects.create(message='Word count is four.',
+                                         respondent=respondent,
+                                         question=question)
+        self.assertEqual(comment.word_count, 4)
+        comment.message = ''
+        self.assertEqual(comment.word_count, 0)
 
 
 class HistoryTests(TestCase):
@@ -161,3 +190,10 @@ class IntegrityTests(TransactionTestCase):
         # question
         Comment.objects.create(respondent=respondent, question=question)
         Comment.objects.create(respondent=respondent, question=question)
+
+    def test_mandatory_fields(self):
+        pass
+
+
+class ValidationTests(TestCase):
+    pass
