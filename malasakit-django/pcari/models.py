@@ -20,9 +20,11 @@ import json
 
 from django.conf import settings
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
-__all__ = ['Comment', 'QuantitativeQuestionRating', 'CommentRating', 'QualitativeQuestion',
-'QuantitativeQuestion', 'Respondent', 'OptionQuestion', 'OptionQuestionChoice', 'MODELS']
+__all__ = ['Comment', 'QuantitativeQuestionRating', 'CommentRating',
+           'QualitativeQuestion', 'QuantitativeQuestion', 'Respondent',
+           'OptionQuestion', 'OptionQuestionChoice', 'MODELS']
 
 LANGUAGES = settings.LANGUAGES
 
@@ -346,6 +348,13 @@ class QuantitativeQuestion(Question, StatisticsMixin):
     max_score = models.SmallIntegerField(default=9, null=True)
     input_type = models.CharField(max_length=16, choices=INPUT_TYPE_CHOICES,
                                   default='range')
+
+    def clean(self):
+        lower = self.min_score if self.min_score is not None else float('-inf')
+        upper = self.max_score if self.max_score is not None else float('inf')
+        if not (lower <= self.score <= upper):
+            raise ValidationError(_('Score not in min and max bounds'),
+                                  code='score-out-of-bounds')
 
     def __unicode__(self):
         return 'Quantitative question {0}: "{1}"'.format(self.id, self.prompt)
