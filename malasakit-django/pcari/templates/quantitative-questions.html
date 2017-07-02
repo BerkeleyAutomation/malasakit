@@ -79,8 +79,12 @@
         updateOutputReading();
         $('#current-answer-notice').css('display', 'block');
       } else if (questionData['input-type'] === 'number') {
-        console.log('number');
+        var input = $('<input id="quantitative-input" type="number" value="'
+                      + value + '" min="' + min + '" max="' + max + '" step="1">');
+        $('#answer').append(input);
       }
+
+      $('#progression-numerator').text(questionIndex + 1);
     }
 
     function saveRating(questionIDs, score) {
@@ -100,6 +104,7 @@
       }
 
       renderQuestion(QUESTION_IDS, questionIndex);
+      $('#progression-denominator').text(QUESTION_IDS.length);
 
       $('#previous').on('click', function() {
         questionIndex--;
@@ -129,6 +134,9 @@
       Below, you will see either a slider or a text box.
       Please answer each question by moving the slider knob or filling in the box with a number.
     {% endblocktrans %}
+  </p>
+  <p id="progression">
+    {% trans 'Question' %} <span id="progression-numerator"></span>/<span id="progression-denominator"></span>:
   </p>
   <p id="prompt"></p>
   <div id="answer"></div>
