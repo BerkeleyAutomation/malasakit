@@ -7,11 +7,11 @@ input[type="range"] {
   flex-basis: 50%;
   order: 2;
   margin: 1rem 0;
+  box-sizing: border-box;
 }
 
 .label {
   box-sizing: border-box;
-  padding-right: 1rem;
   flex-basis: 25%;
   padding-bottom: .5rem;
 }
@@ -20,12 +20,14 @@ input[type="range"] {
   .label();
   text-align: left;
   order: 1;
+  padding-right: 1rem;
 }
 
 .right-anchor {
   .label();
   text-align: right;
   order: 3;
+  padding-left: 1rem;
 }
 
 button {
@@ -45,7 +47,7 @@ button {
 @media all and (max-width: 568px) {
   input[type=range] {
     flex-basis: 100%;
-    padding: 0.5rem 0;
+    padding: 0.5rem 1rem;
   }
 
   .left-anchor, .right-anchor {
