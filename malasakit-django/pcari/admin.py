@@ -4,6 +4,7 @@ This module defines how Django should render the admin panel.
 
 from base64 import b64encode
 import json
+import math
 import os
 from urllib import urlencode
 
@@ -24,8 +25,8 @@ from .models import get_direct_fields
 
 class MalasakitAdminSite(admin.AdminSite):
     """
-    A custom admin site for Malasakit with augmented configuration and analytics
-    functionality.
+    A custom admin site for Malasakit with augmented configuration and
+    statistics functionality.
     """
     site_header = site_title = 'Malasakit'
 
@@ -34,8 +35,8 @@ class MalasakitAdminSite(admin.AdminSite):
         urls += [
             url(r'^configuration/$', self.admin_view(self.configuration),
                 name='configuration'),
-            url(r'^analytics/$', self.admin_view(self.analytics),
-                name='analytics'),
+            url(r'^statistics/$', self.admin_view(self.statistics),
+                name='statistics'),
             url(r'^change-bloom-icon/$', self.admin_view(require_POST(self.change_bloom_icon)),
                 name='change-bloom-icon'),
         ]
@@ -49,8 +50,8 @@ class MalasakitAdminSite(admin.AdminSite):
             del request.session['messages']
         return render(request, 'admin/configuration.html', context)
 
-    def analytics(self, request):
-        return render(request, 'admin/analytics.html', self.each_context(request))
+    def statistics(self, request):
+        return render(request, 'admin/statistics.html', self.each_context(request))
 
     def change_bloom_icon(self, request):
         """ Save an image file of a custom bloom icon. """
@@ -86,6 +87,8 @@ class HistoryAdmin(admin.ModelAdmin):
     """
     save_as_continue = False
 
+    actions = ('mark_active', 'mark_inactive')
+
     def save_model(self, request, obj, form, change):
         if change and issubclass(obj.__class__, History):
             old_instance = obj.__class__.objects.get(id=obj.id)
@@ -103,6 +106,20 @@ class HistoryAdmin(admin.ModelAdmin):
             field_names.remove('active')
             return field_names
         return self.readonly_fields + ('predecessor', )
+
+    def mark_active(self, request, queryset):
+        """ Mark selected instances as active in bulk. """
+        num_marked = queryset.update(active=True)
+        message = '{0} row{1} successfully marked as active.'
+        message = message.format(num_marked, 's' if num_marked != 1 else '')
+        self.message_user(request, message)
+
+    def mark_inactive(self, request, queryset):
+        """ Mark selected instances as inactive in bulk. """
+        num_marked = queryset.update(active=False)
+        message = '{0} row{1} successfully marked as inactive.'
+        message = message.format(num_marked, 's' if num_marked != 1 else '')
+        self.message_user(request, message)
 
 
 class ResponseAdmin(HistoryAdmin):
@@ -126,8 +143,8 @@ class CommentRatingAdmin(ResponseAdmin):
     Customizes admin change page function for `CommentRating`s.
     """
     def get_comment_message(self, comment_rating):
-        # pylint: disable=no-self-use
-        return comment_rating.comment.message
+        message = comment_rating.comment.message
+        return message if message.strip() else self.empty_value_display
     get_comment_message.short_description = 'Comment message'
 
     # Columns to display in the Comment change list page, in order from left to
@@ -146,7 +163,7 @@ class CommentRatingAdmin(ResponseAdmin):
     readonly_fields = ('timestamp', )
 
     # Enables search
-    search_fields = ('score_history_text', 'comment__message')
+    search_fields = ('score', 'comment__message')
 
 
 @admin.register(Comment, site=site)
@@ -154,14 +171,25 @@ class CommentAdmin(ResponseAdmin):
     """
     Customizes admin change page functionality for `Comment`s.
     """
+    def display_message(self, comment):
+        return comment.message if comment.message.strip() else self.empty_value_display
+    display_message.short_description = 'Message'
+
+    def display_mean_score(self, comment):
+        # pylint: disable=no-self-use
+        mean_score = comment.mean_score
+        return str(round(mean_score, 3)) if not math.isnan(mean_score) else '(No ratings)'
+    display_mean_score.short_description = 'Mean score'
+
     # Columns to display in the Comment change list page, in order from left to
     # right
-    list_display = ('respondent', 'message', 'timestamp', 'language',
-                    'flagged', 'tag', 'active')
+    list_display = ('respondent', 'display_message', 'timestamp', 'language',
+                    'flagged', 'tag', 'active', 'display_mean_score',
+                    'num_ratings')
 
     # By default first column listed in list_display is clickable; this makes
     # `message` column clickable
-    list_display_links = ('message',)
+    list_display_links = ('display_message',)
 
     # Specify which columns we want filtering capabilities for
     list_filter = ('timestamp', 'language', 'flagged', 'tag', 'active')
@@ -217,7 +245,7 @@ class QuantitativeQuestionRatingAdmin(ResponseAdmin):
     readonly_fields = ('timestamp', )
 
     # Enables search
-    search_fields = ('question__prompt', 'score_history_text')
+    search_fields = ('question__prompt', 'score')
 
 
 class QuestionAdmin(HistoryAdmin):
@@ -266,9 +294,13 @@ class RespondentAdmin(HistoryAdmin):
     """
     Customizes admin change page functionality for `RespondentAdmin`.
     """
+    def display_location(self, respondent):
+        return respondent.location if respondent.location.strip() else self.empty_value_display
+    display_location.short_description = 'Location'
+
     def comments_made(self, respondent):
         # pylint: disable=no-self-use
-        comments = list(respondent.comments_made)
+        comments = list(respondent.comments)
         return '(No comments)' if not comments else ''.join(map(str, comments))
 
     # Empty responses (recorded as None) will be replaced by this placeholder
@@ -279,8 +311,8 @@ class RespondentAdmin(HistoryAdmin):
 
     # Columns to display in the Comment change list page, in order from left to
     # right
-    list_display = ('id', 'comments_made', 'age', 'gender', 'location', 'language',
-                    'submitted_personal_data', 'completed_survey',
+    list_display = ('id', 'comments_made', 'age', 'gender', 'display_location',
+                    'language', 'submitted_personal_data', 'completed_survey',
                     'num_questions_rated', 'num_comments_rated', 'active')
 
     # Specify which columns we want filtering capabilities for

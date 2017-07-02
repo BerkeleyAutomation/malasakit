@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-23 22:47+0000\n"
+"POT-Creation-Date: 2017-07-02 17:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -61,19 +61,61 @@ msgstr ""
 msgid "How could your Barangay help you better prepare for a disaster?"
 msgstr ""
 
-#: cafe/settings.py:120
+#: cafe/settings.py:152
 msgid "English"
 msgstr ""
 
-#: cafe/settings.py:121
+#: cafe/settings.py:153
 msgid "Filipino"
 msgstr ""
 
+#: pcari/models.py:241
+msgid "Score not in min and max bounds"
+msgstr ""
+
+#: pcari/models.py:431
+#, python-format
+msgid "\"%(option)s\" is not a valid option"
+msgstr ""
+
+#: pcari/templates/admin/base.html:7
+msgid "Configuration"
+msgstr ""
+
+#: pcari/templates/admin/base.html:9 pcari/templates/admin/statistics.html:5
+#: pcari/templates/admin/statistics.html:158
+msgid "Statistics"
+msgstr ""
+
+#: pcari/templates/admin/configuration.html:5
+#: pcari/templates/admin/configuration.html:38
+msgid "Site configuration"
+msgstr ""
+
+#: pcari/templates/admin/configuration.html:40
+msgid "Change bloom icon"
+msgstr ""
+
+#: pcari/templates/admin/configuration.html:45
+#: pcari/templates/quantitative-questions.html:160
+#: pcari/templates/rate-comments.html:55
+msgid "Submit"
+msgstr ""
+
+#: pcari/templates/admin/statistics.html:160
+msgid "Quantitative question rating distributions"
+msgstr ""
+
 #: pcari/templates/base.html:53
+#, fuzzy
+#| msgid ""
+#| "A project by the CITRIS Connected Communities Initiative at UC Berkeley "
+#| "and the Philippine Commission on Higher Education through the Philippine-"
+#| "California Advanced Research Institutes Project."
 msgid ""
 "A project by the CITRIS Connected Communities Initiative at UC Berkeley and "
-"the Philippine Commission on Higher Education through the Philippine-"
-"California Advanced Research Institutes Project."
+"National University, Philippines through the Philippine-California Advanced "
+"Research Institutes Project."
 msgstr ""
 "Isang proyekto ng CITRIS Connected Communities Initiative ng UC Berkeley, at "
 "ng Commission on Higher Education ng Pilipinas sa pamamagitan ng Philippine-"
@@ -91,7 +133,7 @@ msgstr ""
 msgid "Welcome"
 msgstr ""
 
-#: pcari/templates/landing.html:18
+#: pcari/templates/landing.html:19
 #, python-format
 msgid ""
 "How prepared are you in times of disaster? %(num_responses)s barangay "
@@ -100,7 +142,7 @@ msgstr ""
 "Gaano ka kahanda sa panahon ng kalamidad? %(num_responses)s na ang nag "
 "MALASAKIT. Sali na!"
 
-#: pcari/templates/landing.html:26
+#: pcari/templates/landing.html:28
 msgid "Begin"
 msgstr "Simulan"
 
@@ -108,79 +150,82 @@ msgstr "Simulan"
 msgid "Peer Responses"
 msgstr ""
 
-#: pcari/templates/peer-responses.html:22
+#: pcari/templates/peer-responses.html:32
 msgid ""
 "Below, you can see how the other respondents answered the quantitative "
 "questions."
 msgstr ""
 
-#: pcari/templates/peer-responses.html:30
-msgid "For the question"
-msgstr ""
-
-#: pcari/templates/peer-responses.html:36
+#: pcari/templates/peer-responses.html:42
 #, python-format
-msgid ""
-"<strong>%(num_ratings)s</strong> other respondents rated this statement, the "
-"most common score was <strong>%(mode)s</strong>, and the average score was "
-"<strong>%(mean)s</strong>."
+msgid "<strong>%(num_ratings)s</strong> other people answered this question:"
 msgstr ""
 
-#: pcari/templates/personal-information.html:48
-#: pcari/templates/personal-information.html:49
+#: pcari/templates/peer-responses.html:50
+#, python-format
+msgid "Your answer: <strong id=\"answer-%(id)s\">None</strong>"
+msgstr ""
+
+#: pcari/templates/peer-responses.html:55
+#, python-format
+msgid "Average answer: <strong>%(mean)s</strong>"
+msgstr ""
+
+#: pcari/templates/personal-information.html:94
+#: pcari/templates/personal-information.html:95
 msgid "Personal Information"
 msgstr ""
 
-#: pcari/templates/personal-information.html:53
+#: pcari/templates/personal-information.html:100
 msgid ""
 "All questions on this page are strictly optional. Your responses will be "
 "anonymous."
 msgstr ""
 
-#: pcari/templates/personal-information.html:60
+#: pcari/templates/personal-information.html:107
 msgid "Age"
 msgstr "Edad"
 
-#: pcari/templates/personal-information.html:64
+#: pcari/templates/personal-information.html:111
 msgid "Gender"
 msgstr "Kasarian"
 
-#: pcari/templates/personal-information.html:67
+#: pcari/templates/personal-information.html:114
 msgid "Select gender"
 msgstr ""
 
-#: pcari/templates/personal-information.html:68
+#: pcari/templates/personal-information.html:115
 msgid "Male"
 msgstr "Lalaki"
 
-#: pcari/templates/personal-information.html:69
+#: pcari/templates/personal-information.html:116
 msgid "Female"
 msgstr "Babae"
 
-#: pcari/templates/personal-information.html:74
+#: pcari/templates/personal-information.html:121
 msgid "Province"
 msgstr ""
 
-#: pcari/templates/personal-information.html:77
-msgid "Select province"
+#: pcari/templates/personal-information.html:128
+msgid "City / Municipality"
 msgstr ""
 
-#: pcari/templates/personal-information.html:85
+#: pcari/templates/personal-information.html:135
 msgid "Barangay"
 msgstr "Barangay"
 
-#: pcari/templates/personal-information.html:92
+#: pcari/templates/personal-information.html:145
 msgid ""
 "You are about to submit your response, and will no longer be able to edit "
 "your answers. Do you wish to continue?"
 msgstr ""
 
-#: pcari/templates/personal-information.html:99
-msgid "Yes"
+#: pcari/templates/personal-information.html:152
+msgid "No"
 msgstr ""
 
-#: pcari/templates/personal-information.html:102
-msgid "No"
+#: pcari/templates/personal-information.html:155
+msgid "Yes"
 msgstr ""
 
 #: pcari/templates/qualitative-questions.html:6
@@ -193,8 +238,32 @@ msgstr ""
 msgid "Quantitative Questions"
 msgstr ""
 
-#: pcari/templates/questions/select.html:5
-msgid "Select your answer"
+#: pcari/templates/quantitative-questions.html:133
+msgid ""
+"Below, you will see either a slider or a text box. Please answer each "
+"question by moving the slider knob or filling in the box with a number."
+msgstr ""
+
+#: pcari/templates/quantitative-questions.html:139
+msgid "Question"
+msgstr ""
+
+#: pcari/templates/quantitative-questions.html:146
+#: pcari/templates/rate-comments.html:47
+msgid "Your current answer is "
+msgstr ""
+
+#: pcari/templates/quantitative-questions.html:149
+msgid "You previously chose to skip this question."
+msgstr ""
+
+#: pcari/templates/quantitative-questions.html:154
+msgid "Previous"
+msgstr ""
+
+#: pcari/templates/quantitative-questions.html:157
+#: pcari/templates/rate-comments.html:52
+msgid "Skip"
 msgstr ""
 
 #: pcari/templates/rate-comments.html:6 pcari/templates/rate-comments.html:7
@@ -216,35 +285,39 @@ msgid ""
 "read the topics more clearly."
 msgstr ""
 
-#: pcari/templates/rate-comments.html:32
+#: pcari/templates/rate-comments.html:30
+msgid "There are no more comments to rate."
+msgstr ""
+
+#: pcari/templates/rate-comments.html:35
 msgid "The question was:"
 msgstr ""
 
-#: pcari/templates/rate-comments.html:34
+#: pcari/templates/rate-comments.html:37
 msgid "The comment was:"
 msgstr ""
 
-#: pcari/templates/rate-comments.html:41
-msgid "Submit"
+#: pcari/templates/rate-comments.html:43
+msgid "Not helpful"
 msgstr ""
 
 #: pcari/templates/rate-comments.html:44
-msgid "Skip"
+msgid "Helpful"
 msgstr ""
 
-#: pcari/views.py:406
+#: pcari/views.py:562
 msgid "Page Not Found"
 msgstr ""
 
-#: pcari/views.py:407
+#: pcari/views.py:563
 msgid "The requested page does not appear to exist."
 msgstr ""
 
-#: pcari/views.py:414
+#: pcari/views.py:570
 msgid "Internal Error"
 msgstr ""
 
-#: pcari/views.py:415
+#: pcari/views.py:571
 msgid ""
 "The server is currently experiencing some issues. Please let the maintainers "
 "know immediately."

@@ -7,12 +7,22 @@
 
 {% block scripts %}
   <script>
+    const SKIPPED = -1;
+
     $(document).ready(function() {
       var current = Resource.load('current');
+      var ratings = getResponseValue(['question-ratings']);
       current.data = null;
       current.put();
       pushCompletedResponses();
       Resource.delete('selected-comments');
+
+      for (var questionID in ratings) {
+        var score = ratings[questionID];
+        if (score !== SKIPPED) {
+          $('#answer-' + questionID).text(score);
+        }
+      }
     });
   </script>
 {% endblock %}
@@ -23,31 +33,34 @@
       Below, you can see how the other respondents answered the quantitative questions.
     {% endblocktrans %}
   </p>
-  <ol>
+  <peer-responses>
     {% for question in questions %}
-      <li>
-        <p>
-          {% trans 'For the question' %}
-        </p>
-        <blockquote>
-          {% trans question.prompt %}
-        </blockquote>
-        <p>
-          {% with num_ratings=question.num_ratings mode=question.mode_score mean=question.mean_score|floatformat %}
-            {% blocktrans trimmed %}
-              <strong>{{ num_ratings }}</strong> other respondents rated this statement.
-            {% endblocktrans %}
-            {% if num_ratings > 0 %}
+      <div class="boxed">
+        {% with num_ratings=question.num_ratings mean=question.mean_score|floatformat %}
+          {% if num_ratings > 0 %}
+            <p>
               {% blocktrans trimmed %}
-                The most common score was <strong>{{ mode }}</strong>, and
-                the average score was <strong>{{ mean }}</strong>.
+                <strong>{{ num_ratings }}</strong> other people answered this question:
               {% endblocktrans %}
-            {% endif %}
-          {% endwith %}
-        </p>
-      </li>
+            </p>
+            <blockquote>
+              {% trans question.prompt %}
+            </blockquote>
+            <div class="bubbled">
+              {% blocktrans trimmed with id=question.id %}
+                Your answer: <strong id="answer-{{ id }}">None</strong>
+              {% endblocktrans %}
+            </div>
+            <div class="bubbled">
+              {% blocktrans trimmed %}
+                Average answer: <strong>{{ mean }}</strong>
+              {% endblocktrans %}
+            </div>
+          {% endif %}
+        {% endwith %}
+      </div>
     {% endfor %}
-  </ol>
+  </peer-responses>
   {% url 'pcari:end' as next_link %}
   {% include 'nav-buttons.html' %}
 {% endblock %}
