@@ -30,6 +30,7 @@ Tests to include:
 - Bloom works
 - LocalStorage is behaving correctly (online case)
 - ServiceWorker is registered
+- Clock stuff- throw system clock forward
 
 Tests that we want but are not vital to functionality
 - Proper mobile scaling (by testing with smaller window)
@@ -158,8 +159,9 @@ class TestDriver(webdriver.Chrome):
             history: list of ints, all must fall between -1 (skipped) and slider
                      max. Slider will be moved around multiple times.
         """
-        slider = element.find_element_by_class_name('quantitative-input')
-        skip = element.find_element_by_class_name('switch')
+        slider = element.find_element_by_css_selector('input[type=range]')
+        skip = element.find_element_by_id('skip')
+        submit = element.find_element_by_id('submit')
 
         slider_max = int(slider.get_attribute('max'))
 
@@ -169,13 +171,12 @@ class TestDriver(webdriver.Chrome):
         for val in history:
             # if we want to change slider value and it's currently -1, we have to
             # hit the skip button
-            if not slider.is_enabled():
-                skip.click()
-
             if val == -1:
                 skip.click()
+                return # quit early
             else:
                 self.set_slider_val(slider, val)
+        submit.click()
 
     """Up one more level- behavior at the view level (i.e. randomly fill out)
     view and return the responses"""
@@ -187,13 +188,20 @@ class TestDriver(webdriver.Chrome):
         that was inputted. Assumes driver is at quantitative questions view.
         Includes skipping (-1)."""
 
-        quant_q_list = self.find_element_by_id('quantitative-questions') \
-                           .find_elements_by_tag_name('li')
+        num_questions = 2 # TODO: pull from db during setup, set as class var
 
         responses = []
-        for q in quant_q_list:
+        for i in range(num_questions):
+            # goes and gets the slider bounding div, goes up to capture
+            # div that has that and buttons
+            q = self.find_element_by_id('answer').find_element_by_xpath('..')
             num_changes = randint(1, 8)
             res_history = sample(range(0,10), num_changes) # unique
+
+            if i == 0:
+                res_history.append(-1)
+                # test a skip, -1 will skip the question at the end.
+
             self.respond_quant_question(q, res_history)
             responses.append(res_history)
 
@@ -389,9 +397,10 @@ class PageLoadTestCase(StaticLiveServerTestCase):
 
         # self.driver.print_log(self.driver.get_log('browser'))
         self.driver.get_screenshot_as_file('quant-questions.png')
-        self.driver.find_element_by_css_selector("a[href='%s']" % (reverse(
-            'pcari:rate-comments'
-        ))).click()
+        # Deprecated as there is no longer a proceed button
+        # self.driver.find_element_by_css_selector("a[href='%s']" % (reverse(
+        #     'pcari:rate-comments'
+        # ))).click()
 
     def rate_comments(self):
         print "********* TEST COMMENT BLOOM *********"
@@ -444,7 +453,8 @@ class PageLoadTestCase(StaticLiveServerTestCase):
         print "********* TEST SCRIPT ERRORS AND LOCAL STORAGE *********"
 
         for entry in self.driver.get_log('browser'):
-            self.assertTrue(entry['level'] != 'SEVERE') # no uncaught errors
+            # no uncaught errors in the browser log
+            self.assertTrue(entry['level'] != 'SEVERE', entry)
 
         local_storage = self.driver.get_local_storage()
         current_user = local_storage[local_storage['current']['data']]['data']
