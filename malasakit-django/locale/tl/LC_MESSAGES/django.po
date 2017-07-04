@@ -84,7 +84,7 @@ msgstr "Wala sa saklaw ang ibinigay na sagot"
 #: pcari/models.py:431
 #, python-format
 msgid "\"%(option)s\" is not a valid option"
-msgstr "\"%(mga) pinili\" ay wala sa mga pagpipilian"
+msgstr "\"%(option)s\" ay wala sa mga pagpipilian"
 
 #: pcari/templates/admin/base.html:7
 msgid "Configuration"
@@ -147,7 +147,7 @@ msgid ""
 "How prepared are you in times of disaster? %(num_responses)s barangay "
 "citizens have responded. Join them!"
 msgstr ""
-"Gaano ka kahanda sa panahon ng kalamidad? %(num_responses) na ang nag"
+"Gaano ka kahanda sa panahon ng kalamidad? %(num_responses)s na ang nag"
 "MALASAKIT. Sali na!"
 
 #: pcari/templates/landing.html:28
@@ -168,17 +168,17 @@ msgstr ""
 #: pcari/templates/peer-responses.html:42
 #, python-format
 msgid "<strong>%(num_ratings)s</strong> other people answered this question:"
-msgstr "<strong>%(num_ratings)</strong> katao na ang sumagot sa tanong na ito:"
+msgstr "<strong>%(num_ratings)s</strong> katao na ang sumagot sa tanong na ito:"
 
 #: pcari/templates/peer-responses.html:50
 #, python-format
 msgid "Your answer: <strong id=\"answer-%(id)s\">None</strong>"
-msgstr "Ang iyong sagot: <strong id=\"sagot-%(id)\">Wala</strong>"
+msgstr "Ang iyong sagot: <strong id=\"answer-%(id)\">Wala</strong>"
 
 #: pcari/templates/peer-responses.html:55
 #, python-format
 msgid "Average answer: <strong>%(mean)s</strong>"
-msgstr "Madalas na sagot ng iba: <strong>%(mean)</strong>"
+msgstr "Madalas na sagot ng iba: <strong>%(mean)s</strong>"
 
 #: pcari/templates/personal-information.html:94
 #: pcari/templates/personal-information.html:95
