@@ -356,7 +356,9 @@ def randString(n=10):
     return ''.join(choice(string.ascii_uppercase) for _ in range(n))
 
 
-class PageLoadTestCase(StaticLiveServerTestCase):
+class AbstractSeleniumTestCase(StaticLiveServerTestCase):
+    """Abstract test case that is inherited from. Has setup
+    and decorators."""
     fixtures = ['selenium-questions.yaml', 'selenium-users.yaml']
 
     def setUp(self):
@@ -408,10 +410,22 @@ class PageLoadTestCase(StaticLiveServerTestCase):
 
         return check
 
+
+
+    # enabling decorators for subclasses
+    # https://stackoverflow.com/questions/3421337/
+    # accessing-a-decorator-in-a-parent-class-from-the-child-in-python
+    dump_driver_log_on_error = staticmethod(dump_driver_log_on_error)
+
+class PageLoadTestCase(AbstractSeleniumTestCase):
+    """Clickthrough test case, checks for page functionality and LocalStorage
+    correctness."""
+
+
     """Methods for testing views. Each one should push inputs to corresponding
     key in dictionary self.inputs."""
 
-    @dump_driver_log_on_error
+    @AbstractSeleniumTestCase.dump_driver_log_on_error
     def landing(self):
         print "********* TEST LANDING PAGE ********"
         # check that we're actually on the page
@@ -422,7 +436,7 @@ class PageLoadTestCase(StaticLiveServerTestCase):
             'pcari:quantitative-questions'
         ))).click()
 
-    @dump_driver_log_on_error
+    @AbstractSeleniumTestCase.dump_driver_log_on_error
     def quant_questions(self):
         print "********* TEST QUANTITATIVE QUESTIONS *********"
         # check that we're actually on the page
@@ -431,7 +445,7 @@ class PageLoadTestCase(StaticLiveServerTestCase):
         self.inputs['quantitative-questions'] = \
                             self.driver.quant_questions_random_responses()
 
-    @dump_driver_log_on_error
+    @AbstractSeleniumTestCase.dump_driver_log_on_error
     def rate_comments(self):
         print "********* TEST COMMENT BLOOM *********"
         # check that we're actually on the page
@@ -445,7 +459,7 @@ class PageLoadTestCase(StaticLiveServerTestCase):
             reverse('pcari:qualitative-questions')
         )).click()
 
-    @dump_driver_log_on_error
+    @AbstractSeleniumTestCase.dump_driver_log_on_error
     def qual_questions(self):
         print "********* TEST QUALTITATIVE QUESTIONS *********"
         # check that we're actually on the page
@@ -458,7 +472,7 @@ class PageLoadTestCase(StaticLiveServerTestCase):
             reverse('pcari:personal-information')
         )).click()
 
-    @dump_driver_log_on_error
+    @AbstractSeleniumTestCase.dump_driver_log_on_error
     def personal_info(self):
         print "********* TEST PERSONAL INFO *********"
         # check that we're actually on the page
