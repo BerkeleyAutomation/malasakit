@@ -173,7 +173,7 @@ msgstr "<strong>%(num_ratings)s</strong> katao na ang sumagot sa tanong na ito:"
 #: pcari/templates/peer-responses.html:50
 #, python-format
 msgid "Your answer: <strong id=\"answer-%(id)s\">None</strong>"
-msgstr "Ang iyong sagot: <strong id=\"answer-%(id)\">Wala</strong>"
+msgstr "Ang iyong sagot: <strong id=\"answer-%(id)s\">Wala</strong>"
 
 #: pcari/templates/peer-responses.html:55
 #, python-format
