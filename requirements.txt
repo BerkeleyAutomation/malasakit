@@ -7,3 +7,4 @@ pylint_django==0.7.2
 pyyaml==3.12
 django-htmlmin==0.10.0
 unicodecsv==0.14.1
+selenium==3.4.3

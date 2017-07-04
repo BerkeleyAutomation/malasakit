@@ -1,24 +1,3 @@
-from django.db import IntegrityError
-from django.test import LiveServerTestCase
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from django.urls import reverse
-
-from django.conf import settings
-
-import json
-
-from random import choice, randint, sample
-import string
-import time
-
-from .models import Respondent
-from .models import QuantitativeQuestion, QualitativeQuestion
-from .models import Comment, QuantitativeQuestionRating, CommentRating
-
-from selenium import webdriver
-from selenium.webdriver.support.select import Select
-
-
 """
 Integration tests using Selenium.
 Drawing inspiration from
@@ -43,17 +22,34 @@ Tests that we want but are harder to implement as part of Django test suite:
 Architectural thoughts:
 Writing multiple levels. Interfacing with a single UI element, responding to a question etc.
 """
+import json
+from random import choice, randint, sample
+import string
+import time
+
+from django.db import IntegrityError
+from django.test import LiveServerTestCase
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.urls import reverse
+from django.conf import settings
+
+from selenium import webdriver
+from selenium.webdriver.support.select import Select
+
+from .models import Respondent
+from .models import QuantitativeQuestion, QualitativeQuestion
+from .models import Comment, QuantitativeQuestionRating, CommentRating
+
 
 class TestDriver(webdriver.Chrome):
     """WebDriver with additional easy-to-use methods for manipulating UI
     elements"""
-    def __init__(self, desired_capabilities=None,chrome_options=None):
+    def __init__(self, desired_capabilities=None, chrome_options=None):
         webdriver.Chrome.__init__(self, chrome_options=chrome_options,
                                   desired_capabilities=desired_capabilities)
 
-    """Interfacing with individual UI elements"""
-
-    def set_text_box_val(self, element, val):
+    """Interfacing with individual UI elements""" #pylint: disable=pointless-string-statement
+    def set_text_box_val(self, element, val):  #pylint: disable=no-self-use
         """Sets a text box to a particular value by sending keystrokes.
 
         Naively sends keys in, does not check if input has constraints (e.g.
@@ -65,7 +61,7 @@ class TestDriver(webdriver.Chrome):
         """
         element.send_keys(val)
 
-    def set_select_val_by_ind(self, element, ind):
+    def set_select_val_by_ind(self, element, ind): #pylint: disable=no-self-use
         """Sets a select element's value to the option at a particular index.
 
         Args:
@@ -94,7 +90,7 @@ class TestDriver(webdriver.Chrome):
         min_range = int(element.get_attribute('min'))
         max_range = int(element.get_attribute('max'))
 
-        assert type(val) == int, "parameter val is not an int"
+        assert isinstance(val, int), "parameter val is not an int"
         assert (val >= min_range and val <= max_range), """val must be between
         %d and %d but it was %d""" % (min_range, max_range, val)
 
@@ -104,8 +100,7 @@ class TestDriver(webdriver.Chrome):
                 % (val)
         self.execute_script(script)
 
-    """Up one level- individual question-answering in each view"""
-
+    """Up one level- individual question-answering in each view""" #pylint: disable=pointless-string-statement
     def respond_comment(self, element, history):
         """Given a comment bubble element, clicks it and sets the slider to a
         given value.
@@ -181,31 +176,33 @@ class TestDriver(webdriver.Chrome):
         submit.click()
 
     """Up one more level- behavior at the view level (i.e. randomly fill out)
-    view and return the responses"""
+    view and return the responses""" #pylint: disable=pointless-string-statement
 
-    def quant_questions_random_responses(self):
+    def quant_questions_random_responses(self): #pylint: disable=invalid-name
         """Randomly assigns answers sequences to each quantitative question, by
         setting slider positions of each question multiple times. Returns
         answers in a list of lists where each inner list is the rating sequence
         that was inputted. Assumes driver is at quantitative questions view.
         Includes skipping (-1)."""
 
-        num_questions = 2 # TODO: pull from db during setup, set as class var
-
         responses = []
-        for i in range(num_questions):
+        i = 0
+        # Keeps answering quantitative questions until there are none left
+        # (we've moved onto a new view)
+        while "quantitative-questions" in self.current_url:
             # goes and gets the slider bounding div, goes up to capture
             # div that has that and buttons
-            q = self.find_element_by_id('answer').find_element_by_xpath('..')
+            question = self.find_element_by_id('answer').find_element_by_xpath('..')
             num_changes = randint(1, 8)
-            res_history = sample(range(0,10), num_changes) # unique
+            res_history = sample(range(0, 10), num_changes) # unique
 
             if i == 0:
                 res_history.append(-1)
                 # test a skip, -1 will skip the question at the end.
 
-            self.respond_quant_question(q, res_history)
+            self.respond_quant_question(question, res_history)
             responses.append(res_history)
+            i += 1
 
         return responses
 
@@ -223,7 +220,7 @@ class TestDriver(webdriver.Chrome):
         for i in range(count):
             # randomly draw a comment bubble from the list and respond to it
             num_changes = randint(1, 8)
-            res_history = sample(range(1,10), num_changes) # unique
+            res_history = sample(range(1, 10), num_changes) # unique
 
             if i == 0:
                 res_history.append(-1)
@@ -245,10 +242,10 @@ class TestDriver(webdriver.Chrome):
         qual_q_list = self.find_element_by_id('qualitative-questions') \
                           .find_elements_by_tag_name('textarea')
 
-        for q in qual_q_list:
+        for question in qual_q_list:
             res = randString(20)
             responses.append(res)
-            self.set_text_box_val(q, res)
+            self.set_text_box_val(question, res)
 
         return responses
 
@@ -264,8 +261,8 @@ class TestDriver(webdriver.Chrome):
         barangay_input = self.find_element_by_id('barangay') # input text box
 
         personal_info = {
-            'age': randint(0,99),
-            'gender': randint(0,2),
+            'age': randint(0, 99),
+            'gender': randint(0, 2),
             'province': randString(),
             'city': randString(),
             'barangay': randString()
@@ -279,7 +276,7 @@ class TestDriver(webdriver.Chrome):
 
         return personal_info
 
-    """Utility stuff"""
+    """Utility stuff""" #pylint: disable=pointless-string-statement
 
     def print_log(self, log):
         """Prints a log from driver.get_log."""
@@ -313,7 +310,7 @@ class TestDriver(webdriver.Chrome):
             to parse out JSON strings that we obtain from LocalStorage.
             """
             s = s[s.find("\"") + 1:s.rfind("\"")]
-            s = s.replace("\\","")
+            s = s.replace("\\", "")
             return s
 
         leftover = self.get_log('browser')
@@ -341,9 +338,9 @@ class TestDriver(webdriver.Chrome):
             try:
                 vals.append(json.loads(strip_output(entry['message'])))
             except Exception as e:
-                print("ERROR IN JSON PARSING")
-                print(entry['message'])
-                print(strip_output(entry['message']))
+                print "ERROR IN JSON PARSING"
+                print entry['message']
+                print strip_output(entry['message'])
                 raise e
         for k, v in zip(keys, vals):
             local_storage[k] = v
@@ -357,8 +354,10 @@ def randString(n=10):
 
 
 class AbstractSeleniumTestCase(StaticLiveServerTestCase):
-    """Abstract test case that is inherited from. Has setup
-    and decorators."""
+    """Abstract test case that is inherited from, all Selenium test cases
+    share the same ChromeDriver initialization procedure and debugging
+    decorators."""
+
     fixtures = ['selenium-questions.yaml', 'selenium-users.yaml']
 
     def setUp(self):
@@ -409,7 +408,6 @@ class AbstractSeleniumTestCase(StaticLiveServerTestCase):
                 raise e
 
         return check
-
 
 
     # enabling decorators for subclasses
@@ -479,7 +477,7 @@ class PageLoadTestCase(AbstractSeleniumTestCase):
         assert reverse('pcari:personal-information') in self.driver.current_url
 
         self.driver.get("%s%s" % (self.live_server_url,
-                             reverse('pcari:personal-information')))
+                                  reverse('pcari:personal-information')))
 
         self.inputs['personal-info'] = \
                                     self.driver.personal_info_random_responses()
@@ -490,8 +488,6 @@ class PageLoadTestCase(AbstractSeleniumTestCase):
         that didn't break flow, purge log, grab LocalStorage, and check
         its correctness (against randomized inputs)."""
         print "********* TEST SCRIPT ERRORS AND LOCAL STORAGE *********"
-
-        log = self.driver.get_log('browser')
 
         local_storage = self.driver.get_local_storage()
         current_user = local_storage[local_storage['current']['data']]['data']
@@ -506,8 +502,8 @@ class PageLoadTestCase(AbstractSeleniumTestCase):
             ls_score = current_user['question-ratings'][k]
             expected_list = self.inputs['quantitative-questions'][i]
             self.assertEqual(ls_score, expected_list[-1],
-                             'question %s: expected %s but got %s' % (k,
-                                              expected_list[-1], ls_score))
+                             """"question %s:
+                expected %s but got %s""" % (k, expected_list[-1], ls_score))
             # self.assertListEqual(ls_list, expected_list,
             #                      msg="""Incorrect history on quant q %s (index
             #                      %s), expected %s but got %s""" % (k, i,
@@ -519,8 +515,8 @@ class PageLoadTestCase(AbstractSeleniumTestCase):
         ls_ratings.sort()
         expected_ratings.sort()
         self.assertListEqual(ls_ratings, expected_ratings,
-                        "expected %s, got %s" % (str(expected_ratings),
-                                                 str(ls_ratings)))
+                             "expected %s, got %s" % (str(expected_ratings),
+                                                      str(ls_ratings)))
 
         # test qual question answers
         for k in current_user['comments'].keys():
@@ -541,7 +537,7 @@ class PageLoadTestCase(AbstractSeleniumTestCase):
 
     def test_flow_local_storage(self):
         """Clicks through views in appropriate order"""
-        print('')
+        print ""
         self.landing()
         self.quant_questions()
         self.rate_comments()
