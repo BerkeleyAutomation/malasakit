@@ -222,12 +222,13 @@ class TestDriver(webdriver.Chrome):
         for i in range(count):
             # randomly draw a comment bubble from the list and respond to it
             num_changes = randint(1, 8)
-            res_history = sample(range(0,10), num_changes) # unique
+            res_history = sample(range(1,10), num_changes) # unique
 
             if i == 0:
                 res_history.append(-1)
                 # test a skip, -1 will skip the question at the end.
 
+            print "COMMENT RES HISTORY: %s" % (res_history[-1])
             self.respond_comment(choice(bubbles), res_history)
             responses.append(res_history)
             # because responding to one redraws all, we need to "refresh" and
@@ -493,7 +494,7 @@ class PageLoadTestCase(StaticLiveServerTestCase):
         local_storage = self.driver.get_local_storage()
         current_user = local_storage[local_storage['current']['data']]['data']
 
-
+        print self.inputs
         print current_user
         # test quant question answers
         for k in current_user['question-ratings'].keys():
@@ -510,10 +511,13 @@ class PageLoadTestCase(StaticLiveServerTestCase):
             #                      %s), expected %s but got %s""" % (k, i,
             #                                    expected_list, ls_list))
 
-        # test number of comments rated
-        expected_num_comments_rated = len(self.inputs['rate-comments'])
-        ls_num_comments_rated = len(current_user['comment-ratings'])
-        self.assertEqual(ls_num_comments_rated, expected_num_comments_rated)
+        # test that comment ratings are identical (hard to get comment ids from UI)
+        ls_ratings = set(current_user['comment-ratings'].values())
+        expected_ratings = set([r[-1] for r in self.inputs['rate-comments']])
+
+        self.assertTrue(ls_ratings == expected_ratings,
+                        "expected %s, got %s" % (str(ls_ratings),
+                                                 str(expected_ratings)))
 
         # test qual question answers
         for k in current_user['comments'].keys():
