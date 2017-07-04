@@ -98,8 +98,9 @@ class TestDriver(webdriver.Chrome):
         assert (val >= min_range and val <= max_range), """val must be between
         %d and %d but it was %d""" % (min_range, max_range, val)
 
-        script = """$('#quantitative-input')
-                .val(%s).trigger('change')""" \
+        # assumes we only have one input[type=range] element per view
+        script = """$('input[type=range]')
+                .val(%s).trigger('input')""" \
                 % (val)
         self.execute_script(script)
 
@@ -228,7 +229,6 @@ class TestDriver(webdriver.Chrome):
                 res_history.append(-1)
                 # test a skip, -1 will skip the question at the end.
 
-            print "COMMENT RES HISTORY: %s" % (res_history[-1])
             self.respond_comment(choice(bubbles), res_history)
             responses.append(res_history)
             # because responding to one redraws all, we need to "refresh" and
@@ -296,6 +296,9 @@ class TestDriver(webdriver.Chrome):
         Args:
             print_leftover: default False, whether or not to print log contents
                             still present before getting LocalStorage
+
+        Returns: Dictionary with the same structure as the LocalStorage dict on
+                 the client.
 
         """
 
@@ -389,37 +392,37 @@ class PageLoadTestCase(StaticLiveServerTestCase):
         self.driver.get("%s%s" % (self.live_server_url,
                                   reverse("pcari:landing")))
 
-    def check_for_js_errors(fn):
-        """Decorator method, checks log after method execution for any
-        JS errors (logging level 'SEVERE')"""
+    def dump_driver_log_on_error(fn):
+        """Decorator method, if execption occurs in method execution then
+        this will print the driver log"""
         def check(self):
             # execute desired function (usually some action on a page)
-            fn(self)
-            log = self.driver.get_log('browser')
-            for entry in log:
-                # no uncaught errors in the browser log
-                self.assertTrue(entry['level'] != 'SEVERE',
-                                log)
-
+            self.driver.get_log('browser') # purge log before execution
+            try:
+                fn(self)
+            except Exception as e:
+                print "EXCEPTION ENCOUNTERED, DUMPING TEST DRIVER LOG"
+                log = self.driver.get_log('browser')
+                self.driver.print_log(log)
+                raise e
 
         return check
 
     """Methods for testing views. Each one should push inputs to corresponding
     key in dictionary self.inputs."""
 
-    # @check_for_js_errors
+    @dump_driver_log_on_error
     def landing(self):
         print "********* TEST LANDING PAGE ********"
         # check that we're actually on the page
         assert reverse('pcari:landing') in self.driver.current_url
 
         # self.driver.print_log(self.driver.get_log('browser'))
-        self.driver.get_screenshot_as_file('landing.png')
         self.driver.find_element_by_css_selector("a[href='%s']" % (reverse(
             'pcari:quantitative-questions'
         ))).click()
 
-    # @check_for_js_errors
+    @dump_driver_log_on_error
     def quant_questions(self):
         print "********* TEST QUANTITATIVE QUESTIONS *********"
         # check that we're actually on the page
@@ -428,15 +431,7 @@ class PageLoadTestCase(StaticLiveServerTestCase):
         self.inputs['quantitative-questions'] = \
                             self.driver.quant_questions_random_responses()
 
-
-        # self.driver.print_log(self.driver.get_log('browser'))
-        # self.driver.get_screenshot_as_file('quant-questions.png')
-        # Deprecated as there is no longer a proceed button
-        # self.driver.find_element_by_css_selector("a[href='%s']" % (reverse(
-        #     'pcari:rate-comments'
-        # ))).click()
-
-    # @check_for_js_errors
+    @dump_driver_log_on_error
     def rate_comments(self):
         print "********* TEST COMMENT BLOOM *********"
         # check that we're actually on the page
@@ -446,13 +441,11 @@ class PageLoadTestCase(StaticLiveServerTestCase):
                             self.driver.rate_comments_random_responses()
         # self.driver.print_log(self.driver.get_log('browser'))
 
-        self.driver.get_screenshot_as_file('rate-comments.png')
-
         self.driver.find_element_by_css_selector("a[href='%s']" % (
             reverse('pcari:qualitative-questions')
         )).click()
 
-    # @check_for_js_errors
+    @dump_driver_log_on_error
     def qual_questions(self):
         print "********* TEST QUALTITATIVE QUESTIONS *********"
         # check that we're actually on the page
@@ -461,14 +454,11 @@ class PageLoadTestCase(StaticLiveServerTestCase):
         self.inputs['qualitative-questions'] = \
                                 self.driver.qual_questions_random_responses()
 
-        # self.driver.print_log(self.driver.get_log('browser'))
-        self.driver.get_screenshot_as_file('qual-questions.png')
-
         self.driver.find_element_by_css_selector("a[href='%s']" % (
             reverse('pcari:personal-information')
         )).click()
 
-    # @check_for_js_errors
+    @dump_driver_log_on_error
     def personal_info(self):
         print "********* TEST PERSONAL INFO *********"
         # check that we're actually on the page
@@ -480,8 +470,6 @@ class PageLoadTestCase(StaticLiveServerTestCase):
         self.inputs['personal-info'] = \
                                     self.driver.personal_info_random_responses()
 
-        # self.driver.print_log(self.driver.get_log('browser'))
-        self.driver.get_screenshot_as_file('personal-info.png')
 
     def check_script_and_local_storage(self):
         """Final check before submission: look for any errors in JavaScript
@@ -512,12 +500,13 @@ class PageLoadTestCase(StaticLiveServerTestCase):
             #                                    expected_list, ls_list))
 
         # test that comment ratings are identical (hard to get comment ids from UI)
-        ls_ratings = set(current_user['comment-ratings'].values())
-        expected_ratings = set([r[-1] for r in self.inputs['rate-comments']])
-
-        self.assertTrue(ls_ratings == expected_ratings,
-                        "expected %s, got %s" % (str(ls_ratings),
-                                                 str(expected_ratings)))
+        ls_ratings = current_user['comment-ratings'].values()
+        expected_ratings = [r[-1] for r in self.inputs['rate-comments']]
+        ls_ratings.sort()
+        expected_ratings.sort()
+        self.assertListEqual(ls_ratings, expected_ratings,
+                        "expected %s, got %s" % (str(expected_ratings),
+                                                 str(ls_ratings)))
 
         # test qual question answers
         for k in current_user['comments'].keys():
