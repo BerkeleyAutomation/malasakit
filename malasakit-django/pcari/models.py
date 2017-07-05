@@ -30,6 +30,8 @@ __all__ = ['Comment', 'QuantitativeQuestionRating', 'CommentRating',
            'OptionQuestion', 'OptionQuestionChoice', 'MODELS']
 
 LANGUAGES = settings.LANGUAGES
+_LANGUAGE_CODES = [''] + [code for code, _ in LANGUAGES]
+LANGUAGE_VALIDATOR = RegexValidator(r'^({0})$'.format('|'.join(_LANGUAGE_CODES)))
 
 
 def get_concrete_fields(model):
@@ -288,7 +290,7 @@ class Comment(Response, StatisticsMixin):
                                  on_delete=models.CASCADE,
                                  related_name='comments')
     language = models.CharField(max_length=8, choices=LANGUAGES, blank=True,
-                                default='')
+                                default='', validators=[LANGUAGE_VALIDATOR])
     message = models.TextField(blank=True, default='')
     flagged = models.BooleanField(default=False)
     tag = models.CharField(max_length=256, blank=True, default='')
@@ -484,7 +486,7 @@ class Respondent(History):
                               default='', validators=[RegexValidator(r'^(|M|F)$')])
     location = models.CharField(max_length=512, blank=True, default='')
     language = models.CharField(max_length=8, choices=LANGUAGES, blank=True,
-                                default='')
+                                default='', validators=[LANGUAGE_VALIDATOR])
     submitted_personal_data = models.BooleanField(default=False)
     completed_survey = models.BooleanField(default=False)
 
