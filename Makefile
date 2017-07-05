@@ -21,7 +21,7 @@ lint: $(LINT_TARGETS:%.py=$(DJANGO_PROJECT_ROOT)/%.py)
 
 # Clean database
 cleandb:
-#	cd $(DJANGO_PROJECT_ROOT) && python2 manage.py cleantext $(CLEANTEXT_TARGETS)
+	cd $(DJANGO_PROJECT_ROOT) && python2 manage.py cleantext $(CLEANTEXT_TARGETS)
 
 # Prepare translations
 preparetrans:
