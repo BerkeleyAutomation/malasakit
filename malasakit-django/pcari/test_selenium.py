@@ -235,16 +235,18 @@ class TestDriver(webdriver.Chrome):
         return responses
 
     def qual_questions_random_responses(self):
-        """Randomly writes a response to a qualitative question. Returns the
-        response. Assumes driver is at qualitiative question view."""
-        responses = []
+        """Randomly writes responses to a qualitative questions. Returns the
+        response as a dict with the key being the 'question-id' attribute.
+        Assumes driver is at qualitiative question view."""
+        responses = {}
 
         qual_q_list = self.find_element_by_id('qualitative-questions') \
                           .find_elements_by_tag_name('textarea')
 
         for question in qual_q_list:
             res = randString(20)
-            responses.append(res)
+            question_id = question.get_attribute('question-id')
+            responses[question_id] = res
             self.set_text_box_val(question, res)
 
         return responses
@@ -520,9 +522,8 @@ class PageLoadTestCase(AbstractSeleniumTestCase):
 
         # test qual question answers
         for k in current_user['comments'].keys():
-            i = int(k) - 1 # keys are 1-indexed and strings
             comment = current_user['comments'][k]
-            expected_comment = self.inputs['qualitative-questions'][i]
+            expected_comment = self.inputs['qualitative-questions'][k]
             self.assertEqual(comment, expected_comment)
 
         # test personal info
