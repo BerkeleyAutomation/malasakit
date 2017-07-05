@@ -13,25 +13,41 @@ LOCALES=tl
 
 all: preparetrans compiletrans lint test
 
+install:
+	pip2 install -r requirements.txt
+	npm install --only=production
+
 test:
 	cd $(DJANGO_PROJECT_ROOT) && python2 manage.py test
 
 lint: $(LINT_TARGETS:%.py=$(DJANGO_PROJECT_ROOT)/%.py)
 	$(LINT_CMD) $(LINT_OPTIONS) $^
 
+# Create production database
+createproddb:
+	mysql -e 'CREATE DATABASE pcari;'
+#	cd $(DJANGO_PROJECT_ROOT) &&
+
+# Delete production database
+
 # Clean database
 cleandb:
 	cd $(DJANGO_PROJECT_ROOT) && python2 manage.py cleantext $(CLEANTEXT_TARGETS)
 
 # Prepare translations
+.ONESHELL:
 preparetrans:
-	cd $(DJANGO_PROJECT_ROOT) && python2 manage.py makedbtrans -o locale/db.pot $(DB_TRANS_TARGETS)
-	cd $(DJANGO_PROJECT_ROOT) && python2 manage.py makemessages --locale=$(LOCALES)
-	rm $(DJANGO_PROJECT_ROOT)/locale/db.pot
+	cd $(DJANGO_PROJECT_ROOT)
+	./manage.py makedbtrans -o locale/db.pot $(DB_TRANS_TARGETS)
+	./manage.py makemessages --locale=$(LOCALES)
+	rm -f locale/db.pot
 
 # Compile translations
 compiletrans:
 	cd $(DJANGO_PROJECT_ROOT) && python2 manage.py compilemessages
 
-deploy: compiletrans
-	cd $(DJANGO_PROJECT_ROOT)/cafe && sed -i -e 's/DEBUG\s*=\s*True/DEBUG = False/g' settings.py
+.ONESHELL:
+deploy: install compiletrans
+	export PATH=$$PATH:$(shell npm bin)
+	cd $(DJANGO_PROJECT_ROOT)
+	sed -i -e 's/DEBUG\s*=\s*True/DEBUG = False/g' cafe/settings.py

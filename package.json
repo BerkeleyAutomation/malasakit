@@ -1,10 +1,11 @@
 {
   "name": "malasakit-v1",
   "private": true,
+  "dependencies": {
+    "less": "^2.7.2"
+  },
   "devDependencies": {
-    "less": "^2.7.2",
     "watch-lessc": "^0.0.3",
-    "less-plugin-clean-css": "latest",
     "jshint": "^2.9.5"
   }
 }
