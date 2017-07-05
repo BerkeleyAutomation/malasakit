@@ -546,6 +546,8 @@ class PageLoadTestCase(AbstractSeleniumTestCase):
         )).click()
         self.driver.find_element_by_id('submit').click()
         self.assertEqual(Respondent.objects.count(), before + 1)
+        # we shouldn't need to test the correctness of the response in the db
+        # because that is already tested in the views
 
     def test_flow_local_storage(self):
         """Clicks through views in appropriate order"""
