@@ -32,3 +32,6 @@ preparetrans:
 # Compile translations
 compiletrans:
 	cd $(DJANGO_PROJECT_ROOT) && python2 manage.py compilemessages
+
+deploy: compiletrans
+	cd $(DJANGO_PROJECT_ROOT)/cafe && sed -i -e 's/DEBUG = True/DEBUG = False/g' settings.py
