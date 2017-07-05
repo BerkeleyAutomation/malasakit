@@ -109,7 +109,7 @@ function startCommentRating(commentID) {
         $('#quantitative-output').text(inputElement.val().toString() + '/9');
     };
 
-    inputElement.unbind('change');
+    inputElement.unbind('input');
     inputElement.on('input', function() {
         updateOutputReading();
         setResponseValue(path, parseInt(inputElement.val()));
