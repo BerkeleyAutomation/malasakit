@@ -30,7 +30,7 @@ __all__ = ['Comment', 'QuantitativeQuestionRating', 'CommentRating',
            'OptionQuestion', 'OptionQuestionChoice', 'MODELS']
 
 LANGUAGES = settings.LANGUAGES
-_LANGUAGE_CODES = [''] + [code for code, _ in LANGUAGES]
+_LANGUAGE_CODES = [''] + [code for code, name in LANGUAGES]
 LANGUAGE_VALIDATOR = RegexValidator(r'^({0})$'.format('|'.join(_LANGUAGE_CODES)))
 
 
@@ -425,14 +425,12 @@ class OptionQuestionChoice(Response):
                                  related_name='selections')
     option = models.TextField(blank=True)
 
-    def clean_fields(self, exclude=None):
-        super(OptionQuestionChoice, self).clean_fields(exclude)
-        exclude = [] if exclude is None else exclude
-        if 'option' not in exclude:
-            if self.option not in self.question.options:
-                raise ValidationError(_('"%(option)s" is not a valid option'),
-                                      code='invalid-selection',
-                                      params={'option': str(self.option)})
+    def clean(self):
+        super(OptionQuestionChoice, self).clean()
+        if self.option not in self.question.options:
+            raise ValidationError(_('"%(option)s" is not a valid option'),
+                                  code='invalid-selection',
+                                  params={'option': str(self.option)})
 
     def __unicode__(self):
         template = 'Option question choice {0}: "{1}"'
