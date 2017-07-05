@@ -48,7 +48,7 @@ class TestDriver(webdriver.Chrome):
         webdriver.Chrome.__init__(self, chrome_options=chrome_options,
                                   desired_capabilities=desired_capabilities)
 
-    """Interfacing with individual UI elements""" #pylint: disable=pointless-string-statement
+    # Interfacing with individual UI elements
     def set_text_box_val(self, element, val):  #pylint: disable=no-self-use
         """Sets a text box to a particular value by sending keystrokes.
 
@@ -100,7 +100,7 @@ class TestDriver(webdriver.Chrome):
                 % (val)
         self.execute_script(script)
 
-    """Up one level- individual question-answering in each view""" #pylint: disable=pointless-string-statement
+    # Up one level- individual question-answering in each view
     def respond_comment(self, element, history):
         """Given a comment bubble element, clicks it and sets the slider to a
         given value.
@@ -175,8 +175,8 @@ class TestDriver(webdriver.Chrome):
                 self.set_slider_val(slider, val)
         submit.click()
 
-    """Up one more level- behavior at the view level (i.e. randomly fill out)
-    view and return the responses""" #pylint: disable=pointless-string-statement
+    # Up one more level- behavior at the view level (i.e. randomly fill out) view
+    # and return the responses
 
     def quant_questions_random_responses(self): #pylint: disable=invalid-name
         """Randomly assigns answers sequences to each quantitative question, by
@@ -276,7 +276,7 @@ class TestDriver(webdriver.Chrome):
 
         return personal_info
 
-    """Utility stuff""" #pylint: disable=pointless-string-statement
+    # Utility stuff
 
     def print_log(self, log):
         """Prints a log from driver.get_log."""
@@ -535,6 +535,18 @@ class PageLoadTestCase(AbstractSeleniumTestCase):
         self.assertEqual(current_user['respondent-data']['barangay'],
                          self.inputs['personal-info']['barangay'])
 
+    @AbstractSeleniumTestCase.dump_driver_log_on_error
+    def submission(self):
+        """Submits the response. """
+        print "******** TEST RESPONSE SUBMISSION ********"
+        before = Respondent.objects.count()
+        # click the next button, should pull up a popup
+        self.driver.find_element_by_css_selector('a[href="%s"]' % reverse(
+            'pcari:peer-responses'
+        )).click()
+        self.driver.find_element_by_id('submit').click()
+        self.assertEqual(Respondent.objects.count(), before + 1)
+
     def test_flow_local_storage(self):
         """Clicks through views in appropriate order"""
         print ""
@@ -544,3 +556,4 @@ class PageLoadTestCase(AbstractSeleniumTestCase):
         self.qual_questions()
         self.personal_info()
         self.check_script_and_local_storage()
+        self.submission()
