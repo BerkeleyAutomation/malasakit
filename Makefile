@@ -2,6 +2,8 @@
 
 DJANGO_PROJECT_ROOT=malasakit-django
 
+APACHE_CONF_FILE=/etc/apache2/sites-available/opinion.conf
+
 LINT_TARGETS=\
 	cafe/settings.py\
 	cafe/urls.py\
@@ -17,10 +19,20 @@ LINT_TARGETS=\
 	pcari/urls.py\
 	pcari/views.py
 
+DB_TRANS_TARGETS=\
+	QuantitativeQuestion.prompt\
+	QuantitativeQuestion.left_anchor\
+	QuantitativeQuestion.right_anchor\
+	QualitativeQuestion.prompt
+
+LOCALES=tl
+
 CLEANTEXT_TARGETS=\
 	Comment.message\
 	Comment.tag\
 	Respondent.location
+
+STATIC_ROOT_CMD=./manage.py shell -c 'from django.conf import settings; print(settings.STATIC_ROOT)'
 
 install:
 	pip2 install -r requirements.txt
@@ -31,6 +43,14 @@ lint: $(LINT_TARGETS:%.py=$(DJANGO_PROJECT_ROOT)/%.py)
 
 test:
 	cd $(DJANGO_PROJECT_ROOT) && ./manage.py test
+
+preparetrans:
+	cd $(DJANGO_PROJECT_ROOT) && ./manage.py makedbtrans -o locale/db.pot $(DB_TRANS_TARGETS)
+	cd $(DJANGO_PROJECT_ROOT) && ./manage.py makemessages --locale=$(LOCALES)
+	rm -f $(DJANGO_PROJECT_ROOT)/locale/db.pot
+
+compiletrans:
+	cd $(DJANGO_PROJECT_ROOT) && ./manage.py compilemessages --locale=$(LOCALES)
 
 cleandb:
 	cd $(DJANGO_PROJECT_ROOT) && ./manage.py clearsessions
@@ -45,6 +65,6 @@ disabledebug:
 collectstatic: compilestatic
 	cd $(DJANGO_PROJECT_ROOT) && ./manage.py collectstatic --no-input
 
-deploy: disabledebug compilestatic
-	$(eval STATIC_ROOT=$(shell cd $(DJANGO_PROJECT_ROOT) && ./manage.py shell -c 'from django.conf import settings; print settings.STATIC_ROOT'))
+deploy: disabledebug collectstatic compiletrans
+	$(eval STATIC_ROOT=$(shell cd $(DJANGO_PROJECT_ROOT) && $(STATIC_ROOT_CMD)))
 	cd $(STATIC_ROOT)/css && rm *.less
