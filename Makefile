@@ -34,9 +34,16 @@ CLEANTEXT_TARGETS=\
 
 STATIC_ROOT_CMD=./manage.py shell -c 'from django.conf import settings; print(settings.STATIC_ROOT)'
 
+CREATE_PROD_DB_QUERY=\
+	CREATE DATABASE IF NOT EXISTS pcari CHARACTER SET utf8;\
+	GRANT ALL PRIVILEGES ON pcari.* TO root@localhost;\
+	FLUSH PRIVILEGES;
+
 install:
 	pip2 install -r requirements.txt
 	npm install --only=production
+
+all: deploy lint test
 
 lint: $(LINT_TARGETS:%.py=$(DJANGO_PROJECT_ROOT)/%.py)
 	pylint --output-format=colorized --rcfile=.pylintrc $^
@@ -51,6 +58,13 @@ preparetrans:
 
 compiletrans:
 	cd $(DJANGO_PROJECT_ROOT) && ./manage.py compilemessages --locale=$(LOCALES)
+
+createproddb:
+	mysql -e '$(CREATE_PROD_DB_QUERY)' -u root --password="$(shell printenv mysql_pass)"
+	cd $(DJANGO_PROJECT_ROOT) && ./manage.py migrate --run-syncdb
+
+deleteproddb:
+	mysql -e 'DROP DATABASE pcari;' -u root --password="$(shell printenv mysql_pass)"
 
 cleandb:
 	cd $(DJANGO_PROJECT_ROOT) && ./manage.py clearsessions
