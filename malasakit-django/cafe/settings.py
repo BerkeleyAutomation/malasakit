@@ -119,6 +119,9 @@ DATABASES = {
         'NAME': 'pcari',
         'USER': 'root',
         'PASSWORD': os.environ.get('mysql_pass'),
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
     }
 }
 
