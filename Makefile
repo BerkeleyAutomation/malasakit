@@ -2,52 +2,49 @@
 
 DJANGO_PROJECT_ROOT=malasakit-django
 
-LINT_CMD=pylint
-LINT_OPTIONS=--output-format=colorized --rcfile=.pylintrc
-# List of Python source files to inspect for PEP8 compliance
-LINT_TARGETS=cafe/settings.py cafe/urls.py cafe/wsgi.py pcari/management/commands/__init__.py pcari/management/commands/cleantext.py pcari/management/commands/makedbtrans.py pcari/management/commands/makemessages.py pcari/templatetags/localize_url.py pcari/admin.py pcari/apps.py pcari/signals.py pcari/urls.py pcari/views.py
+LINT_TARGETS=\
+	cafe/settings.py\
+	cafe/urls.py\
+	cafe/wsgi.py\
+	pcari/management/commands/__init__.py\
+	pcari/management/commands/cleantext.py\
+	pcari/management/commands/makedbtrans.py\
+	pcari/management/commands/makemessages.py\
+	pcari/templatetags/localize_url.py\
+	pcari/admin.py\
+	pcari/apps.py\
+	pcari/signals.py\
+	pcari/urls.py\
+	pcari/views.py
 
-CLEANTEXT_TARGETS=Comment.message Respondent.location
-DB_TRANS_TARGETS=QuantitativeQuestion.prompt QuantitativeQuestion.left_anchor QuantitativeQuestion.right_anchor QualitativeQuestion.prompt
-LOCALES=tl
-
-all: preparetrans compiletrans lint test
+CLEANTEXT_TARGETS=\
+	Comment.message\
+	Comment.tag\
+	Respondent.location
 
 install:
 	pip2 install -r requirements.txt
 	npm install --only=production
 
-test:
-	cd $(DJANGO_PROJECT_ROOT) && python2 manage.py test
-
 lint: $(LINT_TARGETS:%.py=$(DJANGO_PROJECT_ROOT)/%.py)
-	$(LINT_CMD) $(LINT_OPTIONS) $^
+	pylint --output-format=colorized --rcfile=.pylintrc $^
 
-# Create production database
-createproddb:
-	mysql -e 'CREATE DATABASE pcari;'
-#	cd $(DJANGO_PROJECT_ROOT) &&
+test:
+	cd $(DJANGO_PROJECT_ROOT) && ./manage.py test
 
-# Delete production database
-
-# Clean database
 cleandb:
-	cd $(DJANGO_PROJECT_ROOT) && python2 manage.py cleantext $(CLEANTEXT_TARGETS)
+	cd $(DJANGO_PROJECT_ROOT) && ./manage.py clearsessions
+	cd $(DJANGO_PROJECT_ROOT) && ./manage.py cleantext $(CLEANTEXT_TARGETS)
 
-# Prepare translations
-.ONESHELL:
-preparetrans:
-	cd $(DJANGO_PROJECT_ROOT)
-	./manage.py makedbtrans -o locale/db.pot $(DB_TRANS_TARGETS)
-	./manage.py makemessages --locale=$(LOCALES)
-	rm -f locale/db.pot
+compilestatic: install
+	cd $(DJANGO_PROJECT_ROOT)/pcari/static/css && lessc -x main.less main.min.css
 
-# Compile translations
-compiletrans:
-	cd $(DJANGO_PROJECT_ROOT) && python2 manage.py compilemessages
+disabledebug:
+	sed -i -e 's/DEBUG\s*=\s*True/DEBUG = False/g' $(DJANGO_PROJECT_ROOT)/cafe/settings.py
 
-.ONESHELL:
-deploy: install compiletrans
-	export PATH=$$PATH:$(shell npm bin)
-	cd $(DJANGO_PROJECT_ROOT)
-	sed -i -e 's/DEBUG\s*=\s*True/DEBUG = False/g' cafe/settings.py
+collectstatic: compilestatic
+	cd $(DJANGO_PROJECT_ROOT) && ./manage.py collectstatic --no-input
+
+deploy: disabledebug compilestatic
+	$(eval STATIC_ROOT=$(shell cd $(DJANGO_PROJECT_ROOT) && ./manage.py shell -c 'from django.conf import settings; print settings.STATIC_ROOT'))
+	cd $(STATIC_ROOT)/css && rm *.less
