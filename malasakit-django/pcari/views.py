@@ -18,6 +18,7 @@ from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
 from django.urls import reverse
 from django.utils import translation
@@ -512,6 +513,7 @@ def index(request):
 
 
 @profile
+@ensure_csrf_cookie
 def landing(request):
     """ Render a landing page. """
     context = {'num_responses': Respondent.objects.filter(active=True).count()}
@@ -519,12 +521,14 @@ def landing(request):
 
 
 @profile
+@ensure_csrf_cookie
 def quantitative_questions(request):
     """ Render a page asking respondents to rate statements. """
     return render(request, 'quantitative-questions.html')
 
 
 @profile
+@ensure_csrf_cookie
 def peer_responses(request):
     """ Render a page showing respondents how others rated the quantitative questions. """
     context = {'questions': QuantitativeQuestion.objects.filter(active=True).all()}
@@ -532,12 +536,14 @@ def peer_responses(request):
 
 
 @profile
+@ensure_csrf_cookie
 def rate_comments(request):
     """ Render a bloom page where respondents can rate comments by others. """
     return render(request, 'rate-comments.html')
 
 
 @profile
+@ensure_csrf_cookie
 def qualitative_questions(request):
     """ Render a page asking respondents for comments (i.e. suggestions). """
     context = {'questions': QualitativeQuestion.objects.filter(active=True).all()}
@@ -545,12 +551,14 @@ def qualitative_questions(request):
 
 
 @profile
+@ensure_csrf_cookie
 def personal_information(request):
     """ Render a page asking respondents for personal information. """
     return render(request, 'personal-information.html')
 
 
 @profile
+@ensure_csrf_cookie
 def end(request):
     """ Render an end-of-survey page. """
     return render(request, 'end.html')
