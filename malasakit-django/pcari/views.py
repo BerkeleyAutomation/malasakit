@@ -565,7 +565,7 @@ def end(request):
 
 
 @profile
-def handle_page_not_found(request):
+def handle_page_not_found(request, error):
     """ Render a page for HTTP 404 errors (page not found). """
     context = {'heading': _('Page Not Found'),
                'message': _('The requested page does not appear to exist.')}
@@ -573,7 +573,7 @@ def handle_page_not_found(request):
 
 
 @profile
-def handle_internal_server_error(request):
+def handle_internal_server_error(request, error):
     """ Render a page for HTTP 500 errors (internal server error). """
     context = {'heading': _('Internal Error'),
                'message': _('The server is currently experiencing some issues. '
