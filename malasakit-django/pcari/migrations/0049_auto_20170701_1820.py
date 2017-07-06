@@ -30,8 +30,7 @@ def populate_quantitative_question_ratings_forward(apps, schema_editor):
     db_alias = schema_editor.connection.alias
 
     for rating in Rating.objects.using(db_alias).all():
-        question = QuantitativeQuestion.objects.get(qid=rating.qid)
-        question.save()
+        question = QuantitativeQuestion.objects.get(id=rating.qid)
         QuantitativeQuestionRating.objects.using(db_alias).create(
             respondent_id=rating.user_id,
             question_id=question.id,
@@ -88,16 +87,14 @@ def populate_comment_ratings_forward(apps, schema_editor):
         else:
             try:
                 rating.comment = Comment.objects.using(db_alias).get(id=rating.cid)
+                rating.respondent = Respondent.objects.using(db_alias).get(id=rating.user_id)
+                rating.save()
             except Comment.DoesNotExist:
                 print('=> Deleting comment rating (no comment)')
                 rating.delete()
-
-            try:
-                rating.respondent = Respondent.objects.using(db_alias).get(id=rating.user_id)
             except Respondent.DoesNotExist:
                 print('=> Deleting comment rating (no respondent)')
-
-            rating.save()
+                rating.delete()
 
 
 def delete_duplicate_comment_ratings_forward(apps, schema_editor):
@@ -179,16 +176,15 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.RunPython(populate_respondents_forward),
+        migrations.RenameField(
+            model_name='quantitativequestion',
+            old_name='qid',
+            new_name='id',
+        ),
         migrations.AlterField(
             model_name='quantitativequestion',
-            name='qid',
-            field=models.IntegerField(),
-        ),
-        migrations.AddField(
-            model_name='quantitativequestion',
             name='id',
-            field=models.AutoField(auto_created=True, default=None, primary_key=True, serialize=False, verbose_name='ID'),
-            preserve_default=False,
+            field=models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
         ),
         migrations.AddField(
             model_name='quantitativequestionrating',
@@ -257,6 +253,12 @@ class Migration(migrations.Migration):
             model_name='qualitativequestion',
             name='qid',
         ),
+        migrations.AddField(
+            model_name='qualitativequestion',
+            name='id',
+            field=models.AutoField(auto_created=True, default=None, primary_key=True, serialize=False, verbose_name='ID'),
+            preserve_default=False,
+        ),
         migrations.RemoveField(
             model_name='qualitativequestion',
             name='question',
@@ -265,12 +267,6 @@ class Migration(migrations.Migration):
             model_name='qualitativequestion',
             name='active',
             field=models.BooleanField(default=True),
-        ),
-        migrations.AddField(
-            model_name='qualitativequestion',
-            name='id',
-            field=models.AutoField(auto_created=True, default=None, primary_key=True, serialize=False, verbose_name='ID'),
-            preserve_default=False,
         ),
         migrations.AddField(
             model_name='qualitativequestion',
@@ -349,10 +345,6 @@ class Migration(migrations.Migration):
             model_name='quantitativequestion',
             name='number_rated',
         ),
-        migrations.RemoveField(
-            model_name='quantitativequestion',
-            name='qid',
-        ),
         migrations.AlterField(
             model_name='quantitativequestion',
             name='question',
@@ -391,6 +383,7 @@ class Migration(migrations.Migration):
             preserve_default=False,
         ),
         migrations.RunPython(populate_comment_ratings_forward),
+        migrations.RunPython(delete_duplicate_comment_ratings_forward),
         migrations.AddField(
             model_name='commentrating',
             name='predecessor',
@@ -475,7 +468,6 @@ class Migration(migrations.Migration):
             model_name='commentrating',
             name='user',
         ),
-        migrations.RunPython(delete_duplicate_comment_ratings_forward),
         migrations.AlterUniqueTogether(
             name='commentrating',
             unique_together=set([('respondent', 'comment')]),

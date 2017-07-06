@@ -77,7 +77,6 @@ ENV/
 # Data
 *.sqlite3
 *.sqlite3-journal
-*.json
 *.csv
 *.xlsx
 
@@ -86,3 +85,10 @@ ENV/
 
 # Minified static assets
 *.min.*
+
+# Node modules and related files
+node_modules/
+package-lock.json
+
+# Other
+bloom-icon.json
