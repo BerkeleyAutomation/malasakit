@@ -26,7 +26,7 @@ Writing multiple levels. Interfacing with a single UI element, responding to a q
 from django.urls import reverse
 
 from pcari.selenium_utilities import AbstractSeleniumTestCase
-
+import time
 from .models import Respondent
 
 
@@ -165,6 +165,7 @@ class PageLoadTestCase(AbstractSeleniumTestCase):
             'pcari:peer-responses'
         )).click()
         self.driver.find_element_by_id('submit').click()
+        time.sleep(0.5) # give the server time to receive the response and add to db
         self.assertEqual(Respondent.objects.count(), before + 1) #pylint: disable=no-member
         # we shouldn't need to test the correctness of the response in the db
         # because that is already tested in the views
