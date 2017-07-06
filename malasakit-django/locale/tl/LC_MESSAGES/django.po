@@ -148,7 +148,7 @@ msgid ""
 "citizens have responded. Join them!"
 msgstr ""
 "Gaano ka kahanda sa panahon ng kalamidad? %(num_responses)s na ang "
-"nagMALASAKIT. Sali na!"
+"nag MALASAKIT. Sali na!"
 
 #: pcari/templates/landing.html:28
 msgid "Begin"

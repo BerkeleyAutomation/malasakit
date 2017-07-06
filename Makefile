@@ -71,7 +71,7 @@ cleandb:
 	cd $(DJANGO_PROJECT_ROOT) && ./manage.py cleantext $(CLEANTEXT_TARGETS)
 
 compilestatic: install
-	cd $(DJANGO_PROJECT_ROOT)/pcari/static/css && lessc -x main.less main.min.css
+	cd $(DJANGO_PROJECT_ROOT)/pcari/static/css && export PATH=$$PATH:$(shell npm bin) && lessc -x main.less main.min.css
 
 disabledebug:
 	sed -i -e 's/DEBUG\s*=\s*True/DEBUG = False/g' $(DJANGO_PROJECT_ROOT)/cafe/settings.py
