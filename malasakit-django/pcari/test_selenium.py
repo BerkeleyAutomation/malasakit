@@ -41,76 +41,47 @@ class PageLoadTestCase(AbstractSeleniumTestCase):
 
     @AbstractSeleniumTestCase.dump_driver_log_on_error
     def landing(self):
-        """Testing landing page."""
-        print "********* TEST LANDING PAGE ********"
-        # check that we're actually on the page
-        assert reverse('pcari:landing') in self.driver.current_url
-
-        # self.driver.print_log(self.driver.get_log('browser'))
-        self.driver.find_element_by_css_selector("a[href='%s']" % (reverse(
-            'pcari:quantitative-questions'
-        ))).click()
+        self.assertIn(reverse('pcari:landing'), self.driver.current_url)
+        self.driver.find_element_by_id('next').click()
 
     @AbstractSeleniumTestCase.dump_driver_log_on_error
     def quant_questions(self):
-        """Testing quant questions page."""
-        print "********* TEST QUANTITATIVE QUESTIONS *********"
-        # check that we're actually on the page
-        assert reverse('pcari:quantitative-questions') in self.driver.current_url
-
+        self.assertIn(reverse('pcari:quantitative-questions'), self.driver.current_url)
         self.inputs['quantitative-questions'] = \
                             self.driver.quant_questions_random_responses()
 
     @AbstractSeleniumTestCase.dump_driver_log_on_error
     def rate_comments(self):
-        """Testing rating comments page."""
-        print "********* TEST COMMENT BLOOM *********"
-        # check that we're actually on the page
-        assert reverse('pcari:rate-comments') in self.driver.current_url
-
+        self.assertIn(reverse('pcari:rate-comments'), self.driver.current_url)
         self.inputs['rate-comments'] = \
                             self.driver.rate_comments_random_responses()
-        # self.driver.print_log(self.driver.get_log('browser'))
 
-        self.driver.find_element_by_css_selector("a[href='%s']" % (
-            reverse('pcari:qualitative-questions')
-        )).click()
+        self.driver.find_element_by_id('next').click()
 
     @AbstractSeleniumTestCase.dump_driver_log_on_error
     def qual_questions(self):
-        """Testing qualitative questions page."""
-        print "********* TEST QUALTITATIVE QUESTIONS *********"
-        # check that we're actually on the page
-        assert reverse('pcari:qualitative-questions') in self.driver.current_url
+        self.assertIn(reverse('pcari:qualitative-questions'), self.driver.current_url)
 
         self.inputs['qualitative-questions'] = \
                                 self.driver.qual_questions_random_responses()
 
-        self.driver.find_element_by_css_selector("a[href='%s']" % (
-            reverse('pcari:personal-information')
-        )).click()
+        self.driver.find_element_by_id('next').click()
 
     @AbstractSeleniumTestCase.dump_driver_log_on_error
     def personal_info(self):
-        """Testing personal info page"""
-        print "********* TEST PERSONAL INFO *********"
-        # check that we're actually on the page
-        assert reverse('pcari:personal-information') in self.driver.current_url
+        self.assertIn(reverse('pcari:personal-information'), self.driver.current_url)
 
         self.driver.get("%s%s" % (self.live_server_url,
                                   reverse('pcari:personal-information')))
 
-        self.inputs['personal-info'] = \
-                                    self.driver.personal_info_random_responses()
+        self.inputs['personal-info'] = self.driver.personal_info_random_responses()
 
 
     def check_script_and_local_storage(self):
         """Final check before submission: look for any errors in JavaScript
         that didn't break flow, purge log, grab LocalStorage, and check
         its correctness (against randomized inputs)."""
-        print "********* TEST SCRIPT ERRORS AND LOCAL STORAGE *********"
-
-        local_storage = self.driver.get_local_storage()
+        local_storage = self.driver.local_storage
         current_user = local_storage[local_storage['current']['data']]['data']
 
         print self.inputs
@@ -158,21 +129,17 @@ class PageLoadTestCase(AbstractSeleniumTestCase):
     @AbstractSeleniumTestCase.dump_driver_log_on_error
     def submission(self):
         """Submits the response. """
-        print "******** TEST RESPONSE SUBMISSION ********"
-        before = Respondent.objects.count() #pylint: disable=no-member
+        before = Respondent.objects.count()
         # click the next button, should pull up a popup
-        self.driver.find_element_by_css_selector('a[href="%s"]' % reverse(
-            'pcari:peer-responses'
-        )).click()
+        self.driver.find_element_by_id('next').click()
         self.driver.find_element_by_id('submit').click()
         time.sleep(0.5) # give the server time to receive the response and add to db
-        self.assertEqual(Respondent.objects.count(), before + 1) #pylint: disable=no-member
+        self.assertEqual(Respondent.objects.count(), before + 1)
         # we shouldn't need to test the correctness of the response in the db
         # because that is already tested in the views
 
     def test_flow_local_storage(self):
         """Clicks through views in appropriate order"""
-        print ""
         self.landing()
         self.quant_questions()
         self.rate_comments()

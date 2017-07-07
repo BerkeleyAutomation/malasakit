@@ -20,12 +20,8 @@ from selenium.webdriver.support.select import Select
 class TestDriver(webdriver.Chrome):
     """WebDriver with additional easy-to-use methods for manipulating UI
     elements"""
-    def __init__(self, desired_capabilities=None, chrome_options=None):
-        webdriver.Chrome.__init__(self, chrome_options=chrome_options,
-                                  desired_capabilities=desired_capabilities)
-
     # Interfacing with individual UI elements
-    def set_text_box_val(self, element, val):  #pylint: disable=no-self-use
+    def set_text_box_val(self, element, val):
         """Sets a text box to a particular value by sending keystrokes.
 
         Naively sends keys in, does not check if input has constraints (e.g.
@@ -37,7 +33,7 @@ class TestDriver(webdriver.Chrome):
         """
         element.send_keys(val)
 
-    def set_select_val_by_ind(self, element, ind): #pylint: disable=no-self-use
+    def set_select_val_by_ind(self, element, ind):
         """Sets a select element's value to the option at a particular index.
 
         Args:
@@ -263,18 +259,13 @@ class TestDriver(webdriver.Chrome):
                 entry['source'], entry['level'],
                 entry['message'])
 
-    def get_local_storage(self, print_leftover=False):
-        """Gets browser localStorage and converts to a Python dict. IMPORTANT:
-        Purges the log before executing scripts; any other log output that has
-        been accumulated will be lost.
+    @property
+    def local_storage(self):
+        """
+        Fetches the contents of the browser's `localStorage` object.
 
-        Args:
-            print_leftover: default False, whether or not to print log contents
-                            still present before getting LocalStorage
-
-        Returns: Dictionary with the same structure as the LocalStorage dict on
-                 the client.
-
+        Returns:
+            The `localStorage` object as a Python `dict`.
         """
         return self.execute_script("""
         var items = {};
@@ -330,6 +321,7 @@ class AbstractSeleniumTestCase(StaticLiveServerTestCase):
         self.driver.get("%s%s" % (self.live_server_url,
                                   reverse("pcari:landing")))
 
+    @staticmethod
     def dump_driver_log_on_error(func):
         """Decorator method, if execption occurs in method execution then
         this will print the driver log"""
@@ -345,9 +337,3 @@ class AbstractSeleniumTestCase(StaticLiveServerTestCase):
                 raise err
 
         return check
-
-
-    # enabling decorators for subclasses...seeking a better option
-    # https://stackoverflow.com/questions/3421337/
-    # accessing-a-decorator-in-a-parent-class-from-the-child-in-python
-    dump_driver_log_on_error = staticmethod(dump_driver_log_on_error) #pylint: disable=no-staticmethod-decorator
