@@ -276,54 +276,14 @@ class TestDriver(webdriver.Chrome):
                  the client.
 
         """
-
-        def strip_output(log):
-            """Removes console stuff and redundant backslashes from
-            console log strings.
-
-            The 'message' field of a log entry that Selenium obtains from
-            ChromeDriver is not just what is printed to the console- it includes
-            other info about line numbers and sources. Additionally, strings
-            are sometimes escaped when they need not be. This makes it difficult
-            to parse out JSON strings that we obtain from LocalStorage.
-            """
-            log = log[log.find("\"") + 1:log.rfind("\"")]
-            log = log.replace("\\", "")
-            return log
-
-        leftover = self.get_log('browser')
-        if print_leftover:
-            print "LEFTOVER IN LOG:"
-            self.print_log(leftover) # purges log and displays output
-
-        script_get_ls_keys = """Object.keys(localStorage).forEach(function(s){
-            console.log(s);
-        })"""
-
-        script_get_ls_values = """Object.values(localStorage).
-        forEach(function (s) {
-            console.log(s)
-        })"""
-
-        local_storage = {}
-        self.execute_script(script_get_ls_keys)
-        keys = [strip_output(entry['message']) \
-                for entry in self.get_log('browser')]
-
-        self.execute_script(script_get_ls_values)
-        vals = []
-        for entry in self.get_log('browser'):
-            try:
-                vals.append(json.loads(strip_output(entry['message'])))
-            except Exception as err:
-                print "ERROR IN JSON PARSING"
-                print entry['message']
-                print strip_output(entry['message'])
-                raise err
-        for key, val in zip(keys, vals):
-            local_storage[key] = val
-
-        return local_storage
+        return self.execute_script("""
+        var items = {};
+        for (var index = 0; index < localStorage.length; index++) {
+            var key = localStorage.key(index);
+            items[key] = JSON.parse(localStorage.getItem(key));
+        }
+        return items;
+        """)
 
 
 def rand_string(length=10):
