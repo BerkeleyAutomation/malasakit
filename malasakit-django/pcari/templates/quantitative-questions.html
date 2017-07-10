@@ -29,10 +29,11 @@
       return questionIDs.length - 1;
     }
 
+    var LANGUAGE = $('html').attr('lang') || DEFAULT_LANGUAGE;
+
     function renderQuestion(questionIDs, index) {
-      var language = $('html').attr('lang') || DEFAULT_LANGUAGE;
       if (index >= questionIDs.length) {
-        redirect(APP_URL_ROOT + '/' + language + '/rate-comments/');
+        redirect(APP_URL_ROOT + '/' + LANGUAGE + '/rate-comments/');
       }
 
       if (index === 0) {
@@ -93,6 +94,9 @@
     }
 
     const QUESTION_IDS = getSortedQuestionIDs();
+    if (QUESTION_IDS.length === 0) {
+      redirect(APP_URL_ROOT + '/' + LANGUAGE + '/rate-comments/');
+    }
     var questionIndex = currentQuestionIndex(QUESTION_IDS);
 
     $(document).ready(function() {
