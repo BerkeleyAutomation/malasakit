@@ -8,198 +8,285 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-23 22:47+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"POT-Creation-Date: 2017-07-05 23:44+0000\n"
+"PO-Revision-Date: 2017-07-03 20:00+0800\n"
+"Last-Translator: JEFFREY ANCHETA <jrancheta@national-u.edu.ph>\n"
+"Language-Team: FILIPINO\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: QuantitativeQuestion.prompt:1
+#, fuzzy
+#| msgid "I have suffered the consequence of a typhoon or flood."
 msgid "I have suffered the consequence of a typhoon or flood"
-msgstr ""
+msgstr "Malawak at mabigat ang epekto ng bagyo o pagbabaha sa akin."
 
 #: QuantitativeQuestion.prompt:2
 msgid "I feel prepared to handle a major typhoon right now."
-msgstr ""
+msgstr "Nararamdaman kong handa ako ngayong harapin ang malakas na bagyo."
 
 #: QuantitativeQuestion.prompt:3
 msgid "The barangay’s typhoon Early Warning System is effective."
-msgstr ""
+msgstr "Epektibo ang Early Warning System ng barangay tuwing may bagyo."
 
 #: QuantitativeQuestion.prompt:4
 msgid ""
 "My family has identified a place to meet and ways to communicate in a "
 "disaster."
 msgstr ""
+"Tuwing may sakuna, may lugar na napagkasunduan ang aking pamilya kung saan "
+"magkikita-kita at may tinukoy kaming paraan ng komunikasyon."
 
 #: QuantitativeQuestion.prompt:5
 msgid ""
 "How many days of disaster supplies (e.g., canned food, bottled water, "
 "medicine) are immediately available to you in your home?"
 msgstr ""
+"Hanggang ilang araw tatagal ang naitabing gamit (gaya ng delata, inuming "
+"tubig, gamot) sa inyong tahanan kung may kalamidad?"
 
 #: QuantitativeQuestion.prompt:6
 msgid ""
 "I feel like I could count on my nearest neighbors for support when "
 "recovering from a major typhoon."
 msgstr ""
+"Nararamdaman kong maaasahan ko ang tulong ng aking mga kapitbahay sa muling "
+"pagbangon matapos ang malakas na bagyo."
 
 #: QuantitativeQuestion.prompt:7
 msgid ""
 "I believe our barangay will help my community repair and rebuild after a "
 "major typhoon."
 msgstr ""
+"Naniniwala akong tutulong ang aming barangay na muling maisaayos at maitayo "
+"ang aming pamayanan matapos ang malakas na bagyo."
 
 #: QuantitativeQuestion.prompt:8
 msgid "How many weeks has it been since you participated in a disaster drill?"
 msgstr ""
+"Ilang linggo na ang lumipas mula nang nakilahok ka sa isang disaster drill?"
 
 #: QualitativeQuestion.prompt:1
 msgid "How could your Barangay help you better prepare for a disaster?"
 msgstr ""
+"Paano ka matutulungan ng iyong barangay upang higit na makapaghanda sa isang "
+"kalamidad?"
 
-#: cafe/settings.py:120
+#: cafe/settings.py:152
 msgid "English"
-msgstr ""
+msgstr "Ingles"
 
-#: cafe/settings.py:121
+#: cafe/settings.py:153
 msgid "Filipino"
-msgstr ""
+msgstr "Filipino"
+
+#: pcari/models.py:243
+msgid "Score not in min and max bounds"
+msgstr "Wala sa saklaw ang ibinigay na sagot"
+
+#: pcari/models.py:431
+#, python-format
+msgid "\"%(option)s\" is not a valid option"
+msgstr "\"%(option)s\" ay wala sa mga pagpipilian"
+
+#: pcari/templates/admin/base.html:7
+msgid "Configuration"
+msgstr "Kompigurasiyon"
+
+#: pcari/templates/admin/base.html:9 pcari/templates/admin/statistics.html:5
+#: pcari/templates/admin/statistics.html:158
+msgid "Statistics"
+msgstr "Istatistika"
+
+#: pcari/templates/admin/configuration.html:5
+#: pcari/templates/admin/configuration.html:38
+msgid "Site configuration"
+msgstr "Kompigurasiyon ng site"
+
+#: pcari/templates/admin/configuration.html:40
+msgid "Change bloom icon"
+msgstr "Palitan ang imahe"
+
+#: pcari/templates/admin/configuration.html:45
+#: pcari/templates/quantitative-questions.html:160
+#: pcari/templates/rate-comments.html:55
+msgid "Submit"
+msgstr "Ipasa"
+
+#: pcari/templates/admin/statistics.html:160
+msgid "Quantitative question rating distributions"
+msgstr "Resulta ng mga kuwantitatibong katanungan"
 
 #: pcari/templates/base.html:53
 msgid ""
 "A project by the CITRIS Connected Communities Initiative at UC Berkeley and "
-"the Philippine Commission on Higher Education through the Philippine-"
-"California Advanced Research Institutes Project."
+"National University, Philippines through the Philippine-California Advanced "
+"Research Institutes Project."
 msgstr ""
 "Isang proyekto ng CITRIS Connected Communities Initiative ng UC Berkeley, at "
-"ng Commission on Higher Education ng Pilipinas sa pamamagitan ng Philippine-"
-"California Advanced Research Institutes Project"
+"ng National University sa pamamagitan ng Philippine-California Advanced "
+"Research Institutes Project"
 
 #: pcari/templates/end.html:5 pcari/templates/end.html:6
 msgid "Thank You"
-msgstr ""
+msgstr "Maraming Salamat"
 
 #: pcari/templates/end.html:10
 msgid "We appreciate your participation in the Malasakit program."
-msgstr ""
+msgstr "Pinahahalagahan namin ang iyong pagmaMALASAKIT."
 
 #: pcari/templates/landing.html:6
 msgid "Welcome"
-msgstr ""
+msgstr "Maligayang pagdating"
 
-#: pcari/templates/landing.html:18
+#: pcari/templates/landing.html:19
 #, python-format
 msgid ""
 "How prepared are you in times of disaster? %(num_responses)s barangay "
 "citizens have responded. Join them!"
 msgstr ""
-"Gaano ka kahanda sa panahon ng kalamidad? %(num_responses)s na ang nag "
-"MALASAKIT. Sali na!"
+"Gaano ka kahanda sa panahon ng kalamidad? %(num_responses)s na ang "
+"nag MALASAKIT. Sali na!"
 
-#: pcari/templates/landing.html:26
+#: pcari/templates/landing.html:28
 msgid "Begin"
 msgstr "Simulan"
 
 #: pcari/templates/peer-responses.html:5 pcari/templates/peer-responses.html:6
 msgid "Peer Responses"
-msgstr ""
+msgstr "Tugon ng iba"
 
-#: pcari/templates/peer-responses.html:22
+#: pcari/templates/peer-responses.html:32
 msgid ""
 "Below, you can see how the other respondents answered the quantitative "
 "questions."
 msgstr ""
+"Makikita sa ibaba kung paano sinagutan ng iba ang mga kuwantitatibong "
+"katanungan."
 
-#: pcari/templates/peer-responses.html:30
-msgid "For the question"
-msgstr ""
-
-#: pcari/templates/peer-responses.html:36
+#: pcari/templates/peer-responses.html:42
 #, python-format
-msgid ""
-"<strong>%(num_ratings)s</strong> other respondents rated this statement, the "
-"most common score was <strong>%(mode)s</strong>, and the average score was "
-"<strong>%(mean)s</strong>."
+msgid "<strong>%(num_ratings)s</strong> other people answered this question:"
 msgstr ""
+"<strong>%(num_ratings)s</strong> katao na ang sumagot sa tanong na ito:"
 
-#: pcari/templates/personal-information.html:48
-#: pcari/templates/personal-information.html:49
+#: pcari/templates/peer-responses.html:50
+#, python-format
+msgid "Your answer: <strong id=\"answer-%(id)s\">None</strong>"
+msgstr "Ang iyong sagot: <strong id=\"answer-%(id)s\">Wala</strong>"
+
+#: pcari/templates/peer-responses.html:55
+#, python-format
+msgid "Average answer: <strong>%(mean)s</strong>"
+msgstr "Madalas na sagot ng iba: <strong>%(mean)s</strong>"
+
+#: pcari/templates/personal-information.html:94
+#: pcari/templates/personal-information.html:95
 msgid "Personal Information"
-msgstr ""
+msgstr "Personal na Impormasiyon"
 
-#: pcari/templates/personal-information.html:53
+#: pcari/templates/personal-information.html:100
 msgid ""
 "All questions on this page are strictly optional. Your responses will be "
 "anonymous."
 msgstr ""
+"Lahat ng mga tanong sa pahinang ito ay hindi sapilitan. Ang iyong mga tugon "
+"ay hindi papangalanan."
 
-#: pcari/templates/personal-information.html:60
+#: pcari/templates/personal-information.html:107
 msgid "Age"
 msgstr "Edad"
 
-#: pcari/templates/personal-information.html:64
+#: pcari/templates/personal-information.html:111
 msgid "Gender"
 msgstr "Kasarian"
 
-#: pcari/templates/personal-information.html:67
+#: pcari/templates/personal-information.html:114
 msgid "Select gender"
-msgstr ""
+msgstr "Piliian ang kasarian"
 
-#: pcari/templates/personal-information.html:68
+#: pcari/templates/personal-information.html:115
 msgid "Male"
 msgstr "Lalaki"
 
-#: pcari/templates/personal-information.html:69
+#: pcari/templates/personal-information.html:116
 msgid "Female"
 msgstr "Babae"
 
-#: pcari/templates/personal-information.html:74
+#: pcari/templates/personal-information.html:121
 msgid "Province"
-msgstr ""
+msgstr "Probinsiya"
 
-#: pcari/templates/personal-information.html:77
-msgid "Select province"
-msgstr ""
+#: pcari/templates/personal-information.html:128
+msgid "City / Municipality"
+msgstr "Lungsod / Munisipalidad"
 
-#: pcari/templates/personal-information.html:85
+#: pcari/templates/personal-information.html:135
 msgid "Barangay"
 msgstr "Barangay"
 
-#: pcari/templates/personal-information.html:92
+#: pcari/templates/personal-information.html:145
 msgid ""
 "You are about to submit your response, and will no longer be able to edit "
 "your answers. Do you wish to continue?"
 msgstr ""
+"Ipapasa mo na ang iyong mga sagot, hindi mo na ito mapapalitan. Nais mo bang "
+"magpatuloy?"
 
-#: pcari/templates/personal-information.html:99
-msgid "Yes"
-msgstr ""
-
-#: pcari/templates/personal-information.html:102
+#: pcari/templates/personal-information.html:152
 msgid "No"
-msgstr ""
+msgstr "Hindi"
+
+#: pcari/templates/personal-information.html:155
+msgid "Yes"
+msgstr "Oo"
 
 #: pcari/templates/qualitative-questions.html:6
 #: pcari/templates/qualitative-questions.html:7
 msgid "Qualitative Questions"
-msgstr ""
+msgstr "Kuwalitatibong mga Katanungan"
 
 #: pcari/templates/quantitative-questions.html:6
 #: pcari/templates/quantitative-questions.html:7
 msgid "Quantitative Questions"
-msgstr ""
+msgstr "Kuwantitatibong mga Katanungan"
 
-#: pcari/templates/questions/select.html:5
-msgid "Select your answer"
+#: pcari/templates/quantitative-questions.html:133
+msgid ""
+"Below, you will see either a slider or a text box. Please answer each "
+"question by moving the slider knob or filling in the box with a number."
 msgstr ""
+"Sa ibaba, makikita ang isang slider o ang isang patlang.  Paki sagutan ang "
+"bawat tanong sa pamamagitan ng paggalaw sa slider o sa paglagay ng numero sa "
+"patlang."
+
+#: pcari/templates/quantitative-questions.html:139
+msgid "Question"
+msgstr "Katanungan"
+
+#: pcari/templates/quantitative-questions.html:146
+#: pcari/templates/rate-comments.html:47
+msgid "Your current answer is "
+msgstr "Ang iyong kasalukuyang sagot ay "
+
+#: pcari/templates/quantitative-questions.html:149
+msgid "You previously chose to skip this question."
+msgstr "Dati mong linaktawan ang katanungang ito."
+
+#: pcari/templates/quantitative-questions.html:154
+msgid "Previous"
+msgstr "Bumalik"
+
+#: pcari/templates/quantitative-questions.html:157
+#: pcari/templates/rate-comments.html:52
+msgid "Skip"
+msgstr "Laktawan"
 
 #: pcari/templates/rate-comments.html:6 pcari/templates/rate-comments.html:7
 msgid "Rate Comments by Other Users"
-msgstr ""
+msgstr "Puntusan ang mungkahi ng ibang kalahok"
 
 #: pcari/templates/rate-comments.html:17
 msgid ""
@@ -208,6 +295,11 @@ msgid ""
 "topic was found. Comments that are closer together were authored by "
 "participants who answered the quantitative questions similarly."
 msgstr ""
+" Ang bawat imahe sa ibaba ay naglalaman ng ibinigay na komento ng ibang "
+"kalahok. Sa tabi ng bawat imahe ay ang paksa ng komento, o  <span class="
+"\"walang paksa\">(?)</span> kung walang natagpuang paksa. Ang mga komentong "
+"malapit sa isa’t isa ay ibinigay ng mga kalahok na sumagot sa katulad na mga "
+"kuwantitatibong tanong."
 
 #: pcari/templates/rate-comments.html:23
 msgid ""
@@ -215,37 +307,47 @@ msgid ""
 "at least two comments to proceed.</strong> You can also drag the icons to "
 "read the topics more clearly."
 msgstr ""
+"Pindutin ang isang imahe para puntusan ang kapakinabangan ng isang komento. "
+"<strong> Dapat mong puntusan ang hindi bababa sa dalawang komento upang "
+"magpatuloy.</strong> Maaari mo ring i-drag ang mga imahe upang mabasa nang "
+"malinaw ang mga paksa."
 
-#: pcari/templates/rate-comments.html:32
+#: pcari/templates/rate-comments.html:30
+msgid "There are no more comments to rate."
+msgstr "Wala nang komentong mapupuntusan."
+
+#: pcari/templates/rate-comments.html:35
 msgid "The question was:"
-msgstr ""
+msgstr "Ang tanong ay:"
 
-#: pcari/templates/rate-comments.html:34
+#: pcari/templates/rate-comments.html:37
 msgid "The comment was:"
-msgstr ""
+msgstr "Ang komento ay:"
 
-#: pcari/templates/rate-comments.html:41
-msgid "Submit"
-msgstr ""
+#: pcari/templates/rate-comments.html:43
+msgid "Not helpful"
+msgstr "Walang kapakinabangan"
 
 #: pcari/templates/rate-comments.html:44
-msgid "Skip"
-msgstr ""
+msgid "Helpful"
+msgstr "Kapaki-pakinabang"
 
-#: pcari/views.py:406
+#: pcari/views.py:562
 msgid "Page Not Found"
-msgstr ""
+msgstr "Hindi natagpuan ang pahina"
 
-#: pcari/views.py:407
+#: pcari/views.py:563
 msgid "The requested page does not appear to exist."
-msgstr ""
+msgstr "Ang hiniling na pahina ay hindi lumabas."
 
-#: pcari/views.py:414
+#: pcari/views.py:570
 msgid "Internal Error"
-msgstr ""
+msgstr "May kamalian"
 
-#: pcari/views.py:415
+#: pcari/views.py:571
 msgid ""
 "The server is currently experiencing some issues. Please let the maintainers "
 "know immediately."
 msgstr ""
+"Kasalukuyang nakararanas ng ilang isyu ang server. Mangyaring ipagbigay-alam "
+"agad ito sa mga tagapamahala."

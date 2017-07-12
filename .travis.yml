@@ -5,12 +5,8 @@ services:
   - mysql
 env:
   - mysql_pass=''
-install: 'pip install -r requirements.txt'
-before_script:
-  - mysql -e 'CREATE DATABASE pcari;'
-  - cd malasakit-django
-  - python2 manage.py migrate --run-syncdb
-  - cd ..
+install: 'make install'
+before_script: 'make createproddb'
 script: 'make all'
 notifications:
   email: false

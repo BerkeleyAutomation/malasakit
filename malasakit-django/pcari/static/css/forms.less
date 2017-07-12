@@ -1,0 +1,125 @@
+.range-container {
+  display: flex;
+  flex-flow: row wrap;
+}
+
+input[type="range"] {
+  flex-basis: 50%;
+  order: 2;
+  margin: 1rem 0;
+  box-sizing: border-box;
+}
+
+.label {
+  box-sizing: border-box;
+  flex-basis: 25%;
+  padding-bottom: .5rem;
+}
+
+.left-anchor {
+  .label();
+  text-align: left;
+  order: 1;
+  padding-right: 1rem;
+}
+
+.right-anchor {
+  .label();
+  text-align: right;
+  order: 3;
+  padding-left: 1rem;
+}
+
+button {
+  border: none;
+  border-radius: 0.2rem;
+  padding: 0.5rem 1rem;
+  transition-duration: 0.5s;
+  font-size: 1rem;
+  &:active {
+    outline: none;
+  }
+  &:disabled {
+    cursor: not-allowed;
+  }
+}
+
+@media all and (max-width: 568px) {
+  input[type=range] {
+    flex-basis: 100%;
+    padding: 0.5rem 1rem;
+  }
+
+  .left-anchor, .right-anchor {
+    flex-basis: 50%;
+    font-size: 0.8rem;
+  }
+
+  input[type=range], .left-anchor, .right-anchor {
+    order: 0;
+  }
+}
+
+.range-track(@color: @light-gray) {
+  height: 0.4rem;
+  background-color: @color;
+  border-radius: 0.2rem;
+}
+
+input[type=range] {
+  -webkit-appearance: none;
+
+  &:focus {
+    outline: none;
+    &::-webkit-slider-runnable-track {
+      background: darken(@light-gray, 5%);
+    }
+  }
+
+  &:disabled {
+    &::-webkit-slider-thumb {
+      background: darken(@light-gray, 30%);
+    }
+    &::-webkit-slider-runnable-track {
+      background: darken(@light-gray, 10%);
+    }
+  }
+
+  &::-webkit-slider-runnable-track {
+    .range-track();
+  }
+  &::-moz-range-track {
+    .range-track();
+  }
+  &::-ms-track {
+    .range-track();
+  }
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 1.2rem;
+    height: 1.2rem;
+    background: goldenrod;
+    border-radius: 50%;
+    margin-top: -0.4rem;
+  }
+}
+
+input[type=number], input[type=text], select {
+  margin: 0.5rem auto;
+  padding: 0 0.5rem;
+  width: 10rem;
+  height: 35px;
+  overflow: hidden;
+  background: solid white;
+  border: 1px solid goldenrod;
+  font-size: medium;
+}
+
+textarea {
+  margin: 0 auto;
+  width: 95%;
+  height: 10rem;
+  border: 1px solid goldenrod;
+  resize: none;
+  font-size: 1rem;
+}

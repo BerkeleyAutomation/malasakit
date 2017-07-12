@@ -26,6 +26,9 @@
       You can also drag the icons to read the topics more clearly.
     {% endblocktrans %}
   </p>
+  <p id="no-more-comments-notice" class="error banner">
+    {% trans 'There are no more comments to rate.' %}
+  </p>
   <svg id="bloom" width="100%"></svg>
   <div class="modal">
     <div class="modal-container">
@@ -34,14 +37,22 @@
       <p>{% trans 'The comment was:' %}</p>
       <blockquote id="comment-message"></blockquote>
 
-      {% include 'questions/range.html' with id='comment-rating' left_text='Not helpful' right_text='Helpful' %}
+      <div class="range-container">
+        <input class="quantitative-input" target-id="comment-rating" type="range"
+               value="0" step="1" min="0" max="9">
+        <span class="left-anchor">{% trans 'Not helpful' %}</span>
+        <span class="right-anchor">{% trans 'Helpful' %}</span>
+      </div>
+      <p>
+        {% trans 'Your current answer is ' %} <output id="quantitative-output"></output>.
+      </p>
 
       <ul class="button-group">
         <li>
-          <button id="submit">{% trans 'Submit' %}</button>
+          <button id="skip" class="red">{% trans 'Skip' %}</button>
         </li>
         <li>
-          <button id="skip">{% trans 'Skip' %}</button>
+          <button id="submit" class="blue">{% trans 'Submit' %}</button>
         </li>
       </ul>
     </div>
