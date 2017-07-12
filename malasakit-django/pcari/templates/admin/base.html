@@ -3,7 +3,7 @@
 {% load i18n %}
 
 {% block userlinks %}
-  {% if user.is_staff %}
+  {% if user.is_superuser %}
     <a href="{% url 'admin:configuration' %}">{% trans 'Configuration' %}</a> /
   {% endif %}
   <a href="{% url 'admin:statistics' %}">{% trans 'Statistics' %}</a> /

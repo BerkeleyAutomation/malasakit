@@ -46,6 +46,8 @@ urlpatterns = [
 
     # AJAX endpoints
     url(r'^api/', include(api_urlpatterns)),
+
+    # TODO: Redirect from the `URL_ROOT` to the landing page
 ]
 
 # Translate all `pcari` urls
