@@ -18,9 +18,12 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../malasakit-django'))
 
 import django
+from django.db import models
+from django.db.models.query_utils import DeferredAttribute
+
+sys.path.insert(0, os.path.abspath('../../malasakit-django'))
 os.environ['DJANGO_SETTINGS_MODULE'] = 'cafe.settings'
 django.setup()
 
@@ -173,3 +176,17 @@ texinfo_documents = [
      author, 'Malasakit', 'One line description of project.',
      'Miscellaneous'),
 ]
+
+
+# Custom preprocessing
+
+def determine_skip_member(app, what, name, obj, skip, options):
+    if isinstance(obj, DeferredAttribute):
+        print name, obj, what
+        return True
+    # print '[!]', name, obj
+    return skip
+
+
+def setup(app):
+    app.connect('autodoc-skip-member', determine_skip_member)

@@ -18,9 +18,6 @@ Submodules
    pcari.apps
    pcari.models
    pcari.signals
-   pcari.test_models
-   pcari.test_views
-   pcari.urls
    pcari.views
 
 Module contents

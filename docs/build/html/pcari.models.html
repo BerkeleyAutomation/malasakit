@@ -122,13 +122,6 @@ with contiguous whitespace.)</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.MultipleObjectsReturned</span></code></p>
 </dd></dl>
 
-<dl class="attribute">
-<dt>
-<code class="descname">flagged</code></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
 <dl class="method">
 <dt id="pcari.models.Comment.get_language_display">
 <code class="descname">get_language_display</code><span class="sig-paren">(</span><em>*moreargs</em>, <em>**morekwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.Comment.get_language_display" title="Permalink to this definition">¶</a></dt>
@@ -143,27 +136,6 @@ object the first time, the query is executed.</p>
 <dt id="pcari.models.Comment.get_previous_by_timestamp">
 <code class="descname">get_previous_by_timestamp</code><span class="sig-paren">(</span><em>*moreargs</em>, <em>**morekwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.Comment.get_previous_by_timestamp" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pcari.models.Comment.id">
-<code class="descname">id</code><a class="headerlink" href="#pcari.models.Comment.id" title="Permalink to this definition">¶</a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt>
-<code class="descname">language</code></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt>
-<code class="descname">message</code></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
 
 <dl class="attribute">
 <dt id="pcari.models.Comment.objects">
@@ -194,13 +166,6 @@ one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 </pre></div>
 </div>
 <p><code class="docutils literal"><span class="pre">child.parent</span></code> is a <code class="docutils literal"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pcari.models.Comment.question_id">
-<code class="descname">question_id</code><a class="headerlink" href="#pcari.models.Comment.question_id" title="Permalink to this definition">¶</a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -244,13 +209,6 @@ many-to-one relation.</p>
 <p><code class="docutils literal"><span class="pre">parent.children</span></code> is a <code class="docutils literal"><span class="pre">ReverseManyToOneDescriptor</span></code> instance.</p>
 <p>Most of the implementation is delegated to a dynamically defined manager
 class built by <code class="docutils literal"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt>
-<code class="descname">tag</code></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -300,13 +258,6 @@ can only rate a quantitative question once.</p>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="pcari.models.QuantitativeQuestionRating.id">
-<code class="descname">id</code><a class="headerlink" href="#pcari.models.QuantitativeQuestionRating.id" title="Permalink to this definition">¶</a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="attribute">
 <dt id="pcari.models.QuantitativeQuestionRating.objects">
 <code class="descname">objects</code><em class="property"> = &lt;django.db.models.manager.Manager object&gt;</em><a class="headerlink" href="#pcari.models.QuantitativeQuestionRating.objects" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -335,13 +286,6 @@ one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 </pre></div>
 </div>
 <p><code class="docutils literal"><span class="pre">child.parent</span></code> is a <code class="docutils literal"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pcari.models.QuantitativeQuestionRating.question_id">
-<code class="descname">question_id</code><a class="headerlink" href="#pcari.models.QuantitativeQuestionRating.question_id" title="Permalink to this definition">¶</a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -411,13 +355,6 @@ one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 <p><code class="docutils literal"><span class="pre">child.parent</span></code> is a <code class="docutils literal"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
 </dd></dl>
 
-<dl class="attribute">
-<dt id="pcari.models.CommentRating.comment_id">
-<code class="descname">comment_id</code><a class="headerlink" href="#pcari.models.CommentRating.comment_id" title="Permalink to this definition">¶</a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
 <dl class="method">
 <dt id="pcari.models.CommentRating.get_next_by_timestamp">
 <code class="descname">get_next_by_timestamp</code><span class="sig-paren">(</span><em>*moreargs</em>, <em>**morekwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.CommentRating.get_next_by_timestamp" title="Permalink to this definition">¶</a></dt>
@@ -427,13 +364,6 @@ object the first time, the query is executed.</p>
 <dt id="pcari.models.CommentRating.get_previous_by_timestamp">
 <code class="descname">get_previous_by_timestamp</code><span class="sig-paren">(</span><em>*moreargs</em>, <em>**morekwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.CommentRating.get_previous_by_timestamp" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pcari.models.CommentRating.id">
-<code class="descname">id</code><a class="headerlink" href="#pcari.models.CommentRating.id" title="Permalink to this definition">¶</a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
 
 <dl class="attribute">
 <dt id="pcari.models.CommentRating.objects">
@@ -520,13 +450,6 @@ many-to-one relation.</p>
 <p><code class="docutils literal"><span class="pre">parent.children</span></code> is a <code class="docutils literal"><span class="pre">ReverseManyToOneDescriptor</span></code> instance.</p>
 <p>Most of the implementation is delegated to a dynamically defined manager
 class built by <code class="docutils literal"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pcari.models.QualitativeQuestion.id">
-<code class="descname">id</code><a class="headerlink" href="#pcari.models.QualitativeQuestion.id" title="Permalink to this definition">¶</a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -642,41 +565,6 @@ innput type, this text is rendered on the right end of the slider.</p>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="pcari.models.QuantitativeQuestion.id">
-<code class="descname">id</code><a class="headerlink" href="#pcari.models.QuantitativeQuestion.id" title="Permalink to this definition">¶</a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt>
-<code class="descname">input_type</code></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt>
-<code class="descname">left_anchor</code></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt>
-<code class="descname">max_score</code></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt>
-<code class="descname">min_score</code></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="attribute">
 <dt id="pcari.models.QuantitativeQuestion.objects">
 <code class="descname">objects</code><em class="property"> = &lt;django.db.models.manager.Manager object&gt;</em><a class="headerlink" href="#pcari.models.QuantitativeQuestion.objects" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -707,13 +595,6 @@ many-to-one relation.</p>
 <p><code class="docutils literal"><span class="pre">parent.children</span></code> is a <code class="docutils literal"><span class="pre">ReverseManyToOneDescriptor</span></code> instance.</p>
 <p>Most of the implementation is delegated to a dynamically defined manager
 class built by <code class="docutils literal"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt>
-<code class="descname">right_anchor</code></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -832,13 +713,6 @@ respondent.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt>
-<code class="descname">age</code></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="attribute">
 <dt id="pcari.models.Respondent.comment_set">
 <code class="descname">comment_set</code><a class="headerlink" href="#pcari.models.Respondent.comment_set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Accessor to the related objects manager on the reverse side of a
@@ -873,20 +747,6 @@ class built by <code class="docutils literal"><span class="pre">create_forward_m
 <code class="descname">comments</code></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt>
-<code class="descname">completed_survey</code></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt>
-<code class="descname">gender</code></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
 <dl class="method">
 <dt id="pcari.models.Respondent.get_gender_display">
 <code class="descname">get_gender_display</code><span class="sig-paren">(</span><em>*moreargs</em>, <em>**morekwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.Respondent.get_gender_display" title="Permalink to this definition">¶</a></dt>
@@ -896,27 +756,6 @@ object the first time, the query is executed.</p>
 <dt id="pcari.models.Respondent.get_language_display">
 <code class="descname">get_language_display</code><span class="sig-paren">(</span><em>*moreargs</em>, <em>**morekwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.Respondent.get_language_display" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pcari.models.Respondent.id">
-<code class="descname">id</code><a class="headerlink" href="#pcari.models.Respondent.id" title="Permalink to this definition">¶</a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt>
-<code class="descname">language</code></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt>
-<code class="descname">location</code></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
 
 <dl class="attribute">
 <dt>
@@ -974,13 +813,6 @@ many-to-one relation.</p>
 <p><code class="docutils literal"><span class="pre">parent.children</span></code> is a <code class="docutils literal"><span class="pre">ReverseManyToOneDescriptor</span></code> instance.</p>
 <p>Most of the implementation is delegated to a dynamically defined manager
 class built by <code class="docutils literal"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt>
-<code class="descname">submitted_personal_data</code></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1058,20 +890,6 @@ way of manipulating the list of options.</p>
 <dt id="pcari.models.OptionQuestion.get_input_type_display">
 <code class="descname">get_input_type_display</code><span class="sig-paren">(</span><em>*moreargs</em>, <em>**morekwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.OptionQuestion.get_input_type_display" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pcari.models.OptionQuestion.id">
-<code class="descname">id</code><a class="headerlink" href="#pcari.models.OptionQuestion.id" title="Permalink to this definition">¶</a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt>
-<code class="descname">input_type</code></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
 
 <dl class="attribute">
 <dt id="pcari.models.OptionQuestion.objects">
@@ -1174,23 +992,9 @@ of <cite>question.options</cite>.</p>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="pcari.models.OptionQuestionChoice.id">
-<code class="descname">id</code><a class="headerlink" href="#pcari.models.OptionQuestionChoice.id" title="Permalink to this definition">¶</a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="attribute">
 <dt id="pcari.models.OptionQuestionChoice.objects">
 <code class="descname">objects</code><em class="property"> = &lt;django.db.models.manager.Manager object&gt;</em><a class="headerlink" href="#pcari.models.OptionQuestionChoice.objects" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="attribute">
-<dt>
-<code class="descname">option</code></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
 
 <dl class="attribute">
 <dt id="pcari.models.OptionQuestionChoice.predecessor">
@@ -1216,13 +1020,6 @@ one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 </pre></div>
 </div>
 <p><code class="docutils literal"><span class="pre">child.parent</span></code> is a <code class="docutils literal"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pcari.models.OptionQuestionChoice.question_id">
-<code class="descname">question_id</code><a class="headerlink" href="#pcari.models.OptionQuestionChoice.question_id" title="Permalink to this definition">¶</a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
 </dd></dl>
 
 <dl class="attribute">
