@@ -8,4 +8,4 @@ The documentation for the project lives on the [repository wiki](https://github.
 To get started, see the [setup instructions](https://github.com/BerkeleyAutomation/malasakit-v1/wiki/Setup) and the [guidelines for contributing](https://github.com/BerkeleyAutomation/malasakit-v1/wiki/Guidelines-for-Contributing) to the project.
 
 Permission is granted to copy and distribute this material, provided that the complete bibliographic citation and following credit line is included: "Copyright (C) 2017 UCB." Permission is granted to alter and distribute this material provided that the following credit line is included: "Adapted from (complete bibliographic
-citation). Copyright (C) 2017 UCB. This material may not be copied or distributed for commercial purposes without express written permission of the copyright holder.
+citation). Copyright (C) 2017 UCB." This material may not be copied or distributed for commercial purposes without express written permission of the copyright holder.
