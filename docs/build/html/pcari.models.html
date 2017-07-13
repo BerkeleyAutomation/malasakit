@@ -1,0 +1,1314 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pcari.models module &#8212; Malasakit 1.25 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.25',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pcari.models">
+<span id="pcari-models-module"></span><h1>pcari.models module<a class="headerlink" href="#module-pcari.models" title="Permalink to this headline">¶</a></h1>
+<p>Model definitions.</p>
+<p>This module defines how information used by Malasakit is structured and how the
+Python layer interfaces with a database.</p>
+<dl class="attribute">
+<dt id="pcari.models.LANGUAGES">
+<code class="descclassname">pcari.models.</code><code class="descname">LANGUAGES</code><a class="headerlink" href="#pcari.models.LANGUAGES" title="Permalink to this definition">¶</a></dt>
+<dd><p>A tuple of languages. Each language is represented as a tuple of
+two elements: a code and a translated full name. For instance, the
+language code for “English” would be “en”. This attribute is pulled
+from the project <code class="docutils literal"><span class="pre">settings</span></code> lazily.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.MODELS">
+<code class="descclassname">pcari.models.</code><code class="descname">MODELS</code><a class="headerlink" href="#pcari.models.MODELS" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dictionary mapping model names to models. This attribute
+essentially acts as a lookup table by name, and is useful for
+determining whether a model with a given name exists.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.models.Comment">
+<em class="property">class </em><code class="descclassname">pcari.models.</code><code class="descname">Comment</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.Comment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pcari.models.Response</span></code>, <code class="xref py py-class docutils literal"><span class="pre">pcari.models.StatisticsMixin</span></code></p>
+<p>A <cite>Comment</cite> is an open-ended text response to a <cite>QualitativeQuestion</cite>.</p>
+<dl class="attribute">
+<dt id="pcari.models.Comment.question">
+<code class="descname">question</code><a class="headerlink" href="#pcari.models.Comment.question" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <cite>QualitativeQuestion</cite> this comment answers.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Comment.language">
+<code class="descname">language</code><a class="headerlink" href="#pcari.models.Comment.language" title="Permalink to this definition">¶</a></dt>
+<dd><p>A language code.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Comment.message">
+<code class="descname">message</code><a class="headerlink" href="#pcari.models.Comment.message" title="Permalink to this definition">¶</a></dt>
+<dd><p>The comment’s contents itself written in <cite>language</cite>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Comment.flagged">
+<code class="descname">flagged</code><a class="headerlink" href="#pcari.models.Comment.flagged" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean indicating whether this comment was flagged for
+further inspection. A flagged comment will not show up to other
+respondents.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Comment.tag">
+<code class="descname">tag</code><a class="headerlink" href="#pcari.models.Comment.tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>A short string that summarizes this comment’s message.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Comment.word_count">
+<code class="descname">word_count</code><a class="headerlink" href="#pcari.models.Comment.word_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of words in the <cite>message</cite>. (Words are delimited
+with contiguous whitespace.)</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.Comment.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#pcari.models.Comment.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Comment.MAX_COMMENT_DISPLAY_LEN">
+<code class="descname">MAX_COMMENT_DISPLAY_LEN</code><em class="property"> = 140</em><a class="headerlink" href="#pcari.models.Comment.MAX_COMMENT_DISPLAY_LEN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.Comment.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#pcari.models.Comment.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">flagged</code></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pcari.models.Comment.get_language_display">
+<code class="descname">get_language_display</code><span class="sig-paren">(</span><em>*moreargs</em>, <em>**morekwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.Comment.get_language_display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.models.Comment.get_next_by_timestamp">
+<code class="descname">get_next_by_timestamp</code><span class="sig-paren">(</span><em>*moreargs</em>, <em>**morekwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.Comment.get_next_by_timestamp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.models.Comment.get_previous_by_timestamp">
+<code class="descname">get_previous_by_timestamp</code><span class="sig-paren">(</span><em>*moreargs</em>, <em>**morekwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.Comment.get_previous_by_timestamp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Comment.id">
+<code class="descname">id</code><a class="headerlink" href="#pcari.models.Comment.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">language</code></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">message</code></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Comment.objects">
+<code class="descname">objects</code><em class="property"> = &lt;django.db.models.manager.Manager object&gt;</em><a class="headerlink" href="#pcari.models.Comment.objects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Comment.predecessor">
+<code class="descname">predecessor</code><a class="headerlink" href="#pcari.models.Comment.predecessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">child.parent</span></code> is a <code class="docutils literal"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">question</code></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">child.parent</span></code> is a <code class="docutils literal"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Comment.question_id">
+<code class="descname">question_id</code><a class="headerlink" href="#pcari.models.Comment.question_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Comment.ratings">
+<code class="descname">ratings</code><a class="headerlink" href="#pcari.models.Comment.ratings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accessor to the related objects manager on the reverse side of a
+many-to-one relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">parent.children</span></code> is a <code class="docutils literal"><span class="pre">ReverseManyToOneDescriptor</span></code> instance.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code class="docutils literal"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Comment.respondent">
+<code class="descname">respondent</code><a class="headerlink" href="#pcari.models.Comment.respondent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">child.parent</span></code> is a <code class="docutils literal"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Comment.successors">
+<code class="descname">successors</code><a class="headerlink" href="#pcari.models.Comment.successors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accessor to the related objects manager on the reverse side of a
+many-to-one relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">parent.children</span></code> is a <code class="docutils literal"><span class="pre">ReverseManyToOneDescriptor</span></code> instance.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code class="docutils literal"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">tag</code></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">word_count</code></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.models.QuantitativeQuestionRating">
+<em class="property">class </em><code class="descclassname">pcari.models.</code><code class="descname">QuantitativeQuestionRating</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.QuantitativeQuestionRating" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pcari.models.Rating</span></code></p>
+<p>A <cite>QuantitativeQuestionRating</cite> rates a <cite>QuantitativeQuestion</cite>. A respondent
+can only rate a quantitative question once.</p>
+<dl class="attribute">
+<dt id="pcari.models.QuantitativeQuestionRating.question">
+<code class="descname">question</code><a class="headerlink" href="#pcari.models.QuantitativeQuestionRating.question" title="Permalink to this definition">¶</a></dt>
+<dd><p>The quantitative question rated.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.QuantitativeQuestionRating.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#pcari.models.QuantitativeQuestionRating.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.QuantitativeQuestionRating.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#pcari.models.QuantitativeQuestionRating.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pcari.models.QuantitativeQuestionRating.clean">
+<code class="descname">clean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.QuantitativeQuestionRating.clean" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.models.QuantitativeQuestionRating.get_next_by_timestamp">
+<code class="descname">get_next_by_timestamp</code><span class="sig-paren">(</span><em>*moreargs</em>, <em>**morekwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.QuantitativeQuestionRating.get_next_by_timestamp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.models.QuantitativeQuestionRating.get_previous_by_timestamp">
+<code class="descname">get_previous_by_timestamp</code><span class="sig-paren">(</span><em>*moreargs</em>, <em>**morekwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.QuantitativeQuestionRating.get_previous_by_timestamp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.QuantitativeQuestionRating.id">
+<code class="descname">id</code><a class="headerlink" href="#pcari.models.QuantitativeQuestionRating.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.QuantitativeQuestionRating.objects">
+<code class="descname">objects</code><em class="property"> = &lt;django.db.models.manager.Manager object&gt;</em><a class="headerlink" href="#pcari.models.QuantitativeQuestionRating.objects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.QuantitativeQuestionRating.predecessor">
+<code class="descname">predecessor</code><a class="headerlink" href="#pcari.models.QuantitativeQuestionRating.predecessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">child.parent</span></code> is a <code class="docutils literal"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">question</code></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">child.parent</span></code> is a <code class="docutils literal"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.QuantitativeQuestionRating.question_id">
+<code class="descname">question_id</code><a class="headerlink" href="#pcari.models.QuantitativeQuestionRating.question_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.QuantitativeQuestionRating.respondent">
+<code class="descname">respondent</code><a class="headerlink" href="#pcari.models.QuantitativeQuestionRating.respondent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">child.parent</span></code> is a <code class="docutils literal"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.QuantitativeQuestionRating.successors">
+<code class="descname">successors</code><a class="headerlink" href="#pcari.models.QuantitativeQuestionRating.successors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accessor to the related objects manager on the reverse side of a
+many-to-one relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">parent.children</span></code> is a <code class="docutils literal"><span class="pre">ReverseManyToOneDescriptor</span></code> instance.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code class="docutils literal"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.models.CommentRating">
+<em class="property">class </em><code class="descclassname">pcari.models.</code><code class="descname">CommentRating</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.CommentRating" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pcari.models.Rating</span></code></p>
+<p>A <cite>CommentRating</cite> rates a <cite>Comment</cite>. A respondent can only rate a comment
+once.</p>
+<dl class="attribute">
+<dt id="pcari.models.CommentRating.comment">
+<code class="descname">comment</code><a class="headerlink" href="#pcari.models.CommentRating.comment" title="Permalink to this definition">¶</a></dt>
+<dd><p>The comment rated.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.CommentRating.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#pcari.models.CommentRating.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.CommentRating.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#pcari.models.CommentRating.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">comment</code></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">child.parent</span></code> is a <code class="docutils literal"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.CommentRating.comment_id">
+<code class="descname">comment_id</code><a class="headerlink" href="#pcari.models.CommentRating.comment_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pcari.models.CommentRating.get_next_by_timestamp">
+<code class="descname">get_next_by_timestamp</code><span class="sig-paren">(</span><em>*moreargs</em>, <em>**morekwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.CommentRating.get_next_by_timestamp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.models.CommentRating.get_previous_by_timestamp">
+<code class="descname">get_previous_by_timestamp</code><span class="sig-paren">(</span><em>*moreargs</em>, <em>**morekwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.CommentRating.get_previous_by_timestamp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.CommentRating.id">
+<code class="descname">id</code><a class="headerlink" href="#pcari.models.CommentRating.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.CommentRating.objects">
+<code class="descname">objects</code><em class="property"> = &lt;django.db.models.manager.Manager object&gt;</em><a class="headerlink" href="#pcari.models.CommentRating.objects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.CommentRating.predecessor">
+<code class="descname">predecessor</code><a class="headerlink" href="#pcari.models.CommentRating.predecessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">child.parent</span></code> is a <code class="docutils literal"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.CommentRating.respondent">
+<code class="descname">respondent</code><a class="headerlink" href="#pcari.models.CommentRating.respondent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">child.parent</span></code> is a <code class="docutils literal"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.CommentRating.successors">
+<code class="descname">successors</code><a class="headerlink" href="#pcari.models.CommentRating.successors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accessor to the related objects manager on the reverse side of a
+many-to-one relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">parent.children</span></code> is a <code class="docutils literal"><span class="pre">ReverseManyToOneDescriptor</span></code> instance.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code class="docutils literal"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.models.QualitativeQuestion">
+<em class="property">class </em><code class="descclassname">pcari.models.</code><code class="descname">QualitativeQuestion</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.QualitativeQuestion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pcari.models.Question</span></code></p>
+<p>A <cite>QualitativeQuestion</cite> is a <cite>Question</cite> that asks for a comment.</p>
+<dl class="attribute">
+<dt id="pcari.models.QualitativeQuestion.input_type">
+<code class="descname">input_type</code><a class="headerlink" href="#pcari.models.QualitativeQuestion.input_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>What interface to use for collecting qualitative question
+responses.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.QualitativeQuestion.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#pcari.models.QualitativeQuestion.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.QualitativeQuestion.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#pcari.models.QualitativeQuestion.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.QualitativeQuestion.comments">
+<code class="descname">comments</code><a class="headerlink" href="#pcari.models.QualitativeQuestion.comments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accessor to the related objects manager on the reverse side of a
+many-to-one relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">parent.children</span></code> is a <code class="docutils literal"><span class="pre">ReverseManyToOneDescriptor</span></code> instance.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code class="docutils literal"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.QualitativeQuestion.id">
+<code class="descname">id</code><a class="headerlink" href="#pcari.models.QualitativeQuestion.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">input_type</code><em class="property"> = u'textarea'</em></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.QualitativeQuestion.objects">
+<code class="descname">objects</code><em class="property"> = &lt;django.db.models.manager.Manager object&gt;</em><a class="headerlink" href="#pcari.models.QualitativeQuestion.objects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.QualitativeQuestion.predecessor">
+<code class="descname">predecessor</code><a class="headerlink" href="#pcari.models.QualitativeQuestion.predecessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">child.parent</span></code> is a <code class="docutils literal"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.QualitativeQuestion.successors">
+<code class="descname">successors</code><a class="headerlink" href="#pcari.models.QualitativeQuestion.successors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accessor to the related objects manager on the reverse side of a
+many-to-one relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">parent.children</span></code> is a <code class="docutils literal"><span class="pre">ReverseManyToOneDescriptor</span></code> instance.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code class="docutils literal"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.models.QuantitativeQuestion">
+<em class="property">class </em><code class="descclassname">pcari.models.</code><code class="descname">QuantitativeQuestion</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.QuantitativeQuestion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pcari.models.Question</span></code>, <code class="xref py py-class docutils literal"><span class="pre">pcari.models.StatisticsMixin</span></code></p>
+<p>A <cite>QuantitativeQuestion</cite> is a <cite>Question</cite> that asks for a numeric rating.</p>
+<dl class="attribute">
+<dt id="pcari.models.QuantitativeQuestion.INPUT_TYPE_CHOICES">
+<code class="descname">INPUT_TYPE_CHOICES</code><a class="headerlink" href="#pcari.models.QuantitativeQuestion.INPUT_TYPE_CHOICES" title="Permalink to this definition">¶</a></dt>
+<dd><p>A tuple of input type choices, each of which is a
+two-element tuple consisting of the shorthand and the name of an
+input type. Current options are:</p>
+<blockquote>
+<div>range: Render the question as a “slider”.
+number: Render the question as a number-only text field.</div></blockquote>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.QuantitativeQuestion.left_anchor">
+<code class="descname">left_anchor</code><a class="headerlink" href="#pcari.models.QuantitativeQuestion.left_anchor" title="Permalink to this definition">¶</a></dt>
+<dd><p>The text that describes the minimum score. For a range
+input type, this text is rendered on the left end of the slider.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.QuantitativeQuestion.right_anchor">
+<code class="descname">right_anchor</code><a class="headerlink" href="#pcari.models.QuantitativeQuestion.right_anchor" title="Permalink to this definition">¶</a></dt>
+<dd><p>The text that describes the maximum score. For a range
+innput type, this text is rendered on the right end of the slider.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.QuantitativeQuestion.min_score">
+<code class="descname">min_score</code><a class="headerlink" href="#pcari.models.QuantitativeQuestion.min_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>The smallest possible score for this question. A value of
+<cite>None</cite> is treated as negative infinity (that is, no lower bound).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.QuantitativeQuestion.max_score">
+<code class="descname">max_score</code><a class="headerlink" href="#pcari.models.QuantitativeQuestion.max_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>The largest possible score for this question. A value of
+<cite>None</cite> is treated as positive infinity (that is, no upper bound).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.QuantitativeQuestion.input_type">
+<code class="descname">input_type</code><a class="headerlink" href="#pcari.models.QuantitativeQuestion.input_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>A string specifying how the input should be rendered.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.QuantitativeQuestion.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#pcari.models.QuantitativeQuestion.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">INPUT_TYPE_CHOICES</code><em class="property"> = ((u'range', u'Range'), (u'number', u'Number'))</em></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.QuantitativeQuestion.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#pcari.models.QuantitativeQuestion.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pcari.models.QuantitativeQuestion.get_input_type_display">
+<code class="descname">get_input_type_display</code><span class="sig-paren">(</span><em>*moreargs</em>, <em>**morekwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.QuantitativeQuestion.get_input_type_display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.QuantitativeQuestion.id">
+<code class="descname">id</code><a class="headerlink" href="#pcari.models.QuantitativeQuestion.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">input_type</code></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">left_anchor</code></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">max_score</code></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">min_score</code></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.QuantitativeQuestion.objects">
+<code class="descname">objects</code><em class="property"> = &lt;django.db.models.manager.Manager object&gt;</em><a class="headerlink" href="#pcari.models.QuantitativeQuestion.objects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.QuantitativeQuestion.predecessor">
+<code class="descname">predecessor</code><a class="headerlink" href="#pcari.models.QuantitativeQuestion.predecessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">child.parent</span></code> is a <code class="docutils literal"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.QuantitativeQuestion.ratings">
+<code class="descname">ratings</code><a class="headerlink" href="#pcari.models.QuantitativeQuestion.ratings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accessor to the related objects manager on the reverse side of a
+many-to-one relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">parent.children</span></code> is a <code class="docutils literal"><span class="pre">ReverseManyToOneDescriptor</span></code> instance.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code class="docutils literal"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">right_anchor</code></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.QuantitativeQuestion.successors">
+<code class="descname">successors</code><a class="headerlink" href="#pcari.models.QuantitativeQuestion.successors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accessor to the related objects manager on the reverse side of a
+many-to-one relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">parent.children</span></code> is a <code class="docutils literal"><span class="pre">ReverseManyToOneDescriptor</span></code> instance.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code class="docutils literal"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.models.Respondent">
+<em class="property">class </em><code class="descclassname">pcari.models.</code><code class="descname">Respondent</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.Respondent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pcari.models.History</span></code></p>
+<p>A <cite>Respondent</cite> represents a one-time participant in a survey.</p>
+<dl class="attribute">
+<dt id="pcari.models.Respondent.GENDERS">
+<code class="descname">GENDERS</code><a class="headerlink" href="#pcari.models.Respondent.GENDERS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Choices for the <cite>gender</cite> field. This attribute is a tuple of
+pairs of strings, of which the second entry is the full gender name
+and the first is a single-letter abbreviation.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Respondent.age">
+<code class="descname">age</code><a class="headerlink" href="#pcari.models.Respondent.age" title="Permalink to this definition">¶</a></dt>
+<dd><p>The age of the respondent in years.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Respondent.gender">
+<code class="descname">gender</code><a class="headerlink" href="#pcari.models.Respondent.gender" title="Permalink to this definition">¶</a></dt>
+<dd><p>The gender of the respondent, as selected from <cite>GENDERS</cite>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Respondent.location">
+<code class="descname">location</code><a class="headerlink" href="#pcari.models.Respondent.location" title="Permalink to this definition">¶</a></dt>
+<dd><p>An open text field that describes the respondent’s residence.
+(In the particular context of the Philippines, this field should
+contain the respondent’s province, city or municipality, and
+barangay.)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Respondent.language">
+<code class="descname">language</code><a class="headerlink" href="#pcari.models.Respondent.language" title="Permalink to this definition">¶</a></dt>
+<dd><p>The language preferred by this respondent.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Respondent.submitted_personal_data">
+<code class="descname">submitted_personal_data</code><a class="headerlink" href="#pcari.models.Respondent.submitted_personal_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean indicating whether the user
+completed the form asking for <cite>age</cite>, <cite>gender</cite>, and <cite>location</cite>.
+Because this form is entirely optional, there is no other way to
+infer the <cite>Respondent</cite>’s progression through this stage.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Respondent.completed_survey">
+<code class="descname">completed_survey</code><a class="headerlink" href="#pcari.models.Respondent.completed_survey" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean indicating whether the user completed the
+entire survey.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Respondent.num_questions_rated">
+<code class="descname">num_questions_rated</code><a class="headerlink" href="#pcari.models.Respondent.num_questions_rated" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of <cite>QuantitativeQuestion</cite>’s answered by
+this <cite>Respondent</cite>. From this number, we can infer whether this
+<cite>Respondent</cite> reached the rating stage of the survey. This excludes
+questions the respondent skipped or otherwise did not rate.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Respondent.num_comments_rated">
+<code class="descname">num_comments_rated</code><a class="headerlink" href="#pcari.models.Respondent.num_comments_rated" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of <cite>Comment</cite>’s reviewed by this
+<cite>Respondent</cite>. Similarly, we can infer user progression from this
+attribute. This excludes comments the respondent skipped rating or
+did not rate.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Respondent.comments">
+<code class="descname">comments</code><a class="headerlink" href="#pcari.models.Respondent.comments" title="Permalink to this definition">¶</a></dt>
+<dd><p>A Django <cite>QuerySet</cite> of all comments attached to this
+respondent.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.Respondent.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#pcari.models.Respondent.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">GENDERS</code><em class="property"> = ((u'M', u'Male'), (u'F', u'Female'))</em></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.Respondent.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#pcari.models.Respondent.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">age</code></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Respondent.comment_set">
+<code class="descname">comment_set</code><a class="headerlink" href="#pcari.models.Respondent.comment_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accessor to the related objects manager on the reverse side of a
+many-to-one relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">parent.children</span></code> is a <code class="docutils literal"><span class="pre">ReverseManyToOneDescriptor</span></code> instance.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code class="docutils literal"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Respondent.commentrating_set">
+<code class="descname">commentrating_set</code><a class="headerlink" href="#pcari.models.Respondent.commentrating_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accessor to the related objects manager on the reverse side of a
+many-to-one relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">parent.children</span></code> is a <code class="docutils literal"><span class="pre">ReverseManyToOneDescriptor</span></code> instance.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code class="docutils literal"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">comments</code></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">completed_survey</code></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">gender</code></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pcari.models.Respondent.get_gender_display">
+<code class="descname">get_gender_display</code><span class="sig-paren">(</span><em>*moreargs</em>, <em>**morekwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.Respondent.get_gender_display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.models.Respondent.get_language_display">
+<code class="descname">get_language_display</code><span class="sig-paren">(</span><em>*moreargs</em>, <em>**morekwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.Respondent.get_language_display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Respondent.id">
+<code class="descname">id</code><a class="headerlink" href="#pcari.models.Respondent.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">language</code></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">location</code></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">num_comments_rated</code></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">num_questions_rated</code></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Respondent.objects">
+<code class="descname">objects</code><em class="property"> = &lt;django.db.models.manager.Manager object&gt;</em><a class="headerlink" href="#pcari.models.Respondent.objects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Respondent.optionquestionchoice_set">
+<code class="descname">optionquestionchoice_set</code><a class="headerlink" href="#pcari.models.Respondent.optionquestionchoice_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accessor to the related objects manager on the reverse side of a
+many-to-one relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">parent.children</span></code> is a <code class="docutils literal"><span class="pre">ReverseManyToOneDescriptor</span></code> instance.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code class="docutils literal"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Respondent.predecessor">
+<code class="descname">predecessor</code><a class="headerlink" href="#pcari.models.Respondent.predecessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">child.parent</span></code> is a <code class="docutils literal"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Respondent.quantitativequestionrating_set">
+<code class="descname">quantitativequestionrating_set</code><a class="headerlink" href="#pcari.models.Respondent.quantitativequestionrating_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accessor to the related objects manager on the reverse side of a
+many-to-one relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">parent.children</span></code> is a <code class="docutils literal"><span class="pre">ReverseManyToOneDescriptor</span></code> instance.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code class="docutils literal"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">submitted_personal_data</code></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Respondent.successors">
+<code class="descname">successors</code><a class="headerlink" href="#pcari.models.Respondent.successors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accessor to the related objects manager on the reverse side of a
+many-to-one relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">parent.children</span></code> is a <code class="docutils literal"><span class="pre">ReverseManyToOneDescriptor</span></code> instance.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code class="docutils literal"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.models.OptionQuestion">
+<em class="property">class </em><code class="descclassname">pcari.models.</code><code class="descname">OptionQuestion</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.OptionQuestion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pcari.models.Question</span></code></p>
+<p>An <cite>OptionQuestion</cite> is a <cite>Question</cite> that asks the respondent to select one
+element from a set of unordered choices.</p>
+<dl class="attribute">
+<dt id="pcari.models.OptionQuestion.INPUT_TYPE_CHOICES">
+<code class="descname">INPUT_TYPE_CHOICES</code><a class="headerlink" href="#pcari.models.OptionQuestion.INPUT_TYPE_CHOICES" title="Permalink to this definition">¶</a></dt>
+<dd><p>A tuple of input type choices, each of which is a
+two-element tuple consisting of the shorthand and the name of an
+input type. Current options are:</p>
+<blockquote>
+<div>select: Render the question as a dropdown menu.
+radio: Render the question as a list of radio buttons.</div></blockquote>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.OptionQuestion._options_text">
+<code class="descname">_options_text</code><a class="headerlink" href="#pcari.models.OptionQuestion._options_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>A string representing a list of options in JSON.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.OptionQuestion.options">
+<code class="descname">options</code><a class="headerlink" href="#pcari.models.OptionQuestion.options" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper around <cite>_options_text</cite> that automatically serializes
+and unserializes a Python list of options. This is the preferred
+way of manipulating the list of options.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.OptionQuestion.input_type">
+<code class="descname">input_type</code><a class="headerlink" href="#pcari.models.OptionQuestion.input_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>A string specifying how the input should be rendered.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.OptionQuestion.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#pcari.models.OptionQuestion.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">INPUT_TYPE_CHOICES</code><em class="property"> = ((u'select', u'Select'), (u'radio', u'Radio'))</em></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.OptionQuestion.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#pcari.models.OptionQuestion.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pcari.models.OptionQuestion.get_input_type_display">
+<code class="descname">get_input_type_display</code><span class="sig-paren">(</span><em>*moreargs</em>, <em>**morekwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.OptionQuestion.get_input_type_display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.OptionQuestion.id">
+<code class="descname">id</code><a class="headerlink" href="#pcari.models.OptionQuestion.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">input_type</code></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.OptionQuestion.objects">
+<code class="descname">objects</code><em class="property"> = &lt;django.db.models.manager.Manager object&gt;</em><a class="headerlink" href="#pcari.models.OptionQuestion.objects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">options</code></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.OptionQuestion.predecessor">
+<code class="descname">predecessor</code><a class="headerlink" href="#pcari.models.OptionQuestion.predecessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">child.parent</span></code> is a <code class="docutils literal"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.OptionQuestion.selections">
+<code class="descname">selections</code><a class="headerlink" href="#pcari.models.OptionQuestion.selections" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accessor to the related objects manager on the reverse side of a
+many-to-one relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">parent.children</span></code> is a <code class="docutils literal"><span class="pre">ReverseManyToOneDescriptor</span></code> instance.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code class="docutils literal"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.OptionQuestion.successors">
+<code class="descname">successors</code><a class="headerlink" href="#pcari.models.OptionQuestion.successors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accessor to the related objects manager on the reverse side of a
+many-to-one relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">parent.children</span></code> is a <code class="docutils literal"><span class="pre">ReverseManyToOneDescriptor</span></code> instance.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code class="docutils literal"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.models.OptionQuestionChoice">
+<em class="property">class </em><code class="descclassname">pcari.models.</code><code class="descname">OptionQuestionChoice</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.OptionQuestionChoice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pcari.models.Response</span></code></p>
+<p>An <cite>OptionQuestionChoice</cite> is a response to an <cite>OptionQuestion</cite>.</p>
+<dl class="attribute">
+<dt id="pcari.models.OptionQuestionChoice.question">
+<code class="descname">question</code><a class="headerlink" href="#pcari.models.OptionQuestionChoice.question" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <cite>OptionQuestion</cite> answered.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.OptionQuestionChoice.option">
+<code class="descname">option</code><a class="headerlink" href="#pcari.models.OptionQuestionChoice.option" title="Permalink to this definition">¶</a></dt>
+<dd><p>The option selected by the respondent. This must be an element
+of <cite>question.options</cite>.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.OptionQuestionChoice.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#pcari.models.OptionQuestionChoice.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.OptionQuestionChoice.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#pcari.models.OptionQuestionChoice.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pcari.models.OptionQuestionChoice.clean">
+<code class="descname">clean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.OptionQuestionChoice.clean" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.models.OptionQuestionChoice.get_next_by_timestamp">
+<code class="descname">get_next_by_timestamp</code><span class="sig-paren">(</span><em>*moreargs</em>, <em>**morekwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.OptionQuestionChoice.get_next_by_timestamp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.models.OptionQuestionChoice.get_previous_by_timestamp">
+<code class="descname">get_previous_by_timestamp</code><span class="sig-paren">(</span><em>*moreargs</em>, <em>**morekwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.OptionQuestionChoice.get_previous_by_timestamp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.OptionQuestionChoice.id">
+<code class="descname">id</code><a class="headerlink" href="#pcari.models.OptionQuestionChoice.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.OptionQuestionChoice.objects">
+<code class="descname">objects</code><em class="property"> = &lt;django.db.models.manager.Manager object&gt;</em><a class="headerlink" href="#pcari.models.OptionQuestionChoice.objects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">option</code></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.OptionQuestionChoice.predecessor">
+<code class="descname">predecessor</code><a class="headerlink" href="#pcari.models.OptionQuestionChoice.predecessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">child.parent</span></code> is a <code class="docutils literal"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">question</code></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">child.parent</span></code> is a <code class="docutils literal"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.OptionQuestionChoice.question_id">
+<code class="descname">question_id</code><a class="headerlink" href="#pcari.models.OptionQuestionChoice.question_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.OptionQuestionChoice.respondent">
+<code class="descname">respondent</code><a class="headerlink" href="#pcari.models.OptionQuestionChoice.respondent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">child.parent</span></code> is a <code class="docutils literal"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.OptionQuestionChoice.successors">
+<code class="descname">successors</code><a class="headerlink" href="#pcari.models.OptionQuestionChoice.successors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accessor to the related objects manager on the reverse side of a
+many-to-one relation.</p>
+<p>In the example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">parent.children</span></code> is a <code class="docutils literal"><span class="pre">ReverseManyToOneDescriptor</span></code> instance.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code class="docutils literal"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Malasakit</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, UC Berkeley.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/pcari.models.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

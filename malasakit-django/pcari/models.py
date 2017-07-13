@@ -8,7 +8,7 @@ Attributes:
     LANGUAGES: A tuple of languages. Each language is represented as a tuple of
         two elements: a code and a translated full name. For instance, the
         language code for "English" would be "en". This attribute is pulled
-        from the project `settings` lazily.
+        from the project ``settings`` lazily.
     MODELS: A dictionary mapping model names to models. This attribute
         essentially acts as a lookup table by name, and is useful for
         determining whether a model with a given name exists.

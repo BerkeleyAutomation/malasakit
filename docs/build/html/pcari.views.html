@@ -1,0 +1,355 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pcari.views module &#8212; Malasakit 1.25 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.25',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pcari.views">
+<span id="pcari-views-module"></span><h1>pcari.views module<a class="headerlink" href="#module-pcari.views" title="Permalink to this headline">¶</a></h1>
+<p>This module defines the application’s views, which are needed to render pages.</p>
+<dl class="function">
+<dt id="pcari.views.generate_ratings_matrix">
+<code class="descclassname">pcari.views.</code><code class="descname">generate_ratings_matrix</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.views.generate_ratings_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch quantitative question ratings in the form of a NumPy matrix.</p>
+<p>Each row in the matrix is the ratings of one respondent, and each column is
+the ratings for one question.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
+<dt>A length-<cite>m</cite> dictionary mapping respondent identifiers</dt>
+<dd>to matrix row indicies.</dd>
+<dt>question_id_map: A length-<cite>n</cite> dictionary mapping quantitative question</dt>
+<dd>identifiers to matrix column indicies.</dd>
+</dl>
+<p>ratings_matrix: A <cite>m</cite> x <cite>n</cite> NumPy array of ratings.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">respondent_id_map</td>
+</tr>
+</tbody>
+</table>
+<p>Only active respondents, active questions, and active ratings are used.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pcari.views.normalize_ratings_matrix">
+<code class="descclassname">pcari.views.</code><code class="descname">normalize_ratings_matrix</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.views.normalize_ratings_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize a ratings matrix so the ellipsoid of ratings is centered at the
+origin, and missing values are imputed with zero. (That is, the mean of the
+column before centering.)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ratings_matrix</strong> – A <cite>m</cite> x <cite>n</cite> matrix of ratings.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A <cite>m</cite> x <cite>n</cite> matrix of normalized ratings with no <cite>np.nan</cite> values.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pcari.views.calculate_principal_components">
+<code class="descclassname">pcari.views.</code><code class="descname">calculate_principal_components</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.views.calculate_principal_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the principal components of a normalized ratings matrix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>normalized_ratings</strong> – A normalized ratings matrix (as provided by
+<cite>normalize_ratings_matrix</cite>).</li>
+<li><strong>num_components</strong> – The number of principal components to select (<cite>p</cite>).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A <cite>p</cite> x <cite>n</cite> NumPy array whose rows are principal components (<cite>n</cite> is the
+number of features).</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pcari.views.fetch_comments">
+<code class="descclassname">pcari.views.</code><code class="descname">fetch_comments</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.views.fetch_comments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch a list of comments as JSON.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> – May contain a <cite>limit</cite> GET parameter that specifies how many
+comments to get (by default: 1000).</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A <cite>JsonResponse</cite> containing an JSON object mapping comment identifiers
+to JSON objects with the following attributes:<blockquote>
+<div>msg: The comment’s message (from the <cite>Comment.message</cite> field).
+sem: The standard error of the mean.
+pos: The position of the comment. Obtained by projecting the<blockquote>
+<div>quantitative question ratings vector of the comment author
+onto the first two principal components of the question
+ratings dataset. This is a list containing two numbers, the
+first principal component projection and second, respectively.</div></blockquote>
+<p>tag: A short description of the comment’s message.
+qid: The identifier of the <cite>QualitativeQuestion</cite> this comment was</p>
+<blockquote>
+<div>in response to.</div></blockquote>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pcari.views.fetch_qualitative_questions">
+<code class="descclassname">pcari.views.</code><code class="descname">fetch_qualitative_questions</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.views.fetch_qualitative_questions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch qualitative question data as JSON.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pcari.views.fetch_quantitative_questions">
+<code class="descclassname">pcari.views.</code><code class="descname">fetch_quantitative_questions</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.views.fetch_quantitative_questions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch quantitative question data as JSON.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pcari.views.fetch_question_ratings">
+<code class="descclassname">pcari.views.</code><code class="descname">fetch_question_ratings</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.views.fetch_question_ratings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch quantitative question ratings as JSON.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> – The request is ignored.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A <cite>JsonResponse</cite> containing a JSON object mapping quantitative question
+rating identifiers to rating objects, each with two keys:<blockquote>
+<div>qid: The quantitative question identifier.
+score: How this question was rated.</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pcari.views.save_response">
+<code class="descclassname">pcari.views.</code><code class="descname">save_response</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.views.save_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a single user’s responses as a JSON object to the database.</p>
+<p>The request body should contain the string representation of a JSON object
+(that is, a Python dictionary) of the following form:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;question-ratings&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="o">&lt;</span><span class="n">qid</span><span class="o">&gt;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">score</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="o">...</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="o">&lt;</span><span class="n">qid</span><span class="o">&gt;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">message</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="o">...</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;comment-ratings&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="o">&lt;</span><span class="n">cid</span><span class="o">&gt;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">score</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="o">...</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;respondent-data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span>
+        <span class="s2">&quot;gender&quot;</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span>
+        <span class="s2">&quot;location&quot;</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span>
+        <span class="s2">&quot;language&quot;</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span>
+        <span class="s2">&quot;submitted-personal-data&quot;</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span>
+        <span class="s2">&quot;completed-survey&quot;</span><span class="p">:</span> <span class="o">...</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In cases where the data were successfully received but the contents of the
+request are syntactically or logically incorrect (for instance, providing
+the <cite>id</cite> of a question that does not exist, or malformed JSON), no models
+are written to the database, and a general HTTP error code of 400 is
+returned. The error code indicates that the client should not send another
+request without modifications to the request’s body.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pcari.views.export_data">
+<code class="descclassname">pcari.views.</code><code class="descname">export_data</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.views.export_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export data for a model as a file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> – <p>A request object that supports the following GET parameters:
+model: The name of the model to export data for. This is a requred</p>
+<blockquote>
+<div>parameter.</div></blockquote>
+<dl class="docutils">
+<dt>data_format: The name of the data format (default: csv). Supported</dt>
+<dd>options are: csv.</dd>
+<dt>keys: A comma-separated list of primary keys (default: select all</dt>
+<dd>instances). Only works for numeric primary keys.</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An <cite>HttpResponse</cite> that contains a file.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pcari.views.index">
+<code class="descclassname">pcari.views.</code><code class="descname">index</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.views.index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Redirect the user to the <cite>landing</cite> page.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pcari.views.landing">
+<code class="descclassname">pcari.views.</code><code class="descname">landing</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.views.landing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Render a landing page.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pcari.views.qualitative_questions">
+<code class="descclassname">pcari.views.</code><code class="descname">qualitative_questions</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.views.qualitative_questions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Render a page asking respondents for comments (i.e. suggestions).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pcari.views.peer_responses">
+<code class="descclassname">pcari.views.</code><code class="descname">peer_responses</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.views.peer_responses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Render a page showing respondents how others rated the quantitative questions.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pcari.views.rate_comments">
+<code class="descclassname">pcari.views.</code><code class="descname">rate_comments</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.views.rate_comments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Render a bloom page where respondents can rate comments by others.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">pcari.views.</code><code class="descname">qualitative_questions</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span></dt>
+<dd><p>Render a page asking respondents for comments (i.e. suggestions).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pcari.views.personal_information">
+<code class="descclassname">pcari.views.</code><code class="descname">personal_information</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.views.personal_information" title="Permalink to this definition">¶</a></dt>
+<dd><p>Render a page asking respondents for personal information.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pcari.views.end">
+<code class="descclassname">pcari.views.</code><code class="descname">end</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.views.end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Render an end-of-survey page.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pcari.views.handle_page_not_found">
+<code class="descclassname">pcari.views.</code><code class="descname">handle_page_not_found</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.views.handle_page_not_found" title="Permalink to this definition">¶</a></dt>
+<dd><p>Render a page for HTTP 404 errors (page not found).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pcari.views.handle_internal_server_error">
+<code class="descclassname">pcari.views.</code><code class="descname">handle_internal_server_error</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.views.handle_internal_server_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Render a page for HTTP 500 errors (internal server error).</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Malasakit</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, UC Berkeley.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/pcari.views.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

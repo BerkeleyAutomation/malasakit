@@ -4,14 +4,9 @@ pcari\.templatetags package
 Submodules
 ----------
 
-pcari\.templatetags\.localize\_url module
------------------------------------------
+.. toctree::
 
-.. automodule:: pcari.templatetags.localize_url
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   pcari.templatetags.localize_url
 
 Module contents
 ---------------

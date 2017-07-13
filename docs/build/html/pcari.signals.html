@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pcari.management package &#8212; Malasakit 1.25 documentation</title>
+    <title>pcari.signals module &#8212; Malasakit 1.25 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -39,28 +39,21 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="pcari-management-package">
-<h1>pcari.management package<a class="headerlink" href="#pcari-management-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="pcari.management.commands.html">pcari.management.commands package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pcari.management.commands.html#submodules">Submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pcari.management.commands.cleantext.html">pcari.management.commands.cleantext module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pcari.management.commands.makedbtrans.html">pcari.management.commands.makedbtrans module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pcari.management.commands.makemessages.html">pcari.management.commands.makemessages module</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pcari.management.commands.html#module-pcari.management.commands">Module contents</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</div>
-<div class="section" id="module-pcari.management">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pcari.management" title="Permalink to this headline">¶</a></h2>
-</div>
+  <div class="section" id="module-pcari.signals">
+<span id="pcari-signals-module"></span><h1>pcari.signals module<a class="headerlink" href="#module-pcari.signals" title="Permalink to this headline">¶</a></h1>
+<p>This module defines actions that should be taken on special events.</p>
+<dl class="function">
+<dt id="pcari.signals.resolve_history_on_deletion">
+<code class="descclassname">pcari.signals.</code><code class="descname">resolve_history_on_deletion</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.signals.resolve_history_on_deletion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensure that instances of models that derive from <cite>History</cite> do not have a
+dangling pointer to a predecessor.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pcari.signals.store_successors">
+<code class="descclassname">pcari.signals.</code><code class="descname">store_successors</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.signals.store_successors" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 
 
@@ -109,7 +102,7 @@
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="_sources/pcari.management.rst.txt"
+      <a href="_sources/pcari.signals.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

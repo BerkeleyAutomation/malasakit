@@ -1,0 +1,200 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pcari.test_views module &#8212; Malasakit 1.25 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.25',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pcari.test_views">
+<span id="pcari-test-views-module"></span><h1>pcari.test_views module<a class="headerlink" href="#module-pcari.test_views" title="Permalink to this headline">¶</a></h1>
+<p>This module defines unit tests for views.</p>
+<dl class="class">
+<dt id="pcari.test_views.PCACorrectnessTestCase">
+<em class="property">class </em><code class="descclassname">pcari.test_views.</code><code class="descname">PCACorrectnessTestCase</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_views.PCACorrectnessTestCase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.test.testcases.TestCase</span></code></p>
+<p>Test the correctness of the principal component analysis.</p>
+<dl class="attribute">
+<dt id="pcari.test_views.PCACorrectnessTestCase.fixtures">
+<code class="descname">fixtures</code><em class="property"> = [u'pca-test-data.yaml']</em><a class="headerlink" href="#pcari.test_views.PCACorrectnessTestCase.fixtures" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.test_views.PCACorrectnessTestCase.test_calculate_principal_components">
+<code class="descname">test_calculate_principal_components</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_views.PCACorrectnessTestCase.test_calculate_principal_components" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.test_views.PCACorrectnessTestCase.test_ratings_matrix_entries">
+<code class="descname">test_ratings_matrix_entries</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_views.PCACorrectnessTestCase.test_ratings_matrix_entries" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.test_views.PCACorrectnessTestCase.test_ratings_matrix_normalization">
+<code class="descname">test_ratings_matrix_normalization</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_views.PCACorrectnessTestCase.test_ratings_matrix_normalization" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.test_views.ResourceFetchTestCase">
+<em class="property">class </em><code class="descclassname">pcari.test_views.</code><code class="descname">ResourceFetchTestCase</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_views.ResourceFetchTestCase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.test.testcases.TestCase</span></code></p>
+<dl class="method">
+<dt id="pcari.test_views.ResourceFetchTestCase.setUp">
+<code class="descname">setUp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_views.ResourceFetchTestCase.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.test_views.ResourceFetchTestCase.test_fetch_comments">
+<code class="descname">test_fetch_comments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_views.ResourceFetchTestCase.test_fetch_comments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.test_views.ResourceFetchTestCase.test_fetch_qualitative_questions">
+<code class="descname">test_fetch_qualitative_questions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_views.ResourceFetchTestCase.test_fetch_qualitative_questions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.test_views.ResourceFetchTestCase.test_visit_pages">
+<code class="descname">test_visit_pages</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_views.ResourceFetchTestCase.test_visit_pages" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.test_views.ResponseSaveTestCase">
+<em class="property">class </em><code class="descclassname">pcari.test_views.</code><code class="descname">ResponseSaveTestCase</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_views.ResponseSaveTestCase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.test.testcases.TestCase</span></code></p>
+<dl class="method">
+<dt id="pcari.test_views.ResponseSaveTestCase.push">
+<code class="descname">push</code><span class="sig-paren">(</span><em>responses</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_views.ResponseSaveTestCase.push" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.test_views.ResponseSaveTestCase.setUp">
+<code class="descname">setUp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_views.ResponseSaveTestCase.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pcari.test_views.ResponseSaveTestCase.setUpTestData">
+<em class="property">classmethod </em><code class="descname">setUpTestData</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_views.ResponseSaveTestCase.setUpTestData" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.test_views.ResponseSaveTestCase.test_empty_save">
+<code class="descname">test_empty_save</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_views.ResponseSaveTestCase.test_empty_save" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.test_views.ResponseSaveTestCase.test_invalid_data_save">
+<code class="descname">test_invalid_data_save</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_views.ResponseSaveTestCase.test_invalid_data_save" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.test_views.ResponseSaveTestCase.test_valid_data_save">
+<code class="descname">test_valid_data_save</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_views.ResponseSaveTestCase.test_valid_data_save" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pcari.test_views.generate_page_urls">
+<code class="descclassname">pcari.test_views.</code><code class="descname">generate_page_urls</code><span class="sig-paren">(</span><em>endpoints=[u'landing', u'quantitative-questions', u'peer-responses', u'rate-comments', u'personal-information', u'end']</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_views.generate_page_urls" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pcari.test_views.ignore_warnings">
+<code class="descclassname">pcari.test_views.</code><code class="descname">ignore_warnings</code><span class="sig-paren">(</span><em>function</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_views.ignore_warnings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Malasakit</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, UC Berkeley.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/pcari.test_views.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

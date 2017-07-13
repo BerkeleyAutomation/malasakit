@@ -1,0 +1,246 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pcari.test_models module &#8212; Malasakit 1.25 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.25',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pcari.test_models">
+<span id="pcari-test-models-module"></span><h1>pcari.test_models module<a class="headerlink" href="#module-pcari.test_models" title="Permalink to this headline">¶</a></h1>
+<p>This module defines unit tests of model behavior.</p>
+<dl class="class">
+<dt id="pcari.test_models.HistoryTests">
+<em class="property">class </em><code class="descclassname">pcari.test_models.</code><code class="descname">HistoryTests</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_models.HistoryTests" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.test.testcases.TestCase</span></code></p>
+<p>Ensure history is tracked correctly.</p>
+<dl class="method">
+<dt id="pcari.test_models.HistoryTests.test_diff">
+<code class="descname">test_diff</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_models.HistoryTests.test_diff" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.test_models.HistoryTests.test_grandparent_deletion">
+<code class="descname">test_grandparent_deletion</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_models.HistoryTests.test_grandparent_deletion" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.test_models.HistoryTests.test_make_copy">
+<code class="descname">test_make_copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_models.HistoryTests.test_make_copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.test_models.HistoryTests.test_nonlinear_deletion">
+<code class="descname">test_nonlinear_deletion</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_models.HistoryTests.test_nonlinear_deletion" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.test_models.HistoryTests.test_predecessors">
+<code class="descname">test_predecessors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_models.HistoryTests.test_predecessors" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.test_models.HistoryTests.test_simple_parent_deletion">
+<code class="descname">test_simple_parent_deletion</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_models.HistoryTests.test_simple_parent_deletion" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.test_models.IntegrityTests">
+<em class="property">class </em><code class="descclassname">pcari.test_models.</code><code class="descname">IntegrityTests</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_models.IntegrityTests" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.test.testcases.TransactionTestCase</span></code></p>
+<p>Ensure the data passes tests for uniqueness and not being null.</p>
+<dl class="method">
+<dt id="pcari.test_models.IntegrityTests.test_rating_respondent_unique_together">
+<code class="descname">test_rating_respondent_unique_together</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_models.IntegrityTests.test_rating_respondent_unique_together" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.test_models.PropertyTests">
+<em class="property">class </em><code class="descclassname">pcari.test_models.</code><code class="descname">PropertyTests</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_models.PropertyTests" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.test.testcases.TestCase</span></code></p>
+<p>Test other dynamically computed model attributes.</p>
+<dl class="method">
+<dt id="pcari.test_models.PropertyTests.test_auto_add_timestamp_order">
+<code class="descname">test_auto_add_timestamp_order</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_models.PropertyTests.test_auto_add_timestamp_order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.test_models.PropertyTests.test_comment_word_count">
+<code class="descname">test_comment_word_count</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_models.PropertyTests.test_comment_word_count" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.test_models.PropertyTests.test_num_comments_rated">
+<code class="descname">test_num_comments_rated</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_models.PropertyTests.test_num_comments_rated" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.test_models.PropertyTests.test_num_questions_rated">
+<code class="descname">test_num_questions_rated</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_models.PropertyTests.test_num_questions_rated" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.test_models.PropertyTests.test_option_question_choice_wrapping">
+<code class="descname">test_option_question_choice_wrapping</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_models.PropertyTests.test_option_question_choice_wrapping" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.test_models.StatisticsTests">
+<em class="property">class </em><code class="descclassname">pcari.test_models.</code><code class="descname">StatisticsTests</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_models.StatisticsTests" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.test.testcases.TestCase</span></code></p>
+<p>Ensure all descriptive statistics are computed correctly.</p>
+<dl class="classmethod">
+<dt id="pcari.test_models.StatisticsTests.setUpTestData">
+<em class="property">classmethod </em><code class="descname">setUpTestData</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_models.StatisticsTests.setUpTestData" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.test_models.StatisticsTests.test_mean_score">
+<code class="descname">test_mean_score</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_models.StatisticsTests.test_mean_score" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.test_models.StatisticsTests.test_mode_score">
+<code class="descname">test_mode_score</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_models.StatisticsTests.test_mode_score" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.test_models.StatisticsTests.test_num_ratings">
+<code class="descname">test_num_ratings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_models.StatisticsTests.test_num_ratings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.test_models.StatisticsTests.test_score_sem">
+<code class="descname">test_score_sem</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_models.StatisticsTests.test_score_sem" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.test_models.StatisticsTests.test_score_stdev">
+<code class="descname">test_score_stdev</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_models.StatisticsTests.test_score_stdev" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.test_models.ValidationTests">
+<em class="property">class </em><code class="descclassname">pcari.test_models.</code><code class="descname">ValidationTests</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_models.ValidationTests" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.test.testcases.TestCase</span></code></p>
+<p>Ensure validation catches invalid input while allowing valid input.</p>
+<dl class="method">
+<dt id="pcari.test_models.ValidationTests.test_option_question_choice_validation">
+<code class="descname">test_option_question_choice_validation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_models.ValidationTests.test_option_question_choice_validation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.test_models.ValidationTests.test_quantitative_question_rating_bound_validation">
+<code class="descname">test_quantitative_question_rating_bound_validation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_models.ValidationTests.test_quantitative_question_rating_bound_validation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.test_models.ValidationTests.test_respondent_age_validation">
+<code class="descname">test_respondent_age_validation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_models.ValidationTests.test_respondent_age_validation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.test_models.ValidationTests.test_respondent_gender_validation">
+<code class="descname">test_respondent_gender_validation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.test_models.ValidationTests.test_respondent_gender_validation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Malasakit</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, UC Berkeley.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/pcari.test_models.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

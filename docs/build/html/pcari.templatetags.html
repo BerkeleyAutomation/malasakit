@@ -43,39 +43,11 @@
 <h1>pcari.templatetags package<a class="headerlink" href="#pcari-templatetags-package" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="module-pcari.templatetags.localize_url">
-<span id="pcari-templatetags-localize-url-module"></span><h2>pcari.templatetags.localize_url module<a class="headerlink" href="#module-pcari.templatetags.localize_url" title="Permalink to this headline">¶</a></h2>
-<p>This module defines a custom tag for generating URLs for switching languages.</p>
-<dl class="function">
-<dt id="pcari.templatetags.localize_url.localize_url">
-<code class="descclassname">pcari.templatetags.localize_url.</code><code class="descname">localize_url</code><span class="sig-paren">(</span><em>url_example</em>, <em>language</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.templatetags.localize_url.localize_url" title="Permalink to this definition">¶</a></dt>
-<dd><p>Localize a URL for a given language.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>url_example</strong> – A sample URL of any language that starts with <cite>URL_ROOT</cite>.</li>
-<li><strong>language</strong> – The code of the language to localize for.</li>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pcari.templatetags.localize_url.html">pcari.templatetags.localize_url module</a></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The localized URL as a string.</p>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># With `settings.URL_ROOT` set to `/pcari`</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">localize_url</span><span class="p">(</span><span class="s1">&#39;/pcari/en/landing/&#39;</span><span class="p">,</span> <span class="s1">&#39;tl&#39;</span><span class="p">)</span>
-<span class="go">&#39;/pcari/tl/landing/&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># With `settings.URL_ROOT` set to &#39;/&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">localize_url</span><span class="p">(</span><span class="s1">&#39;/en/landing&#39;</span><span class="p">,</span> <span class="s1">&#39;tl&#39;</span><span class="p">)</span>
-<span class="go">`/tl/landing`</span>
-</pre></div>
 </div>
-</dd></dl>
-
 </div>
 <div class="section" id="module-pcari.templatetags">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pcari.templatetags" title="Permalink to this headline">¶</a></h2>

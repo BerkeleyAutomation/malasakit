@@ -80,6 +80,7 @@ def profile(function):
         LOGGER.log(logging.DEBUG, 'Call to "%s" took %.3f seconds',
                    function.__name__, time_elapsed)
         return result
+    wrapper.__doc__ = function.__doc__
     return wrapper
 
 
@@ -337,7 +338,7 @@ def save_response(request):
     Write a single user's responses as a JSON object to the database.
 
     The request body should contain the string representation of a JSON object
-    (that is, a Python dictionary) of the following form:
+    (that is, a Python dictionary) of the following form::
 
         {
             "question-ratings": {

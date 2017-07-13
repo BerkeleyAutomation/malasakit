@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pcari.management package &#8212; Malasakit 1.25 documentation</title>
+    <title>pcari.templatetags.localize_url module &#8212; Malasakit 1.25 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -39,28 +39,38 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="pcari-management-package">
-<h1>pcari.management package<a class="headerlink" href="#pcari-management-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="pcari.management.commands.html">pcari.management.commands package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pcari.management.commands.html#submodules">Submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pcari.management.commands.cleantext.html">pcari.management.commands.cleantext module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pcari.management.commands.makedbtrans.html">pcari.management.commands.makedbtrans module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pcari.management.commands.makemessages.html">pcari.management.commands.makemessages module</a></li>
+  <div class="section" id="module-pcari.templatetags.localize_url">
+<span id="pcari-templatetags-localize-url-module"></span><h1>pcari.templatetags.localize_url module<a class="headerlink" href="#module-pcari.templatetags.localize_url" title="Permalink to this headline">¶</a></h1>
+<p>This module defines a custom tag for generating URLs for switching languages.</p>
+<dl class="function">
+<dt id="pcari.templatetags.localize_url.localize_url">
+<code class="descclassname">pcari.templatetags.localize_url.</code><code class="descname">localize_url</code><span class="sig-paren">(</span><em>url_example</em>, <em>language</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.templatetags.localize_url.localize_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Localize a URL for a given language.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>url_example</strong> – A sample URL of any language that starts with <cite>URL_ROOT</cite>.</li>
+<li><strong>language</strong> – The code of the language to localize for.</li>
 </ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pcari.management.commands.html#module-pcari.management.commands">Module contents</a></li>
-</ul>
-</li>
-</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The localized URL as a string.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># With `settings.URL_ROOT` set to `/pcari`</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">localize_url</span><span class="p">(</span><span class="s1">&#39;/pcari/en/landing/&#39;</span><span class="p">,</span> <span class="s1">&#39;tl&#39;</span><span class="p">)</span>
+<span class="go">&#39;/pcari/tl/landing/&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># With `settings.URL_ROOT` set to &#39;/&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">localize_url</span><span class="p">(</span><span class="s1">&#39;/en/landing&#39;</span><span class="p">,</span> <span class="s1">&#39;tl&#39;</span><span class="p">)</span>
+<span class="go">`/tl/landing`</span>
+</pre></div>
 </div>
-</div>
-<div class="section" id="module-pcari.management">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pcari.management" title="Permalink to this headline">¶</a></h2>
-</div>
+</dd></dl>
+
 </div>
 
 
@@ -109,7 +119,7 @@
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="_sources/pcari.management.rst.txt"
+      <a href="_sources/pcari.templatetags.localize_url.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

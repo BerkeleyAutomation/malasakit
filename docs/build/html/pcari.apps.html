@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pcari.management package &#8212; Malasakit 1.25 documentation</title>
+    <title>pcari.apps module &#8212; Malasakit 1.25 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -39,28 +39,31 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="pcari-management-package">
-<h1>pcari.management package<a class="headerlink" href="#pcari-management-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="pcari.management.commands.html">pcari.management.commands package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pcari.management.commands.html#submodules">Submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pcari.management.commands.cleantext.html">pcari.management.commands.cleantext module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pcari.management.commands.makedbtrans.html">pcari.management.commands.makedbtrans module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pcari.management.commands.makemessages.html">pcari.management.commands.makemessages module</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pcari.management.commands.html#module-pcari.management.commands">Module contents</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</div>
-<div class="section" id="module-pcari.management">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pcari.management" title="Permalink to this headline">¶</a></h2>
-</div>
+  <div class="section" id="module-pcari.apps">
+<span id="pcari-apps-module"></span><h1>pcari.apps module<a class="headerlink" href="#module-pcari.apps" title="Permalink to this headline">¶</a></h1>
+<p>This module defines the application configuration.</p>
+<dl class="class">
+<dt id="pcari.apps.PCARIConfig">
+<em class="property">class </em><code class="descclassname">pcari.apps.</code><code class="descname">PCARIConfig</code><span class="sig-paren">(</span><em>app_name</em>, <em>app_module</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.apps.PCARIConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.apps.config.AppConfig</span></code></p>
+<p>This class handles application-wide configuration by preparing resources.</p>
+<dl class="attribute">
+<dt id="pcari.apps.PCARIConfig.name">
+<code class="descname">name</code><em class="property"> = u'pcari'</em><a class="headerlink" href="#pcari.apps.PCARIConfig.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.apps.PCARIConfig.ready">
+<code class="descname">ready</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.apps.PCARIConfig.ready" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.apps.PCARIConfig.verbose_name">
+<code class="descname">verbose_name</code><em class="property"> = u'PCARI'</em><a class="headerlink" href="#pcari.apps.PCARIConfig.verbose_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -109,7 +112,7 @@
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="_sources/pcari.management.rst.txt"
+      <a href="_sources/pcari.apps.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 
