@@ -346,8 +346,8 @@ class QuantitativeQuestion(Question, StatisticsMixin):
         INPUT_TYPE_CHOICES: A tuple of input type choices, each of which is a
             two-element tuple consisting of the shorthand and the name of an
             input type. Current options are:
-                range: Render the question as a "slider".
-                number: Render the question as a number-only text field.
+              * range: Render the question as a "slider".
+              * number: Render the question as a number-only text field.
         left_anchor: The text that describes the minimum score. For a range
             input type, this text is rendered on the left end of the slider.
         right_anchor: The text that describes the maximum score. For a range
@@ -383,8 +383,8 @@ class OptionQuestion(Question):
         INPUT_TYPE_CHOICES: A tuple of input type choices, each of which is a
             two-element tuple consisting of the shorthand and the name of an
             input type. Current options are:
-                select: Render the question as a dropdown menu.
-                radio: Render the question as a list of radio buttons.
+              * select: Render the question as a dropdown menu.
+              * radio: Render the question as a list of radio buttons.
         _options_text: A string representing a list of options in JSON.
         options: A wrapper around `_options_text` that automatically serializes
             and unserializes a Python list of options. This is the preferred

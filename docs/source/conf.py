@@ -17,11 +17,16 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
 import os
+import re
 import sys
 
 import django
 from django.db import models
 from django.db.models.query_utils import DeferredAttribute
+from django.db.models.fields.related_descriptors import (
+    ForwardManyToOneDescriptor,
+    ReverseManyToOneDescriptor,
+)
 
 sys.path.insert(0, os.path.abspath('../../malasakit-django'))
 os.environ['DJANGO_SETTINGS_MODULE'] = 'cafe.settings'
@@ -181,10 +186,15 @@ texinfo_documents = [
 # Custom preprocessing
 
 def determine_skip_member(app, what, name, obj, skip, options):
-    if isinstance(obj, DeferredAttribute):
-        print name, obj, what
+    patterns = (
+        r'get_.+_display',
+        r'get_next_by_.+',
+        r'get_previous_by_.+',
+    )
+    if isinstance(obj, (DeferredAttribute, ForwardManyToOneDescriptor, ReverseManyToOneDescriptor, property)):
         return True
-    # print '[!]', name, obj
+    elif any(re.match(pattern, name) for pattern in patterns):
+        return True
     return skip
 
 
