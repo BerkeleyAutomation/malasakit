@@ -1,4 +1,5 @@
 import logging
+import time
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.shortcuts import reverse
@@ -63,12 +64,9 @@ WEB_DRIVERS = make_test_web_drivers()
 
 
 class NavigationTestCase(StaticLiveServerTestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.questions = [QuantitativeQuestion.objects.create() for _ in range(8)]
-
     @use_drivers(*WEB_DRIVERS)
     def test_complete_walkthrough(self, driver):
+        self.questions = [QuantitativeQuestion.objects.create() for _ in range(8)]
         driver.get(self.live_server_url + reverse('pcari:landing'))
         html = driver.find_element_by_tag_name('html')
         driver.find_element_by_id('next').click()
@@ -76,3 +74,25 @@ class NavigationTestCase(StaticLiveServerTestCase):
             self.assertIn(reverse('pcari:quantitative-questions'), driver.current_url)
             driver.find_element_by_id('submit').click()
         self.assertIn(reverse('pcari:rate-comments'), driver.current_url)
+
+
+class OfflineTestCase(StaticLiveServerTestCase):
+    @use_drivers(*WEB_DRIVERS)
+    def test_offline(self, driver):
+        # TODO: clean up this proof-of-concept test
+
+        driver.get(self.live_server_url + reverse('pcari:landing'))
+        print driver.get_log('browser')
+
+        time.sleep(5)
+
+        self.tearDownClass()
+
+        driver.get(self.live_server_url + reverse('pcari:landing'))
+        print driver.get_log('browser')
+        driver.get_screenshot_as_file('/tmp/landing.png')
+
+        self.setUpClass()
+
+        driver.get(self.live_server_url + reverse('pcari:landing'))
+        print driver.get_log('browser')
