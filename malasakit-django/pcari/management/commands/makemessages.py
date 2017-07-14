@@ -1,5 +1,5 @@
 """
-makemessages -- Prepare message files for translators
+Prepare message files for translators
 """
 
 import os
