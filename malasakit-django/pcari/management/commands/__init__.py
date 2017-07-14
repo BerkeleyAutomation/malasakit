@@ -2,8 +2,10 @@
 This module defines common command templates.
 
 References:
-  * `Writing Custom Commands <https://docs.djangoproject.com/en/dev/howto/custom-management-commands/>`_
-  * `Python Argument Parser Reference <https://docs.python.org/2/library/argparse.html#the-add-argument-method>`_
+  * `Writing Custom Commands
+    <https://docs.djangoproject.com/en/dev/howto/custom-management-commands/>`_
+  * `Python Argument Parser Reference
+    <https://docs.python.org/2/library/argparse.html#the-add-argument-method>`_
 """
 
 from django.core.exceptions import FieldDoesNotExist

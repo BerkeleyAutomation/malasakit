@@ -2,7 +2,8 @@
 This module defines the application configuration.
 
 References:
-    * `Defining a Custom Configuration <https://docs.djangoproject.com/en/dev/ref/applications/#configuring-applications>`_
+    * `Defining a Custom Configuration
+      <https://docs.djangoproject.com/en/dev/ref/applications/#configuring-applications>`_
 """
 
 from __future__ import unicode_literals

@@ -3,7 +3,8 @@ This module defines the application's views, which are needed to render pages.
 
 These views can be broadly categorized into two groups:
     * **API endpoints** that can dynamically send and receive data (typically
-      as `JSON <http://www.json.org/>`_). The client can use these endpoints to operate asynchronously.
+      as `JSON <http://www.json.org/>`_). The client can use these endpoints to
+      operate asynchronously.
     * **HTML pages** that show up to users. These pages are typically largely
       static and lend themselves to caching by service workers.
 
