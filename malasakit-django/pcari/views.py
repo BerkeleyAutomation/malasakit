@@ -13,6 +13,7 @@ import random
 import time
 
 # Third-party libraries
+import decorator
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
@@ -61,7 +62,8 @@ DEFAULT_STANDARD_ERROR = 4.5  # For comments with fewer than two ratings
 LOGGER = logging.getLogger('pcari')
 
 
-def profile(function):
+@decorator.decorator
+def profile(function, *args, **kwargs):
     """
     Add a hook to a function to log runtime.
 
@@ -71,17 +73,13 @@ def profile(function):
     Returns:
         A wrapped version of `function` with the same behavior.
     """
-    def wrapper(*args, **kwargs):
-        """ Return the result of the given `function`. """
-        start_time = time.time()
-        result = function(*args, **kwargs)
-        end_time = time.time()
-        time_elapsed = end_time - start_time
-        LOGGER.log(logging.DEBUG, 'Call to "%s" took %.3f seconds',
-                   function.__name__, time_elapsed)
-        return result
-    wrapper.__doc__ = function.__doc__
-    return wrapper
+    start_time = time.time()
+    result = function(*args, **kwargs)
+    end_time = time.time()
+    time_elapsed = end_time - start_time
+    LOGGER.log(logging.DEBUG, 'Call to "%s" took %.3f seconds',
+               function.__name__, time_elapsed)
+    return result
 
 
 @profile
@@ -174,16 +172,16 @@ def fetch_comments(request):
     Returns:
         A `JsonResponse` containing an JSON object mapping comment identifiers
         to JSON objects with the following attributes:
-            msg: The comment's message (from the `Comment.message` field).
-            sem: The standard error of the mean.
-            pos: The position of the comment. Obtained by projecting the
-                 quantitative question ratings vector of the comment author
-                 onto the first two principal components of the question
-                 ratings dataset. This is a list containing two numbers, the
-                 first principal component projection and second, respectively.
-            tag: A short description of the comment's message.
-            qid: The identifier of the `QualitativeQuestion` this comment was
-                 in response to.
+          * ``msg``: The comment's message (from the `Comment.message` field).
+          * ``sem``: The standard error of the mean.
+          * ``pos``: The position of the comment. Obtained by projecting the
+            quantitative question ratings vector of the comment author
+            onto the first two principal components of the question
+            ratings dataset. This is a list containing two numbers, the
+            first principal component projection and second, respectively.
+          * ``tag``: A short description of the comment's message.
+          * ``qid``: The identifier of the `QualitativeQuestion` this comment was
+            in response to.
     """
     try:
         limit = int(request.GET.get('limit', str(DEFAULT_COMMENT_LIMIT)))

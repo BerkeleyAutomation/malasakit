@@ -71,7 +71,7 @@
 <h2 id="_">_</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pcari.models.html#pcari.models.OptionQuestion._options_text">_options_text (pcari.models.OptionQuestion attribute)</a>, <a href="pcari.models.html#pcari.models.OptionQuestion._options_text">[1]</a>
+      <li><a href="pcari.models.html#pcari.models.OptionQuestion._options_text">_options_text (pcari.models.OptionQuestion attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -83,6 +83,8 @@
 
       <ul>
         <li><a href="pcari.models.html#pcari.models.Question.Meta.abstract">(pcari.models.Question.Meta attribute)</a>
+</li>
+        <li><a href="pcari.models.html#pcari.models.Rating.Meta.abstract">(pcari.models.Rating.Meta attribute)</a>
 </li>
         <li><a href="pcari.models.html#pcari.models.Response.Meta.abstract">(pcari.models.Response.Meta attribute)</a>
 </li>
@@ -279,7 +281,7 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pcari.views.html#pcari.views.index">index() (in module pcari.views)</a>
 </li>
-      <li><a href="pcari.models.html#pcari.models.OptionQuestion.input_type">input_type (pcari.models.OptionQuestion attribute)</a>, <a href="pcari.models.html#pcari.models.OptionQuestion.input_type">[1]</a>
+      <li><a href="pcari.models.html#pcari.models.OptionQuestion.input_type">input_type (pcari.models.OptionQuestion attribute)</a>
 
       <ul>
         <li><a href="pcari.models.html#pcari.models.QualitativeQuestion.input_type">(pcari.models.QualitativeQuestion attribute)</a>, <a href="pcari.models.html#pcari.models.QualitativeQuestion.input_type">[1]</a>
@@ -289,7 +291,7 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pcari.models.html#pcari.models.OptionQuestion.INPUT_TYPE_CHOICES">INPUT_TYPE_CHOICES (pcari.models.OptionQuestion attribute)</a>, <a href="pcari.models.html#pcari.models.OptionQuestion.INPUT_TYPE_CHOICES">[1]</a>, <a href="pcari.models.html#pcari.models.OptionQuestion.INPUT_TYPE_CHOICES">[2]</a>, <a href="pcari.models.html#pcari.models.OptionQuestion.INPUT_TYPE_CHOICES">[3]</a>
+      <li><a href="pcari.models.html#pcari.models.OptionQuestion.INPUT_TYPE_CHOICES">INPUT_TYPE_CHOICES (pcari.models.OptionQuestion attribute)</a>, <a href="pcari.models.html#pcari.models.OptionQuestion.INPUT_TYPE_CHOICES">[1]</a>
 
       <ul>
         <li><a href="pcari.models.html#pcari.models.QuantitativeQuestion.INPUT_TYPE_CHOICES">(pcari.models.QuantitativeQuestion attribute)</a>, <a href="pcari.models.html#pcari.models.QuantitativeQuestion.INPUT_TYPE_CHOICES">[1]</a>
@@ -377,15 +379,19 @@
 </li>
       <li><a href="pcari.admin.html#pcari.admin.HistoryAdmin.mark_inactive">mark_inactive() (pcari.admin.HistoryAdmin method)</a>
 </li>
+      <li><a href="pcari.models.html#pcari.models.Comment.MAX_COMMENT_DISPLAY_LEN">MAX_COMMENT_DISPLAY_LEN (pcari.models.Comment attribute)</a>, <a href="pcari.models.html#pcari.models.Comment.MAX_COMMENT_DISPLAY_LEN">[1]</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pcari.models.html#pcari.models.Comment.MAX_COMMENT_DISPLAY_LEN">MAX_COMMENT_DISPLAY_LEN (pcari.models.Comment attribute)</a>
-</li>
       <li><a href="pcari.models.html#pcari.models.QuantitativeQuestion.max_score">max_score (pcari.models.QuantitativeQuestion attribute)</a>
+</li>
+      <li><a href="pcari.models.html#pcari.models.StatisticsMixin.mean_score">mean_score (pcari.models.StatisticsMixin attribute)</a>
 </li>
       <li><a href="pcari.models.html#pcari.models.Comment.message">message (pcari.models.Comment attribute)</a>
 </li>
       <li><a href="pcari.models.html#pcari.models.QuantitativeQuestion.min_score">min_score (pcari.models.QuantitativeQuestion attribute)</a>
+</li>
+      <li><a href="pcari.models.html#pcari.models.StatisticsMixin.mode_score">mode_score (pcari.models.StatisticsMixin attribute)</a>
 </li>
       <li><a href="pcari.models.html#pcari.models.MODELS">MODELS (in module pcari.models)</a>
 </li>
@@ -399,11 +405,15 @@
 </li>
       <li><a href="pcari.views.html#pcari.views.normalize_ratings_matrix">normalize_ratings_matrix() (in module pcari.views)</a>
 </li>
+      <li><a href="pcari.models.html#pcari.models.Rating.NOT_RATED">NOT_RATED (pcari.models.Rating attribute)</a>, <a href="pcari.models.html#pcari.models.Rating.NOT_RATED">[1]</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pcari.models.html#pcari.models.Respondent.num_comments_rated">num_comments_rated (pcari.models.Respondent attribute)</a>
 </li>
       <li><a href="pcari.models.html#pcari.models.Respondent.num_questions_rated">num_questions_rated (pcari.models.Respondent attribute)</a>
+</li>
+      <li><a href="pcari.models.html#pcari.models.StatisticsMixin.num_ratings">num_ratings (pcari.models.StatisticsMixin attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -416,7 +426,7 @@
       <ul>
         <li><a href="pcari.models.html#pcari.models.CommentRating.objects">(pcari.models.CommentRating attribute)</a>
 </li>
-        <li><a href="pcari.models.html#pcari.models.OptionQuestion.objects">(pcari.models.OptionQuestion attribute)</a>, <a href="pcari.models.html#pcari.models.OptionQuestion.objects">[1]</a>
+        <li><a href="pcari.models.html#pcari.models.OptionQuestion.objects">(pcari.models.OptionQuestion attribute)</a>
 </li>
         <li><a href="pcari.models.html#pcari.models.OptionQuestionChoice.objects">(pcari.models.OptionQuestionChoice attribute)</a>
 </li>
@@ -433,11 +443,11 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pcari.models.html#pcari.models.OptionQuestion">OptionQuestion (class in pcari.models)</a>, <a href="pcari.models.html#pcari.models.OptionQuestion">[1]</a>
+      <li><a href="pcari.models.html#pcari.models.OptionQuestion">OptionQuestion (class in pcari.models)</a>
 </li>
-      <li><a href="pcari.models.html#pcari.models.OptionQuestion.DoesNotExist">OptionQuestion.DoesNotExist</a>, <a href="pcari.models.html#pcari.models.OptionQuestion.DoesNotExist">[1]</a>
+      <li><a href="pcari.models.html#pcari.models.OptionQuestion.DoesNotExist">OptionQuestion.DoesNotExist</a>
 </li>
-      <li><a href="pcari.models.html#pcari.models.OptionQuestion.MultipleObjectsReturned">OptionQuestion.MultipleObjectsReturned</a>, <a href="pcari.models.html#pcari.models.OptionQuestion.MultipleObjectsReturned">[1]</a>
+      <li><a href="pcari.models.html#pcari.models.OptionQuestion.MultipleObjectsReturned">OptionQuestion.MultipleObjectsReturned</a>
 </li>
       <li><a href="pcari.models.html#pcari.models.OptionQuestionChoice">OptionQuestionChoice (class in pcari.models)</a>
 </li>
@@ -445,7 +455,7 @@
 </li>
       <li><a href="pcari.models.html#pcari.models.OptionQuestionChoice.MultipleObjectsReturned">OptionQuestionChoice.MultipleObjectsReturned</a>
 </li>
-      <li><a href="pcari.models.html#pcari.models.OptionQuestion.options">options (pcari.models.OptionQuestion attribute)</a>, <a href="pcari.models.html#pcari.models.OptionQuestion.options">[1]</a>
+      <li><a href="pcari.models.html#pcari.models.OptionQuestion.options">options (pcari.models.OptionQuestion attribute)</a>
 </li>
       <li><a href="pcari.admin.html#pcari.admin.ResponseAdmin.ordering">ordering (pcari.admin.ResponseAdmin attribute)</a>
 </li>
@@ -506,6 +516,8 @@
 </li>
       </ul></li>
       <li><a href="pcari.models.html#pcari.models.History.predecessor">predecessor (pcari.models.History attribute)</a>
+</li>
+      <li><a href="pcari.models.html#pcari.models.History.predecessors">predecessors (pcari.models.History attribute)</a>
 </li>
       <li><a href="pcari.management.commands.html#pcari.management.commands.BatchProcessingCommand.preprocess">preprocess() (pcari.management.commands.BatchProcessingCommand method)</a>
 
@@ -579,6 +591,10 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pcari.views.html#pcari.views.rate_comments">rate_comments() (in module pcari.views)</a>
 </li>
+      <li><a href="pcari.models.html#pcari.models.Rating">Rating (class in pcari.models)</a>
+</li>
+      <li><a href="pcari.models.html#pcari.models.Rating.Meta">Rating.Meta (class in pcari.models)</a>
+</li>
       <li><a href="pcari.admin.html#pcari.admin.CommentRatingAdmin.readonly_fields">readonly_fields (pcari.admin.CommentRatingAdmin attribute)</a>
 
       <ul>
@@ -591,10 +607,10 @@
 </li>
       <li><a href="pcari.models.html#pcari.models.Respondent">Respondent (class in pcari.models)</a>
 </li>
-      <li><a href="pcari.models.html#pcari.models.Response.respondent">respondent (pcari.models.Response attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pcari.models.html#pcari.models.Response.respondent">respondent (pcari.models.Response attribute)</a>
+</li>
       <li><a href="pcari.models.html#pcari.models.Respondent.DoesNotExist">Respondent.DoesNotExist</a>
 </li>
       <li><a href="pcari.models.html#pcari.models.Respondent.MultipleObjectsReturned">Respondent.MultipleObjectsReturned</a>
@@ -621,6 +637,14 @@
 </li>
       <li><a href="pcari.views.html#pcari.views.save_response">save_response() (in module pcari.views)</a>
 </li>
+      <li><a href="pcari.models.html#pcari.models.Rating.score">score (pcari.models.Rating attribute)</a>
+</li>
+      <li><a href="pcari.models.html#pcari.models.StatisticsMixin.score_sem">score_sem (pcari.models.StatisticsMixin attribute)</a>
+</li>
+      <li><a href="pcari.models.html#pcari.models.StatisticsMixin.score_stdev">score_stdev (pcari.models.StatisticsMixin attribute)</a>
+</li>
+      <li><a href="pcari.models.html#pcari.models.StatisticsMixin.scores">scores (pcari.models.StatisticsMixin attribute)</a>
+</li>
       <li><a href="pcari.admin.html#pcari.admin.CommentAdmin.search_fields">search_fields (pcari.admin.CommentAdmin attribute)</a>
 
       <ul>
@@ -640,6 +664,8 @@
       <li><a href="pcari.admin.html#pcari.admin.MalasakitAdminSite.site_header">site_header (pcari.admin.MalasakitAdminSite attribute)</a>
 </li>
       <li><a href="pcari.admin.html#pcari.admin.MalasakitAdminSite.site_title">site_title (pcari.admin.MalasakitAdminSite attribute)</a>
+</li>
+      <li><a href="pcari.models.html#pcari.models.Rating.SKIPPED">SKIPPED (pcari.models.Rating attribute)</a>, <a href="pcari.models.html#pcari.models.Rating.SKIPPED">[1]</a>
 </li>
       <li><a href="pcari.admin.html#pcari.admin.MalasakitAdminSite.statistics">statistics() (pcari.admin.MalasakitAdminSite method)</a>
 </li>

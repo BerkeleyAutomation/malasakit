@@ -2,6 +2,6 @@ pcari\.models module
 ====================
 
 .. automodule:: pcari.models
-    :members: History, StatisticsMixin, Question, QuantitativeQuestion, OptionQuestion, QualitativeQuestion, OptionQuestion, Response, Comment, CommentRating, QuantitativeQuestionRating, OptionQuestionChoice, Respondent
+    :members: History, StatisticsMixin, Question, Response, Rating, QuantitativeQuestion, QuantitativeQuestionRating, QualitativeQuestion, Comment, CommentRating, OptionQuestion, OptionQuestionChoice, Respondent
     :undoc-members:
     :show-inheritance:

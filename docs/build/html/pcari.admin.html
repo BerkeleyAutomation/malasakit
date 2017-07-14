@@ -46,7 +46,7 @@
 <dt id="pcari.admin.CommentAdmin">
 <em class="property">class </em><code class="descclassname">pcari.admin.</code><code class="descname">CommentAdmin</code><span class="sig-paren">(</span><em>model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.CommentAdmin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pcari.admin.ResponseAdmin" title="pcari.admin.ResponseAdmin"><code class="xref py py-class docutils literal"><span class="pre">pcari.admin.ResponseAdmin</span></code></a></p>
-<p>Customizes admin change page functionality for <a href="#id1"><span class="problematic" id="id2">`</span></a>Comment`s.</p>
+<p>Customizes admin change page functionality for <code class="docutils literal"><span class="pre">Comment</span></code>.</p>
 <dl class="attribute">
 <dt id="pcari.admin.CommentAdmin.actions">
 <code class="descname">actions</code><em class="property"> = ('flag_comments', 'unflag_comments')</em><a class="headerlink" href="#pcari.admin.CommentAdmin.actions" title="Permalink to this definition">¶</a></dt>
@@ -100,7 +100,7 @@
 <dt id="pcari.admin.CommentRatingAdmin">
 <em class="property">class </em><code class="descclassname">pcari.admin.</code><code class="descname">CommentRatingAdmin</code><span class="sig-paren">(</span><em>model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.CommentRatingAdmin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pcari.admin.ResponseAdmin" title="pcari.admin.ResponseAdmin"><code class="xref py py-class docutils literal"><span class="pre">pcari.admin.ResponseAdmin</span></code></a></p>
-<p>Customizes admin change page function for <a href="#id3"><span class="problematic" id="id4">`</span></a>CommentRating`s.</p>
+<p>Customizes admin change page function for <code class="docutils literal"><span class="pre">CommentRating</span></code>.</p>
 <dl class="method">
 <dt id="pcari.admin.CommentRatingAdmin.get_comment_message">
 <code class="descname">get_comment_message</code><span class="sig-paren">(</span><em>comment_rating</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.CommentRatingAdmin.get_comment_message" title="Permalink to this definition">¶</a></dt>
@@ -137,7 +137,7 @@
 <dt id="pcari.admin.HistoryAdmin">
 <em class="property">class </em><code class="descclassname">pcari.admin.</code><code class="descname">HistoryAdmin</code><span class="sig-paren">(</span><em>model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.HistoryAdmin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.contrib.admin.options.ModelAdmin</span></code></p>
-<p>Abstract admin class that defines special behavior for <cite>History</cite> models.</p>
+<p>Abstract admin class that defines special behavior for <code class="docutils literal"><span class="pre">History</span></code> models.</p>
 <dl class="attribute">
 <dt id="pcari.admin.HistoryAdmin.actions">
 <code class="descname">actions</code><em class="property"> = ('mark_active', 'mark_inactive')</em><a class="headerlink" href="#pcari.admin.HistoryAdmin.actions" title="Permalink to this definition">¶</a></dt>
@@ -216,7 +216,7 @@ statistics functionality.</p>
 <dt id="pcari.admin.QualitativeQuestionAdmin">
 <em class="property">class </em><code class="descclassname">pcari.admin.</code><code class="descname">QualitativeQuestionAdmin</code><span class="sig-paren">(</span><em>model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.QualitativeQuestionAdmin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pcari.admin.QuestionAdmin" title="pcari.admin.QuestionAdmin"><code class="xref py py-class docutils literal"><span class="pre">pcari.admin.QuestionAdmin</span></code></a></p>
-<p>Customizes admin change page functionality for <cite>QualitativeQuestionAdmin</cite>.</p>
+<p>Admin page for <code class="xref py py-class docutils literal"><span class="pre">pcari.models.QualitativeQuestionAdmin</span></code>.</p>
 <dl class="attribute">
 <dt id="pcari.admin.QualitativeQuestionAdmin.list_display">
 <code class="descname">list_display</code><em class="property"> = ('prompt', 'tag', 'active')</em><a class="headerlink" href="#pcari.admin.QualitativeQuestionAdmin.list_display" title="Permalink to this definition">¶</a></dt>
@@ -238,7 +238,7 @@ statistics functionality.</p>
 <dt id="pcari.admin.QuantitativeQuestionAdmin">
 <em class="property">class </em><code class="descclassname">pcari.admin.</code><code class="descname">QuantitativeQuestionAdmin</code><span class="sig-paren">(</span><em>model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.QuantitativeQuestionAdmin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pcari.admin.QuestionAdmin" title="pcari.admin.QuestionAdmin"><code class="xref py py-class docutils literal"><span class="pre">pcari.admin.QuestionAdmin</span></code></a></p>
-<p>Customizes admin change page functionality for <cite>QuantitativeQuestionAdmin</cite>.</p>
+<p>Admin page for <code class="xref py py-class docutils literal"><span class="pre">pcari.models.QuantitativeQuestionAdmin</span></code>.</p>
 <dl class="attribute">
 <dt id="pcari.admin.QuantitativeQuestionAdmin.list_display">
 <code class="descname">list_display</code><em class="property"> = ('prompt', 'tag', 'active')</em><a class="headerlink" href="#pcari.admin.QuantitativeQuestionAdmin.list_display" title="Permalink to this definition">¶</a></dt>
@@ -261,7 +261,7 @@ statistics functionality.</p>
 <em class="property">class </em><code class="descclassname">pcari.admin.</code><code class="descname">QuantitativeQuestionRatingAdmin</code><span class="sig-paren">(</span><em>model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.QuantitativeQuestionRatingAdmin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pcari.admin.ResponseAdmin" title="pcari.admin.ResponseAdmin"><code class="xref py py-class docutils literal"><span class="pre">pcari.admin.ResponseAdmin</span></code></a></p>
 <p>Customizes admin change page functionality for
-<a href="#id5"><span class="problematic" id="id6">`</span></a>QuantitativeQuestionRating`s.</p>
+<code class="docutils literal"><span class="pre">QuantitativeQuestionRating</span></code>.</p>
 <dl class="method">
 <dt id="pcari.admin.QuantitativeQuestionRatingAdmin.get_question_prompt">
 <code class="descname">get_question_prompt</code><span class="sig-paren">(</span><em>question_rating</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.QuantitativeQuestionRatingAdmin.get_question_prompt" title="Permalink to this definition">¶</a></dt>
@@ -298,12 +298,13 @@ statistics functionality.</p>
 <dt id="pcari.admin.QuestionAdmin">
 <em class="property">class </em><code class="descclassname">pcari.admin.</code><code class="descname">QuestionAdmin</code><span class="sig-paren">(</span><em>model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.QuestionAdmin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pcari.admin.HistoryAdmin" title="pcari.admin.HistoryAdmin"><code class="xref py py-class docutils literal"><span class="pre">pcari.admin.HistoryAdmin</span></code></a></p>
-<p>Abstract admin class for <cite>QualitativeQuestionAdmin</cite> and
-<cite>QuantitativeQuestionAdmin</cite>.</p>
+<p>Base admin page for <a class="reference internal" href="#pcari.admin.QualitativeQuestionAdmin" title="pcari.admin.QualitativeQuestionAdmin"><code class="xref py py-class docutils literal"><span class="pre">QualitativeQuestionAdmin</span></code></a> and
+<a class="reference internal" href="#pcari.admin.QuantitativeQuestionAdmin" title="pcari.admin.QuantitativeQuestionAdmin"><code class="xref py py-class docutils literal"><span class="pre">QuantitativeQuestionAdmin</span></code></a>.</p>
 <dl class="attribute">
 <dt id="pcari.admin.QuestionAdmin.list_select_related">
 <code class="descname">list_select_related</code><em class="property"> = True</em><a class="headerlink" href="#pcari.admin.QuestionAdmin.list_select_related" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p><em>bool</em> – Performance optimizer to limit database queries.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -311,7 +312,7 @@ statistics functionality.</p>
 <dt id="pcari.admin.RespondentAdmin">
 <em class="property">class </em><code class="descclassname">pcari.admin.</code><code class="descname">RespondentAdmin</code><span class="sig-paren">(</span><em>model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.RespondentAdmin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pcari.admin.HistoryAdmin" title="pcari.admin.HistoryAdmin"><code class="xref py py-class docutils literal"><span class="pre">pcari.admin.HistoryAdmin</span></code></a></p>
-<p>Customizes admin change page functionality for <cite>RespondentAdmin</cite>.</p>
+<p>Admin page for <a class="reference internal" href="pcari.models.html#pcari.models.Respondent" title="pcari.models.Respondent"><code class="xref py py-class docutils literal"><span class="pre">pcari.models.Respondent</span></code></a>.</p>
 <dl class="method">
 <dt id="pcari.admin.RespondentAdmin.comments_made">
 <code class="descname">comments_made</code><span class="sig-paren">(</span><em>respondent</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.RespondentAdmin.comments_made" title="Permalink to this definition">¶</a></dt>
@@ -353,8 +354,8 @@ statistics functionality.</p>
 <dt id="pcari.admin.ResponseAdmin">
 <em class="property">class </em><code class="descclassname">pcari.admin.</code><code class="descname">ResponseAdmin</code><span class="sig-paren">(</span><em>model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.ResponseAdmin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pcari.admin.HistoryAdmin" title="pcari.admin.HistoryAdmin"><code class="xref py py-class docutils literal"><span class="pre">pcari.admin.HistoryAdmin</span></code></a></p>
-<p>Abstract admin class for <cite>CommentRatingAdmin</cite>, <cite>CommentAdmin</cite>, and
-<cite>QuantitativeQuestionRatingAdmin</cite>.</p>
+<p>Abstract admin class for <code class="docutils literal"><span class="pre">CommentRatingAdmin</span></code>, <code class="docutils literal"><span class="pre">CommentAdmin</span></code>, and
+<code class="docutils literal"><span class="pre">QuantitativeQuestionRatingAdmin</span></code>.</p>
 <dl class="attribute">
 <dt id="pcari.admin.ResponseAdmin.empty_value_display">
 <code class="descname">empty_value_display</code><em class="property"> = '-- Empty response --'</em><a class="headerlink" href="#pcari.admin.ResponseAdmin.empty_value_display" title="Permalink to this definition">¶</a></dt>
