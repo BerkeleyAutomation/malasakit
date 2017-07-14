@@ -42,6 +42,10 @@
   <div class="section" id="module-pcari.signals">
 <span id="pcari-signals-module"></span><h1>pcari.signals module<a class="headerlink" href="#module-pcari.signals" title="Permalink to this headline">¶</a></h1>
 <p>This module defines actions that should be taken on special events.</p>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><a class="reference external" href="https://docs.djangoproject.com/en/dev/topics/signals/">Django Reference on Signals</a></li>
+</ul>
 <dl class="function">
 <dt id="pcari.signals.resolve_history_on_deletion">
 <code class="descclassname">pcari.signals.</code><code class="descname">resolve_history_on_deletion</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.signals.resolve_history_on_deletion" title="Permalink to this definition">¶</a></dt>
@@ -52,7 +56,8 @@ dangling pointer to a predecessor.</p>
 <dl class="function">
 <dt id="pcari.signals.store_successors">
 <code class="descclassname">pcari.signals.</code><code class="descname">store_successors</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.signals.store_successors" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Stash an instance’s successors prior to deletion.</p>
+</dd></dl>
 
 </div>
 

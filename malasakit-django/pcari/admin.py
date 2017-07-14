@@ -1,5 +1,9 @@
 """
 This module defines how Django should render the admin panel.
+
+References:
+  * `Django Admin Site Reference <https://docs.djangoproject.com/en/dev/ref/contrib/admin/>`_
+  * `Django Admin Actions <https://docs.djangoproject.com/en/dev/ref/contrib/admin/actions/>`_
 """
 
 from base64 import b64encode
@@ -21,6 +25,19 @@ from .models import CommentRating, Comment
 from .models import QuantitativeQuestionRating, Respondent
 from .models import History
 from .models import get_direct_fields
+
+__all__ = [
+    'MalasakitAdminSite',
+    'HistoryAdmin',
+    'QuestionAdmin',
+    'ResponseAdmin',
+    'QuantitativeQuestionAdmin',
+    'QuantitativeQuestionRatingAdmin',
+    'QualitativeQuestionAdmin',
+    'CommentAdmin',
+    'CommentRatingAdmin',
+    'RespondentAdmin',
+]
 
 
 class MalasakitAdminSite(admin.AdminSite):
@@ -51,6 +68,7 @@ class MalasakitAdminSite(admin.AdminSite):
         return render(request, 'admin/configuration.html', context)
 
     def statistics(self, request):
+        """ Render a statistics page. """
         return render(request, 'admin/statistics.html', self.each_context(request))
 
     def change_bloom_icon(self, request):
@@ -83,7 +101,8 @@ site.register(Group, GroupAdmin)
 
 class HistoryAdmin(admin.ModelAdmin):
     """
-    Abstract admin class that defines special behavior for ``History`` models.
+    Base admin behavior that defines special functionality for
+    :class:`pcari.models.History` models.
     """
     save_as_continue = False
 
@@ -124,8 +143,7 @@ class HistoryAdmin(admin.ModelAdmin):
 
 class ResponseAdmin(HistoryAdmin):
     """
-    Abstract admin class for ``CommentRatingAdmin``, ``CommentAdmin``, and
-    ``QuantitativeQuestionRatingAdmin``.
+    Base admin behavior for :class:`pcari.models.Response` models.
     """
     # Empty responses (recorded as None) will be replaced by this placeholder
     empty_value_display = '-- Empty response --'
@@ -140,7 +158,7 @@ class ResponseAdmin(HistoryAdmin):
 @admin.register(CommentRating, site=site)
 class CommentRatingAdmin(ResponseAdmin):
     """
-    Customizes admin change page function for ``CommentRating``.
+    Admin behavior for :class:`pcari.models.CommentRating`.
     """
     def get_comment_message(self, comment_rating):
         message = comment_rating.comment.message
@@ -169,7 +187,7 @@ class CommentRatingAdmin(ResponseAdmin):
 @admin.register(Comment, site=site)
 class CommentAdmin(ResponseAdmin):
     """
-    Customizes admin change page functionality for ``Comment``.
+    Admin behavior for :class:`pcari.models.Comment`.
     """
     def display_message(self, comment):
         return comment.message if comment.message.strip() else self.empty_value_display
@@ -221,8 +239,7 @@ class CommentAdmin(ResponseAdmin):
 @admin.register(QuantitativeQuestionRating, site=site)
 class QuantitativeQuestionRatingAdmin(ResponseAdmin):
     """
-    Customizes admin change page functionality for
-    ``QuantitativeQuestionRating``.
+    Admin behavior for :class:`pcari.models.QuantitativeQuestionRating`.
     """
     def get_question_prompt(self, question_rating):
         # pylint: disable=no-self-use
@@ -250,8 +267,7 @@ class QuantitativeQuestionRatingAdmin(ResponseAdmin):
 
 class QuestionAdmin(HistoryAdmin):
     """
-    Base admin page for :class:`.QualitativeQuestionAdmin` and
-    :class:`.QuantitativeQuestionAdmin`.
+    Base admin behavior for :class:`pcari.models.Question` models.
     """
     list_select_related = True
     """ bool: Performance optimizer to limit database queries. """
@@ -260,7 +276,7 @@ class QuestionAdmin(HistoryAdmin):
 @admin.register(QualitativeQuestion, site=site)
 class QualitativeQuestionAdmin(QuestionAdmin):
     """
-    Admin page for :class:`pcari.models.QualitativeQuestionAdmin`.
+    Admin behavior for :class:`pcari.models.QualitativeQuestion`.
     """
     # Columns to display in the Comment change list page, in order from left to
     # right
@@ -276,7 +292,7 @@ class QualitativeQuestionAdmin(QuestionAdmin):
 @admin.register(QuantitativeQuestion, site=site)
 class QuantitativeQuestionAdmin(QuestionAdmin):
     """
-    Admin page for :class:`pcari.models.QuantitativeQuestionAdmin`.
+    Admin behavior for :class:`pcari.models.QuantitativeQuestion`.
     """
     # Columns to display in the Comment change list page, in order from left to
     # right
@@ -292,7 +308,7 @@ class QuantitativeQuestionAdmin(QuestionAdmin):
 @admin.register(Respondent, site=site)
 class RespondentAdmin(HistoryAdmin):
     """
-    Admin page for :class:`pcari.models.Respondent`.
+    Admin behavior for :class:`pcari.models.Respondent`.
     """
     def display_location(self, respondent):
         return respondent.location if respondent.location.strip() else self.empty_value_display

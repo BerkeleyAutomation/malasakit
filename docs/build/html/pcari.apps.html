@@ -42,11 +42,15 @@
   <div class="section" id="module-pcari.apps">
 <span id="pcari-apps-module"></span><h1>pcari.apps module<a class="headerlink" href="#module-pcari.apps" title="Permalink to this headline">¶</a></h1>
 <p>This module defines the application configuration.</p>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><a class="reference external" href="https://docs.djangoproject.com/en/dev/ref/applications/#configuring-applications">Defining a Custom Configuration</a></li>
+</ul>
 <dl class="class">
 <dt id="pcari.apps.PCARIConfig">
 <em class="property">class </em><code class="descclassname">pcari.apps.</code><code class="descname">PCARIConfig</code><span class="sig-paren">(</span><em>app_name</em>, <em>app_module</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.apps.PCARIConfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.apps.config.AppConfig</span></code></p>
-<p>This class handles application-wide configuration by preparing resources.</p>
+<p>Handle application-wide configuration.</p>
 <dl class="attribute">
 <dt id="pcari.apps.PCARIConfig.name">
 <code class="descname">name</code><em class="property"> = u'pcari'</em><a class="headerlink" href="#pcari.apps.PCARIConfig.name" title="Permalink to this definition">¶</a></dt>
@@ -55,7 +59,9 @@
 <dl class="method">
 <dt id="pcari.apps.PCARIConfig.ready">
 <code class="descname">ready</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.apps.PCARIConfig.ready" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Enable behavior defined in <a class="reference internal" href="pcari.signals.html#module-pcari.signals" title="pcari.signals"><code class="xref py py-mod docutils literal"><span class="pre">pcari.signals</span></code></a> when the application
+starts.</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="pcari.apps.PCARIConfig.verbose_name">

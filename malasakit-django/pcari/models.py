@@ -9,6 +9,11 @@ The core of the database consists of concrete models derived from the abstract
 one-to-one correspondence between a type of question and its associated
 response.
 
+References:
+    * `Django Model Reference <https://docs.djangoproject.com/en/dev/topics/db/models/>`_
+    * `Django Field Reference <https://docs.djangoproject.com/en/dev/ref/models/fields/>`_
+    * `QuerySet API <https://docs.djangoproject.com/en/1.11/ref/models/querysets/>`_
+
 Attributes:
     LANGUAGES (tuple): Available languages. Each language is represented as a
         tuple of two elements: a code and a translated full name. For instance,

@@ -6,6 +6,11 @@ These views can be broadly categorized into two groups:
       as `JSON <http://www.json.org/>`_). The client can use these endpoints to operate asynchronously.
     * **HTML pages** that show up to users. These pages are typically largely
       static and lend themselves to caching by service workers.
+
+References:
+  * `Django Introduction to Views <https://docs.djangoproject.com/en/dev/topics/http/views/>`_
+  * `View Decorators <https://docs.djangoproject.com/en/dev/topics/http/decorators/>`_
+  * `Creating Files for Download <https://docs.djangoproject.com/en/dev/howto/outputting-csv/>`_
 """
 
 # Standard library
@@ -75,12 +80,11 @@ def profile(function, *args, **kwargs):
 
     Args:
         function: The callable to profile.
-        args: Additional positional arguments to :param:`function`.
-        kwargs: Additional keyword arguments to :param:`function`.
+        args: Additional positional arguments to ``function``.
+        kwargs: Additional keyword arguments to ``function``.
 
     Returns:
-        The result of applying :param:`function` to :param:`args` and
-        :param:`kwargs`.
+        The result of applying ``function`` to ``args`` and ``kwargs``.
     """
     start_time = time.time()
     result = function(*args, **kwargs)
@@ -515,7 +519,7 @@ def export_excel(stream, queryset):
         queryset: A Django ``QuerySet`` of instances to export.
 
     Returns:
-        `None`. Has a side effect of writing to the :param:``stream``.
+        `None`. Has a side effect of writing to the ``stream``.
     """
     concrete_fields = get_concrete_fields(queryset.model)
     field_names = [unicode(field.get_attname()) for field in concrete_fields]
