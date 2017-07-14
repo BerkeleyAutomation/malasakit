@@ -374,8 +374,8 @@ class QuantitativeQuestion(Question, StatisticsMixin):
         INPUT_TYPE_CHOICES (tuple): Input type choices, each of which is a
             two-element tuple consisting of the shorthand and the name of an
             input type. Current options are:
-              * `range`: Render the question as a "slider".
-              * `number`: Render the question as a number-only text field.
+            * `range`: Render the question as a "slider".
+            * `number`: Render the question as a number-only text field.
         left_anchor (str): The text that describes the minimum score. For a
             range :attr:`input_type`, this text is rendered on the left end of
             the slider.
@@ -413,8 +413,8 @@ class OptionQuestion(Question):
         INPUT_TYPE_CHOICES (tuple): Input type choices, each of which is a
             two-element tuple consisting of the shorthand and the name of an
             input type. Current options are:
-              * `select`: Render the question as a dropdown menu.
-              * `radio`: Render the question as a list of radio buttons.
+            * `select`: Render the question as a dropdown menu.
+            * `radio`: Render the question as a list of radio buttons.
         _options_text (str): A JSON list of options. This field should only be
             used internally by this model.
         options (list of str): A wrapper around :attr:`_options_text` that
