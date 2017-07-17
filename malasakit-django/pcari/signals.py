@@ -1,4 +1,9 @@
-""" This module defines actions that should be taken on special events. """
+"""
+This module defines actions that should be taken on special events.
+
+References:
+    * `Django Reference on Signals <https://docs.djangoproject.com/en/dev/topics/signals/>`_
+"""
 
 from django.db.models.signals import pre_delete, post_delete
 from django.dispatch import receiver
@@ -8,6 +13,7 @@ from .models import History
 
 @receiver(pre_delete)
 def store_successors(**kwargs):
+    """ Stash an instance's successors prior to deletion. """
     sender, instance = kwargs['sender'], kwargs['instance']
     if issubclass(sender, History):
         query = sender.objects.using(kwargs['using'])
