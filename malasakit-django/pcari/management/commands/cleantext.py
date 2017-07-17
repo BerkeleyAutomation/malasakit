@@ -1,5 +1,5 @@
 """
-cleantext -- Utility for batch-cleaning text fields from the command line
+Utility for batch-cleaning text fields from the command line
 """
 
 from django.db.models import CharField, TextField

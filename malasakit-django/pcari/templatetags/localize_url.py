@@ -17,7 +17,8 @@ def localize_url(url_example, language):
     Localize a URL for a given language.
 
     Args:
-        url_example: A sample URL of any language that starts with `URL_ROOT`.
+        url_example: A sample URL of any language that starts with
+            ``settings.URL_ROOT``.
         language: The code of the language to localize for.
 
     Returns:
