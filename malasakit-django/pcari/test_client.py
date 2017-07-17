@@ -1,6 +1,8 @@
 import logging
+import os
 import time
 
+from django.test import tag
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.shortcuts import reverse
 from selenium.webdriver import Chrome, ChromeOptions, Firefox
@@ -63,6 +65,10 @@ def make_test_web_drivers():
 WEB_DRIVERS = make_test_web_drivers()
 
 
+def walkthrough(live_server_url, driver):
+    driver.get()
+
+
 class NavigationTestCase(StaticLiveServerTestCase):
     @use_drivers(*WEB_DRIVERS)
     def test_complete_walkthrough(self, driver):
@@ -76,21 +82,33 @@ class NavigationTestCase(StaticLiveServerTestCase):
         self.assertIn(reverse('pcari:rate-comments'), driver.current_url)
 
 
+@tag('slow')
 class OfflineTestCase(StaticLiveServerTestCase):
+    TIMEOUT = 4.0  # in seconds
+
+    @classmethod
+    def setUpClass(cls):
+        super(OfflineTestCase, cls).setUpClass()
+
+        package_path = os.path.dirname(__file__)
+        project_path = os.path.dirname(package_path)
+        cls.screenshots_path = os.path.join(project_path, 'testing-screenshots')
+        if not os.path.exists(cls.screenshots_path):
+            os.mkdir(cls.screenshots_path)
+
     @use_drivers(*WEB_DRIVERS)
     def test_offline(self, driver):
-        # TODO: clean up this proof-of-concept test
-
         driver.get(self.live_server_url + reverse('pcari:landing'))
         print driver.get_log('browser')
 
-        time.sleep(5)
+        time.sleep(self.TIMEOUT)
 
         self.tearDownClass()
 
         driver.get(self.live_server_url + reverse('pcari:landing'))
         print driver.get_log('browser')
-        driver.get_screenshot_as_file('/tmp/landing.png')
+        driver.save_screenshot(os.path.join(self.screenshots_path, 'landing.png'))
+        print driver.local_storage
 
         self.setUpClass()
 
