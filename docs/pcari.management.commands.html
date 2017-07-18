@@ -1,0 +1,224 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pcari.management.commands package &#8212; Malasakit 1.25 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.25',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pcari.management.commands.cleantext module" href="pcari.management.commands.cleantext.html" />
+    <link rel="prev" title="pcari.management package" href="pcari.management.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pcari-management-commands-package">
+<h1>pcari.management.commands package<a class="headerlink" href="#pcari-management-commands-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pcari.management.commands.cleantext.html">pcari.management.commands.cleantext module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pcari.management.commands.makedbtrans.html">pcari.management.commands.makedbtrans module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pcari.management.commands.makemessages.html">pcari.management.commands.makemessages module</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="module-pcari.management.commands">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pcari.management.commands" title="Permalink to this headline">¶</a></h2>
+<p>This module defines common command templates.</p>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><a class="reference external" href="https://docs.djangoproject.com/en/dev/howto/custom-management-commands/">Writing Custom Commands</a></li>
+<li><a class="reference external" href="https://docs.python.org/2/library/argparse.html#the-add-argument-method">Python Argument Parser Reference</a></li>
+</ul>
+<dl class="class">
+<dt id="pcari.management.commands.BatchProcessingCommand">
+<em class="property">class </em><code class="descclassname">pcari.management.commands.</code><code class="descname">BatchProcessingCommand</code><span class="sig-paren">(</span><em>stdout=None</em>, <em>stderr=None</em>, <em>no_color=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.management.commands.BatchProcessingCommand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.management.base.BaseCommand</span></code></p>
+<p>A <code class="docutils literal"><span class="pre">BatchProcessingCommand</span></code> provides utilities for manipulating a sequence
+of fields, which would be useful for cleaning or exporting data.</p>
+<dl class="method">
+<dt id="pcari.management.commands.BatchProcessingCommand.add_arguments">
+<code class="descname">add_arguments</code><span class="sig-paren">(</span><em>parser</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.management.commands.BatchProcessingCommand.add_arguments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.management.commands.BatchProcessingCommand.handle">
+<code class="descname">handle</code><span class="sig-paren">(</span><em>*args</em>, <em>**options</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.management.commands.BatchProcessingCommand.handle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.management.commands.BatchProcessingCommand.postprocess">
+<code class="descname">postprocess</code><span class="sig-paren">(</span><em>options</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.management.commands.BatchProcessingCommand.postprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Terminate the processing job (e.g. close files).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>options</strong> (<em>dict</em>) – Keyword arguments from the command line.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pcari.management.commands.BatchProcessingCommand.precondition_check">
+<code class="descname">precondition_check</code><span class="sig-paren">(</span><em>options</em>, <em>model</em>, <em>field</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.management.commands.BatchProcessingCommand.precondition_check" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raise exceptions as necessary prior to processing model instances.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>options</strong> (<em>dict</em>) – Keyword arguments from the command line.</li>
+<li><strong>model</strong> – The model to be inspected.</li>
+<li><strong>field</strong> – The field of <code class="docutils literal"><span class="pre">model</span></code> to be inspected.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">CommandError</span></code> – if some precondition is not met.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pcari.management.commands.BatchProcessingCommand.preprocess">
+<code class="descname">preprocess</code><span class="sig-paren">(</span><em>options</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.management.commands.BatchProcessingCommand.preprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare to batch process all fields (e.g. open files).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>options</strong> (<em>dict</em>) – Keyword arguments from the command line.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pcari.management.commands.BatchProcessingCommand.process">
+<code class="descname">process</code><span class="sig-paren">(</span><em>options</em>, <em>instance</em>, <em>model_name</em>, <em>field_name</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.management.commands.BatchProcessingCommand.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a model instance and the field to operate on, perform an action.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>options</strong> (<em>dict</em>) – Keyword arguments from the command line.</li>
+<li><strong>instance</strong> – The model instance to be processed.</li>
+<li><strong>model_name</strong> (<em>str</em>) – The name of the model of <code class="docutils literal"><span class="pre">instance</span></code>.</li>
+<li><strong>field_name</strong> (<em>str</em>) – The name of the field to be processed.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Malasakit</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="pcari.html">PCARI application</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pcari.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pcari.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pcari.html#module-pcari">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="pcari.html">pcari package</a><ul>
+  <li><a href="pcari.management.html">pcari.management package</a><ul>
+      <li>Previous: <a href="pcari.management.html" title="previous chapter">pcari.management package</a></li>
+      <li>Next: <a href="pcari.management.commands.cleantext.html" title="next chapter">pcari.management.commands.cleantext module</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, UC Berkeley.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/pcari.management.commands.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
