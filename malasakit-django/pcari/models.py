@@ -12,16 +12,14 @@ response.
 References:
     * `Django Model Reference <https://docs.djangoproject.com/en/dev/topics/db/models/>`_
     * `Django Field Reference <https://docs.djangoproject.com/en/dev/ref/models/fields/>`_
-    * `QuerySet API <https://docs.djangoproject.com/en/1.11/ref/models/querysets/>`_
+    * `QuerySet API <https://docs.djangoproject.com/en/dev/ref/models/querysets/>`_
+    * `The contenttypes framework <https://docs.djangoproject.com/en/dev/ref/contrib/contenttypes/>`_
 
 Attributes:
     LANGUAGES (tuple): Available languages. Each language is represented as a
         tuple of two elements: a code and a translated full name. For instance,
         the language code for "English" would be "en". This attribute is pulled
         from the project ``settings`` lazily.
-    MODELS (dict): A mapping from model names to models. This attribute
-        essentially acts as a lookup table by name, and is useful for
-        determining whether a model with a given name exists.
 """
 
 from __future__ import unicode_literals
@@ -37,7 +35,7 @@ from django.utils.translation import ugettext_lazy as _
 
 __all__ = ['Comment', 'QuantitativeQuestionRating', 'CommentRating',
            'QualitativeQuestion', 'QuantitativeQuestion', 'Respondent',
-           'OptionQuestion', 'OptionQuestionChoice', 'MODELS']
+           'OptionQuestion', 'OptionQuestionChoice']
 
 LANGUAGES = settings.LANGUAGES
 _LANGUAGE_CODES = [''] + [code for code, name in LANGUAGES]
@@ -552,11 +550,3 @@ class Respondent(History):
     @property
     def comments(self):
         return Comment.objects.filter(respondent=self).all()
-
-
-MODELS = {
-    model.__name__: model for model in [
-        Comment, QuantitativeQuestionRating, CommentRating, QualitativeQuestion,
-        QuantitativeQuestion, Respondent, OptionQuestion, OptionQuestionChoice
-    ]
-}

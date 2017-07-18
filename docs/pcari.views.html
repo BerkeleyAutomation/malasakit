@@ -317,29 +317,23 @@ without modifications to the payload.</td>
 
 <dl class="function">
 <dt id="pcari.views.export_data">
-<code class="descclassname">pcari.views.</code><code class="descname">export_data</code><span class="sig-paren">(</span><em>request</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.views.export_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Export data for a model as a file.</p>
+<code class="descclassname">pcari.views.</code><code class="descname">export_data</code><span class="sig-paren">(</span><em>queryset</em>, <em>data_format=u'csv'</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.views.export_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create and write data to a response as a file for download.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> – <dl class="docutils">
-<dt>A request object that can have the following <code class="docutils literal"><span class="pre">GET</span></code> parameters:</dt>
-<dd><ul class="first last simple">
-<li><code class="docutils literal"><span class="pre">model</span></code>: The name of the model to export data for. This is a
-requred parameter.</li>
-<li><code class="docutils literal"><span class="pre">data_format</span></code>: The name of the data format (default:
-<code class="docutils literal"><span class="pre">csv</span></code>). Supported options are: <code class="docutils literal"><span class="pre">csv</span></code>, <code class="docutils literal"><span class="pre">xlsx</span></code>.</li>
-<li><code class="docutils literal"><span class="pre">keys</span></code>: A comma-separated list of primary keys (default:
-select all instances). Only works for numeric primary keys.</li>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data_format</strong> (<em>str</em>) – The file format the data should be exported as.
+Current options are: <code class="docutils literal"><span class="pre">csv</span></code> (default), <code class="docutils literal"><span class="pre">xlsx</span></code>.</li>
+<li><strong>queryset</strong> – The instances to export.</li>
 </ul>
-</dd>
-</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An <code class="docutils literal"><span class="pre">HttpResponse</span></code> that contains a file, prompting a download, or a
-<code class="docutils literal"><span class="pre">HttpResponseBadRequest</span></code> with a status code of 400 with invalid
-parameters.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">An <code class="docutils literal"><span class="pre">HttpResponse</span></code> with the requested data as an attached file, or an
+<code class="docutils literal"><span class="pre">HttpResponseBadRequest</span></code> with a status code of 400 with an invalid
+<code class="docutils literal"><span class="pre">data_format</span></code>.</p>
+</td>
 </tr>
 </tbody>
 </table>
