@@ -7,6 +7,7 @@ References:
 """
 
 from base64 import b64encode
+from collections import OrderedDict
 import json
 import math
 import os
@@ -93,10 +94,23 @@ class MalasakitAdminSite(admin.AdminSite):
         request.session['messages'] = ['Successfully uploaded bloom icon.']
         return redirect(reverse('admin:configuration'))
 
+    def filter_actions(self, model, action_names=None):
+        if action_names is None:
+            action_names = []
+
+        model_admin = self._registry[model]
+        get_actions_inner = model_admin.get_actions
+        def get_actions_wrapper(request):
+            actions = get_actions_inner(request)
+            return OrderedDict((name, actions[name]) for name in action_names)
+        model_admin.get_actions = get_actions_wrapper
+
 # pylint: disable=invalid-name
 site = MalasakitAdminSite()
 site.register(User, UserAdmin)
 site.register(Group, GroupAdmin)
+site.filter_actions(User, ['delete_selected'])
+site.filter_actions(Group, ['delete_selected'])
 
 
 class HistoryAdmin(admin.ModelAdmin):
