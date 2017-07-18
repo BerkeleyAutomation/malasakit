@@ -542,28 +542,20 @@ def generate_export_filename(model_name, data_format):
 
 
 @profile
-@staff_member_required
-@require_GET
-def export_data(request):
+def export_data(queryset, data_format='csv'):
     """
-    Export data for a model as a file.
+    Create and write data to a response as a file for download.
 
     Args:
-        request:
-            A request object that can have the following ``GET`` parameters:
-              * ``model``: The name of the model to export data for. This is a
-                requred parameter.
-              * ``data_format``: The name of the data format (default:
-                ``csv``). Supported options are: ``csv``, ``xlsx``.
-              * ``keys``: A comma-separated list of primary keys (default:
-                select all instances). Only works for numeric primary keys.
+        data_format (str): The file format the data should be exported as.
+            Current options are: ``csv`` (default), ``xlsx``.
+        queryset: The instances to export.
 
     Returns:
-        An ``HttpResponse`` that contains a file, prompting a download, or a
-        ``HttpResponseBadRequest`` with a status code of 400 with invalid
-        parameters.
+        An ``HttpResponse`` with the requested data as an attached file, or an
+        ``HttpResponseBadRequest`` with a status code of 400 with an invalid
+        ``data_format``.
     """
-    data_format = request.GET.get('format', 'csv')
     export_functions = {
         'csv': export_csv,
         'xlsx': export_excel,
@@ -571,22 +563,12 @@ def export_data(request):
     try:
         export = export_functions[data_format]
     except KeyError:
-        return HttpResponseBadRequest('no such data format')
+        return HttpResponseBadRequest('no such data format "{0}"'.format(data_format))
 
-    try:
-        model_name = request.GET['model']
-        model = MODELS[model_name]
-    except KeyError:
-        return HttpResponseBadRequest('no such model')
-    queryset = model.objects
-
-    primary_keys = request.GET.get('keys', None)
-    if primary_keys is not None:
-        primary_keys = list(map(int, primary_keys.split(',')))
-        queryset = queryset.filter(pk__in=primary_keys)
-
+    model_name = queryset.model.__name__
     filename = generate_export_filename(model_name, data_format)
     content_type, _ = mimetypes.guess_type(filename)
+
     response = HttpResponse(content_type=content_type)
     response['Content-Disposition'] = 'attachment; filename="{0}"'.format(filename)
     export(response, queryset)
