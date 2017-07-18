@@ -14,7 +14,6 @@ References:
   * `Creating Files for Download <https://docs.djangoproject.com/en/dev/howto/outputting-csv/>`_
 """
 
-# Standard library
 from __future__ import unicode_literals
 import datetime
 import logging
@@ -24,11 +23,9 @@ import mimetypes
 import random
 import time
 
-# Third-party libraries
 import decorator
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.conf import settings
-from django.contrib.admin.views.decorators import staff_member_required
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_GET, require_POST
@@ -39,11 +36,10 @@ import numpy as np
 from openpyxl import Workbook
 import unicodecsv as csv
 
-# Local modules and models
 from pcari.models import Respondent
 from pcari.models import QuantitativeQuestion, QualitativeQuestion
 from pcari.models import Comment, CommentRating, QuantitativeQuestionRating
-from pcari.models import MODELS, get_concrete_fields
+from pcari.models import get_concrete_fields
 
 __all__ = [
     'generate_ratings_matrix',

@@ -12,7 +12,6 @@ from collections import OrderedDict
 import json
 import math
 import os
-from urllib import urlencode
 
 from django.conf import settings
 from django.shortcuts import redirect, reverse, render
@@ -97,6 +96,18 @@ class MalasakitAdminSite(admin.AdminSite):
         return redirect(reverse('admin:configuration'))
 
     def filter_actions(self, model, action_names=None):
+        """
+        Restrict the actions a model admin may take.
+
+        This restriction is accomplished by wrapping the ``get_actions`` method
+        of the model admin associated with the given ``model``.
+
+        Args:
+            model: The class of the model. The model must have been registered
+                with the site.
+            action_names (list): A list of action names (strings) whose
+                associated actions should be allowed.
+        """
         if action_names is None:
             action_names = []
 
