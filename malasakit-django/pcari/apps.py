@@ -24,4 +24,4 @@ class PCARIConfig(AppConfig):
         starts.
         """
         # pylint: disable=unused-variable
-        from . import signals
+        from pcari import signals
