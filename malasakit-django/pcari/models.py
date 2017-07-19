@@ -546,14 +546,14 @@ class Respondent(History):
 
     def num_questions_rated(self):
         ratings = QuantitativeQuestionRating.objects.filter(respondent=self)
-        ratings = ratings.exclude(score__in=[Rating.NOT_RATED, Rating.SKIPPED])
+        ratings = ratings.exclude(score=Rating.NOT_RATED).exclude(score=Rating.SKIPPED)
         return ratings.count()
     num_questions_rated.short_description = 'Number of questions rated'
     num_questions_rated = property(num_questions_rated)
 
     def num_comments_rated(self):
         ratings = CommentRating.objects.filter(respondent=self)
-        ratings = ratings.exclude(score__in=[Rating.NOT_RATED, Rating.SKIPPED])
+        ratings = ratings.exclude(score=Rating.NOT_RATED).exclude(score=Rating.SKIPPED)
         return ratings.count()
     num_comments_rated.short_description = 'Number of comments rated'
     num_comments_rated = property(num_comments_rated)
