@@ -15,10 +15,11 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 
+from django.shortcuts import reverse
 from django.conf.urls import include, url
 from django.conf.urls.i18n import i18n_patterns
 from django.contrib.auth import views as auth_views
-from django.views.generic import TemplateView
+from django.views.generic.base import TemplateView, RedirectView
 
 from pcari.admin import site
 from pcari.urls import api_urlpatterns
@@ -52,6 +53,8 @@ urlpatterns = [
 
 # Translate all `pcari` urls
 urlpatterns += i18n_patterns(url(r'^', include('pcari.urls')))
+urlpatterns += [url(r'^$', RedirectView.as_view(url=reverse('pcari:landing')),
+                    name='to-landing')]
 
 # Error handlers
 handler404 = 'pcari.views.handle_page_not_found'

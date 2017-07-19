@@ -6,11 +6,12 @@ References:
   * `Django Admin Actions <https://docs.djangoproject.com/en/dev/ref/contrib/admin/actions/>`_
 """
 
+from __future__ import unicode_literals
 from base64 import b64encode
+from collections import OrderedDict
 import json
 import math
 import os
-from urllib import urlencode
 
 from django.conf import settings
 from django.shortcuts import redirect, reverse, render
@@ -20,11 +21,12 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import User, Group
 
-from .models import QualitativeQuestion, QuantitativeQuestion
-from .models import CommentRating, Comment
-from .models import QuantitativeQuestionRating, Respondent
-from .models import History
-from .models import get_direct_fields
+from pcari.models import QualitativeQuestion, QuantitativeQuestion
+from pcari.models import CommentRating, Comment
+from pcari.models import QuantitativeQuestionRating, Respondent
+from pcari.models import History
+from pcari.models import get_direct_fields
+from pcari.views import export_data
 
 __all__ = [
     'MalasakitAdminSite',
@@ -93,10 +95,35 @@ class MalasakitAdminSite(admin.AdminSite):
         request.session['messages'] = ['Successfully uploaded bloom icon.']
         return redirect(reverse('admin:configuration'))
 
+    def filter_actions(self, model, action_names=None):
+        """
+        Restrict the actions a model admin may take.
+
+        This restriction is accomplished by wrapping the ``get_actions`` method
+        of the model admin associated with the given ``model``.
+
+        Args:
+            model: The class of the model. The model must have been registered
+                with the site.
+            action_names (list): A list of action names (strings) whose
+                associated actions should be allowed.
+        """
+        if action_names is None:
+            action_names = []
+
+        model_admin = self._registry[model]
+        get_actions_inner = model_admin.get_actions
+        def get_actions_wrapper(request):
+            actions = get_actions_inner(request)
+            return OrderedDict((name, actions[name]) for name in action_names)
+        model_admin.get_actions = get_actions_wrapper
+
 # pylint: disable=invalid-name
 site = MalasakitAdminSite()
 site.register(User, UserAdmin)
 site.register(Group, GroupAdmin)
+site.filter_actions(User, ['delete_selected'])
+site.filter_actions(Group, ['delete_selected'])
 
 
 class HistoryAdmin(admin.ModelAdmin):
@@ -343,15 +370,7 @@ class RespondentAdmin(HistoryAdmin):
 def export_selected_as_csv(modeladmin, request, queryset):
     """ Export the selected model instances as comma-separated values (CSV). """
     # pylint: disable=unused-argument
-    primary_keys = ','.join(map(str, queryset.values_list('pk', flat=True)))
-    parameters = {
-        'model': queryset.model.__name__,
-        'format': 'csv',
-        'keys': primary_keys,
-    }
-
-    api_url = reverse('export-data') + '?' + urlencode(parameters)
-    return redirect(api_url)
+    return export_data(queryset, 'csv')
 
 export_selected_as_csv.short_description = 'Export selected rows as CSV'
 site.add_action(export_selected_as_csv)
@@ -360,15 +379,7 @@ site.add_action(export_selected_as_csv)
 def export_selected_as_xlsx(modeladmin, request, queryset):
     """ Export the selected model instances as an Excel spreadsheet. """
     # pylint: disable=unused-argument
-    primary_keys = ','.join(map(str, queryset.values_list('pk', flat=True)))
-    parameters = {
-        'model': queryset.model.__name__,
-        'format': 'xlsx',
-        'keys': primary_keys,
-    }
-
-    api_url = reverse('export-data') + '?' + urlencode(parameters)
-    return redirect(api_url)
+    return export_data(queryset, 'xlsx')
 
 export_selected_as_xlsx.short_description = 'Export selected rows as an Excel spreadsheet'
 site.add_action(export_selected_as_xlsx)

@@ -35,8 +35,8 @@
   </p>
   <div id="peer-responses">
     {% for question in questions %}
-      {% with num_ratings=question.num_ratings mean=question.mean_score|floatformat %}
-        {% if num_ratings > 0 %}
+      {% if question.active %}
+        {% with num_ratings=question.num_ratings mean=question.mean_score|floatformat %}
           <div class="boxed">
                 <p>
                   {% blocktrans trimmed %}
@@ -47,18 +47,18 @@
                   {% trans question.prompt %}
                 </blockquote>
                 <div class="bubbled">
-                  {% blocktrans trimmed with id=question.id %}
-                    Your answer: <strong id="answer-{{ id }}">None</strong>
-                  {% endblocktrans %}
-                </div>
-                <div class="bubbled">
                   {% blocktrans trimmed %}
                     Average answer: <strong>{{ mean }}</strong>
                   {% endblocktrans %}
                 </div>
+                <div class="bubbled">
+                  {% blocktrans trimmed with id=question.id %}
+                    Your answer: <strong id="answer-{{ id }}">None</strong>
+                  {% endblocktrans %}
+                </div>
           </div>
-        {% endif %}
-      {% endwith %}
+        {% endwith %}
+      {% endif %}
     {% endfor %}
   </div>
   {% url 'pcari:end' as next_link %}
