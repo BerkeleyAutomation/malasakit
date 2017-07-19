@@ -2,12 +2,47 @@
  */
 
 // The Base64 representation of a PNG of `fa-comment` from Font Awesome
-var ICON_IMAGE = 'iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAABDklEQVR4nNXVzyqEURzG8c+8+Z/i'
-               + 'DmwkKymRspNbsLBxA27AzkLZyF7Kn4XsJEulRsMVuAHJhiZRUzKpGYuZt6bXyzDOSZ56luf7PefX'
-               + 'qR9/mDGs4QxPqGf6jEusY+In4DmUcoDteoX5r8Dd2OkAnO0e+rLwXpwHgKctob9VsB0QnvYohc9G'
-               + 'gKdd0DTFEhzDTUTBfQFV9IiTtwTlSHB4SFCMKCjCNGrCz7+GqdS0EUGw2fqUAvYDwg+R5M1sBS+/'
-               + 'AL9itXnhT7PbAbiKA4xmYVnTIO4wnCMuY6h5poJbXOMCpxo7o222cm5XweJ3DrfLko/f9QQjIeDj'
-               + 'GnOs41FjaUyGAKcZwDJm0BUS/P/zDqZIDzgtIDS2AAAAAElFTkSuQmCC';
+var ICON_IMAGE = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8"
+               + "IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMTYuMC4wLCBTVkcg"
+               + "RXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogNi4wMCBCdWlsZCAwKSAg"
+               + "LS0+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4x"
+               + "Ly9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFRE"
+               + "L3N2ZzExLmR0ZCI+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIw"
+               + "MDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94"
+               + "bGluayIgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4PSIwcHgiIHk9IjBw"
+               + "eCIgd2lkdGg9IjMycHgiIGhlaWdodD0iMzJweCIgdmlld0JveD0iMCAwIDUx"
+               + "MS42MjYgNTExLjYyNiIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAw"
+               + "IDAgNTExLjYyNiA1MTEuNjI2OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+Cjxn"
+               + "PgoJPHBhdGggZD0iTTQ3Ny4zNzEsMTI3LjQ0Yy0yMi44NDMtMjguMDc0LTUz"
+               + "Ljg3MS01MC4yNDktOTMuMDc2LTY2LjUyM2MtMzkuMjA0LTE2LjI3Mi04Mi4w"
+               + "MzUtMjQuNDEtMTI4LjQ3OC0yNC40MSAgIGMtMzQuNjQzLDAtNjcuNzYyLDQu"
+               + "ODA1LTk5LjM1NywxNC40MTdjLTMxLjU5NSw5LjYxMS01OC44MTIsMjIuNjAy"
+               + "LTgxLjY1MywzOC45N2MtMjIuODQ1LDE2LjM3LTQxLjAxOCwzNS44MzItNTQu"
+               + "NTM0LDU4LjM4NSAgIEM2Ljc1NywxNzAuODMzLDAsMTk0LjQ4NCwwLDIxOS4y"
+               + "MjhjMCwyOC41NDksOC42MSw1NS4zLDI1LjgzNyw4MC4yMzRjMTcuMjI3LDI0"
+               + "LjkzMSw0MC43NzgsNDUuODcxLDcwLjY2NCw2Mi44MTEgICBjLTIuMDk2LDcu"
+               + "NjExLTQuNTcsMTQuODQ2LTcuNDI2LDIxLjY5M2MtMi44NTUsNi44NTItNS40"
+               + "MjQsMTIuNDc0LTcuNzA4LDE2Ljg1MWMtMi4yODYsNC4zNzctNS4zNzYsOS4y"
+               + "MzMtOS4yODEsMTQuNTYyICAgYy0zLjg5OSw1LjMyOC02Ljg0OSw5LjA4OS04"
+               + "Ljg0OCwxMS4yNzVjLTEuOTk3LDIuMTktNS4yOCw1LjgxMi05Ljg1MSwxMC44"
+               + "NDljLTQuNTY1LDUuMDQ4LTcuNTE3LDguMzI5LTguODQ4LDkuODU1ICAgYy0w"
+               + "LjE5MywwLjA4OS0wLjk1MywwLjk1Mi0yLjI4NSwyLjU2N2MtMS4zMzEsMS42"
+               + "MTUtMS45OTksMi40MjMtMS45OTksMi40MjNsLTEuNzEzLDIuNTY2Yy0wLjk1"
+               + "MywxLjQzMS0xLjM4MSwyLjMzNC0xLjI4NywyLjcwNyAgIGMwLjA5NiwwLjM3"
+               + "My0wLjA5NCwxLjMzMS0wLjU3LDIuODUxYy0wLjQ3NywxLjUyNi0wLjQyOCwy"
+               + "LjY2OSwwLjE0MiwzLjQzM3YwLjI4NGMwLjc2NSwzLjQyOSwyLjQzLDYuMTg3"
+               + "LDQuOTk4LDguMjc3ICAgYzIuNTY4LDIuMDkyLDUuNDc0LDIuOTUsOC43MDgs"
+               + "Mi41NjNjMTIuMzc1LTEuNTIyLDIzLjIyMy0zLjYwNiwzMi41NDgtNi4yNzZj"
+               + "NDkuODctMTIuNzU4LDkzLjY0OS0zNS43ODIsMTMxLjMzNC02OS4wOTcgICBj"
+               + "MTQuMjcyLDEuNTIyLDI4LjA3MiwyLjI4Niw0MS4zOTYsMi4yODZjNDYuNDQy"
+               + "LDAsODkuMjcxLTguMTM4LDEyOC40NzktMjQuNDE3YzM5LjIwOC0xNi4yNzIs"
+               + "NzAuMjMzLTM4LjQ0OCw5My4wNzItNjYuNTE3ICAgYzIyLjg0My0yOC4wNjIs"
+               + "MzQuMjYzLTU4LjY2MywzNC4yNjMtOTEuNzgxQzUxMS42MjYsMTg2LjEwOCw1"
+               + "MDAuMjA3LDE1NS41MDksNDc3LjM3MSwxMjcuNDR6IiBmaWxsPSIjZGFhNTIw"
+               + "Ii8+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4K"
+               + "PGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4K"
+               + "PGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4K"
+               + "PGc+CjwvZz4KPC9zdmc+Cg=="
 
 var CONTENT_TYPE = 'image/png';
 
