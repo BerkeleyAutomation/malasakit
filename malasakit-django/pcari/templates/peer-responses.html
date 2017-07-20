@@ -54,7 +54,7 @@
             <div class="bubbled">
               {% with id=question.id %}
                 {% trans 'Your answer:'%} <strong id="answer-{{ id }}">{% trans 'Skip' %}</strong>
-              {% endblocktrans %}
+              {% endwith %}
             </div>
           {% endif %}
         {% endwith %}

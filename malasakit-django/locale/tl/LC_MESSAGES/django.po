@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.25\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-20 21:48+0000\n"
+"POT-Creation-Date: 2017-07-20 21:57+0000\n"
 "PO-Revision-Date: 2017-07-03 20:00+0800\n"
 "Last-Translator: JEFFREY ANCHETA <jrancheta@national-u.edu.ph>\n"
 "Language-Team: FILIPINO\n"
@@ -133,7 +133,7 @@ msgstr "Maraming Salamat"
 
 #: pcari/templates/end.html:10
 msgid "We appreciate your participation in the Malasakit program."
-msgstr "Pinahahalagahan namin ang iyong pagmaMALASAKIT."
+msgstr "Pinahahalagahan namin ang iyong pagma MALASAKIT."
 
 #: pcari/templates/landing.html:6
 msgid "Welcome"
@@ -262,10 +262,8 @@ msgstr ""
 
 #: pcari/templates/quantitative-questions.html:6
 #: pcari/templates/quantitative-questions.html:7
-#, fuzzy
-#| msgid "Qualitative Questions"
 msgid "Survey Questions"
-msgstr "Kuwalitatibong mga Katanungan"
+msgstr ""
 
 #: pcari/templates/quantitative-questions.html:133
 msgid ""
@@ -301,9 +299,9 @@ msgid ""
 "participants who answered the quantitative questions similarly."
 msgstr ""
 " Ang bawat imahe sa ibaba ay naglalaman ng ibinigay na komento ng ibang "
-"kalahok. Sa tabi ng bawat imahe ay ang paksa ng komento, o  <span class="
-"\"walang paksa\">(?)</span> kung walang natagpuang paksa. Ang mga komentong "
-"malapit sa isa’t isa ay ibinigay ng mga kalahok na sumagot sa katulad na mga "
+"kalahok. Sa tabi ng bawat imahe ay ang paksa ng komento, o  <span class=\"no-"
+"tag\">(?)</span> kung walang natagpuang paksa. Ang mga komentong malapit sa "
+"isa’t isa ay ibinigay ng mga kalahok na sumagot sa katulad na mga "
 "kuwantitatibong tanong."
 
 #: pcari/templates/rate-comments.html:23
@@ -359,3 +357,6 @@ msgstr ""
 
 #~ msgid "Quantitative Questions"
 #~ msgstr "Kuwantitatibong mga Katanungan"
+
+#~ msgid "Qualitative Questions"
+#~ msgstr "Kuwalitatibong mga Katanungan"
