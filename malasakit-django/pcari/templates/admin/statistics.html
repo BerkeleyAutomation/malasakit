@@ -103,7 +103,7 @@
 
       var quantitativeQuestions, ratingDistributions = {};
 
-      $.getJSON('/api/fetch/quantitative-questions/', function(data) {
+      $.getJSON("{% url 'fetch-quantitative-questions' %}", function(data) {
         quantitativeQuestions = data;
         for (var questionID in quantitativeQuestions) {
           var translations = quantitativeQuestions[questionID].prompts;
@@ -126,7 +126,7 @@
         }
       });
 
-      $.getJSON('/api/fetch/question-ratings/', function(data) {
+      $.getJSON("{% url 'fetch-question-ratings' %}", function(data) {
         var max = -Infinity;
         for (var ratingID in data) {
           var rating = data[ratingID];
