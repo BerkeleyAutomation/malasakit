@@ -28,8 +28,8 @@ urlpatterns = [
 
 api_urlpatterns = [
     url(r'^fetch/comments/$', views.fetch_comments, name='fetch-comments'),
-    url(r'^fetch/quantitative-questions', views.fetch_quantitative_questions,
-        name='fetch_quantitative_questions'),
+    url(r'^fetch/quantitative-questions/$', views.fetch_quantitative_questions,
+        name='fetch-quantitative-questions'),
     url(r'^fetch/qualitative-questions/$', views.fetch_qualitative_questions,
         name='fetch-qualitative-questions'),
     url(r'^fetch/question-ratings/$', views.fetch_question_ratings,

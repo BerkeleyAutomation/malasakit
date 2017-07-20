@@ -4,8 +4,6 @@ DJANGO_PROJECT_ROOT=malasakit-django
 DOCS_BUILD_PATH=docs-build
 DOCS_PATH=docs
 
-APACHE_CONF_FILE=/etc/apache2/sites-available/opinion.conf
-
 LINT_TARGETS=\
 	cafe/settings.py\
 	cafe/urls.py\
