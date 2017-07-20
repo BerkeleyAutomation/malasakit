@@ -1,19 +1,37 @@
-""" This module defines actions that should be taken on special events. """
+"""
+This module defines actions that should be taken on special events.
 
-from django.db.models.signals import pre_delete
+References:
+    * `Django Reference on Signals <https://docs.djangoproject.com/en/dev/topics/signals/>`_
+"""
+
+from __future__ import unicode_literals
+
+from django.db.models.signals import pre_delete, post_delete
 from django.dispatch import receiver
 
-from .models import History
+from pcari.models import History
 
 
 @receiver(pre_delete)
+def store_successors(**kwargs):
+    """ Stash an instance's successors prior to deletion. """
+    sender, instance = kwargs['sender'], kwargs['instance']
+    if issubclass(sender, History):
+        query = sender.objects.using(kwargs['using'])
+        # pylint: disable=protected-access
+        instance._successors = list(query.filter(predecessor=instance))
+
+
+@receiver(post_delete)
 def resolve_history_on_deletion(**kwargs):
     """
-    Ensure that child instances do not have a dangling pointer.
+    Ensure that instances of models that derive from `History` do not have a
+    dangling pointer to a predecessor.
     """
-    sender, instance, using = kwargs['sender'], kwargs['instance'], kwargs['using']
+    sender, instance = kwargs['sender'], kwargs['instance']
     if issubclass(sender, History):
-        for successor in sender.objects.using(using).filter(predecessor=instance):
+        for successor in getattr(instance, '_successors', []):
             successor.predecessor = instance.predecessor
             successor.save()
 

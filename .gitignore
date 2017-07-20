@@ -9,7 +9,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 env/
-build/
+/build/
 develop-eggs/
 dist/
 downloads/
@@ -49,32 +49,19 @@ coverage.xml
 *.mo
 *.pot
 
-# Django stuff:
+# Log files
 *.log
-local_settings.py
-settings_local.py
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
 
 # Sphinx documentation
-docs/_build/
-
-# PyBuilder
-target/
+*.inv
+*.doctree
+*.pickle
 
 # IPython Notebook
 .ipynb_checkpoints
 
 # pyenv
 .python-version
-
-# celery beat schedule file
-celerybeat-schedule
 
 # dotenv
 .env
@@ -92,11 +79,21 @@ ENV/
 # Data
 *.sqlite3
 *.sqlite3-journal
-*.json
 *.csv
+*.xlsx
 
 # macOS file finder files
 *.DS_Store
 
 # staticroot files
 cafe/static/
+
+# Minified static assets
+*.min.*
+
+# Node modules and related files
+node_modules/
+package-lock.json
+
+# Other
+bloom-icon.json

@@ -2,14 +2,25 @@
  */
 
 // The Base64 representation of a PNG of `fa-comment` from Font Awesome
-const ICON_IMAGE = 'iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAABDklEQVR4nNXVzyqEURzG8c+8+Z/i'
-                 + 'DmwkKymRspNbsLBxA27AzkLZyF7Kn4XsJEulRsMVuAHJhiZRUzKpGYuZt6bXyzDOSZ56luf7PefX'
-                 + 'qR9/mDGs4QxPqGf6jEusY+In4DmUcoDteoX5r8Dd2OkAnO0e+rLwXpwHgKctob9VsB0QnvYohc9G'
-                 + 'gKdd0DTFEhzDTUTBfQFV9IiTtwTlSHB4SFCMKCjCNGrCz7+GqdS0EUGw2fqUAvYDwg+R5M1sBS+/'
-                 + 'AL9itXnhT7PbAbiKA4xmYVnTIO4wnCMuY6h5poJbXOMCpxo7o222cm5XweJ3DrfLko/f9QQjIeDj'
-                 + 'GnOs41FjaUyGAKcZwDJm0BUS/P/zDqZIDzgtIDS2AAAAAElFTkSuQmCC';
+var ICON_IMAGE = 'iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAABDklEQVR4nNXVzyqEURzG8c+8+Z/i'
+               + 'DmwkKymRspNbsLBxA27AzkLZyF7Kn4XsJEulRsMVuAHJhiZRUzKpGYuZt6bXyzDOSZ56luf7PefX'
+               + 'qR9/mDGs4QxPqGf6jEusY+In4DmUcoDteoX5r8Dd2OkAnO0e+rLwXpwHgKctob9VsB0QnvYohc9G'
+               + 'gKdd0DTFEhzDTUTBfQFV9IiTtwTlSHB4SFCMKCjCNGrCz7+GqdS0EUGw2fqUAvYDwg+R5M1sBS+/'
+               + 'AL9itXnhT7PbAbiKA4xmYVnTIO4wnCMuY6h5poJbXOMCpxo7o222cm5XweJ3DrfLko/f9QQjIeDj'
+               + 'GnOs41FjaUyGAKcZwDJm0BUS/P/zDqZIDzgtIDS2AAAAAElFTkSuQmCC';
 
-const NO_TAG = '(?)';
+var CONTENT_TYPE = 'image/png';
+
+if (Resource.exists('bloom-icon')) {
+    var resource = Resource.load('bloom-icon');
+    if (resource.data !== null) {
+        ICON_IMAGE = resource.data['encoded-image'];
+        CONTENT_TYPE = resource.data['content-type'];
+    }
+}
+
+const NO_TAG_PLACEHOLDER = '(?)';
+const MIN_REQUIRED_COMMENT_RATINGS = 2;
 
 function calculateBounds(comments) {
     var bounds = {
@@ -28,8 +39,10 @@ function calculateBounds(comments) {
     return bounds;
 }
 
+var bounds;
+
 function makeNodeData(comments, width, height) {
-    var bounds = calculateBounds(comments), nodeData = [];
+    var nodeData = [];
     for (var commentID in comments) {
         var comment = comments[commentID];
         var x = comment['pos'][0], y = comment['pos'][1], tag = comment['tag'];
@@ -38,7 +51,7 @@ function makeNodeData(comments, width, height) {
         nodeData.push({
             x: (x - bounds.left)/(bounds.right - bounds.left)*width,
             y: (y - bounds.bottom)/(bounds.top - bounds.bottom)*height,
-            tag: (tag !== null && tag.trim()) ? tag : NO_TAG,
+            tag: (tag !== null && tag.trim()) ? tag : NO_TAG_PLACEHOLDER,
             commentID: commentID,
         });
     }
@@ -66,37 +79,50 @@ function endDrag(node) {
     node.fy = null;
 }
 
+function resetBloom() {
+    $('.modal').css('display', 'none');
+    renderComments();
+    setNextButtonStatus();
+}
+
 function startCommentRating(commentID) {
-    console.log('User selected ' + commentID + ' to rate');
+    var qualitativeQuestions = Resource.load('qualitative-questions').data;
+    var comments = Resource.load('comments').data;
+
+    var promptTranslations = qualitativeQuestions[comments[commentID].qid];
+    var preferredLanguage = getResponseValue(['respondent-data', 'language']);
+    var translatedPrompt = promptTranslations[preferredLanguage];
+
+    var inputElement = $('input.quantitative-input[target-id=comment-rating]');
+
     $('.modal').css('display', 'block');
-    var qualitativeQuestions = JSON.parse(localStorage.getItem(QUALITATIVE_QUESTIONS_KEY));
-    var comments = JSON.parse(localStorage.getItem(COMMENTS_KEY));
-    if (qualitativeQuestions !== null && comments !== null) {
-        var prompt = qualitativeQuestions[comments[commentID]['qid']];
-        $('#comment-rating').val(0);
-        $('#prompt').text(prompt);
-        $('#comment').text(comments[commentID].msg);
-        var path = ['comment-ratings', commentID];
-        if (getResponseValue(path) === null) {
-            setResponseValue(path, [parseInt($('#comment-rating').val())]);
-        }
-        $('#comment-rating').unbind('change');
-        bindHistoryStoreListener($('#comment-rating'), path, parseInt);
-        $('#submit').on('click', function() {
-            $('.modal').css('display', 'none');
-            renderComments();
-            setNextButtonStatus();
-        });
-        $('#skip').unbind('click');
-        $('#skip').on('click', function() {
-            var history = getResponseValue(path);
-            history.push(-1);
-            setResponseValue(path, history);
-            $('.modal').css('display', 'none');
-            renderComments();
-            setNextButtonStatus();
-        });
+    $('#question-prompt').text(translatedPrompt);
+    $('#comment-message').text(comments[commentID].msg);
+
+    inputElement.val(0);
+    var path = ['comment-ratings', commentID];
+    if (getResponseValue(path) === null) {
+        setResponseValue(path, parseInt(inputElement.val()));
     }
+
+    function updateOutputReading() {
+        $('#quantitative-output').text(inputElement.val().toString() + '/9');
+    };
+
+    inputElement.unbind('input');
+    inputElement.on('input', function() {
+        updateOutputReading();
+        setResponseValue(path, parseInt(inputElement.val()));
+    });
+    updateOutputReading();
+
+    $('#submit').on('click', resetBloom);
+
+    $('#skip').unbind('click');
+    $('#skip').on('click', function() {
+        setResponseValue(path, -1);
+        resetBloom();
+    });
 }
 
 var simulation;
@@ -111,13 +137,18 @@ function renderComments() {
     simulation = d3.forceSimulation().force('charge', d3.forceManyBody());
     bloom.selectAll('*').remove();
 
-    var selectedComments = JSON.parse(localStorage.getItem(SELECTED_COMMENTS_KEY)) || {};
+    var selectedComments = Resource.load('selected-comments').data || {};
+    bounds = calculateBounds(selectedComments);
     for (var commentID in selectedComments) {
         if (commentID in getResponseValue(['comment-ratings'])) {
             delete selectedComments[commentID];
         }
     }
     var nodeData = makeNodeData(selectedComments, width, height);
+    if (nodeData.length == 0) {
+        $('#no-more-comments-notice').css('display', 'block');
+        return;
+    }
 
     var drag = d3.drag().on('start', startDrag).on('drag', continueDrag).on('end', endDrag);
     var nodes = bloom.selectAll('g').data(nodeData).enter().append('g');
@@ -126,7 +157,7 @@ function renderComments() {
         startCommentRating(node.commentID);
     });
     nodes.append('image')
-         .attr('xlink:href', 'data:image/png;base64,' + ICON_IMAGE);
+         .attr('xlink:href', 'data:' + CONTENT_TYPE + ';base64,' + ICON_IMAGE);
     nodes.append('text').text(node => node.tag).attr('x', 30).attr('y', 15)
          .attr('fill', '#1371ad');
 
@@ -142,19 +173,26 @@ function renderComments() {
 }
 
 function setNextButtonStatus() {
-    var disabled = Object.keys(getResponseValue(['comment-ratings'])).length < 2;
+    var comments = Resource.load('comments');
+    var numComments = Object.keys(comments.data).length;
+    var commentRatings = getResponseValue(['comment-ratings']);
+    var requiredRatings = Math.min(MIN_REQUIRED_COMMENT_RATINGS, numComments);
+    var disabled = Object.keys(commentRatings).length < requiredRatings;
+
     if (disabled) {
         $('#next > a').click(function(event) {
             event.preventDefault();
         });
+        $('#next').addClass('blocked');
     } else {
         $('#next > a').unbind('click');
+        $('#next').removeClass('blocked');
     }
 }
 
 $(document).ready(function() {
+    displayNoCurrentRespondentError();
     selectComments(selectCommentFromStandardError);
-    renderComments();
-    setNextButtonStatus();
+    resetBloom();
     $(window).resize(renderComments);
 });

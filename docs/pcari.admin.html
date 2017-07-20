@@ -1,0 +1,473 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pcari.admin module &#8212; Malasakit 1.25 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.25',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pcari.apps module" href="pcari.apps.html" />
+    <link rel="prev" title="pcari.templatetags.localize_url module" href="pcari.templatetags.localize_url.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pcari.admin">
+<span id="pcari-admin-module"></span><h1>pcari.admin module<a class="headerlink" href="#module-pcari.admin" title="Permalink to this headline">¶</a></h1>
+<p>This module defines how Django should render the admin panel.</p>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><a class="reference external" href="https://docs.djangoproject.com/en/dev/ref/contrib/admin/">Django Admin Site Reference</a></li>
+<li><a class="reference external" href="https://docs.djangoproject.com/en/dev/ref/contrib/admin/actions/">Django Admin Actions</a></li>
+</ul>
+<dl class="class">
+<dt id="pcari.admin.MalasakitAdminSite">
+<em class="property">class </em><code class="descclassname">pcari.admin.</code><code class="descname">MalasakitAdminSite</code><span class="sig-paren">(</span><em>name='admin'</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.MalasakitAdminSite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.contrib.admin.sites.AdminSite</span></code></p>
+<p>A custom admin site for Malasakit with augmented configuration and
+statistics functionality.</p>
+<dl class="method">
+<dt id="pcari.admin.MalasakitAdminSite.change_bloom_icon">
+<code class="descname">change_bloom_icon</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.MalasakitAdminSite.change_bloom_icon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save an image file of a custom bloom icon.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pcari.admin.MalasakitAdminSite.configuration">
+<code class="descname">configuration</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.MalasakitAdminSite.configuration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Render a page for staff users to configure the application.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pcari.admin.MalasakitAdminSite.filter_actions">
+<code class="descname">filter_actions</code><span class="sig-paren">(</span><em>model</em>, <em>action_names=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.MalasakitAdminSite.filter_actions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restrict the actions a model admin may take.</p>
+<p>This restriction is accomplished by wrapping the <code class="docutils literal"><span class="pre">get_actions</span></code> method
+of the model admin associated with the given <code class="docutils literal"><span class="pre">model</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>model</strong> – The class of the model. The model must have been registered
+with the site.</li>
+<li><strong>action_names</strong> (<em>list</em>) – A list of action names (strings) whose
+associated actions should be allowed.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pcari.admin.MalasakitAdminSite.get_urls">
+<code class="descname">get_urls</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.MalasakitAdminSite.get_urls" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.admin.MalasakitAdminSite.site_header">
+<code class="descname">site_header</code><em class="property"> = u'Malasakit'</em><a class="headerlink" href="#pcari.admin.MalasakitAdminSite.site_header" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.admin.MalasakitAdminSite.site_title">
+<code class="descname">site_title</code><em class="property"> = u'Malasakit'</em><a class="headerlink" href="#pcari.admin.MalasakitAdminSite.site_title" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.admin.MalasakitAdminSite.statistics">
+<code class="descname">statistics</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.MalasakitAdminSite.statistics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Render a statistics page.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.admin.HistoryAdmin">
+<em class="property">class </em><code class="descclassname">pcari.admin.</code><code class="descname">HistoryAdmin</code><span class="sig-paren">(</span><em>model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.HistoryAdmin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.contrib.admin.options.ModelAdmin</span></code></p>
+<p>Base admin behavior that defines special functionality for
+<a class="reference internal" href="pcari.models.html#pcari.models.History" title="pcari.models.History"><code class="xref py py-class docutils literal"><span class="pre">pcari.models.History</span></code></a> models.</p>
+<dl class="attribute">
+<dt id="pcari.admin.HistoryAdmin.actions">
+<code class="descname">actions</code><em class="property"> = (u'mark_active', u'mark_inactive')</em><a class="headerlink" href="#pcari.admin.HistoryAdmin.actions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.admin.HistoryAdmin.get_readonly_fields">
+<code class="descname">get_readonly_fields</code><span class="sig-paren">(</span><em>request</em>, <em>obj=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.HistoryAdmin.get_readonly_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.admin.HistoryAdmin.mark_active">
+<code class="descname">mark_active</code><span class="sig-paren">(</span><em>request</em>, <em>queryset</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.HistoryAdmin.mark_active" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mark selected instances as active in bulk.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pcari.admin.HistoryAdmin.mark_inactive">
+<code class="descname">mark_inactive</code><span class="sig-paren">(</span><em>request</em>, <em>queryset</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.HistoryAdmin.mark_inactive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mark selected instances as inactive in bulk.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.admin.HistoryAdmin.save_as_continue">
+<code class="descname">save_as_continue</code><em class="property"> = False</em><a class="headerlink" href="#pcari.admin.HistoryAdmin.save_as_continue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.admin.HistoryAdmin.save_model">
+<code class="descname">save_model</code><span class="sig-paren">(</span><em>request</em>, <em>obj</em>, <em>form</em>, <em>change</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.HistoryAdmin.save_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.admin.QuestionAdmin">
+<em class="property">class </em><code class="descclassname">pcari.admin.</code><code class="descname">QuestionAdmin</code><span class="sig-paren">(</span><em>model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.QuestionAdmin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pcari.admin.HistoryAdmin" title="pcari.admin.HistoryAdmin"><code class="xref py py-class docutils literal"><span class="pre">pcari.admin.HistoryAdmin</span></code></a></p>
+<p>Base admin behavior for <a class="reference internal" href="pcari.models.html#pcari.models.Question" title="pcari.models.Question"><code class="xref py py-class docutils literal"><span class="pre">pcari.models.Question</span></code></a> models.</p>
+<dl class="attribute">
+<dt id="pcari.admin.QuestionAdmin.list_select_related">
+<code class="descname">list_select_related</code><em class="property"> = True</em><a class="headerlink" href="#pcari.admin.QuestionAdmin.list_select_related" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>bool</em> – Performance optimizer to limit database queries.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.admin.ResponseAdmin">
+<em class="property">class </em><code class="descclassname">pcari.admin.</code><code class="descname">ResponseAdmin</code><span class="sig-paren">(</span><em>model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.ResponseAdmin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pcari.admin.HistoryAdmin" title="pcari.admin.HistoryAdmin"><code class="xref py py-class docutils literal"><span class="pre">pcari.admin.HistoryAdmin</span></code></a></p>
+<p>Base admin behavior for <a class="reference internal" href="pcari.models.html#pcari.models.Response" title="pcari.models.Response"><code class="xref py py-class docutils literal"><span class="pre">pcari.models.Response</span></code></a> models.</p>
+<dl class="attribute">
+<dt id="pcari.admin.ResponseAdmin.empty_value_display">
+<code class="descname">empty_value_display</code><em class="property"> = u'-- Empty response --'</em><a class="headerlink" href="#pcari.admin.ResponseAdmin.empty_value_display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.admin.ResponseAdmin.list_select_related">
+<code class="descname">list_select_related</code><em class="property"> = True</em><a class="headerlink" href="#pcari.admin.ResponseAdmin.list_select_related" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.admin.ResponseAdmin.ordering">
+<code class="descname">ordering</code><em class="property"> = (u'-timestamp',)</em><a class="headerlink" href="#pcari.admin.ResponseAdmin.ordering" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.admin.QuantitativeQuestionAdmin">
+<em class="property">class </em><code class="descclassname">pcari.admin.</code><code class="descname">QuantitativeQuestionAdmin</code><span class="sig-paren">(</span><em>model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.QuantitativeQuestionAdmin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pcari.admin.QuestionAdmin" title="pcari.admin.QuestionAdmin"><code class="xref py py-class docutils literal"><span class="pre">pcari.admin.QuestionAdmin</span></code></a></p>
+<p>Admin behavior for <a class="reference internal" href="pcari.models.html#pcari.models.QuantitativeQuestion" title="pcari.models.QuantitativeQuestion"><code class="xref py py-class docutils literal"><span class="pre">pcari.models.QuantitativeQuestion</span></code></a>.</p>
+<dl class="attribute">
+<dt id="pcari.admin.QuantitativeQuestionAdmin.list_display">
+<code class="descname">list_display</code><em class="property"> = (u'prompt', u'tag', u'active')</em><a class="headerlink" href="#pcari.admin.QuantitativeQuestionAdmin.list_display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.admin.QuantitativeQuestionAdmin.list_filter">
+<code class="descname">list_filter</code><em class="property"> = (u'tag', u'active')</em><a class="headerlink" href="#pcari.admin.QuantitativeQuestionAdmin.list_filter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.admin.QuantitativeQuestionAdmin.search_fields">
+<code class="descname">search_fields</code><em class="property"> = (u'prompt', u'tag')</em><a class="headerlink" href="#pcari.admin.QuantitativeQuestionAdmin.search_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.admin.QuantitativeQuestionRatingAdmin">
+<em class="property">class </em><code class="descclassname">pcari.admin.</code><code class="descname">QuantitativeQuestionRatingAdmin</code><span class="sig-paren">(</span><em>model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.QuantitativeQuestionRatingAdmin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pcari.admin.ResponseAdmin" title="pcari.admin.ResponseAdmin"><code class="xref py py-class docutils literal"><span class="pre">pcari.admin.ResponseAdmin</span></code></a></p>
+<p>Admin behavior for <a class="reference internal" href="pcari.models.html#pcari.models.QuantitativeQuestionRating" title="pcari.models.QuantitativeQuestionRating"><code class="xref py py-class docutils literal"><span class="pre">pcari.models.QuantitativeQuestionRating</span></code></a>.</p>
+<dl class="method">
+<dt id="pcari.admin.QuantitativeQuestionRatingAdmin.get_question_prompt">
+<code class="descname">get_question_prompt</code><span class="sig-paren">(</span><em>question_rating</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.QuantitativeQuestionRatingAdmin.get_question_prompt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.admin.QuantitativeQuestionRatingAdmin.list_display">
+<code class="descname">list_display</code><em class="property"> = (u'respondent', u'get_question_prompt', u'timestamp', u'score', u'active')</em><a class="headerlink" href="#pcari.admin.QuantitativeQuestionRatingAdmin.list_display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.admin.QuantitativeQuestionRatingAdmin.list_display_links">
+<code class="descname">list_display_links</code><em class="property"> = (u'get_question_prompt',)</em><a class="headerlink" href="#pcari.admin.QuantitativeQuestionRatingAdmin.list_display_links" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.admin.QuantitativeQuestionRatingAdmin.list_filter">
+<code class="descname">list_filter</code><em class="property"> = (u'timestamp', u'active')</em><a class="headerlink" href="#pcari.admin.QuantitativeQuestionRatingAdmin.list_filter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.admin.QuantitativeQuestionRatingAdmin.readonly_fields">
+<code class="descname">readonly_fields</code><em class="property"> = (u'timestamp',)</em><a class="headerlink" href="#pcari.admin.QuantitativeQuestionRatingAdmin.readonly_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.admin.QuantitativeQuestionRatingAdmin.search_fields">
+<code class="descname">search_fields</code><em class="property"> = (u'question__prompt', u'score')</em><a class="headerlink" href="#pcari.admin.QuantitativeQuestionRatingAdmin.search_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.admin.QualitativeQuestionAdmin">
+<em class="property">class </em><code class="descclassname">pcari.admin.</code><code class="descname">QualitativeQuestionAdmin</code><span class="sig-paren">(</span><em>model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.QualitativeQuestionAdmin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pcari.admin.QuestionAdmin" title="pcari.admin.QuestionAdmin"><code class="xref py py-class docutils literal"><span class="pre">pcari.admin.QuestionAdmin</span></code></a></p>
+<p>Admin behavior for <a class="reference internal" href="pcari.models.html#pcari.models.QualitativeQuestion" title="pcari.models.QualitativeQuestion"><code class="xref py py-class docutils literal"><span class="pre">pcari.models.QualitativeQuestion</span></code></a>.</p>
+<dl class="attribute">
+<dt id="pcari.admin.QualitativeQuestionAdmin.list_display">
+<code class="descname">list_display</code><em class="property"> = (u'prompt', u'tag', u'active')</em><a class="headerlink" href="#pcari.admin.QualitativeQuestionAdmin.list_display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.admin.QualitativeQuestionAdmin.list_filter">
+<code class="descname">list_filter</code><em class="property"> = (u'prompt', u'tag', u'active')</em><a class="headerlink" href="#pcari.admin.QualitativeQuestionAdmin.list_filter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.admin.QualitativeQuestionAdmin.search_fields">
+<code class="descname">search_fields</code><em class="property"> = (u'prompt', u'tag')</em><a class="headerlink" href="#pcari.admin.QualitativeQuestionAdmin.search_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.admin.CommentAdmin">
+<em class="property">class </em><code class="descclassname">pcari.admin.</code><code class="descname">CommentAdmin</code><span class="sig-paren">(</span><em>model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.CommentAdmin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pcari.admin.ResponseAdmin" title="pcari.admin.ResponseAdmin"><code class="xref py py-class docutils literal"><span class="pre">pcari.admin.ResponseAdmin</span></code></a></p>
+<p>Admin behavior for <a class="reference internal" href="pcari.models.html#pcari.models.Comment" title="pcari.models.Comment"><code class="xref py py-class docutils literal"><span class="pre">pcari.models.Comment</span></code></a>.</p>
+<dl class="attribute">
+<dt id="pcari.admin.CommentAdmin.actions">
+<code class="descname">actions</code><em class="property"> = (u'flag_comments', u'unflag_comments')</em><a class="headerlink" href="#pcari.admin.CommentAdmin.actions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.admin.CommentAdmin.display_mean_score">
+<code class="descname">display_mean_score</code><span class="sig-paren">(</span><em>comment</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.CommentAdmin.display_mean_score" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.admin.CommentAdmin.display_message">
+<code class="descname">display_message</code><span class="sig-paren">(</span><em>comment</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.CommentAdmin.display_message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.admin.CommentAdmin.flag_comments">
+<code class="descname">flag_comments</code><span class="sig-paren">(</span><em>request</em>, <em>queryset</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.CommentAdmin.flag_comments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag selected comments in bulk and inform the user how many were flagged.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.admin.CommentAdmin.list_display">
+<code class="descname">list_display</code><em class="property"> = (u'respondent', u'display_message', u'timestamp', u'language', u'flagged', u'tag', u'active', u'display_mean_score', u'num_ratings')</em><a class="headerlink" href="#pcari.admin.CommentAdmin.list_display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.admin.CommentAdmin.list_display_links">
+<code class="descname">list_display_links</code><em class="property"> = (u'display_message',)</em><a class="headerlink" href="#pcari.admin.CommentAdmin.list_display_links" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.admin.CommentAdmin.list_filter">
+<code class="descname">list_filter</code><em class="property"> = (u'timestamp', u'language', u'flagged', u'tag', u'active')</em><a class="headerlink" href="#pcari.admin.CommentAdmin.list_filter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.admin.CommentAdmin.search_fields">
+<code class="descname">search_fields</code><em class="property"> = (u'message', u'tag')</em><a class="headerlink" href="#pcari.admin.CommentAdmin.search_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.admin.CommentAdmin.unflag_comments">
+<code class="descname">unflag_comments</code><span class="sig-paren">(</span><em>request</em>, <em>queryset</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.CommentAdmin.unflag_comments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unflag selected comments in bulk and inform how many were unflagged.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.admin.CommentRatingAdmin">
+<em class="property">class </em><code class="descclassname">pcari.admin.</code><code class="descname">CommentRatingAdmin</code><span class="sig-paren">(</span><em>model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.CommentRatingAdmin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pcari.admin.ResponseAdmin" title="pcari.admin.ResponseAdmin"><code class="xref py py-class docutils literal"><span class="pre">pcari.admin.ResponseAdmin</span></code></a></p>
+<p>Admin behavior for <a class="reference internal" href="pcari.models.html#pcari.models.CommentRating" title="pcari.models.CommentRating"><code class="xref py py-class docutils literal"><span class="pre">pcari.models.CommentRating</span></code></a>.</p>
+<dl class="method">
+<dt id="pcari.admin.CommentRatingAdmin.get_comment_message">
+<code class="descname">get_comment_message</code><span class="sig-paren">(</span><em>comment_rating</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.CommentRatingAdmin.get_comment_message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.admin.CommentRatingAdmin.list_display">
+<code class="descname">list_display</code><em class="property"> = (u'respondent', u'get_comment_message', u'score', u'timestamp', u'active')</em><a class="headerlink" href="#pcari.admin.CommentRatingAdmin.list_display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.admin.CommentRatingAdmin.list_display_links">
+<code class="descname">list_display_links</code><em class="property"> = (u'get_comment_message',)</em><a class="headerlink" href="#pcari.admin.CommentRatingAdmin.list_display_links" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.admin.CommentRatingAdmin.list_filter">
+<code class="descname">list_filter</code><em class="property"> = (u'timestamp', u'active')</em><a class="headerlink" href="#pcari.admin.CommentRatingAdmin.list_filter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.admin.CommentRatingAdmin.readonly_fields">
+<code class="descname">readonly_fields</code><em class="property"> = (u'timestamp',)</em><a class="headerlink" href="#pcari.admin.CommentRatingAdmin.readonly_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.admin.CommentRatingAdmin.search_fields">
+<code class="descname">search_fields</code><em class="property"> = (u'score', u'comment__message')</em><a class="headerlink" href="#pcari.admin.CommentRatingAdmin.search_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.admin.RespondentAdmin">
+<em class="property">class </em><code class="descclassname">pcari.admin.</code><code class="descname">RespondentAdmin</code><span class="sig-paren">(</span><em>model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.RespondentAdmin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pcari.admin.HistoryAdmin" title="pcari.admin.HistoryAdmin"><code class="xref py py-class docutils literal"><span class="pre">pcari.admin.HistoryAdmin</span></code></a></p>
+<p>Admin behavior for <a class="reference internal" href="pcari.models.html#pcari.models.Respondent" title="pcari.models.Respondent"><code class="xref py py-class docutils literal"><span class="pre">pcari.models.Respondent</span></code></a>.</p>
+<dl class="method">
+<dt id="pcari.admin.RespondentAdmin.comments_made">
+<code class="descname">comments_made</code><span class="sig-paren">(</span><em>respondent</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.RespondentAdmin.comments_made" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pcari.admin.RespondentAdmin.display_location">
+<code class="descname">display_location</code><span class="sig-paren">(</span><em>respondent</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.RespondentAdmin.display_location" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.admin.RespondentAdmin.empty_value_display">
+<code class="descname">empty_value_display</code><em class="property"> = u'(Empty)'</em><a class="headerlink" href="#pcari.admin.RespondentAdmin.empty_value_display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.admin.RespondentAdmin.list_display">
+<code class="descname">list_display</code><em class="property"> = (u'id', u'comments_made', u'age', u'gender', u'display_location', u'language', u'submitted_personal_data', u'completed_survey', u'num_questions_rated', u'num_comments_rated', u'active')</em><a class="headerlink" href="#pcari.admin.RespondentAdmin.list_display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.admin.RespondentAdmin.list_filter">
+<code class="descname">list_filter</code><em class="property"> = (u'gender', u'language', u'submitted_personal_data', u'completed_survey', u'active')</em><a class="headerlink" href="#pcari.admin.RespondentAdmin.list_filter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.admin.RespondentAdmin.list_select_related">
+<code class="descname">list_select_related</code><em class="property"> = True</em><a class="headerlink" href="#pcari.admin.RespondentAdmin.list_select_related" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.admin.RespondentAdmin.search_fields">
+<code class="descname">search_fields</code><em class="property"> = (u'gender', u'location', u'language', u'submitted_personal_data', u'completed_survey')</em><a class="headerlink" href="#pcari.admin.RespondentAdmin.search_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Malasakit</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="pcari.html">PCARI application</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pcari.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pcari.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pcari.html#module-pcari">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="pcari.html">pcari package</a><ul>
+      <li>Previous: <a href="pcari.templatetags.localize_url.html" title="previous chapter">pcari.templatetags.localize_url module</a></li>
+      <li>Next: <a href="pcari.apps.html" title="next chapter">pcari.apps module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, UC Berkeley.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/pcari.admin.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

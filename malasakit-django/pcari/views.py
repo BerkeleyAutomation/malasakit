@@ -1,100 +1,135 @@
 """
 This module defines the application's views, which are needed to render pages.
-"""
-# pylint: disable=unused-import
 
-# Standard library
+These views can be broadly categorized into two groups:
+    * **API endpoints** that can dynamically send and receive data (typically
+      as `JSON <http://www.json.org/>`_). The client can use these endpoints to
+      operate asynchronously.
+    * **HTML pages** that show up to users. These pages are typically largely
+      static and lend themselves to caching by service workers.
+
+References:
+  * `Django Introduction to Views <https://docs.djangoproject.com/en/dev/topics/http/views/>`_
+  * `View Decorators <https://docs.djangoproject.com/en/dev/topics/http/decorators/>`_
+  * `Creating Files for Download <https://docs.djangoproject.com/en/dev/howto/outputting-csv/>`_
+"""
+
+from __future__ import unicode_literals
+import datetime
 import logging
 import json
 import math
+import mimetypes
 import random
 import time
 
-# Third-party libraries
-from django.apps import apps
-from django.core.exceptions import ObjectDoesNotExist
+import decorator
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.conf import settings
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_GET, require_POST
 from django.urls import reverse
+from django.utils import translation
+from django.utils.translation import ugettext_lazy as _, ugettext
 import numpy as np
+from openpyxl import Workbook
+import unicodecsv as csv
 
-# Local modules and models
-from .models import Respondent
-from .models import LANGUAGES
-from .models import QuantitativeQuestion, QualitativeQuestion
-from .models import Comment, CommentRating, QuantitativeQuestionRating
+from pcari.models import Respondent
+from pcari.models import QuantitativeQuestion, QualitativeQuestion
+from pcari.models import Comment, CommentRating, QuantitativeQuestionRating
+from pcari.models import get_concrete_fields
+
+__all__ = [
+    'generate_ratings_matrix',
+    'normalize_ratings_matrix',
+    'calculate_principal_components',
+    'fetch_comments',
+    'fetch_qualitative_questions',
+    'fetch_quantitative_questions',
+    'fetch_question_ratings',
+    'save_response',
+    'export_data',
+    'index',
+    'landing',
+    'qualitative_questions',
+    'peer_responses',
+    'rate_comments',
+    'qualitative_questions',
+    'personal_information',
+    'end',
+    'handle_page_not_found',
+    'handle_internal_server_error',
+]
 
 DEFAULT_LANGUAGE = settings.LANGUAGE_CODE
-DEFAULT_COMMENT_LIMIT = 1000  # Default maximum number of comments to send
+DEFAULT_COMMENT_LIMIT = 300   # Default maximum number of comments to send
 DEFAULT_STANDARD_ERROR = 4.5  # For comments with fewer than two ratings
-STANDARD_ERROR_PRECISION = 6  # Number of decimal places
 
 LOGGER = logging.getLogger('pcari')
 
 
-def profile(function):
+@decorator.decorator
+def profile(function, *args, **kwargs):
     """
-    Add a hook to a function to log runtime.
+    Log the runtime of a function call.
 
     Args:
         function: The callable to profile.
+        args: Additional positional arguments to ``function``.
+        kwargs: Additional keyword arguments to ``function``.
 
     Returns:
-        A wrapped version of `function` with the same behavior.
+        The result of applying ``function`` to ``args`` and ``kwargs``.
     """
-    def wrapper(*args, **kwargs):
-        """ Return the result of the given `function`. """
-        start_time = time.time()
-        result = function(*args, **kwargs)
-        end_time = time.time()
-        time_elapsed = end_time - start_time
-        message = 'Call to {} took {:.3f} seconds'
-        LOGGER.log(logging.INFO, message.format(function.__name__, time_elapsed))
-        return result
-    return wrapper
+    start_time = time.time()
+    result = function(*args, **kwargs)
+    end_time = time.time()
+    time_elapsed = end_time - start_time
+    LOGGER.log(logging.DEBUG, 'Call to "%s" took %.3f seconds',
+               function.__name__, time_elapsed)
+    return result
 
 
 @profile
-def generate_ratings_matrix(respondents=None):
+def generate_ratings_matrix():
     """
-    Fetches quantitative question ratings in the form of a numpy matrix.
+    Fetch quantitative question ratings in the form of a :mod:`numpy` matrix.
 
-    Each row corresponds to one respondent and each column corresponds to one
-    question. Missing values are filled in with `np.nan`.
-
-    Because we only pull the fields we need from the ORM, this function should
-    run relatively quickly (on the order of milliseconds).
-
-    Args:
-        respondents: A `QuerySet` of respondents to select ratings from. If
-                     `None` (which is the default value), select all
-                     respondents.
+    Each row in the matrix represents the ratings of one respondent, and each
+    column represents the ratings for one question.
 
     Returns:
-        respondent_id_map: A length-`m` dictionary mapping respondent IDs to
-                           row indices.
-        question_id_map: A lenght-`n` dictionary mapping quantitative question
-                         IDs to column indices.
-        ratings_matrix: A `m` x `n` NumPy array of ratings.
-    """
-    if respondents is None:
-        respondents = Respondent.objects.all()
+        tuple: Tuple of three items:
+            * ``respondent_id_map`` (`dict`): A length-`m` map from respondent
+              identifiers to matrix row indicies.
+            * ``question_id_map`` (`dict`): A length-`n` map from quantitative
+              question identifiers to matrix column indicies.
+            * ``ratings_matrix`` (`numpy.ndarray`): An `m` by `n` NumPy array
+              of ratings.
 
-    respondent_ids = respondents.values_list('id', flat=True)
-    question_ids = QuantitativeQuestion.objects.values_list('id', flat=True)
+        Only active respondents, active questions, and active ratings are used
+        (see :attr:`pcari.models.History.active`).
+    """
+    respondent_ids = Respondent.objects.filter(active=True).values_list('id', flat=True)
+    question_ids = QuantitativeQuestion.objects.filter(active=True).values_list('id', flat=True)
+
     respondent_id_map = {key: index for index, key in enumerate(respondent_ids)}
     question_id_map = {key: index for index, key in enumerate(question_ids)}
 
-    shape = (len(respondent_id_map), len(question_id_map))
+    shape = len(respondent_id_map), len(question_id_map)
     ratings_matrix = np.full(shape, np.nan)
 
-    features = 'respondent_id', 'question_id', 'score_history_text'
-    values = QuantitativeQuestionRating.objects.values_list(*features)
-    for respondent_id, question_id, score_history_text in values:
-        score = score_history_text.split(QuantitativeQuestionRating
-                                         .SCORE_HISTORY_TEXT_DELIMIETER)[-1]
+    values = QuantitativeQuestionRating.objects.filter(respondent__active=True,
+                                                       question__active=True,
+                                                       active=True)
+    excluded = [QuantitativeQuestionRating.SKIPPED,
+                QuantitativeQuestionRating.NOT_RATED]
+    features = 'respondent_id', 'question_id', 'score'
+    values = values.exclude(score__in=excluded).values_list(*features)
+
+    for respondent_id, question_id, score in values:
         row_index = respondent_id_map[respondent_id]
         column_index = question_id_map[question_id]
         ratings_matrix[row_index, column_index] = score
@@ -102,45 +137,44 @@ def generate_ratings_matrix(respondents=None):
     return respondent_id_map, question_id_map, ratings_matrix
 
 
+@profile
 def normalize_ratings_matrix(ratings_matrix):
     """
-    Normalize a ratings matrix.
-
-    In this context, a normalized matrix is one where the mean row is the zero
-    vector, and `np.nan` values are replaced by zero. (If the bias, or mean, is
-    readded to every row, the missing values are replaced by its column's mean.)
+    Normalize a ratings matrix so the ellipsoid of ratings is centered at the
+    origin, and missing values are imputed with zero. (That is, the mean of the
+    column before centering.)
 
     Args:
-        ratings_matrix: A `m` x `n` matrix of ratings, where each row
-                        represents a respondent.
+        ratings_matrix (numpy.ndarray): An `m` by `n` matrix of ratings (as
+            provided by :func:`generate_ratings_matrix`).
 
     Returns:
-        A `m` x `n` matrix of normalized ratings, which is guaranteed to have
-        no `np.nan` values.
+        numpy.ndarray: An `m` by `n` matrix of normalized ratings with no
+        ``np.nan`` values.
     """
-    mean_ratings = np.nanmean(ratings_matrix, axis=0)
-    normalized_ratings_matrix = np.nan_to_num(ratings_matrix - mean_ratings)
-    return normalized_ratings_matrix
+    means_of_columns = np.nanmean(ratings_matrix, axis=0)
+    return np.nan_to_num(ratings_matrix - means_of_columns)
 
 
 @profile
 def calculate_principal_components(normalized_ratings, num_components=2):
     """
-    Calculates the first `n` principal components of a normalized quantitative
-    question ratings matrix.
+    Calculate the principal components of a normalized ratings matrix.
 
     Args:
-        num_components: number of principal components to calculate (`n`).
+        normalized_ratings (numpy.ndarray): An `m` by `n` normalized ratings
+            matrix (as provided by :func:`normalize_ratings_matrix`).
+        num_components (int): The number of principal components to select
+            (`p`).
 
     Returns:
-        A `n` x `q` Numpy matrix, where `q` is number of quantitative
-        questions. Each row is a principal component.
+        numpy.ndarray: A `p` by `n` matrix whose rows are principal components.
     """
-    results = np.linalg.svd(normalized_ratings, full_matrices=False)
-    components = results[-1]
-    return components[:num_components]  # Slice the first `n` rows
+    _, _, covariance_matrix = np.linalg.svd(normalized_ratings, full_matrices=False)
+    return covariance_matrix[:num_components]
 
 
+@profile
 @require_GET
 def fetch_comments(request):
     """
@@ -148,109 +182,216 @@ def fetch_comments(request):
 
     Args:
         request: May contain a `limit` GET parameter that specifies how many
-                 comments to get (by default: 1000).
+            comments to get (by default: 300). Very high limits may decrease
+            performance noticeably.
 
     Returns:
-        A `JsonResponse` containing an JSON object mapping comment identifiers
-        to JSON objects with the following attributes:
-            msg: The comment's message (from the `Comment.message` field).
-            sem: The standard error of the mean.
-            pos: The position of the comment. Obtained by projecting the
-                 quantitative question ratings vector of the comment author
-                 onto the first two principal components of the question
-                 ratings dataset. This is a list containing two numbers, the
-                 first principal component projection and second, respectively.
-            tag: A short description of the comment's message.
-            qid: The identifier of the `QualitativeQuestion` this comment was
-                 in response to.
+        A ``JsonResponse`` containing an JSON object of the form::
+
+            {
+                "<comment.id>": {
+                    "msg": "<comment.message>",
+                    "sem": <comment.score_sem>,
+                    "pos": <author question ratings projection>,
+                    "tag": "<comment.tag>",
+                    "qid": <comment.question_id>
+                },
+                ...
+            }
+
+        The ``pos`` property is calculated by projecting the quantitative
+        question ratings vector of the comment's author onto the first two
+        principal components of the question ratings dataset (from
+        :func:`calculate_principal_components`). This property is a list
+        containing two numbers: the first and second projections, respectively.
     """
     try:
         limit = int(request.GET.get('limit', str(DEFAULT_COMMENT_LIMIT)))
     except ValueError as error:
         return HttpResponseBadRequest(str(error))
 
-    comments = list(Comment.objects.all())
+    query = Comment.objects.filter(active=True).filter(flagged=False)
+    comments = query.exclude(message='').all()
     if len(comments) > limit:
         comments = random.sample(comments, limit)
 
-    ratings_data = generate_ratings_matrix()
-    respondent_id_map, _, ratings = ratings_data
-    normalized_ratings = normalize_ratings_matrix(ratings)
-    components = calculate_principal_components(normalized_ratings, 2)
+    respondent_id_map, _, ratings = generate_ratings_matrix()
+    if ratings.size:
+        normalized_ratings = normalize_ratings_matrix(ratings)
+        components = calculate_principal_components(normalized_ratings, 2)
 
     data = {}
     for comment in comments:
-        if comment.message:
-            standard_error = comment.standard_error
-            row_index = respondent_id_map[comment.respondent.id]
+        standard_error = comment.score_sem
+        row_index = respondent_id_map[comment.respondent.id]
+        position = [0, 0]
+        if ratings.size:
+            position = list(np.round(components.dot(normalized_ratings[row_index, :]), 3))
 
-            # Projects the ratings by this comment's author onto the first two
-            # principal components
-            position = list(np.round(components.dot(normalized_ratings[row_index, :]), 6))
-
-            if math.isnan(standard_error):
-                standard_error = DEFAULT_STANDARD_ERROR
-            data[str(comment.id)] = {
-                'msg': comment.message,
-                'sem': round(standard_error, STANDARD_ERROR_PRECISION),
-                'pos': position,
-                'tag': comment.tag,
-                'qid': comment.question_id
-            }
+        # Projects the ratings by this comment's author onto the first two
+        # principal components to generate the position (`pos`).
+        if math.isnan(standard_error):
+            standard_error = DEFAULT_STANDARD_ERROR
+        data[str(comment.id)] = {
+            'msg': comment.message,
+            'sem': round(standard_error, 3),
+            'pos': position,
+            'tag': comment.tag,
+            'qid': comment.question_id
+        }
 
     return JsonResponse(data)
 
 
+def translate(text, language_code):
+    translation.activate(language_code)
+    return ugettext(text)
+
+
+@profile
 @require_GET
 def fetch_qualitative_questions(request):
     """
-    Fetch all qualitative question data as JSON.
+    Fetch qualitative question data as JSON.
 
     Args:
-        request: The request is ignored.
+        request: This parameter is ignored.
 
     Returns:
-        A `JsonResponse` containing a JSON object mapping qualitative question
-        identifiers to prompts.
+        A ``JsonResponse`` containing a JSON object of the form::
+
+            {
+                "<question.id>": {
+                    "<language-code>": "<translated question.prompt>",
+                    ...
+                },
+                ...
+            }
+
+        Each language code is obtained from ``settings.LANGUAGES``.
     """
     # pylint: disable=unused-argument
-    return JsonResponse({str(question.id): question.prompt for question in
-                         QualitativeQuestion.objects.all()})
+    return JsonResponse({
+        str(question.id): {
+            code: translate(question.prompt, code)
+            for code, _ in settings.LANGUAGES
+        } for question in QualitativeQuestion.objects.filter(active=True)
+    })
 
 
+@profile
+@require_GET
+def fetch_quantitative_questions(request):
+    """
+    Fetch quantitative question data as JSON.
+
+    Args:
+        request: This parameter is ignored.
+
+    Returns:
+        A ``JsonResponse`` containing a JSON object of the form::
+
+            {
+                "<question.id>": {
+                    "prompts": {
+                        "<language-code>": "<translated question.prompt>",
+                        ...
+                    },
+                    "left-anchors": {
+                        "<language-code>": "<translated question.left_anchor>",
+                        ...
+                    },
+                    "right-anchors": {
+                        "<language-code>": "<translated question.right_anchor>",
+                        ...
+                    },
+                    "min-score": <question.min_score>,
+                    "max-score": <question.max_score>,
+                    "input-type": <question.input_type>
+                },
+                ...
+            }
+
+        Each language code is obtained from ``settings.LANGUAGES``.
+    """
+    # pylint: disable=unused-argument
+    return JsonResponse({
+        str(question.id): {
+            'prompts': {
+                code: translate(question.prompt, code)
+                for code, _ in settings.LANGUAGES
+            },
+            'left-anchors': {
+                code: translate(question.left_anchor, code)
+                for code, _ in settings.LANGUAGES
+            },
+            'right-anchors': {
+                code: translate(question.right_anchor, code)
+                for code, _ in settings.LANGUAGES
+            },
+            'min-score': question.min_score,
+            'max-score': question.max_score,
+            'input-type': question.input_type,
+        } for question in QuantitativeQuestion.objects.filter(active=True)
+    })
+
+
+@profile
+@require_GET
+def fetch_question_ratings(request):
+    """
+    Fetch quantitative question ratings as JSON.
+
+    Args:
+        request: This parameter is ignored.
+
+    Returns:
+        A ``JsonResponse`` containing a JSON object of the form::
+
+            {
+                "<rating.id>": {
+                    "qid": <question.id>,
+                    "score": <rating.score>
+                },
+                ...
+            }
+    """
+    # pylint: disable=unused-argument
+    ratings = QuantitativeQuestionRating.objects
+    ratings = ratings.filter(active=True).filter(question__active=True)
+    return JsonResponse({
+        str(rating.id): {
+            'qid': rating.question_id,
+            'score': rating.score,
+        } for rating in ratings
+    })
+
+
+@profile
 def make_question_ratings(respondent, responses):
     """ Generate new quantitative question model instances. """
-    for question_id, scores in responses.get('question-ratings', {}).iteritems():
-        question = QuantitativeQuestion(id=int(question_id))
-        rating = QuantitativeQuestionRating(respondent=respondent,
-                                            question=question)
-        rating.score_history = scores
-        yield rating
+    for question_id, score in responses.get('question-ratings', {}).iteritems():
+        yield QuantitativeQuestionRating(respondent=respondent,
+                                         question_id=int(question_id), score=score)
 
 
+@profile
 def make_comments(respondent, responses):
     """ Generate new comment model instances. """
     for question_id, message in responses.get('comments', {}).iteritems():
-        question = QualitativeQuestion(id=int(question_id))
-
-        # Replaces empty messages with None so they can show up as placeholders in admin
-        message = message.strip()
-        if not message:
-            message = None
-
-        yield Comment(respondent=respondent, question=question,
-                      language=respondent.language, message=message)
+        yield Comment(respondent=respondent, question_id=int(question_id),
+                      language=respondent.language, message=message.strip())
 
 
+@profile
 def make_comment_ratings(respondent, responses):
     """ Generate new comment rating instances. """
-    for comment_id, scores in responses.get('comment-ratings', {}).iteritems():
-        comment = Comment.objects.get(id=int(comment_id))
-        rating = CommentRating(respondent=respondent, comment=comment)
-        rating.score_history = scores
-        yield rating
+    for comment_id, score in responses.get('comment-ratings', {}).iteritems():
+        yield CommentRating(respondent=respondent, comment_id=int(comment_id),
+                            score=score)
 
 
+@profile
 def make_respondent_data(respondent, responses):
     """ Save respondent data from a given response object. """
     respondent_data = responses.get('respondent-data', {})
@@ -264,43 +405,51 @@ def make_respondent_data(respondent, responses):
     yield respondent
 
 
+@profile
 @require_POST
 def save_response(request):
     """
     Write a single user's responses as a JSON object to the database.
 
     The request body should contain the string representation of a JSON object
-    (that is, a Python dictionary) of the following form:
+    (that is, a Python `dict`) of the following form::
 
         {
             "question-ratings": {
-                <qid>: <score>,
+                "<question.id>": <score>,
                 ...
             },
             "comments": [
-                <qid>: <message>,
+                "<question.id>": "<message>",
                 ...
             ],
             "comment-ratings": [
-                <cid>: <score>,
+                "<comment.id>": <score>,
                 ...
             ],
             "respondent-data": {
-                "age": ...,
-                "gender": ...,
-                "location": ...,
-                "language": ...,
-                "submitted-personal-data": ...,
-                "completed-survey": ...
+                "age": <age>,
+                "gender": "<gender>",
+                "location": "<location>",
+                "language": "<language-code>",
+                "submitted-personal-data": <bool>,
+                "completed-survey": <bool>
             }
         }
 
-    In cases where the data were successfully received but the contents of the
-    request are syntactically or logically incorrect (for instance, providing
-    the `id` of a question that does not exist, or malformed JSON), no models
-    are written to the database, and a general HTTP error code of 400 is
-    returned. The error code indicates that the client should not send another
-    request without modifications to the request's body.
+    Args:
+        request: This parameter is ignored (the data should arrive in the body
+            of the request).
+
+    Returns:
+        A ``HttpResponse`` with a status code of 200 if the data were saved
+        successfully, or a ``HttpResponseBadRequest`` with a status code of 400
+        otherwise. The general-purpose bad request response is returned when
+        the data were successfully received, but contained syntactical or
+        logical errors (for instance, providing the ``id`` of a nonexistent
+        question, or malformed JSON). In that case, no new instances are
+        written to the database, and the client should not send another request
+        without modifications to the payload.
     """
     respondent = Respondent()
     respondent.save()
@@ -318,62 +467,174 @@ def save_response(request):
 
         for model_generator in model_generator_functions:
             model_instances.extend(model_generator(respondent, responses))
-    except (KeyError, ValueError, ObjectDoesNotExist) as error:
+
+        for instance in model_instances:
+            instance.full_clean()
+    except (KeyError, ValueError, AttributeError, ObjectDoesNotExist,
+            ValidationError) as error:
         respondent.delete()
         LOGGER.log(logging.ERROR, error)
         return HttpResponseBadRequest(str(error))
 
     for instance in model_instances:
         instance.save()
+        LOGGER.log(logging.DEBUG, 'Saved instance %s', instance)
     return HttpResponse()
 
 
+@profile
+def export_csv(stream, queryset):
+    """
+    Export the given ``QuerySet`` as comma-separated values to a stream.
+
+    Args:
+        stream: A ``file``-like object with a ``write`` method.
+        queryset: A Django ``QuerySet`` of instances to export.
+
+    Returns:
+        `None`. Has a side effect of writing to the ``stream``.
+    """
+    concrete_fields = get_concrete_fields(queryset.model)
+    field_names = [unicode(field.get_attname()) for field in concrete_fields]
+
+    writer = csv.writer(stream, encoding='utf-8')
+    writer.writerow(field_names)
+
+    for instance in queryset.iterator():
+        row = [getattr(instance, field_name) for field_name in field_names]
+        row = [unicode(cell) if cell is not None else '' for cell in row]
+        writer.writerow(row)
+
+
+@profile
+def export_excel(stream, queryset):
+    """
+    Export the given ``QuerySet`` as an Excel spreadsheet.
+
+    Args:
+        stream: A ``file``-like object with a ``write`` method.
+        queryset: A Django ``QuerySet`` of instances to export.
+
+    Returns:
+        `None`. Has a side effect of writing to the ``stream``.
+    """
+    concrete_fields = get_concrete_fields(queryset.model)
+    field_names = [unicode(field.get_attname()) for field in concrete_fields]
+
+    workbook = Workbook(write_only=True)
+    worksheet = workbook.create_sheet(queryset.model.__name__)
+    worksheet.append(field_names)
+
+    for instance in queryset.iterator():
+        row = [getattr(instance, field_name) for field_name in field_names]
+        worksheet.append(row)
+
+    workbook.save(stream)
+
+
+def generate_export_filename(model_name, data_format):
+    now = datetime.datetime.now()
+    return model_name + '-' + now.strftime('%Y-%m-%d') + '.' + data_format
+
+
+@profile
+def export_data(queryset, data_format='csv'):
+    """
+    Create and write data to a response as a file for download.
+
+    Args:
+        data_format (str): The file format the data should be exported as.
+            Current options are: ``csv`` (default), ``xlsx``.
+        queryset: The instances to export.
+
+    Returns:
+        An ``HttpResponse`` with the requested data as an attached file, or an
+        ``HttpResponseBadRequest`` with a status code of 400 with an invalid
+        ``data_format``.
+    """
+    export_functions = {
+        'csv': export_csv,
+        'xlsx': export_excel,
+    }
+    try:
+        export = export_functions[data_format]
+    except KeyError:
+        return HttpResponseBadRequest('no such data format "{0}"'.format(data_format))
+
+    model_name = queryset.model.__name__
+    filename = generate_export_filename(model_name, data_format)
+    content_type, _ = mimetypes.guess_type(filename)
+
+    response = HttpResponse(content_type=content_type)
+    response['Content-Disposition'] = 'attachment; filename="{0}"'.format(filename)
+    export(response, queryset)
+    return response
+
+
+@profile
 def index(request):
     """ Redirect the user to the `landing` page. """
     # pylint: disable=unused-argument
     return redirect(reverse('pcari:landing'))
 
 
+@profile
 def landing(request):
     """ Render a landing page. """
-    context = {'num_responses': Respondent.objects.count()}
+    context = {'num_responses': Respondent.objects.filter(active=True).count()}
     return render(request, 'landing.html', context)
 
 
-def personal_information(request):
-    """ Render a page asking respondents for personal information. """
-    config = apps.get_app_config('pcari')
-    context = {'province_names': [(province_name['code'], province_name['name'])
-                                  for province_name in config.province_names]}
-    return render(request, 'personal-information.html', context)
-
-
+@profile
 def quantitative_questions(request):
     """ Render a page asking respondents to rate statements. """
-    context = {'questions': QuantitativeQuestion.objects.all()}
-    return render(request, 'quantitative-questions.html', context)
+    return render(request, 'quantitative-questions.html')
 
 
-def response_histograms(request):
-    """ FIXME: deprecated in branch `sequoia` """
-    return render(request, 'response-histograms.html')
+@profile
+def peer_responses(request):
+    """ Render a page showing respondents how others rated the quantitative questions. """
+    context = {'questions': QuantitativeQuestion.objects.filter(active=True).all()}
+    return render(request, 'peer-responses.html', context)
 
 
+@profile
 def rate_comments(request):
     """ Render a bloom page where respondents can rate comments by others. """
-    ratings = []  # (much the same as how quantitative_questions works)
-    context = {'ratings': ratings}
-    return render(request, 'rate-comments.html', context)
+    return render(request, 'rate-comments.html')
 
 
+@profile
 def qualitative_questions(request):
     """ Render a page asking respondents for comments (i.e. suggestions). """
-    questions = QualitativeQuestion.objects.all()
-    question_text = [(question.id, question.prompt) for question in questions]
-    context = {'questions': question_text}
+    context = {'questions': QualitativeQuestion.objects.filter(active=True).all()}
     return render(request, 'qualitative-questions.html', context)
 
 
+@profile
+def personal_information(request):
+    """ Render a page asking respondents for personal information. """
+    return render(request, 'personal-information.html')
+
+
+@profile
 def end(request):
     """ Render an end-of-survey page. """
     return render(request, 'end.html')
+
+
+@profile
+def handle_page_not_found(request):
+    """ Render a page for HTTP 404 errors (page not found). """
+    context = {'heading': _('Page Not Found'),
+               'message': _('The requested page does not appear to exist.')}
+    return render(request, 'error.html', context)
+
+
+@profile
+def handle_internal_server_error(request):
+    """ Render a page for HTTP 500 errors (internal server error). """
+    context = {'heading': _('Internal Error'),
+               'message': _('The server is currently experiencing some issues. '
+                            'Please let the maintainers know immediately.')}
+    return render(request, 'error.html', context)

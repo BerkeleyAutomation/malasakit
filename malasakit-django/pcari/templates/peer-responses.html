@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+
+{% block title %}{% trans 'Peer Responses' %}{% endblock %}
+{% block main-heading %}{% trans 'Peer Responses' %}{% endblock %}
+
+{% block scripts %}
+  <script>
+    const SKIPPED = -1;
+
+    $(document).ready(function() {
+      var current = Resource.load('current');
+      var ratings = getResponseValue(['question-ratings']);
+      current.data = null;
+      current.put();
+      pushCompletedResponses();
+      Resource.delete('selected-comments');
+
+      for (var questionID in ratings) {
+        var score = ratings[questionID];
+        if (score !== SKIPPED) {
+          $('#answer-' + questionID).text(score);
+        }
+      }
+    });
+  </script>
+{% endblock %}
+
+{% block content %}
+  <p>
+    {% blocktrans trimmed %}
+      Below, you can see how the other respondents answered the quantitative questions.
+    {% endblocktrans %}
+  </p>
+  <peer-responses>
+    {% for question in questions %}
+      <div class="boxed">
+        {% with num_ratings=question.num_ratings mean=question.mean_score|floatformat %}
+          {% if num_ratings > 0 %}
+            <p>
+              {% blocktrans trimmed %}
+                <strong>{{ num_ratings }}</strong> other people answered this question:
+              {% endblocktrans %}
+            </p>
+            <blockquote>
+              {% trans question.prompt %}
+            </blockquote>
+            <div class="bubbled">
+              {% blocktrans trimmed %}
+                Average answer: <strong>{{ mean }}</strong>
+              {% endblocktrans %}
+            </div>
+            <div class="bubbled">
+              {% blocktrans trimmed with id=question.id %}
+                Your answer: <strong id="answer-{{ id }}">Skip</strong>
+              {% endblocktrans %}
+            </div>
+          {% endif %}
+        {% endwith %}
+      </div>
+    {% endfor %}
+  </peer-responses>
+  {% url 'pcari:end' as next_link %}
+  {% include 'nav-buttons.html' %}
+{% endblock %}

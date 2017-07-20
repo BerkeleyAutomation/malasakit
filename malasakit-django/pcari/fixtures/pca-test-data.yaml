@@ -1,0 +1,63 @@
+# A toy case for testing PCA correctness
+
+- model: pcari.respondent
+  pk: 1
+  fields: {}
+- model: pcari.respondent
+  pk: 2
+  fields: {}
+- model: pcari.respondent
+  pk: 3
+  fields: {}
+- model: pcari.respondent
+  pk: 4
+  fields:
+    active: false
+
+- model: pcari.quantitativequestion
+  pk: 1
+  fields: {}
+- model: pcari.quantitativequestion
+  pk: 2
+  fields: {}
+- model: pcari.quantitativequestion
+  pk: 3
+  fields:
+    active: false
+
+- model: pcari.quantitativequestionrating
+  pk: 1
+  fields:
+    question_id: 1
+    respondent_id: 1
+    score: 9
+    timestamp: "2011-09-01T13:20:30+03:00"
+- model: pcari.quantitativequestionrating
+  pk: 2
+  fields:
+    question_id: 1
+    respondent_id: 2
+    score: 0
+    timestamp: "2011-09-01T13:20:30+03:00"
+- model: pcari.quantitativequestionrating
+  pk: 3
+  fields:
+    question_id: 1
+    respondent_id: 3
+    score: 1
+    timestamp: "2011-09-01T13:20:30+03:00"
+- model: pcari.quantitativequestionrating
+  pk: 4
+  fields:
+    question_id: 2
+    respondent_id: 1
+    score: 6
+    timestamp: "2011-09-01T13:20:30+03:00"
+# Skip respondent 2 rating question 2
+- model: pcari.quantitativequestionrating
+  pk: 5
+  fields:
+    question_id: 2
+    respondent_id: 3
+    score: -1
+    timestamp: "2011-09-01T13:20:30+03:00"

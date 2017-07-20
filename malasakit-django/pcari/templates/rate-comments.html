@@ -15,39 +15,49 @@
 {% block content %}
   <p>
     {% blocktrans trimmed %}
-      Each icon below is a comment made by another user.
-      Next to each icon is the topic of the comment, or <span style='color: #1371ad'>(?)</span> if no topic was found.
-      Comments that are closer together have authors who answered the quantitative questions similarly.
+      Each icon below is a comment made by another participant.
+      Next to each icon is the topic of the comment, or <span class="no-tag">(?)</span> if no topic was found.
+      Comments that are closer together were authored by participants who answered the quantitative questions similarly.
     {% endblocktrans %}
   <p>
     {% blocktrans trimmed %}
-      Click an icon to rate that comment on its helpfulness.
+      Click on an icon to rate a comment on its helpfulness.
       <strong>You must rate at least two comments to proceed.</strong>
-      You can also drag the icons around.
+      You can also drag the icons to read the topics more clearly.
     {% endblocktrans %}
   </p>
-  <svg id='bloom' width="100%"></svg>
-  <div class='modal'>
-    <div class='modal-container'>
+  <p id="no-more-comments-notice" class="error banner">
+    {% trans 'There are no more comments to rate.' %}
+  </p>
+  <svg id="bloom" width="100%"></svg>
+  <div class="modal">
+    <div class="modal-container">
       <p>{% trans 'The question was:' %}</p>
-      <blockquote id='prompt'></blockquote>
+      <blockquote id="question-prompt"></blockquote>
       <p>{% trans 'The comment was:' %}</p>
-      <blockquote id='comment'></blockquote>
+      <blockquote id="comment-message"></blockquote>
 
-      <p class="prompt">{% trans 'How helpful is this comment?' %}</p>
-      <input id="comment-rating" type="range" value="0" min="0" max="9">
-      <div class='scale-context'>
-        <span class="left-text">{% trans 'Not helpful' %}</span>
-        <span class="right-text">{% trans 'Helpful' %}</span>
+      <div class="range-container">
+        <input class="quantitative-input" target-id="comment-rating" type="range"
+               value="0" step="1" min="0" max="9">
+        <span class="left-anchor">{% trans 'Not helpful' %}</span>
+        <span class="right-anchor">{% trans 'Helpful' %}</span>
       </div>
+      <p>
+        {% trans 'Your current answer is ' %} <output id="quantitative-output"></output>.
+      </p>
 
-      <div class='button-group'>
-        <div id='submit' class='button'>Submit</div>
-        <div id='skip' class='button'>Skip</div>
-      </div>
+      <ul class="button-group">
+        <li>
+          <button id="skip" class="red">{% trans 'Skip' %}</button>
+        </li>
+        <li>
+          <button id="submit" class="blue">{% trans 'Submit' %}</button>
+        </li>
+      </ul>
     </div>
   </div>
-  <div id='next' class="nav-button">
-    <a href="{% url 'pcari:qualitative-questions' %}">Next</a>
-  </div>
+  {% url 'pcari:quantitative-questions' as previous_link %}
+  {% url 'pcari:qualitative-questions' as next_link %}
+  {% include 'nav-buttons.html' %}
 {% endblock %}
