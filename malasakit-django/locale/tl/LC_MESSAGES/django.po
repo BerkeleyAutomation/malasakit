@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.25\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-20 21:57+0000\n"
+"POT-Creation-Date: 2017-07-20 22:56+0000\n"
 "PO-Revision-Date: 2017-07-03 20:00+0800\n"
 "Last-Translator: JEFFREY ANCHETA <jrancheta@national-u.edu.ph>\n"
 "Language-Team: FILIPINO\n"
@@ -18,18 +18,18 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: QuantitativeQuestion.prompt:1
-msgid "I have suffered the consequence of a typhoon or flood"
+msgid "I have suffered the consequence of a typhoon or flood."
 msgstr "Malawak at mabigat ang epekto ng bagyo o pagbabaha sa akin."
 
-#: QuantitativeQuestion.prompt:2
+#: QuantitativeQuestion.prompt:2 QuantitativeQuestion.prompt:11
 msgid "I feel prepared to handle a major typhoon right now."
 msgstr "Nararamdaman kong handa ako ngayong harapin ang malakas na bagyo."
 
-#: QuantitativeQuestion.prompt:3
+#: QuantitativeQuestion.prompt:3 QuantitativeQuestion.prompt:12
 msgid "The barangay’s typhoon Early Warning System is effective."
 msgstr "Epektibo ang Early Warning System ng barangay tuwing may bagyo."
 
-#: QuantitativeQuestion.prompt:4
+#: QuantitativeQuestion.prompt:4 QuantitativeQuestion.prompt:13
 msgid ""
 "My family has identified a place to meet and ways to communicate in a "
 "disaster."
@@ -45,7 +45,7 @@ msgstr ""
 "Hanggang ilang araw tatagal ang naitabing gamit (gaya ng delata, inuming "
 "tubig, gamot) sa inyong tahanan kung may kalamidad?"
 
-#: QuantitativeQuestion.prompt:6
+#: QuantitativeQuestion.prompt:6 QuantitativeQuestion.prompt:14
 msgid ""
 "I feel like I could count on my nearest neighbors for support when "
 "recovering from a major typhoon."
@@ -53,7 +53,7 @@ msgstr ""
 "Nararamdaman kong maaasahan ko ang tulong ng aking mga kapitbahay sa muling "
 "pagbangon matapos ang malakas na bagyo."
 
-#: QuantitativeQuestion.prompt:7
+#: QuantitativeQuestion.prompt:7 QuantitativeQuestion.prompt:15
 msgid ""
 "I believe our barangay will help my community repair and rebuild after a "
 "major typhoon."
@@ -65,6 +65,54 @@ msgstr ""
 msgid "How many weeks has it been since you participated in a disaster drill?"
 msgstr ""
 "Ilang linggo na ang lumipas mula nang nakilahok ka sa isang disaster drill?"
+
+#: QuantitativeQuestion.left_anchor:10
+msgid "I have not suffered at all."
+msgstr ""
+
+#: QuantitativeQuestion.left_anchor:11
+msgid "Not at all prepared."
+msgstr ""
+
+#: QuantitativeQuestion.left_anchor:12
+msgid "Not at all helpful."
+msgstr ""
+
+#: QuantitativeQuestion.left_anchor:13
+msgid "We have not talked about it."
+msgstr ""
+
+#: QuantitativeQuestion.left_anchor:14
+msgid "I am not confident my neighbors will help me after a typhoon."
+msgstr ""
+
+#: QuantitativeQuestion.left_anchor:15
+msgid "I am not confident our barangay will help very much."
+msgstr ""
+
+#: QuantitativeQuestion.right_anchor:10
+msgid "I have lost a home or loved one to a typhoon or flood."
+msgstr ""
+
+#: QuantitativeQuestion.right_anchor:11
+msgid "Very prepared."
+msgstr ""
+
+#: QuantitativeQuestion.right_anchor:12
+msgid "Very helpful."
+msgstr ""
+
+#: QuantitativeQuestion.right_anchor:13
+msgid "We have a plan and review it regularly."
+msgstr ""
+
+#: QuantitativeQuestion.right_anchor:14
+msgid "I strongly believe my neighbors will help me recover after a typhoon."
+msgstr ""
+
+#: QuantitativeQuestion.right_anchor:15
+msgid "I am confident our barangay will help us recover."
+msgstr ""
 
 #: QualitativeQuestion.prompt:1
 msgid "How could your Barangay help you better prepare for a disaster?"
