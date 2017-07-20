@@ -1,5 +1,6 @@
 {% extends 'admin/base_site.html' %}
 
+{% load static %}
 {% load i18n %}
 
 {% block title %}{% trans 'Statistics' %}{% endblock %}
@@ -22,7 +23,7 @@
 
 {% block extrahead %}
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
-  <script src="/static/js/jquery-3.2.1.min.js"></script>
+  <script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
   <script>
     var colorQueue = [
         'rgba(17, 141, 255, 0.6)',  // blue
