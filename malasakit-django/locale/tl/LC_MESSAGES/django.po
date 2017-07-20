@@ -1,14 +1,14 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# English-Tagalog Translations for Malasakit
+# Copyright (C) 2017 PCARI
+# This file is distributed under the same license as the `malasakit-v1` package.
+# JEFFREY ANCHETA <jrancheta@national-u.edu.ph>, 2017.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: 1.25\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-05 23:44+0000\n"
+"POT-Creation-Date: 2017-07-20 21:48+0000\n"
 "PO-Revision-Date: 2017-07-03 20:00+0800\n"
 "Last-Translator: JEFFREY ANCHETA <jrancheta@national-u.edu.ph>\n"
 "Language-Team: FILIPINO\n"
@@ -18,8 +18,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: QuantitativeQuestion.prompt:1
-#, fuzzy
-#| msgid "I have suffered the consequence of a typhoon or flood."
 msgid "I have suffered the consequence of a typhoon or flood"
 msgstr "Malawak at mabigat ang epekto ng bagyo o pagbabaha sa akin."
 
@@ -74,19 +72,19 @@ msgstr ""
 "Paano ka matutulungan ng iyong barangay upang higit na makapaghanda sa isang "
 "kalamidad?"
 
-#: cafe/settings.py:152
+#: cafe/settings.py:154
 msgid "English"
 msgstr "Ingles"
 
-#: cafe/settings.py:153
+#: cafe/settings.py:155
 msgid "Filipino"
 msgstr "Filipino"
 
-#: pcari/models.py:243
+#: pcari/models.py:271
 msgid "Score not in min and max bounds"
 msgstr "Wala sa saklaw ang ibinigay na sagot"
 
-#: pcari/models.py:431
+#: pcari/models.py:472
 #, python-format
 msgid "\"%(option)s\" is not a valid option"
 msgstr "\"%(option)s\" ay wala sa mga pagpipilian"
@@ -95,8 +93,8 @@ msgstr "\"%(option)s\" ay wala sa mga pagpipilian"
 msgid "Configuration"
 msgstr "Kompigurasiyon"
 
-#: pcari/templates/admin/base.html:9 pcari/templates/admin/statistics.html:5
-#: pcari/templates/admin/statistics.html:158
+#: pcari/templates/admin/base.html:9 pcari/templates/admin/statistics.html:6
+#: pcari/templates/admin/statistics.html:159
 msgid "Statistics"
 msgstr "Istatistika"
 
@@ -115,7 +113,7 @@ msgstr "Palitan ang imahe"
 msgid "Submit"
 msgstr "Ipasa"
 
-#: pcari/templates/admin/statistics.html:160
+#: pcari/templates/admin/statistics.html:161
 msgid "Quantitative question rating distributions"
 msgstr "Resulta ng mga kuwantitatibong katanungan"
 
@@ -147,12 +145,21 @@ msgid ""
 "How prepared are you in times of disaster? %(num_responses)s barangay "
 "citizens have responded. Join them!"
 msgstr ""
-"Gaano ka kahanda sa panahon ng kalamidad? %(num_responses)s na ang "
-"nag MALASAKIT. Sali na!"
+"Gaano ka kahanda sa panahon ng kalamidad? %(num_responses)s na ang nag "
+"MALASAKIT. Sali na!"
 
 #: pcari/templates/landing.html:28
 msgid "Begin"
 msgstr "Simulan"
+
+#: pcari/templates/nav-buttons.html:7
+#: pcari/templates/quantitative-questions.html:154
+msgid "Previous"
+msgstr "Bumalik"
+
+#: pcari/templates/nav-buttons.html:14
+msgid "Next"
+msgstr "Susunod"
 
 #: pcari/templates/peer-responses.html:5 pcari/templates/peer-responses.html:6
 msgid "Peer Responses"
@@ -174,13 +181,18 @@ msgstr ""
 
 #: pcari/templates/peer-responses.html:50
 #, python-format
-msgid "Your answer: <strong id=\"answer-%(id)s\">None</strong>"
-msgstr "Ang iyong sagot: <strong id=\"answer-%(id)s\">Wala</strong>"
-
-#: pcari/templates/peer-responses.html:55
-#, python-format
 msgid "Average answer: <strong>%(mean)s</strong>"
 msgstr "Madalas na sagot ng iba: <strong>%(mean)s</strong>"
+
+#: pcari/templates/peer-responses.html:56
+msgid "Your answer:"
+msgstr "Ang iyong sagot:"
+
+#: pcari/templates/peer-responses.html:56
+#: pcari/templates/quantitative-questions.html:157
+#: pcari/templates/rate-comments.html:52
+msgid "Skip"
+msgstr "Laktawan"
 
 #: pcari/templates/personal-information.html:94
 #: pcari/templates/personal-information.html:95
@@ -245,13 +257,15 @@ msgstr "Oo"
 
 #: pcari/templates/qualitative-questions.html:6
 #: pcari/templates/qualitative-questions.html:7
-msgid "Qualitative Questions"
-msgstr "Kuwalitatibong mga Katanungan"
+msgid "Your Ideas"
+msgstr ""
 
 #: pcari/templates/quantitative-questions.html:6
 #: pcari/templates/quantitative-questions.html:7
-msgid "Quantitative Questions"
-msgstr "Kuwantitatibong mga Katanungan"
+#, fuzzy
+#| msgid "Qualitative Questions"
+msgid "Survey Questions"
+msgstr "Kuwalitatibong mga Katanungan"
 
 #: pcari/templates/quantitative-questions.html:133
 msgid ""
@@ -274,15 +288,6 @@ msgstr "Ang iyong kasalukuyang sagot ay "
 #: pcari/templates/quantitative-questions.html:149
 msgid "You previously chose to skip this question."
 msgstr "Dati mong linaktawan ang katanungang ito."
-
-#: pcari/templates/quantitative-questions.html:154
-msgid "Previous"
-msgstr "Bumalik"
-
-#: pcari/templates/quantitative-questions.html:157
-#: pcari/templates/rate-comments.html:52
-msgid "Skip"
-msgstr "Laktawan"
 
 #: pcari/templates/rate-comments.html:6 pcari/templates/rate-comments.html:7
 msgid "Rate Comments by Other Users"
@@ -332,22 +337,25 @@ msgstr "Walang kapakinabangan"
 msgid "Helpful"
 msgstr "Kapaki-pakinabang"
 
-#: pcari/views.py:562
+#: pcari/views.py:638
 msgid "Page Not Found"
 msgstr "Hindi natagpuan ang pahina"
 
-#: pcari/views.py:563
+#: pcari/views.py:639
 msgid "The requested page does not appear to exist."
 msgstr "Ang hiniling na pahina ay hindi lumabas."
 
-#: pcari/views.py:570
+#: pcari/views.py:647
 msgid "Internal Error"
 msgstr "May kamalian"
 
-#: pcari/views.py:571
+#: pcari/views.py:648
 msgid ""
 "The server is currently experiencing some issues. Please let the maintainers "
 "know immediately."
 msgstr ""
 "Kasalukuyang nakararanas ng ilang isyu ang server. Mangyaring ipagbigay-alam "
 "agad ito sa mga tagapamahala."
+
+#~ msgid "Quantitative Questions"
+#~ msgstr "Kuwantitatibong mga Katanungan"
