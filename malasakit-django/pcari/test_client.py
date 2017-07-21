@@ -10,6 +10,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.common.exceptions import NoSuchAttributeException
 
+from pcari.models import QuantitativeQuestionRating
 from pcari.models import QuantitativeQuestion, QualitativeQuestion
 
 logging.disable(logging.CRITICAL)
@@ -72,7 +73,6 @@ def make_test_web_driver(driver_base, **options):
                 self.execute_script('return localStorage;');
             except WebDriverException:
                 raise TypeError('`localStorage` API is unsupported')
-
             return self.execute_script("""
                 var items = {};
                 for (var index = 0; index < localStorage.length; index++) {
@@ -84,22 +84,57 @@ def make_test_web_driver(driver_base, **options):
     return TestWebDriver
 
 
-def make_test_web_drivers():
-    chrome_options = ChromeOptions()
-    chrome_options.add_argument('headless')
-    return [
-        make_test_web_driver(Chrome, desired_capabilities=chrome_options.to_capabilities()),
-    ]
+_CHROME_OPTIONS = ChromeOptions()
+_CHROME_OPTIONS.add_argument('headless')
+CHROME = make_test_web_driver(Chrome, desired_capabilities=_CHROME_OPTIONS.to_capabilities())
 
-WEB_DRIVERS = make_test_web_drivers()
+DRIVERS = [CHROME]
 
 
 class NavigationTestCase(StaticLiveServerTestCase):
-    def pass_landing(self, driver):
-        driver.get(self.live_server_url + reverse('pcari:landing'))
-        driver.find_element_by_id('next').click()
+    def walkthrough(self, driver, response):
+        navigation_handlers = [
+            self.pass_landing,
+            self.answer_quantitative_questions,
+        ]
+
+    def pass_landing(self, driver, response):
+        if response:
+            driver.get(self.live_server_url + reverse('pcari:landing'))
+            driver.find_element_by_id('next').click()
         return reverse('pcari:quantitative-questions') in driver.current_url
 
+    def answer_quantitative_questions(self, driver, response):
+        try:
+            question_ids = driver.execute_script('return QUESTION_IDS;')
+        except WebElement:
+            question_ids = []
+        finally:
+            num_questions = QuantitativeQuestion.objects.filter(active=True).count()
+            self.assertEqual(len(question_ids), num_questions)
+        scores = response.get('question-ratings', {})
+
+        for question_id in question_ids:
+            score = scores.get(question_id, scores.get(str(question_id)))
+            if score is None:
+                break
+            elif score == QuantitativeQuestionRating.SKIPPED:
+                driver.find_element_by_id('skip').click()
+
+            input_element = driver.find_element_by_id('quantitative-input')
+            try:
+                input_element.set_range_value(score)
+            except ValueError as exc:
+                assert exc.message == 'not a range element'
+                assert input_element.get_attribute('type') == 'number'
+                input_element.send_keys(str(score))
+            driver.find_element_by_id('submit').click()
+
+        return reverse('pcari:rate-comments') in driver.current_url
+
+    @use_drivers(*DRIVERS)
+    def test_test(self):
+        self.walkthrough(driver, {})
 
 
 """
