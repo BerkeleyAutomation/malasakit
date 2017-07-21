@@ -127,8 +127,8 @@ class NavigationTestCase(StaticLiveServerTestCase):
             try:
                 input_element.set_range_value(score)
             except ValueError as exc:
-                assert exc.message == 'not a range element'
-                assert input_element.get_attribute('type') == 'number'
+                self.assertEqual(exc.message, 'not a range element')
+                self.assertEqual(input_element.get_attribute('type'), 'number')
                 input_element.send_keys(str(score))
             driver.find_element_by_id('submit').click()
 
@@ -136,16 +136,29 @@ class NavigationTestCase(StaticLiveServerTestCase):
 
     def rate_comments(self, driver, response):
         bloom_icons = driver.find_elements_by_tag_name('g')
+        scores = response.get('comment-ratings', {})
 
-        print(bloom_icons)
+        for comment_id, score in scores.iteritems():
+            icons = [icon for icon in bloom_icons
+                     if int(icon.get_attribute('cid')) == comment_id]
+            if len(icons) > 0:
+                self.assertEqual(len(icons), 1)
+                icons[0].click()
 
-        return reverse('pcari:personal-information') in driver.current_url
+                if score == QuantitativeQuestionRating.SKIPPED:
+                    driver.find_element_by_id('skip').click()
+                else:
+                    driver.find_element_by_id('quantitative-input').set_range_value(score)
+                    driver.find_element_by_id('submit').click()
+
+        driver.find_element_by_id('next').click()
+        return reverse('pcari:qualitative-questions') in driver.current_url
 
     @use_drivers(*ALL_DRIVERS)
     def test_test(self, driver):
         QuantitativeQuestion.objects.create(id=1)
-        Comment.objects.create(message='sdf', respondent=Respondent.objects.create(), question=QualitativeQuestion.objects.create())
-        print(self.walkthrough(driver, {'question-ratings': {1: 6}}))
+        Comment.objects.create(id=1, message='sdf', respondent=Respondent.objects.create(), question=QualitativeQuestion.objects.create())
+        print(self.walkthrough(driver, {'question-ratings': {1: 6}, 'comment-ratings': {1: -1}}))
 
 
 """

@@ -218,7 +218,7 @@ def fetch_comments(request):
 
     respondent_id_map, _, ratings = generate_ratings_matrix()
     data_in_every_column = all(np.count_nonzero(~np.isnan(ratings[:, i]))
-                               for i in range(ratings.shape[1]))
+                               for i in range(ratings.shape[1])) and ratings.size
     if data_in_every_column:
         normalized_ratings = normalize_ratings_matrix(ratings)
         components = calculate_principal_components(normalized_ratings, 2)

@@ -93,7 +93,7 @@ function startCommentRating(commentID) {
     var preferredLanguage = getResponseValue(['respondent-data', 'language']);
     var translatedPrompt = promptTranslations[preferredLanguage];
 
-    var inputElement = $('input.quantitative-input[target-id=comment-rating]');
+    var inputElement = $('input#quantitative-input');
 
     $('.modal').css('display', 'block');
     $('#question-prompt').text(translatedPrompt);
@@ -106,7 +106,7 @@ function startCommentRating(commentID) {
     }
 
     function updateOutputReading() {
-        $('#quantitative-output').text(inputElement.val().toString() + '/9');
+        $('output#quantitative-output').text(inputElement.val().toString() + '/9');
     };
 
     inputElement.unbind('input');
