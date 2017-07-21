@@ -7,6 +7,7 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.shortcuts import reverse
 from selenium.webdriver import Chrome, ChromeOptions, Firefox
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import Select
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.common.exceptions import NoSuchAttributeException
 
@@ -93,14 +94,16 @@ ALL_DRIVERS = [CHROME]
 class NavigationTestCase(StaticLiveServerTestCase):
     def walkthrough(self, driver, response):
         navigation_handlers = [
-            self.pass_landing,
+            self.navigate_landing,
             self.answer_quantitative_questions,
             self.rate_comments,
+            self.answer_qualitative_questions,
+            self.provide_personal_information,
         ]
 
         return all(handler(driver, response) for handler in navigation_handlers)
 
-    def pass_landing(self, driver, response):
+    def navigate_landing(self, driver, response):
         if response:
             driver.get(self.live_server_url + reverse('pcari:landing'))
             driver.find_element_by_id('next').click()
@@ -135,13 +138,12 @@ class NavigationTestCase(StaticLiveServerTestCase):
         return reverse('pcari:rate-comments') in driver.current_url
 
     def rate_comments(self, driver, response):
-        bloom_icons = driver.find_elements_by_tag_name('g')
         scores = response.get('comment-ratings', {})
 
         for comment_id, score in scores.iteritems():
-            icons = [icon for icon in bloom_icons
-                     if int(icon.get_attribute('cid')) == comment_id]
-            if len(icons) > 0:
+            icons = [icon for icon in driver.find_elements_by_tag_name('g')
+                     if int(icon.get_attribute('cid')) == int(comment_id)]
+            if icons:
                 self.assertEqual(len(icons), 1)
                 icons[0].click()
 
@@ -154,6 +156,39 @@ class NavigationTestCase(StaticLiveServerTestCase):
         driver.find_element_by_id('next').click()
         return reverse('pcari:qualitative-questions') in driver.current_url
 
+    def answer_qualitative_questions(self, driver, response):
+        comment_inputs = driver.find_elements_by_class_name('comment')
+        comments = response.get('comments', {})
+
+        for question_id, comment in comments.iteritems():
+            text_areas = [comment_inputs for comment_input in comment_inputs
+                          if int(comment_inputs.get_attribute('question-id')) == int(question_id)]
+            if text_areas:
+                self.assertEqual(len(text_areas), 1)
+                text_areas[0].send_keys(str(comment))
+
+        driver.find_element_by_id('next').click()
+        return reverse('pcari:personal-information') in driver.current_url
+
+    def provide_personal_information(self, driver, response):
+        respondent_data = response.get('respondent-data', {})
+        if 'age' in respondent_data:
+            driver.find_element_by_id('age').send_keys(str(respondent_data['age']))
+        if 'gender' in respondent_data:
+            select = Select(driver.find_element_by_id('gender'))
+            select.select_by_value(respondent_data['gender'])
+        if 'province' in response:
+            driver.find_element_by_id('province').send_keys(respondent_data['province'])
+        if 'city-or-municipality' in response:
+            input_element = driver.find_element_by_id('city-or-municipality')
+            input_element.send_keys(respondent_data['city-or-municipality'])
+        if 'barangay' in response:
+            driver.find_element_by_id('barangay').send_keys(respondent_data['barangay'])
+
+        driver.find_element_by_id('next').click()
+        driver.find_element_by_id('submit').click()
+        return reverse('pcari:peer-responses') in driver.current_url
+
     @use_drivers(*ALL_DRIVERS)
     def test_test(self, driver):
         QuantitativeQuestion.objects.create(id=1)
@@ -162,19 +197,6 @@ class NavigationTestCase(StaticLiveServerTestCase):
 
 
 """
-class NavigationTestCase(StaticLiveServerTestCase):
-    @use_drivers(*WEB_DRIVERS)
-    def test_complete_walkthrough(self, driver):
-        self.questions = [QuantitativeQuestion.objects.create() for _ in range(8)]
-        driver.get(self.live_server_url + reverse('pcari:landing'))
-        html = driver.find_element_by_tag_name('html')
-        driver.find_element_by_id('next').click()
-        for _ in range(len(self.questions)):
-            self.assertIn(reverse('pcari:quantitative-questions'), driver.current_url)
-            driver.find_element_by_id('submit').click()
-        self.assertIn(reverse('pcari:rate-comments'), driver.current_url)
-
-
 @tag('slow')
 class OfflineTestCase(StaticLiveServerTestCase):
     TIMEOUT = 4.0  # in seconds
