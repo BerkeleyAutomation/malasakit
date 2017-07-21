@@ -37,26 +37,28 @@
     {% for question in questions %}
       {% if question.active %}
         {% with num_ratings=question.num_ratings mean=question.mean_score|floatformat %}
-          <div class="boxed">
-                <p>
-                  {% blocktrans trimmed %}
-                    <strong>{{ num_ratings }}</strong> other people answered this question:
-                  {% endblocktrans %}
-                </p>
-                <blockquote>
-                  {% trans question.prompt %}
-                </blockquote>
-                <div class="bubbled">
-                  {% blocktrans trimmed %}
-                    Average answer: <strong>{{ mean }}</strong>
-                  {% endblocktrans %}
-                </div>
-                <div class="bubbled">
-                  {% blocktrans trimmed with id=question.id %}
-                    Your answer: <strong id="answer-{{ id }}">None</strong>
-                  {% endblocktrans %}
-                </div>
-          </div>
+          {% if num_ratings > 0 %}
+            <div class="boxed">
+              <p>
+                {% blocktrans trimmed %}
+                  <strong>{{ num_ratings }}</strong> other people answered this question:
+                {% endblocktrans %}
+              </p>
+              <blockquote>
+                {% trans question.prompt %}
+              </blockquote>
+              <div class="bubbled">
+                {% blocktrans trimmed %}
+                  Average answer: <strong>{{ mean }}</strong>
+                {% endblocktrans %}
+              </div>
+              <div class="bubbled">
+                {% with id=question.id %}
+                  {% trans 'Your answer:'%} <strong id="answer-{{ id }}">{% trans 'Skip' %}</strong>
+                {% endwith %}
+              </div>
+            </div>
+          {% endif %}
         {% endwith %}
       {% endif %}
     {% endfor %}

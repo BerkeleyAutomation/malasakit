@@ -632,6 +632,7 @@ def end(request):
 
 
 @profile
+@ensure_csrf_cookie
 def handle_page_not_found(request):
     """ Render a page for HTTP 404 errors (page not found). """
     context = {'heading': _('Page Not Found'),
@@ -640,6 +641,7 @@ def handle_page_not_found(request):
 
 
 @profile
+@ensure_csrf_cookie
 def handle_internal_server_error(request):
     """ Render a page for HTTP 500 errors (internal server error). """
     context = {'heading': _('Internal Error'),
