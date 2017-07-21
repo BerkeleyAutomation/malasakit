@@ -151,7 +151,7 @@ function renderComments() {
     }
 
     var drag = d3.drag().on('start', startDrag).on('drag', continueDrag).on('end', endDrag);
-    var nodes = bloom.selectAll('g').data(nodeData).enter().append('g');
+    var nodes = bloom.selectAll('g').data(nodeData).enter().append('g').attr('cid', node => node.commentID);
 
     nodes.call(drag).on('click', function(node) {
         startCommentRating(node.commentID);

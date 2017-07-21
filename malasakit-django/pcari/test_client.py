@@ -10,8 +10,9 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.common.exceptions import NoSuchAttributeException
 
-from pcari.models import QuantitativeQuestionRating
+from pcari.models import QuantitativeQuestionRating, Comment, CommentRating
 from pcari.models import QuantitativeQuestion, QualitativeQuestion
+from pcari.models import Respondent
 
 logging.disable(logging.CRITICAL)
 
@@ -34,13 +35,11 @@ def set_range_value(self, value):
             value, min_value, max_value
         ))
 
-    current = self.get_attribute('value')
-    while current != value:
-        if current < value:
-            self.send_keys(Keys.RIGHT)
-        else:
-            self.send_keys(Keys.LEFT)
-        current = self.get_attribute('value')
+    current = int(self.get_attribute('value'))
+    difference = value - current
+    direction = Keys.RIGHT if difference > 0 else Keys.LEFT
+    for _ in range(abs(difference)):
+        self.send_keys(direction)
 WebElement.set_range_value = set_range_value
 
 
@@ -88,7 +87,7 @@ _CHROME_OPTIONS = ChromeOptions()
 _CHROME_OPTIONS.add_argument('headless')
 CHROME = make_test_web_driver(Chrome, desired_capabilities=_CHROME_OPTIONS.to_capabilities())
 
-DRIVERS = [CHROME]
+ALL_DRIVERS = [CHROME]
 
 
 class NavigationTestCase(StaticLiveServerTestCase):
@@ -96,7 +95,10 @@ class NavigationTestCase(StaticLiveServerTestCase):
         navigation_handlers = [
             self.pass_landing,
             self.answer_quantitative_questions,
+            self.rate_comments,
         ]
+
+        return all(handler(driver, response) for handler in navigation_handlers)
 
     def pass_landing(self, driver, response):
         if response:
@@ -132,9 +134,18 @@ class NavigationTestCase(StaticLiveServerTestCase):
 
         return reverse('pcari:rate-comments') in driver.current_url
 
-    @use_drivers(*DRIVERS)
-    def test_test(self):
-        self.walkthrough(driver, {})
+    def rate_comments(self, driver, response):
+        bloom_icons = driver.find_elements_by_tag_name('g')
+
+        print(bloom_icons)
+
+        return reverse('pcari:personal-information') in driver.current_url
+
+    @use_drivers(*ALL_DRIVERS)
+    def test_test(self, driver):
+        QuantitativeQuestion.objects.create(id=1)
+        Comment.objects.create(message='sdf', respondent=Respondent.objects.create(), question=QualitativeQuestion.objects.create())
+        print(self.walkthrough(driver, {'question-ratings': {1: 6}}))
 
 
 """
