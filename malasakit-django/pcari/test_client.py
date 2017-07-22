@@ -3,6 +3,8 @@ import os
 import time
 
 from django.test import tag
+from django.test.testcases import LiveServerThread, QuietWSGIRequestHandler
+from django.core.servers.basehttp import WSGIServer
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.shortcuts import reverse
 from selenium.webdriver import Chrome, ChromeOptions, Firefox
@@ -92,6 +94,16 @@ ALL_DRIVERS = [CHROME]
 
 
 class NavigationTestCase(StaticLiveServerTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super(NavigationTestCase, cls).setUpClass()
+
+        package_path = os.path.dirname(__file__)
+        project_path = os.path.dirname(package_path)
+        cls.screenshots_path = os.path.join(project_path, 'testing-screenshots')
+        if not os.path.exists(cls.screenshots_path):
+            os.mkdir(cls.screenshots_path)
+
     def walkthrough(self, driver, response):
         navigation_handlers = [
             self.navigate_landing,
@@ -189,44 +201,37 @@ class NavigationTestCase(StaticLiveServerTestCase):
         driver.find_element_by_id('submit').click()
         return reverse('pcari:peer-responses') in driver.current_url
 
-    @use_drivers(*ALL_DRIVERS)
-    def test_test(self, driver):
-        QuantitativeQuestion.objects.create(id=1)
-        Comment.objects.create(id=1, message='sdf', respondent=Respondent.objects.create(), question=QualitativeQuestion.objects.create())
-        print(self.walkthrough(driver, {'question-ratings': {1: 6}, 'comment-ratings': {1: -1}}))
+
+class LocalStorageUpdateTestCase(NavigationTestCase):
+    pass
 
 
-"""
+class ReusableLiveServerThread(LiveServerThread):
+    def _create_server(self):
+        return WSGIServer((self.host, self.port), QuietWSGIRequestHandler,
+                          allow_reuse_address=True)
+
+
 @tag('slow')
-class OfflineTestCase(StaticLiveServerTestCase):
-    TIMEOUT = 4.0  # in seconds
+class OfflineTestCase(NavigationTestCase):
+    DELAY = 4.0  # in seconds
 
-    @classmethod
-    def setUpClass(cls):
-        super(OfflineTestCase, cls).setUpClass()
+    server_thread_class = ReusableLiveServerThread
+    port = 8080
 
-        package_path = os.path.dirname(__file__)
-        project_path = os.path.dirname(package_path)
-        cls.screenshots_path = os.path.join(project_path, 'testing-screenshots')
-        if not os.path.exists(cls.screenshots_path):
-            os.mkdir(cls.screenshots_path)
-
-    @use_drivers(*WEB_DRIVERS)
+    @use_drivers(*ALL_DRIVERS)
     def test_offline(self, driver):
         driver.get(self.live_server_url + reverse('pcari:landing'))
-        print driver.get_log('browser')
-
-        time.sleep(self.TIMEOUT)
+        time.sleep(self.DELAY)
 
         self.tearDownClass()
 
         driver.get(self.live_server_url + reverse('pcari:landing'))
         print driver.get_log('browser')
         driver.save_screenshot(os.path.join(self.screenshots_path, 'landing.png'))
-        print driver.local_storage
+        # print driver.local_storage
 
         self.setUpClass()
+        print self.live_server_url
 
         driver.get(self.live_server_url + reverse('pcari:landing'))
-        print driver.get_log('browser')
-"""
