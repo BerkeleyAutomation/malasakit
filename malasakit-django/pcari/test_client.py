@@ -1,3 +1,4 @@
+import datetime
 import logging
 import os
 import time
@@ -104,6 +105,9 @@ class NavigationTestCase(StaticLiveServerTestCase):
         if not os.path.exists(cls.screenshots_path):
             os.mkdir(cls.screenshots_path)
 
+    def screenshot(self, driver, filename):
+        driver.save_screenshot(os.path.join(self.screenshots_path, filename))
+
     def walkthrough(self, driver, response):
         navigation_handlers = [
             self.navigate_landing,
@@ -202,6 +206,16 @@ class NavigationTestCase(StaticLiveServerTestCase):
         return reverse('pcari:peer-responses') in driver.current_url
 
 
+def spoof_time_change(driver, time_change):
+    delta = int(1000*time_change.total_seconds())
+    driver.execute_script("""
+    Date.prototype._getTime = Date.prototype.getTime;
+    Date.prototype.getTime = function() {
+        return {delta} + this._getTime();
+    };
+    """.format(delta))
+
+
 class LocalStorageUpdateTestCase(NavigationTestCase):
     pass
 
@@ -214,24 +228,30 @@ class ReusableLiveServerThread(LiveServerThread):
 
 @tag('slow')
 class OfflineTestCase(NavigationTestCase):
-    DELAY = 4.0  # in seconds
-
     server_thread_class = ReusableLiveServerThread
     port = 8080
 
-    @use_drivers(*ALL_DRIVERS)
-    def test_offline(self, driver):
-        driver.get(self.live_server_url + reverse('pcari:landing'))
-        time.sleep(self.DELAY)
+    DELAY = 4.0  # in seconds
 
+    @classmethod
+    def setUpTestData(cls):
+        QuantitativeQuestion.objects.create(id=1)
+        QuantitativeQuestion.objects.create(id=2)
+        QualitativeQuestion.objects.create(id=1)
+        Comment.objects.create(question_id=1,
+                               respondent=Respondent.objects.create(id=1))
+        Comment.objects.create(question_id=1,
+                               respondent=Respondent.objects.create(id=2))
+
+    @use_drivers(*ALL_DRIVERS)
+    def test_basic_pages_cached(self, driver):
+        # driver.get(self.live_server_url + reverse('pcari:landing'))
+        # time.sleep(2)  # Wait for pages to be cached
         self.tearDownClass()
 
         driver.get(self.live_server_url + reverse('pcari:landing'))
+
         print driver.get_log('browser')
-        driver.save_screenshot(os.path.join(self.screenshots_path, 'landing.png'))
-        # print driver.local_storage
 
         self.setUpClass()
-        print self.live_server_url
-
-        driver.get(self.live_server_url + reverse('pcari:landing'))
+        # print self.live_server_url
