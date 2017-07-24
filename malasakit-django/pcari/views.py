@@ -211,7 +211,7 @@ def fetch_comments(request):
     except ValueError as error:
         return HttpResponseBadRequest(str(error))
 
-    query = Comment.objects.filter(active=True).filter(flagged=False)
+    query = Comment.objects.filter(active=True, flagged=False)
     comments = query.exclude(message='').all()
     if len(comments) > limit:
         comments = random.sample(comments, limit)
@@ -359,7 +359,7 @@ def fetch_question_ratings(request):
     """
     # pylint: disable=unused-argument
     ratings = QuantitativeQuestionRating.objects
-    ratings = ratings.filter(active=True).filter(question__active=True)
+    ratings = ratings.filter(active=True, question__active=True)
     return JsonResponse({
         str(rating.id): {
             'qid': rating.question_id,
