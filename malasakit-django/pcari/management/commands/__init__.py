@@ -69,7 +69,7 @@ class BatchProcessingCommand(BaseCommand):
 
             try:
                 models = ContentType.objects.filter(app_label='pcari')
-                model = models.get(model=model_name).model_class()
+                model = models.get(model=model_name.lower()).model_class()
                 field = model._meta.get_field(field_name)
                 self.precondition_check(options, model, field)
             except Exception as exc:
