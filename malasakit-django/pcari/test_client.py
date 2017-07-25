@@ -181,6 +181,7 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
 
     def rate_comments(self, driver, response, test_case_name=None):
         scores = response.get('comment-ratings', {})
+        time.sleep(2)  # Wait for force simulation to work
 
         if test_case_name:
             self.screenshot(driver, test_case_name, 'rate-comments-bloom.png')
@@ -190,7 +191,7 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
                      if int(icon.get_attribute('cid')) == int(comment_id)]
             if icons:
                 self.assertEqual(len(icons), 1)
-                icons[0].click()
+                icons[0].find_element_by_tag_name('text').click()
 
                 if test_case_name:
                     self.screenshot(driver, test_case_name,
