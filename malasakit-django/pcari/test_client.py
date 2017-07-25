@@ -1,10 +1,11 @@
 import datetime
 import logging
 import os
+import re
 import time
 import types
 
-from django.test import tag
+from django.test import tag, TestCase
 from django.test.testcases import LiveServerThread, QuietWSGIRequestHandler
 from django.core.servers.basehttp import WSGIServer
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
@@ -58,7 +59,6 @@ def use_drivers(*test_drivers):
                         name = obj.__name__ + '_' + str(index)
                         def test_wrapper(self):
                             driver = test_driver_cls()
-                            print self, obj
                             obj(self, driver)
                         test_wrapper.__name__ = name
                         setattr(test_suite, name, test_wrapper)
@@ -102,21 +102,27 @@ CHROME = make_test_web_driver(Chrome, desired_capabilities=_CHROME_OPTIONS.to_ca
 ALL_DRIVERS = [CHROME]
 
 
-class NavigationTestCase(StaticLiveServerTestCase):
+class NavigationTestCase(StaticLiveServerTestCase, TestCase):
     @classmethod
     def setUpClass(cls):
         super(NavigationTestCase, cls).setUpClass()
 
         package_path = os.path.dirname(__file__)
         project_path = os.path.dirname(package_path)
-        cls.screenshots_path = os.path.join(project_path, 'testing-screenshots')
-        if not os.path.exists(cls.screenshots_path):
-            os.mkdir(cls.screenshots_path)
+        global_screenshots_path = os.path.join(project_path, 'screenshots')
+        if not os.path.exists(global_screenshots_path):
+            os.mkdir(global_screenshots_path)
+
+        test_case_dirname = re.sub(r'(.)([A-Z])', r'\1-\2', cls.__name__)
+        cls.test_case_screenshots_path = os.path.join(global_screenshots_path,
+                                                      test_case_dirname).lower()
 
     def screenshot(self, driver, filename):
-        driver.save_screenshot(os.path.join(self.screenshots_path, filename))
+        if not os.path.exists(self.test_case_screenshots_path):
+            os.mkdir(self.test_case_screenshots_path)
+        driver.save_screenshot(os.path.join(self.test_case_screenshots_path, filename))
 
-    def walkthrough(self, driver, response):
+    def walkthrough(self, driver, response, take_screenshots=False):
         navigation_handlers = [
             self.navigate_landing,
             self.answer_quantitative_questions,
@@ -124,6 +130,16 @@ class NavigationTestCase(StaticLiveServerTestCase):
             self.answer_qualitative_questions,
             self.provide_personal_information,
         ]
+
+        if take_screenshots:
+            def enable_screenshot_capture(navigation_handler):
+                def navigation_handler_wrapper(driver, response):
+                    filename = navigation_handler.__name__.replace('_', '-') + '.png'
+                    self.screenshot(driver, filename)
+                    return navigation_handler(driver, response)
+                return navigation_handler_wrapper
+            navigation_handlers = [enable_screenshot_capture(handler)
+                                   for handler in navigation_handlers]
 
         return all(handler(driver, response) for handler in navigation_handlers)
 
@@ -149,6 +165,7 @@ class NavigationTestCase(StaticLiveServerTestCase):
                 break
             elif score == QuantitativeQuestionRating.SKIPPED:
                 driver.find_element_by_id('skip').click()
+                continue
 
             input_element = driver.find_element_by_id('quantitative-input')
             try:
@@ -185,8 +202,8 @@ class NavigationTestCase(StaticLiveServerTestCase):
         comments = response.get('comments', {})
 
         for question_id, comment in comments.iteritems():
-            text_areas = [comment_inputs for comment_input in comment_inputs
-                          if int(comment_inputs.get_attribute('question-id')) == int(question_id)]
+            text_areas = [comment_input for comment_input in comment_inputs
+                          if int(comment_input.get_attribute('question-id')) == int(question_id)]
             if text_areas:
                 self.assertEqual(len(text_areas), 1)
                 text_areas[0].send_keys(str(comment))
@@ -224,6 +241,42 @@ def spoof_time_change(driver, time_change):
     """.format(delta))
 
 
+@tag('slow')
+@use_drivers(*ALL_DRIVERS)
+class ResponseSubmissionTestCase(NavigationTestCase):
+    @classmethod
+    def setUpTestData(cls):
+        QuantitativeQuestion.objects.create(id=1)
+        QuantitativeQuestion.objects.create(id=2)
+        QualitativeQuestion.objects.create(id=1)
+        Comment.objects.create(id=1, question_id=1,
+                               respondent=Respondent.objects.create(id=1))
+        Comment.objects.create(id=2, question_id=1,
+                               respondent=Respondent.objects.create(id=2))
+
+    def test_complete_full_submission(self, driver):
+        self.assertTrue(self.walkthrough(driver, {
+            'question-ratings': {
+                1: 2,
+                2: QuantitativeQuestionRating.SKIPPED,
+            },
+            'comment-ratings': {
+                1: 5,
+                2: 9,
+            },
+            'comments': {
+                1: 'Testing',
+            },
+            'respondent-data': {
+                'age': 31,
+            },
+        }))
+
+
+
+
+
+"""
 @use_drivers(*ALL_DRIVERS)
 class LocalStorageUpdateTestCase(NavigationTestCase):
     pass
@@ -253,14 +306,27 @@ class OfflineTestCase(NavigationTestCase):
         Comment.objects.create(question_id=1,
                                respondent=Respondent.objects.create(id=2))
 
+    def assert_no_connection_refused(self, driver):
+        for log_entry in driver.get_log('browser'):
+            self.assertNotIn('ERR_CONNECTION_REFUSED', log_entry['message'])
+
+    @use_drivers(*ALL_DRIVERS)
     def test_basic_pages_cached(self, driver):
-        # driver.get(self.live_server_url + reverse('pcari:landing'))
-        # time.sleep(2)  # Wait for pages to be cached
+        driver.get(self.live_server_url + reverse('pcari:landing'))
+        time.sleep(2)  # Wait for pages to be cached
         self.tearDownClass()
 
-        driver.get(self.live_server_url + reverse('pcari:landing'))
+        response = {
+            'question-ratings': {
+                1: r,
+                2: 1,
+            },
+        }
 
-        print driver.get_log('browser')
+        driver.get(self.live_server_url + reverse('pcari:landing'))
+        self.assert_no_connection_refused(driver)
+        self.walkthrough(driver, response, True)
 
         self.setUpClass()
         # print self.live_server_url
+"""
