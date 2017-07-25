@@ -113,16 +113,20 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
         if not os.path.exists(global_screenshots_path):
             os.mkdir(global_screenshots_path)
 
-        test_case_dirname = re.sub(r'(.)([A-Z])', r'\1-\2', cls.__name__)
-        cls.test_case_screenshots_path = os.path.join(global_screenshots_path,
-                                                      test_case_dirname).lower()
+        test_suite_dirname = re.sub(r'(.)([A-Z])', r'\1-\2', cls.__name__)
+        cls.test_suite_screenshots_path = os.path.join(global_screenshots_path,
+                                                       test_suite_dirname).lower()
+        if not os.path.exists(cls.test_suite_screenshots_path):
+            os.mkdir(cls.test_suite_screenshots_path)
 
-    def screenshot(self, driver, filename):
-        if not os.path.exists(self.test_case_screenshots_path):
-            os.mkdir(self.test_case_screenshots_path)
-        driver.save_screenshot(os.path.join(self.test_case_screenshots_path, filename))
+    def screenshot(self, driver, test_case_name, filename):
+        screenshots_path = os.path.join(self.test_suite_screenshots_path,
+                                        test_case_name.replace('_', '-'))
+        if not os.path.exists(screenshots_path):
+            os.mkdir(screenshots_path)
+        driver.save_screenshot(os.path.join(screenshots_path, filename))
 
-    def walkthrough(self, driver, response, take_screenshots=False):
+    def walkthrough(self, driver, response, test_case_name=None):
         navigation_handlers = [
             self.navigate_landing,
             self.answer_quantitative_questions,
@@ -131,25 +135,18 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
             self.provide_personal_information,
         ]
 
-        if take_screenshots:
-            def enable_screenshot_capture(navigation_handler):
-                def navigation_handler_wrapper(driver, response):
-                    filename = navigation_handler.__name__.replace('_', '-') + '.png'
-                    self.screenshot(driver, filename)
-                    return navigation_handler(driver, response)
-                return navigation_handler_wrapper
-            navigation_handlers = [enable_screenshot_capture(handler)
-                                   for handler in navigation_handlers]
+        return all(handler(driver, response, test_case_name)
+                   for handler in navigation_handlers)
 
-        return all(handler(driver, response) for handler in navigation_handlers)
-
-    def navigate_landing(self, driver, response):
+    def navigate_landing(self, driver, response, test_case_name=None):
         if response:
             driver.get(self.live_server_url + reverse('pcari:landing'))
+            if test_case_name:
+                self.screenshot(driver, test_case_name, 'landing.png')
             driver.find_element_by_id('next').click()
         return reverse('pcari:quantitative-questions') in driver.current_url
 
-    def answer_quantitative_questions(self, driver, response):
+    def answer_quantitative_questions(self, driver, response, test_case_name=None):
         try:
             question_ids = driver.execute_script('return QUESTION_IDS;')
         except WebElement:
@@ -160,6 +157,10 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
         scores = response.get('question-ratings', {})
 
         for question_id in question_ids:
+            if test_case_name:
+                self.screenshot(driver, test_case_name,
+                                'quantitative-question-{0}.png'.format(question_id))
+
             score = scores.get(question_id, scores.get(str(question_id)))
             if score is None:
                 break
@@ -178,8 +179,11 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
 
         return reverse('pcari:rate-comments') in driver.current_url
 
-    def rate_comments(self, driver, response):
+    def rate_comments(self, driver, response, test_case_name=None):
         scores = response.get('comment-ratings', {})
+
+        if test_case_name:
+            self.screenshot(driver, test_case_name, 'rate-comments-bloom.png')
 
         for comment_id, score in scores.iteritems():
             icons = [icon for icon in driver.find_elements_by_tag_name('g')
@@ -187,6 +191,10 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
             if icons:
                 self.assertEqual(len(icons), 1)
                 icons[0].click()
+
+                if test_case_name:
+                    self.screenshot(driver, test_case_name,
+                                    'rate-comments-{0}.png'.format(comment_id))
 
                 if score == QuantitativeQuestionRating.SKIPPED:
                     driver.find_element_by_id('skip').click()
@@ -197,7 +205,7 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
         driver.find_element_by_id('next').click()
         return reverse('pcari:qualitative-questions') in driver.current_url
 
-    def answer_qualitative_questions(self, driver, response):
+    def answer_qualitative_questions(self, driver, response, test_case_name=None):
         comment_inputs = driver.find_elements_by_class_name('comment')
         comments = response.get('comments', {})
 
@@ -208,10 +216,13 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
                 self.assertEqual(len(text_areas), 1)
                 text_areas[0].send_keys(str(comment))
 
+        if test_case_name:
+            self.screenshot(driver, test_case_name, 'qualitative-questions.png')
+
         driver.find_element_by_id('next').click()
         return reverse('pcari:personal-information') in driver.current_url
 
-    def provide_personal_information(self, driver, response):
+    def provide_personal_information(self, driver, response, test_case_name=None):
         respondent_data = response.get('respondent-data', {})
         if 'age' in respondent_data:
             driver.find_element_by_id('age').send_keys(str(respondent_data['age']))
@@ -225,6 +236,9 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
             input_element.send_keys(respondent_data['city-or-municipality'])
         if 'barangay' in response:
             driver.find_element_by_id('barangay').send_keys(respondent_data['barangay'])
+
+        if test_case_name:
+            self.screenshot(driver, test_case_name, 'personal-information.png')
 
         driver.find_element_by_id('next').click()
         driver.find_element_by_id('submit').click()
@@ -249,9 +263,9 @@ class ResponseSubmissionTestCase(NavigationTestCase):
         QuantitativeQuestion.objects.create(id=1)
         QuantitativeQuestion.objects.create(id=2)
         QualitativeQuestion.objects.create(id=1)
-        Comment.objects.create(id=1, question_id=1,
+        Comment.objects.create(id=1, question_id=1, message='Test comment 1',
                                respondent=Respondent.objects.create(id=1))
-        Comment.objects.create(id=2, question_id=1,
+        Comment.objects.create(id=2, question_id=1, message='Test comment 2',
                                respondent=Respondent.objects.create(id=2))
 
     def test_complete_full_submission(self, driver):
@@ -269,8 +283,12 @@ class ResponseSubmissionTestCase(NavigationTestCase):
             },
             'respondent-data': {
                 'age': 31,
+                'gender': 'M',
+                'province': 'Test province',
+                'city-or-municipality': 'Test city',
+                'barangay': 'Test barangay',
             },
-        }))
+        }, 'test_complete_full_submission'))
 
 
 
