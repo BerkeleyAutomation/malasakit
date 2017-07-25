@@ -39,5 +39,8 @@ def localize_url(url_example, language):
         components = relative_url.split('/')
         assert len(components) >= 1
         components[0] = language
-        return posixpath.join(url_root, *components)
+        localized_url = posixpath.join(url_root, *components)
+        if not localized_url.endswith('/'):
+            localized_url += '/'
+        return localized_url
     return url_example
