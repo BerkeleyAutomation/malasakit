@@ -1,8 +1,8 @@
 # malasakit-v1/Makefile -- A collection of rules for testing and deploying the project
 
 DJANGO_PROJECT_ROOT=malasakit-django
-
-APACHE_CONF_FILE=/etc/apache2/sites-available/opinion.conf
+DOCS_BUILD_PATH=docs-build
+DOCS_PATH=docs
 
 LINT_TARGETS=\
 	cafe/settings.py\
@@ -24,6 +24,11 @@ DB_TRANS_TARGETS=\
 	QuantitativeQuestion.left_anchor\
 	QuantitativeQuestion.right_anchor\
 	QualitativeQuestion.prompt
+
+EXCLUDED_MODULES=\
+	$(DJANGO_PROJECT_ROOT)/pcari/migrations\
+	$(DJANGO_PROJECT_ROOT)/pcari/test*\
+	$(DJANGO_PROJECT_ROOT)/pcari/urls.py
 
 LOCALES=tl
 
@@ -50,6 +55,15 @@ lint: $(LINT_TARGETS:%.py=$(DJANGO_PROJECT_ROOT)/%.py)
 
 test:
 	cd $(DJANGO_PROJECT_ROOT) && ./manage.py test
+
+preparedocs:
+	mkdir -p $(DOCS_BUILD_PATH)
+	sphinx-apidoc -f -e -o $(DOCS_BUILD_PATH)/source $(DJANGO_PROJECT_ROOT)/pcari $(EXCLUDED_MODULES)
+
+compiledocs:
+	rm -rf $(DOCS_PATH)
+	cd $(DOCS_BUILD_PATH) && make clean && make html
+	mv $(DOCS_BUILD_PATH)/build/html $(DOCS_PATH)
 
 preparetrans:
 	cd $(DJANGO_PROJECT_ROOT) && ./manage.py makedbtrans -o locale/db.pot $(DB_TRANS_TARGETS)

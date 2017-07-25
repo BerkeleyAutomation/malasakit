@@ -1,12 +1,12 @@
 """
-makedbtrans -- Prepare a translation file from text stored in the database
+Prepare a translation file from text stored in the database
 """
 
 from __future__ import print_function, unicode_literals
 
 from django.db.models import CharField, TextField
 
-from . import BatchProcessingCommand
+from pcari.management.commands import BatchProcessingCommand
 
 
 class Command(BatchProcessingCommand):

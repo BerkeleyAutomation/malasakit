@@ -1,16 +1,21 @@
 """
 This module defines common command templates.
+
+References:
+  * `Writing Custom Commands
+    <https://docs.djangoproject.com/en/dev/howto/custom-management-commands/>`_
+  * `Python Argument Parser Reference
+    <https://docs.python.org/2/library/argparse.html#the-add-argument-method>`_
 """
 
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
-
-from pcari.models import MODELS
 
 
 class BatchProcessingCommand(BaseCommand):
     """
-    A `BatchProcessingCommand` provides utilities for manipulating a sequence
+    A ``BatchProcessingCommand`` provides utilities for manipulating a sequence
     of fields, which would be useful for cleaning or exporting data.
     """
     def add_arguments(self, parser):
@@ -19,19 +24,36 @@ class BatchProcessingCommand(BaseCommand):
 
     def precondition_check(self, options, model, field):
         """
-        Inspect the given model and field, and raise exceptions as necessary.
+        Raise exceptions as necessary prior to processing model instances.
+
+        Args:
+            options (dict): Keyword arguments from the command line.
+            model: The model to be inspected.
+            field: The field of ``model`` to be inspected.
+
+        Raises:
+            CommandError: if some precondition is not met.
         """
         pass  # By default, make no checks
 
     def preprocess(self, options):
         """
         Prepare to batch process all fields (e.g. open files).
+
+        Args:
+            options (dict): Keyword arguments from the command line.
         """
         pass
 
     def process(self, options, instance, model_name, field_name):
         """
         Given a model instance and the field to operate on, perform an action.
+
+        Args:
+            options (dict): Keyword arguments from the command line.
+            instance: The model instance to be processed.
+            model_name (str): The name of the model of ``instance``.
+            field_name (str): The name of the field to be processed.
         """
         raise NotImplementedError
 
@@ -46,9 +68,8 @@ class BatchProcessingCommand(BaseCommand):
             model_name, field_name = components
 
             try:
-                model = MODELS.get(model_name)
-                if model is None:
-                    raise ValueError('not a Django model')
+                models = ContentType.objects.filter(app_label='pcari')
+                model = models.get(model=model_name.lower()).model_class()
                 field = model._meta.get_field(field_name)
                 self.precondition_check(options, model, field)
             except Exception as exc:
@@ -63,5 +84,8 @@ class BatchProcessingCommand(BaseCommand):
     def postprocess(self, options):
         """
         Terminate the processing job (e.g. close files).
+
+        Args:
+            options (dict): Keyword arguments from the command line.
         """
         pass

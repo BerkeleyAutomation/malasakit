@@ -1,5 +1,6 @@
 {% extends 'admin/base_site.html' %}
 
+{% load static %}
 {% load i18n %}
 
 {% block title %}{% trans 'Statistics' %}{% endblock %}
@@ -22,7 +23,7 @@
 
 {% block extrahead %}
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
-  <script src="/static/js/jquery-3.2.1.min.js"></script>
+  <script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
   <script>
     var colorQueue = [
         'rgba(17, 141, 255, 0.6)',  // blue
@@ -102,7 +103,7 @@
 
       var quantitativeQuestions, ratingDistributions = {};
 
-      $.getJSON('/api/fetch/quantitative-questions/', function(data) {
+      $.getJSON("{% url 'fetch-quantitative-questions' %}", function(data) {
         quantitativeQuestions = data;
         for (var questionID in quantitativeQuestions) {
           var translations = quantitativeQuestions[questionID].prompts;
@@ -125,7 +126,7 @@
         }
       });
 
-      $.getJSON('/api/fetch/question-ratings/', function(data) {
+      $.getJSON("{% url 'fetch-question-ratings' %}", function(data) {
         var max = -Infinity;
         for (var ratingID in data) {
           var rating = data[ratingID];

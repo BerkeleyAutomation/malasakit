@@ -1,10 +1,10 @@
 """
-cleantext -- Utility for batch-cleaning text fields from the command line
+Utility for batch-cleaning text fields from the command line
 """
 
 from django.db.models import CharField, TextField
 
-from . import BatchProcessingCommand
+from pcari.management.commands import BatchProcessingCommand
 
 
 class Command(BatchProcessingCommand):

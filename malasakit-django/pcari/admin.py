@@ -1,12 +1,17 @@
 """
 This module defines how Django should render the admin panel.
+
+References:
+  * `Django Admin Site Reference <https://docs.djangoproject.com/en/dev/ref/contrib/admin/>`_
+  * `Django Admin Actions <https://docs.djangoproject.com/en/dev/ref/contrib/admin/actions/>`_
 """
 
+from __future__ import unicode_literals
 from base64 import b64encode
+from collections import OrderedDict
 import json
 import math
 import os
-from urllib import urlencode
 
 from django.conf import settings
 from django.shortcuts import redirect, reverse, render
@@ -16,11 +21,25 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import User, Group
 
-from .models import QualitativeQuestion, QuantitativeQuestion
-from .models import CommentRating, Comment
-from .models import QuantitativeQuestionRating, Respondent
-from .models import History
-from .models import get_direct_fields
+from pcari.models import QualitativeQuestion, QuantitativeQuestion
+from pcari.models import CommentRating, Comment
+from pcari.models import QuantitativeQuestionRating, Respondent
+from pcari.models import History
+from pcari.models import get_direct_fields
+from pcari.views import export_data
+
+__all__ = [
+    'MalasakitAdminSite',
+    'HistoryAdmin',
+    'QuestionAdmin',
+    'ResponseAdmin',
+    'QuantitativeQuestionAdmin',
+    'QuantitativeQuestionRatingAdmin',
+    'QualitativeQuestionAdmin',
+    'CommentAdmin',
+    'CommentRatingAdmin',
+    'RespondentAdmin',
+]
 
 
 class MalasakitAdminSite(admin.AdminSite):
@@ -51,6 +70,7 @@ class MalasakitAdminSite(admin.AdminSite):
         return render(request, 'admin/configuration.html', context)
 
     def statistics(self, request):
+        """ Render a statistics page. """
         return render(request, 'admin/statistics.html', self.each_context(request))
 
     def change_bloom_icon(self, request):
@@ -75,15 +95,41 @@ class MalasakitAdminSite(admin.AdminSite):
         request.session['messages'] = ['Successfully uploaded bloom icon.']
         return redirect(reverse('admin:configuration'))
 
+    def filter_actions(self, model, action_names=None):
+        """
+        Restrict the actions a model admin may take.
+
+        This restriction is accomplished by wrapping the ``get_actions`` method
+        of the model admin associated with the given ``model``.
+
+        Args:
+            model: The class of the model. The model must have been registered
+                with the site.
+            action_names (list): A list of action names (strings) whose
+                associated actions should be allowed.
+        """
+        if action_names is None:
+            action_names = []
+
+        model_admin = self._registry[model]
+        get_actions_inner = model_admin.get_actions
+        def get_actions_wrapper(request):
+            actions = get_actions_inner(request)
+            return OrderedDict((name, actions[name]) for name in action_names)
+        model_admin.get_actions = get_actions_wrapper
+
 # pylint: disable=invalid-name
 site = MalasakitAdminSite()
 site.register(User, UserAdmin)
 site.register(Group, GroupAdmin)
+site.filter_actions(User, ['delete_selected'])
+site.filter_actions(Group, ['delete_selected'])
 
 
 class HistoryAdmin(admin.ModelAdmin):
     """
-    Abstract admin class that defines special behavior for `History` models.
+    Base admin behavior that defines special functionality for
+    :class:`pcari.models.History` models.
     """
     save_as_continue = False
 
@@ -124,8 +170,7 @@ class HistoryAdmin(admin.ModelAdmin):
 
 class ResponseAdmin(HistoryAdmin):
     """
-    Abstract admin class for `CommentRatingAdmin`, `CommentAdmin`, and
-    `QuantitativeQuestionRatingAdmin`.
+    Base admin behavior for :class:`pcari.models.Response` models.
     """
     # Empty responses (recorded as None) will be replaced by this placeholder
     empty_value_display = '-- Empty response --'
@@ -140,7 +185,7 @@ class ResponseAdmin(HistoryAdmin):
 @admin.register(CommentRating, site=site)
 class CommentRatingAdmin(ResponseAdmin):
     """
-    Customizes admin change page function for `CommentRating`s.
+    Admin behavior for :class:`pcari.models.CommentRating`.
     """
     def get_comment_message(self, comment_rating):
         message = comment_rating.comment.message
@@ -169,7 +214,7 @@ class CommentRatingAdmin(ResponseAdmin):
 @admin.register(Comment, site=site)
 class CommentAdmin(ResponseAdmin):
     """
-    Customizes admin change page functionality for `Comment`s.
+    Admin behavior for :class:`pcari.models.Comment`.
     """
     def display_message(self, comment):
         return comment.message if comment.message.strip() else self.empty_value_display
@@ -221,8 +266,7 @@ class CommentAdmin(ResponseAdmin):
 @admin.register(QuantitativeQuestionRating, site=site)
 class QuantitativeQuestionRatingAdmin(ResponseAdmin):
     """
-    Customizes admin change page functionality for
-    `QuantitativeQuestionRating`s.
+    Admin behavior for :class:`pcari.models.QuantitativeQuestionRating`.
     """
     def get_question_prompt(self, question_rating):
         # pylint: disable=no-self-use
@@ -250,17 +294,16 @@ class QuantitativeQuestionRatingAdmin(ResponseAdmin):
 
 class QuestionAdmin(HistoryAdmin):
     """
-    Abstract admin class for `QualitativeQuestionAdmin` and
-    `QuantitativeQuestionAdmin`.
+    Base admin behavior for :class:`pcari.models.Question` models.
     """
-    # Performance optimizer to limit database queries
     list_select_related = True
+    """ bool: Performance optimizer to limit database queries. """
 
 
 @admin.register(QualitativeQuestion, site=site)
 class QualitativeQuestionAdmin(QuestionAdmin):
     """
-    Customizes admin change page functionality for `QualitativeQuestionAdmin`.
+    Admin behavior for :class:`pcari.models.QualitativeQuestion`.
     """
     # Columns to display in the Comment change list page, in order from left to
     # right
@@ -276,7 +319,7 @@ class QualitativeQuestionAdmin(QuestionAdmin):
 @admin.register(QuantitativeQuestion, site=site)
 class QuantitativeQuestionAdmin(QuestionAdmin):
     """
-    Customizes admin change page functionality for `QuantitativeQuestionAdmin`.
+    Admin behavior for :class:`pcari.models.QuantitativeQuestion`.
     """
     # Columns to display in the Comment change list page, in order from left to
     # right
@@ -292,7 +335,7 @@ class QuantitativeQuestionAdmin(QuestionAdmin):
 @admin.register(Respondent, site=site)
 class RespondentAdmin(HistoryAdmin):
     """
-    Customizes admin change page functionality for `RespondentAdmin`.
+    Admin behavior for :class:`pcari.models.Respondent`.
     """
     def display_location(self, respondent):
         return respondent.location if respondent.location.strip() else self.empty_value_display
@@ -327,15 +370,7 @@ class RespondentAdmin(HistoryAdmin):
 def export_selected_as_csv(modeladmin, request, queryset):
     """ Export the selected model instances as comma-separated values (CSV). """
     # pylint: disable=unused-argument
-    primary_keys = ','.join(map(str, queryset.values_list('pk', flat=True)))
-    parameters = {
-        'model': queryset.model.__name__,
-        'format': 'csv',
-        'keys': primary_keys,
-    }
-
-    api_url = reverse('export-data') + '?' + urlencode(parameters)
-    return redirect(api_url)
+    return export_data(queryset, 'csv')
 
 export_selected_as_csv.short_description = 'Export selected rows as CSV'
 site.add_action(export_selected_as_csv)
@@ -344,15 +379,7 @@ site.add_action(export_selected_as_csv)
 def export_selected_as_xlsx(modeladmin, request, queryset):
     """ Export the selected model instances as an Excel spreadsheet. """
     # pylint: disable=unused-argument
-    primary_keys = ','.join(map(str, queryset.values_list('pk', flat=True)))
-    parameters = {
-        'model': queryset.model.__name__,
-        'format': 'xlsx',
-        'keys': primary_keys,
-    }
-
-    api_url = reverse('export-data') + '?' + urlencode(parameters)
-    return redirect(api_url)
+    return export_data(queryset, 'xlsx')
 
 export_selected_as_xlsx.short_description = 'Export selected rows as an Excel spreadsheet'
 site.add_action(export_selected_as_xlsx)

@@ -1,0 +1,870 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pcari.models module &#8212; Malasakit 1.25 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.25',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pcari.signals module" href="pcari.signals.html" />
+    <link rel="prev" title="pcari.apps module" href="pcari.apps.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pcari.models">
+<span id="pcari-models-module"></span><h1>pcari.models module<a class="headerlink" href="#module-pcari.models" title="Permalink to this headline">¶</a></h1>
+<p>Model definitions.</p>
+<p>This module defines how information used by Malasakit is structured and how the
+Python layer interfaces with a database.</p>
+<p>The core of the database consists of concrete models derived from the abstract
+<a class="reference internal" href="#pcari.models.Question" title="pcari.models.Question"><code class="xref py py-class docutils literal"><span class="pre">Question</span></code></a> and <a class="reference internal" href="#pcari.models.Response" title="pcari.models.Response"><code class="xref py py-class docutils literal"><span class="pre">Response</span></code></a> models. Generally speaking, there is a
+one-to-one correspondence between a type of question and its associated
+response.</p>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><a class="reference external" href="https://docs.djangoproject.com/en/dev/topics/db/models/">Django Model Reference</a></li>
+<li><a class="reference external" href="https://docs.djangoproject.com/en/dev/ref/models/fields/">Django Field Reference</a></li>
+<li><a class="reference external" href="https://docs.djangoproject.com/en/dev/ref/models/querysets/">QuerySet API</a></li>
+<li><a class="reference external" href="https://docs.djangoproject.com/en/dev/ref/contrib/contenttypes/">The contenttypes framework</a></li>
+</ul>
+<dl class="attribute">
+<dt id="pcari.models.LANGUAGES">
+<code class="descclassname">pcari.models.</code><code class="descname">LANGUAGES</code><a class="headerlink" href="#pcari.models.LANGUAGES" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>tuple</em> – Available languages. Each language is represented as a
+tuple of two elements: a code and a translated full name. For instance,
+the language code for “English” would be “en”. This attribute is pulled
+from the project <code class="docutils literal"><span class="pre">settings</span></code> lazily.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.models.History">
+<em class="property">class </em><code class="descclassname">pcari.models.</code><code class="descname">History</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.History" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.db.models.base.Model</span></code></p>
+<p>The <code class="docutils literal"><span class="pre">History</span></code> abstract model records how one model instance derives from
+another.</p>
+<p>The database should be insert-only such that when updating a field of a
+model instance, a new instance is created, rather than overwriting the
+attribute of an old instance. This model effectively implements a primitive
+form of version control to determine which instances are active and how
+instances have been edited.</p>
+<dl class="attribute">
+<dt id="pcari.models.History.predecessor">
+<code class="descname">predecessor</code><a class="headerlink" href="#pcari.models.History.predecessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>A reference to the instance this instance is based on. If
+this instance is the first of its kind (e.g., a new question), this
+reference should be <cite>None</cite> (which is the default value). This
+allows for a tree structure of revisions, where the <code class="docutils literal"><span class="pre">predecessor</span></code>
+points to a “parent node” (analogous to <code class="docutils literal"><span class="pre">git</span></code> without merging).
+A sequence of predecessors should never be cyclical.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.History.active">
+<code class="descname">active</code><a class="headerlink" href="#pcari.models.History.active" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>bool</em> – A flag indicating whether this instance is considered
+usable or not. Typically, when a new model instance is created from
+an old one when updating a field, the old instance is marked as
+inactive.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.History.predecessors">
+<code class="descname">predecessors</code><a class="headerlink" href="#pcari.models.History.predecessors" title="Permalink to this definition">¶</a></dt>
+<dd><p>A generator of predecessors, from the most recent to the
+original. Analogous to crawling up the revision tree.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.models.History.Meta">
+<em class="property">class </em><code class="descname">Meta</code><a class="headerlink" href="#pcari.models.History.Meta" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="pcari.models.History.Meta.abstract">
+<code class="descname">abstract</code><em class="property"> = False</em><a class="headerlink" href="#pcari.models.History.Meta.abstract" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="method">
+<dt id="pcari.models.History.diff">
+<code class="descname">diff</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.History.diff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find fields where the two instances have different values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>other</strong> – An instance of the same model.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><em>str</em> – A field name where the two instances have different values.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">AssertionError</span></code> – if <code class="docutils literal"><span class="pre">self</span></code> and <code class="docutils literal"><span class="pre">other</span></code> are not instances of the
+same model.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pcari.models.History.make_copy">
+<code class="descname">make_copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.History.make_copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a copy of the current model, excluding unique fields.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An unsaved copy of <code class="docutils literal"><span class="pre">self</span></code>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.models.StatisticsMixin">
+<em class="property">class </em><code class="descclassname">pcari.models.</code><code class="descname">StatisticsMixin</code><a class="headerlink" href="#pcari.models.StatisticsMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>A <code class="docutils literal"><span class="pre">StatisticsMixin</span></code> adds descriptive statistics capabilities to a model
+that accepts ratings.</p>
+<p>To use this mixin on a model, have the model inherit from this class after
+it inherits from <code class="xref py py-class docutils literal"><span class="pre">django.db.models.Model</span></code> (or some subclass of
+<code class="docutils literal"><span class="pre">Model</span></code>). The model must have a related name <code class="docutils literal"><span class="pre">ratings</span></code> (that is, the
+reverse relationship of a many-to-one) that accesses a <code class="docutils literal"><span class="pre">QuerySet</span></code> of
+instances of a model that inherits from <a class="reference internal" href="#pcari.models.Rating" title="pcari.models.Rating"><code class="xref py py-class docutils literal"><span class="pre">Rating</span></code></a>.</p>
+<p>All properties exclude the sentinel scores <a class="reference internal" href="#pcari.models.Rating.SKIPPED" title="pcari.models.Rating.SKIPPED"><code class="xref py py-attr docutils literal"><span class="pre">Rating.SKIPPED</span></code></a> and
+<a class="reference internal" href="#pcari.models.Rating.NOT_RATED" title="pcari.models.Rating.NOT_RATED"><code class="xref py py-attr docutils literal"><span class="pre">Rating.NOT_RATED</span></code></a>.</p>
+<dl class="attribute">
+<dt id="pcari.models.StatisticsMixin.scores">
+<code class="descname">scores</code><a class="headerlink" href="#pcari.models.StatisticsMixin.scores" title="Permalink to this definition">¶</a></dt>
+<dd><p>A flat <code class="docutils literal"><span class="pre">QuerySet</span></code> of integer scores.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.StatisticsMixin.num_ratings">
+<code class="descname">num_ratings</code><a class="headerlink" href="#pcari.models.StatisticsMixin.num_ratings" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> – The number of ratings the object has received.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.StatisticsMixin.mean_score">
+<code class="descname">mean_score</code><a class="headerlink" href="#pcari.models.StatisticsMixin.mean_score" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> – The mean score the object has received, or
+<code class="docutils literal"><span class="pre">float('nan')</span></code> if the object has no ratings.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.StatisticsMixin.mode_score">
+<code class="descname">mode_score</code><a class="headerlink" href="#pcari.models.StatisticsMixin.mode_score" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> – The most common score this object received, or
+<code class="docutils literal"><span class="pre">float('nan')</span></code> if the object has no ratings.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.StatisticsMixin.score_stdev">
+<code class="descname">score_stdev</code><a class="headerlink" href="#pcari.models.StatisticsMixin.score_stdev" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> – The corrected standard deviation of this object’s
+scores, or <code class="docutils literal"><span class="pre">float('nan')</span></code> if the object has fewer than two
+ratings.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.StatisticsMixin.score_sem">
+<code class="descname">score_sem</code><a class="headerlink" href="#pcari.models.StatisticsMixin.score_sem" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> – The standard error of the mean of this object’s
+scores, or <code class="docutils literal"><span class="pre">float('nan')</span></code> if the object has fewer than two
+ratings.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.models.Question">
+<em class="property">class </em><code class="descclassname">pcari.models.</code><code class="descname">Question</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.Question" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pcari.models.History" title="pcari.models.History"><code class="xref py py-class docutils literal"><span class="pre">pcari.models.History</span></code></a></p>
+<p>A <code class="docutils literal"><span class="pre">Question</span></code> models all prompts presented to a respondent.</p>
+<dl class="attribute">
+<dt id="pcari.models.Question.prompt">
+<code class="descname">prompt</code><a class="headerlink" href="#pcari.models.Question.prompt" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – The prompt in English. (Translations can be specified
+with Django’s localization system.)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Question.tag">
+<code class="descname">tag</code><a class="headerlink" href="#pcari.models.Question.tag" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – A short string in English that summarizes the prompt.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.models.Question.Meta">
+<em class="property">class </em><code class="descname">Meta</code><a class="headerlink" href="#pcari.models.Question.Meta" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="pcari.models.Question.Meta.abstract">
+<code class="descname">abstract</code><em class="property"> = False</em><a class="headerlink" href="#pcari.models.Question.Meta.abstract" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.models.Response">
+<em class="property">class </em><code class="descclassname">pcari.models.</code><code class="descname">Response</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.Response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pcari.models.History" title="pcari.models.History"><code class="xref py py-class docutils literal"><span class="pre">pcari.models.History</span></code></a></p>
+<p>A <code class="docutils literal"><span class="pre">Response</span></code> is an abstract model of respondent-generated data.</p>
+<dl class="attribute">
+<dt id="pcari.models.Response.respondent">
+<code class="descname">respondent</code><a class="headerlink" href="#pcari.models.Response.respondent" title="Permalink to this definition">¶</a></dt>
+<dd><p>A reference to the response author.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Response.timestamp">
+<code class="descname">timestamp</code><a class="headerlink" href="#pcari.models.Response.timestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>datetime.datetime</em> – When this response was made. (By
+default, this field is automatically set to the time when the
+instance is created. This field is not editable.)</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.models.Response.Meta">
+<em class="property">class </em><code class="descname">Meta</code><a class="headerlink" href="#pcari.models.Response.Meta" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="pcari.models.Response.Meta.abstract">
+<code class="descname">abstract</code><em class="property"> = False</em><a class="headerlink" href="#pcari.models.Response.Meta.abstract" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.models.Rating">
+<em class="property">class </em><code class="descclassname">pcari.models.</code><code class="descname">Rating</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.Rating" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pcari.models.Response" title="pcari.models.Response"><code class="xref py py-class docutils literal"><span class="pre">pcari.models.Response</span></code></a></p>
+<p>A <code class="docutils literal"><span class="pre">Rating</span></code> is an abstract model of a numeric response.</p>
+<dl class="attribute">
+<dt id="pcari.models.Rating.NOT_RATED">
+<code class="descname">NOT_RATED</code><a class="headerlink" href="#pcari.models.Rating.NOT_RATED" title="Permalink to this definition">¶</a></dt>
+<dd><p>A sentinel value assigned to a <code class="docutils literal"><span class="pre">Rating</span></code> that the
+respondent never submitted (that is, a default value).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Rating.SKIPPED">
+<code class="descname">SKIPPED</code><a class="headerlink" href="#pcari.models.Rating.SKIPPED" title="Permalink to this definition">¶</a></dt>
+<dd><p>A sentinel value assigned to a <code class="docutils literal"><span class="pre">Rating</span></code> where the user
+intentionally chose to decline rating a question or a comment.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Rating.score">
+<code class="descname">score</code><a class="headerlink" href="#pcari.models.Rating.score" title="Permalink to this definition">¶</a></dt>
+<dd><p>An integer that quantifies a rating. (No scale is provided, by
+design. Interpreting the <a class="reference internal" href="#pcari.models.Rating.score" title="pcari.models.Rating.score"><code class="xref py py-attr docutils literal"><span class="pre">score</span></code></a> is not the responsibility of
+this model.)</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.models.Rating.Meta">
+<em class="property">class </em><code class="descname">Meta</code><a class="headerlink" href="#pcari.models.Rating.Meta" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="pcari.models.Rating.Meta.abstract">
+<code class="descname">abstract</code><em class="property"> = False</em><a class="headerlink" href="#pcari.models.Rating.Meta.abstract" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">NOT_RATED</code><em class="property"> = -2</em></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">SKIPPED</code><em class="property"> = -1</em></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.models.QuantitativeQuestion">
+<em class="property">class </em><code class="descclassname">pcari.models.</code><code class="descname">QuantitativeQuestion</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.QuantitativeQuestion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pcari.models.Question" title="pcari.models.Question"><code class="xref py py-class docutils literal"><span class="pre">pcari.models.Question</span></code></a>, <a class="reference internal" href="#pcari.models.StatisticsMixin" title="pcari.models.StatisticsMixin"><code class="xref py py-class docutils literal"><span class="pre">pcari.models.StatisticsMixin</span></code></a></p>
+<p>A <code class="docutils literal"><span class="pre">QuantitativeQuestion</span></code> is a question that asks for a numeric rating.</p>
+<dl class="attribute">
+<dt id="pcari.models.QuantitativeQuestion.INPUT_TYPE_CHOICES">
+<code class="descname">INPUT_TYPE_CHOICES</code><a class="headerlink" href="#pcari.models.QuantitativeQuestion.INPUT_TYPE_CHOICES" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>tuple</em> – Input type choices, each of which is a
+two-element tuple consisting of the shorthand and the name of an
+input type. Current options are:
+* <cite>range</cite>: Render the question as a “slider”.
+* <cite>number</cite>: Render the question as a number-only text field.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.QuantitativeQuestion.left_anchor">
+<code class="descname">left_anchor</code><a class="headerlink" href="#pcari.models.QuantitativeQuestion.left_anchor" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – The text that describes the minimum score. For a
+range <a class="reference internal" href="#pcari.models.QuantitativeQuestion.input_type" title="pcari.models.QuantitativeQuestion.input_type"><code class="xref py py-attr docutils literal"><span class="pre">input_type</span></code></a>, this text is rendered on the left end of
+the slider.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.QuantitativeQuestion.right_anchor">
+<code class="descname">right_anchor</code><a class="headerlink" href="#pcari.models.QuantitativeQuestion.right_anchor" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – The text that describes the maximum score. For a
+range <a class="reference internal" href="#pcari.models.QuantitativeQuestion.input_type" title="pcari.models.QuantitativeQuestion.input_type"><code class="xref py py-attr docutils literal"><span class="pre">input_type</span></code></a>, this text is rendered on the right end
+of the slider.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.QuantitativeQuestion.min_score">
+<code class="descname">min_score</code><a class="headerlink" href="#pcari.models.QuantitativeQuestion.min_score" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> – The smallest possible score for this question. A value
+of <cite>None</cite> is treated as negative infinity (that is, no lower bound).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.QuantitativeQuestion.max_score">
+<code class="descname">max_score</code><a class="headerlink" href="#pcari.models.QuantitativeQuestion.max_score" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> – The largest possible score for this question. A value
+of <cite>None</cite> is treated as positive infinity (that is, no upper bound).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.QuantitativeQuestion.input_type">
+<code class="descname">input_type</code><a class="headerlink" href="#pcari.models.QuantitativeQuestion.input_type" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – How the input should be rendered.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.QuantitativeQuestion.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#pcari.models.QuantitativeQuestion.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">INPUT_TYPE_CHOICES</code><em class="property"> = ((u'range', u'Range'), (u'number', u'Number'))</em></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.QuantitativeQuestion.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#pcari.models.QuantitativeQuestion.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.QuantitativeQuestion.objects">
+<code class="descname">objects</code><em class="property"> = &lt;django.db.models.manager.Manager object&gt;</em><a class="headerlink" href="#pcari.models.QuantitativeQuestion.objects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.models.QuantitativeQuestionRating">
+<em class="property">class </em><code class="descclassname">pcari.models.</code><code class="descname">QuantitativeQuestionRating</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.QuantitativeQuestionRating" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pcari.models.Rating" title="pcari.models.Rating"><code class="xref py py-class docutils literal"><span class="pre">pcari.models.Rating</span></code></a></p>
+<p>A <code class="docutils literal"><span class="pre">QuantitativeQuestionRating</span></code> rates a <a class="reference internal" href="#pcari.models.QuantitativeQuestion" title="pcari.models.QuantitativeQuestion"><code class="xref py py-class docutils literal"><span class="pre">QuantitativeQuestion</span></code></a>. A
+respondent can only rate a quantitative question once.</p>
+<dl class="attribute">
+<dt id="pcari.models.QuantitativeQuestionRating.question">
+<code class="descname">question</code><a class="headerlink" href="#pcari.models.QuantitativeQuestionRating.question" title="Permalink to this definition">¶</a></dt>
+<dd><p>The quantitative question rated.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.QuantitativeQuestionRating.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#pcari.models.QuantitativeQuestionRating.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.QuantitativeQuestionRating.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#pcari.models.QuantitativeQuestionRating.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pcari.models.QuantitativeQuestionRating.clean">
+<code class="descname">clean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.QuantitativeQuestionRating.clean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validates the <code class="xref py py-attr docutils literal"><span class="pre">score</span></code> falls between <code class="docutils literal"><span class="pre">question.min_score</span></code> and
+<code class="docutils literal"><span class="pre">question.max_score</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">ValidationError</span></code> – if the score is not legal.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.QuantitativeQuestionRating.objects">
+<code class="descname">objects</code><em class="property"> = &lt;django.db.models.manager.Manager object&gt;</em><a class="headerlink" href="#pcari.models.QuantitativeQuestionRating.objects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.models.QualitativeQuestion">
+<em class="property">class </em><code class="descclassname">pcari.models.</code><code class="descname">QualitativeQuestion</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.QualitativeQuestion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pcari.models.Question" title="pcari.models.Question"><code class="xref py py-class docutils literal"><span class="pre">pcari.models.Question</span></code></a></p>
+<p>A <code class="docutils literal"><span class="pre">QualitativeQuestion</span></code> is a question that asks for a <a class="reference internal" href="#pcari.models.Comment" title="pcari.models.Comment"><code class="xref py py-class docutils literal"><span class="pre">Comment</span></code></a>.</p>
+<dl class="attribute">
+<dt id="pcari.models.QualitativeQuestion.input_type">
+<code class="descname">input_type</code><a class="headerlink" href="#pcari.models.QualitativeQuestion.input_type" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – What interface to use for collecting qualitative
+question responses.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.QualitativeQuestion.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#pcari.models.QualitativeQuestion.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.QualitativeQuestion.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#pcari.models.QualitativeQuestion.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">input_type</code><em class="property"> = u'textarea'</em></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.QualitativeQuestion.objects">
+<code class="descname">objects</code><em class="property"> = &lt;django.db.models.manager.Manager object&gt;</em><a class="headerlink" href="#pcari.models.QualitativeQuestion.objects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.models.Comment">
+<em class="property">class </em><code class="descclassname">pcari.models.</code><code class="descname">Comment</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.Comment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pcari.models.Response" title="pcari.models.Response"><code class="xref py py-class docutils literal"><span class="pre">pcari.models.Response</span></code></a>, <a class="reference internal" href="#pcari.models.StatisticsMixin" title="pcari.models.StatisticsMixin"><code class="xref py py-class docutils literal"><span class="pre">pcari.models.StatisticsMixin</span></code></a></p>
+<p>A <code class="docutils literal"><span class="pre">Comment</span></code> is an open-ended text response to a
+<a class="reference internal" href="#pcari.models.QualitativeQuestion" title="pcari.models.QualitativeQuestion"><code class="xref py py-class docutils literal"><span class="pre">QualitativeQuestion</span></code></a>.</p>
+<dl class="attribute">
+<dt id="pcari.models.Comment.MAX_COMMENT_DISPLAY_LEN">
+<code class="descname">MAX_COMMENT_DISPLAY_LEN</code><a class="headerlink" href="#pcari.models.Comment.MAX_COMMENT_DISPLAY_LEN" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> – The maximum number of characters in the
+<a class="reference internal" href="#pcari.models.Comment.message" title="pcari.models.Comment.message"><code class="xref py py-attr docutils literal"><span class="pre">message</span></code></a> to display in this comment’s string representation.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Comment.question">
+<code class="descname">question</code><a class="headerlink" href="#pcari.models.Comment.question" title="Permalink to this definition">¶</a></dt>
+<dd><p>The question this comment answers.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Comment.language">
+<code class="descname">language</code><a class="headerlink" href="#pcari.models.Comment.language" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – A language code.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Comment.message">
+<code class="descname">message</code><a class="headerlink" href="#pcari.models.Comment.message" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – The comment’s contents itself written in <cite>language</cite>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Comment.flagged">
+<code class="descname">flagged</code><a class="headerlink" href="#pcari.models.Comment.flagged" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>bool</em> – Whether this comment was flagged for further
+inspection. A flagged comment will not show up to other
+respondents.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Comment.tag">
+<code class="descname">tag</code><a class="headerlink" href="#pcari.models.Comment.tag" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – A short summary of this comment’s message.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Comment.word_count">
+<code class="descname">word_count</code><a class="headerlink" href="#pcari.models.Comment.word_count" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> – The number of words in the <cite>message</cite>. (Words are
+delimited with contiguous whitespace.)</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.Comment.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#pcari.models.Comment.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">MAX_COMMENT_DISPLAY_LEN</code><em class="property"> = 140</em></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.Comment.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#pcari.models.Comment.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Comment.objects">
+<code class="descname">objects</code><em class="property"> = &lt;django.db.models.manager.Manager object&gt;</em><a class="headerlink" href="#pcari.models.Comment.objects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.models.CommentRating">
+<em class="property">class </em><code class="descclassname">pcari.models.</code><code class="descname">CommentRating</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.CommentRating" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pcari.models.Rating" title="pcari.models.Rating"><code class="xref py py-class docutils literal"><span class="pre">pcari.models.Rating</span></code></a></p>
+<p>A <code class="docutils literal"><span class="pre">CommentRating</span></code> rates a <a class="reference internal" href="#pcari.models.Comment" title="pcari.models.Comment"><code class="xref py py-class docutils literal"><span class="pre">Comment</span></code></a>. A respondent can only rate a
+comment once.</p>
+<dl class="attribute">
+<dt id="pcari.models.CommentRating.comment">
+<code class="descname">comment</code><a class="headerlink" href="#pcari.models.CommentRating.comment" title="Permalink to this definition">¶</a></dt>
+<dd><p>The comment rated.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.CommentRating.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#pcari.models.CommentRating.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.CommentRating.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#pcari.models.CommentRating.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.CommentRating.objects">
+<code class="descname">objects</code><em class="property"> = &lt;django.db.models.manager.Manager object&gt;</em><a class="headerlink" href="#pcari.models.CommentRating.objects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.models.OptionQuestion">
+<em class="property">class </em><code class="descclassname">pcari.models.</code><code class="descname">OptionQuestion</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.OptionQuestion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pcari.models.Question" title="pcari.models.Question"><code class="xref py py-class docutils literal"><span class="pre">pcari.models.Question</span></code></a></p>
+<p>An <code class="docutils literal"><span class="pre">OptionQuestion</span></code> is a question that asks the respondent to select one
+element from a set of unordered choices.</p>
+<dl class="attribute">
+<dt id="pcari.models.OptionQuestion.INPUT_TYPE_CHOICES">
+<code class="descname">INPUT_TYPE_CHOICES</code><a class="headerlink" href="#pcari.models.OptionQuestion.INPUT_TYPE_CHOICES" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>tuple</em> – Input type choices, each of which is a
+two-element tuple consisting of the shorthand and the name of an
+input type. Current options are:
+* <cite>select</cite>: Render the question as a dropdown menu.
+* <cite>radio</cite>: Render the question as a list of radio buttons.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.OptionQuestion._options_text">
+<code class="descname">_options_text</code><a class="headerlink" href="#pcari.models.OptionQuestion._options_text" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – A JSON list of options. This field should only be
+used internally by this model.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.OptionQuestion.options">
+<code class="descname">options</code><a class="headerlink" href="#pcari.models.OptionQuestion.options" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list of str</em> – A wrapper around <a class="reference internal" href="#pcari.models.OptionQuestion._options_text" title="pcari.models.OptionQuestion._options_text"><code class="xref py py-attr docutils literal"><span class="pre">_options_text</span></code></a> that
+automatically serializes and unserializes a Python list of options.
+This is the preferred way of manipulating the list of options.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.OptionQuestion.input_type">
+<code class="descname">input_type</code><a class="headerlink" href="#pcari.models.OptionQuestion.input_type" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – How the input should be rendered.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.OptionQuestion.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#pcari.models.OptionQuestion.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">INPUT_TYPE_CHOICES</code><em class="property"> = ((u'select', u'Select'), (u'radio', u'Radio'))</em></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.OptionQuestion.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#pcari.models.OptionQuestion.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.OptionQuestion.objects">
+<code class="descname">objects</code><em class="property"> = &lt;django.db.models.manager.Manager object&gt;</em><a class="headerlink" href="#pcari.models.OptionQuestion.objects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.models.OptionQuestionChoice">
+<em class="property">class </em><code class="descclassname">pcari.models.</code><code class="descname">OptionQuestionChoice</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.OptionQuestionChoice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pcari.models.Response" title="pcari.models.Response"><code class="xref py py-class docutils literal"><span class="pre">pcari.models.Response</span></code></a></p>
+<p>An <code class="docutils literal"><span class="pre">OptionQuestionChoice</span></code> is a response to an <a class="reference internal" href="#pcari.models.OptionQuestion" title="pcari.models.OptionQuestion"><code class="xref py py-class docutils literal"><span class="pre">OptionQuestion</span></code></a>.</p>
+<dl class="attribute">
+<dt id="pcari.models.OptionQuestionChoice.question">
+<code class="descname">question</code><a class="headerlink" href="#pcari.models.OptionQuestionChoice.question" title="Permalink to this definition">¶</a></dt>
+<dd><p>The question answered.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.OptionQuestionChoice.option">
+<code class="descname">option</code><a class="headerlink" href="#pcari.models.OptionQuestionChoice.option" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – The option selected by the respondent. This must be an
+element of <code class="docutils literal"><span class="pre">question.options</span></code>.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.OptionQuestionChoice.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#pcari.models.OptionQuestionChoice.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.OptionQuestionChoice.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#pcari.models.OptionQuestionChoice.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pcari.models.OptionQuestionChoice.clean">
+<code class="descname">clean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.OptionQuestionChoice.clean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validates the value of <a class="reference internal" href="#pcari.models.OptionQuestionChoice.option" title="pcari.models.OptionQuestionChoice.option"><code class="xref py py-attr docutils literal"><span class="pre">option</span></code></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">ValidationError</span></code> – if <a class="reference internal" href="#pcari.models.OptionQuestionChoice.option" title="pcari.models.OptionQuestionChoice.option"><code class="xref py py-attr docutils literal"><span class="pre">option</span></code></a> is not an element of
+<code class="docutils literal"><span class="pre">question.options</span></code>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.OptionQuestionChoice.objects">
+<code class="descname">objects</code><em class="property"> = &lt;django.db.models.manager.Manager object&gt;</em><a class="headerlink" href="#pcari.models.OptionQuestionChoice.objects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pcari.models.Respondent">
+<em class="property">class </em><code class="descclassname">pcari.models.</code><code class="descname">Respondent</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.models.Respondent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pcari.models.History" title="pcari.models.History"><code class="xref py py-class docutils literal"><span class="pre">pcari.models.History</span></code></a></p>
+<p>A <code class="docutils literal"><span class="pre">Respondent</span></code> represents a one-time participant in a survey.</p>
+<dl class="attribute">
+<dt id="pcari.models.Respondent.GENDERS">
+<code class="descname">GENDERS</code><a class="headerlink" href="#pcari.models.Respondent.GENDERS" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>tuple</em> – Choices for the <a class="reference internal" href="#pcari.models.Respondent.gender" title="pcari.models.Respondent.gender"><code class="xref py py-attr docutils literal"><span class="pre">gender</span></code></a> field. Each gender is a
+pair of strings, of which the second entry is the gender’s full
+name and the first is a single-letter abbreviation.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Respondent.age">
+<code class="descname">age</code><a class="headerlink" href="#pcari.models.Respondent.age" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> – The age of the respondent in years.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Respondent.gender">
+<code class="descname">gender</code><a class="headerlink" href="#pcari.models.Respondent.gender" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – The gender of the respondent, as selected from
+<a class="reference internal" href="#pcari.models.Respondent.GENDERS" title="pcari.models.Respondent.GENDERS"><code class="xref py py-attr docutils literal"><span class="pre">GENDERS</span></code></a> (an abbreviation).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Respondent.location">
+<code class="descname">location</code><a class="headerlink" href="#pcari.models.Respondent.location" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – An open text field that describes the respondent’s
+residence. (In the particular context of the Philippines, this
+field should contain the respondent’s province, city or
+municipality, and barangay.)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Respondent.language">
+<code class="descname">language</code><a class="headerlink" href="#pcari.models.Respondent.language" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – The language preferred by this respondent. Selected
+from <a class="reference internal" href="#pcari.models.LANGUAGES" title="pcari.models.LANGUAGES"><code class="xref py py-attr docutils literal"><span class="pre">pcari.models.LANGUAGES</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Respondent.submitted_personal_data">
+<code class="descname">submitted_personal_data</code><a class="headerlink" href="#pcari.models.Respondent.submitted_personal_data" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>bool</em> – Whether the user completed the form
+asking for <a class="reference internal" href="#pcari.models.Respondent.age" title="pcari.models.Respondent.age"><code class="xref py py-attr docutils literal"><span class="pre">age</span></code></a>, <a class="reference internal" href="#pcari.models.Respondent.gender" title="pcari.models.Respondent.gender"><code class="xref py py-attr docutils literal"><span class="pre">gender</span></code></a>, and <a class="reference internal" href="#pcari.models.Respondent.location" title="pcari.models.Respondent.location"><code class="xref py py-attr docutils literal"><span class="pre">location</span></code></a>.
+Because this form is entirely optional, there is no other way to
+infer a respondent’s progression through this stage.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Respondent.completed_survey">
+<code class="descname">completed_survey</code><a class="headerlink" href="#pcari.models.Respondent.completed_survey" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>bool</em> – Whether the respondent completed the entire
+survey.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Respondent.num_questions_rated">
+<code class="descname">num_questions_rated</code><a class="headerlink" href="#pcari.models.Respondent.num_questions_rated" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> – The number of quantitative questions
+answered by this respondent. From this number, one can infer whether
+this respondent reached the rating stage of the survey. This
+excludes questions the respondent skipped or otherwise did not rate.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Respondent.num_comments_rated">
+<code class="descname">num_comments_rated</code><a class="headerlink" href="#pcari.models.Respondent.num_comments_rated" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> – The number of comments reviewed by this
+respondent. Similarly, one can infer user progression from this
+attribute. This excludes comments the respondent did not rate.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Respondent.comments">
+<code class="descname">comments</code><a class="headerlink" href="#pcari.models.Respondent.comments" title="Permalink to this definition">¶</a></dt>
+<dd><p>A Django <code class="docutils literal"><span class="pre">QuerySet</span></code> of all comments attached to this
+respondent.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.Respondent.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#pcari.models.Respondent.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">GENDERS</code><em class="property"> = ((u'M', u'Male'), (u'F', u'Female'))</em></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="pcari.models.Respondent.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#pcari.models.Respondent.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.core.exceptions.MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pcari.models.Respondent.objects">
+<code class="descname">objects</code><em class="property"> = &lt;django.db.models.manager.Manager object&gt;</em><a class="headerlink" href="#pcari.models.Respondent.objects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Malasakit</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="pcari.html">PCARI application</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pcari.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pcari.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pcari.html#module-pcari">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="pcari.html">pcari package</a><ul>
+      <li>Previous: <a href="pcari.apps.html" title="previous chapter">pcari.apps module</a></li>
+      <li>Next: <a href="pcari.signals.html" title="next chapter">pcari.signals module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, UC Berkeley.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/pcari.models.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
