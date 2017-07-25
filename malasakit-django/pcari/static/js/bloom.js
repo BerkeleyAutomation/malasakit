@@ -44,7 +44,7 @@ var ICON_IMAGE = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8"
                + "PGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4K"
                + "PGc+CjwvZz4KPC9zdmc+Cg=="
 
-var CONTENT_TYPE = 'image/png';
+var CONTENT_TYPE = 'image/svg+xml';
 
 if (Resource.exists('bloom-icon')) {
     var resource = Resource.load('bloom-icon');
@@ -191,15 +191,18 @@ function renderComments() {
     nodes.call(drag).on('click', function(node) {
         startCommentRating(node.commentID);
     });
+    var iconWidth = Math.max(0.05*width, 32);
     nodes.append('image')
-         .attr('xlink:href', 'data:' + CONTENT_TYPE + ';base64,' + ICON_IMAGE);
-    nodes.append('text').text(node => node.tag).attr('x', 30).attr('y', 15)
+         .attr('xlink:href', 'data:' + CONTENT_TYPE + ';base64,' + ICON_IMAGE)
+         .attr('width', iconWidth);
+    nodes.append('text').text(node => node.tag).attr('x', iconWidth + 3).attr('y', 15)
          .attr('fill', '#1371ad');
 
     function tick() {
+        var iconHeight = nodes.node().getBoundingClientRect().height;
         nodes.attr('transform', function(node) {
-            var x = Math.max(0, Math.min(node.x, width - 50));
-            var y = Math.max(20, Math.min(node.y, height - 20));
+            var x = Math.max(0, Math.min(node.x, width - 1.5*iconWidth));
+            var y = Math.max(0, Math.min(node.y, height - iconHeight));
             return 'translate(' + x + ', ' + y + ')';
         });
     }
