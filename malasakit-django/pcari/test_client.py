@@ -2,6 +2,7 @@ import datetime
 import logging
 import os
 import time
+import types
 
 from django.test import tag
 from django.test.testcases import LiveServerThread, QuietWSGIRequestHandler
@@ -48,15 +49,22 @@ WebElement.set_range_value = set_range_value
 
 
 def use_drivers(*test_drivers):
-    def wrap_test(test):
-        def test_wrapper(self):
-            for test_driver_cls in test_drivers:
-                driver = test_driver_cls()
-                driver.start()
-                test(self, driver)
-                driver.stop()
-        return test_wrapper
-    return wrap_test
+    def wrap_test_suite(test_suite):
+        for name in dir(test_suite):
+            if name.startswith('test'):
+                obj = getattr(test_suite, name)
+                if isinstance(obj, types.MethodType):
+                    for index, test_driver_cls in enumerate(test_drivers):
+                        name = obj.__name__ + '_' + str(index)
+                        def test_wrapper(self):
+                            driver = test_driver_cls()
+                            print self, obj
+                            obj(self, driver)
+                        test_wrapper.__name__ = name
+                        setattr(test_suite, name, test_wrapper)
+                    delattr(test_suite, obj.__name__)
+        return test_suite
+    return wrap_test_suite
 
 
 def make_test_web_driver(driver_base, **options):
@@ -216,6 +224,7 @@ def spoof_time_change(driver, time_change):
     """.format(delta))
 
 
+@use_drivers(*ALL_DRIVERS)
 class LocalStorageUpdateTestCase(NavigationTestCase):
     pass
 
@@ -227,6 +236,7 @@ class ReusableLiveServerThread(LiveServerThread):
 
 
 @tag('slow')
+@use_drivers(*ALL_DRIVERS)
 class OfflineTestCase(NavigationTestCase):
     server_thread_class = ReusableLiveServerThread
     port = 8080
@@ -243,7 +253,6 @@ class OfflineTestCase(NavigationTestCase):
         Comment.objects.create(question_id=1,
                                respondent=Respondent.objects.create(id=2))
 
-    @use_drivers(*ALL_DRIVERS)
     def test_basic_pages_cached(self, driver):
         # driver.get(self.live_server_url + reverse('pcari:landing'))
         # time.sleep(2)  # Wait for pages to be cached
