@@ -630,6 +630,11 @@ def end(request):
     """ Render an end-of-survey page. """
     return render(request, 'end.html')
 
+@profile
+@ensure_csrf_cookie
+def dev(request):
+    """ Render a dev page providing info for developers. """
+    return render(request, 'dev.html')
 
 @profile
 @ensure_csrf_cookie

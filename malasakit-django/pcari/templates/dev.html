@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans 'Developer Page' %}{% endblock %}
+{% block main-heading %}{% trans 'Developer Page' %}{% endblock %}
+
+{% block content %}
+  <div class="center">
+    <p class="center">
+      {% blocktrans trimmed %}
+        Malasakit is an open source project. We have a suite of developer tools available for anyone who would like to contribute to or expand upon our project: 
+      {% endblocktrans %}
+    </p>
+    <ul>
+      <li>
+        <a href="https://opinion.berkeley.edu/pcari/">{% trans 'Link to the Malasakit project' %}</a>
+      </li>
+      <li>
+        <a href="https://github.com/BerkeleyAutomation/malasakit-v1">{% trans 'Our GitHub respository' %}</a>
+      </li>
+      <li>
+        <a href="https://github.com/BerkeleyAutomation/malasakit-v1/wiki">{% trans 'Our Wiki page' %}</a>
+      </li>
+      <li>
+        <a href="https://berkeleyautomation.github.io/malasakit-v1/">{% trans 'Our documentation' %}</a>
+      </li>
+    </ul>
+  </div>
+{% endblock %}
