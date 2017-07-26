@@ -3,29 +3,44 @@
 {% load i18n %}
 {% load static %}
 
-{% block title %}{% trans 'Developer Page' %}{% endblock %}
-{% block main-heading %}{% trans 'Developer Page' %}{% endblock %}
+{% block title %}{% trans 'Developer Resources' %}{% endblock %}
+{% block main-heading %}{% trans 'Developer Resources' %}{% endblock %}
 
 {% block content %}
-  <div class="center">
-    <p class="center">
-      {% blocktrans trimmed %}
-        Malasakit is an open source project. We have a suite of developer tools available for anyone who would like to contribute to or expand upon our project: 
-      {% endblocktrans %}
-    </p>
-    <ul>
-      <li>
-        <a href="https://opinion.berkeley.edu/pcari/">{% trans 'Link to the Malasakit project' %}</a>
-      </li>
-      <li>
-        <a href="https://github.com/BerkeleyAutomation/malasakit-v1">{% trans 'Our GitHub respository' %}</a>
-      </li>
-      <li>
-        <a href="https://github.com/BerkeleyAutomation/malasakit-v1/wiki">{% trans 'Our Wiki page' %}</a>
-      </li>
-      <li>
-        <a href="https://berkeleyautomation.github.io/malasakit-v1/">{% trans 'Our documentation' %}</a>
-      </li>
-    </ul>
-  </div>
+  <p>
+    {% blocktrans trimmed %}
+      Malasakit is an open-source project.
+      The following resources are available to anyone who would like to contribute to or expand upon the project:
+    {% endblocktrans %}
+  </p>
+  <ul>
+    <li>
+      <a href="https://opinion.berkeley.edu/pcari/">{% trans 'Malasakit web toolkit' %}</a>
+    </li>
+    <li>
+      <a href="https://github.com/BerkeleyAutomation/malasakit-v1">{% trans 'GitHub repository' %}</a>
+      <ul>
+        <li>
+          <a href="https://github.com/BerkeleyAutomation/malasakit-v1/issues">{% trans 'Issue tracker' %}</a>:
+          {% trans 'As much as possible, issues should be submitted through this page rather than through miscellaneous documents.' %}
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="https://travis-ci.org/BerkeleyAutomation/malasakit-v1">{% trans 'Travis CI build status' %}</a>:
+      {% trans 'Displays the results of tests, which are performed on all commits to the repository.' %}
+    </li>
+    <li>
+      <a href="https://github.com/BerkeleyAutomation/malasakit-v1/wiki">{% trans 'Wiki documentation' %}</a>:
+      {% trans 'A high-level overview of the application architecture.' %}
+      <ul>
+        <li><a href="https://github.com/BerkeleyAutomation/malasakit-v1/wiki/Setup">Setup instructions</a></li>
+        <li><a href="https://github.com/BerkeleyAutomation/malasakit-v1/wiki/Guidelines-for-Contributing">Guidelines for contributing</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="https://berkeleyautomation.github.io/malasakit-v1/">{% trans 'Docstring documentation' %}</a>:
+      {% trans 'Generated from docstrings to document individual components in detail.' %}
+    </li>
+  </ul>
 {% endblock %}
