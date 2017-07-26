@@ -52,9 +52,9 @@
               {% endblocktrans %}
             </div>
             <div class="bubbled">
-              {% blocktrans trimmed with id=question.id %}
-                Your answer: <strong id="answer-{{ id }}">Skip</strong>
-              {% endblocktrans %}
+              {% with id=question.id %}
+                {% trans 'Your answer:'%} <strong id="answer-{{ id }}">{% trans 'Skip' %}</strong>
+              {% endwith %}
             </div>
           {% endif %}
         {% endwith %}
