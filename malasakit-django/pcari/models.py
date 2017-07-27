@@ -81,6 +81,13 @@ class StatisticsMixin:
         score_sem (float): The standard error of the mean of this object's
             scores, or ``float('nan')`` if the object has fewer than two
             ratings.
+        score_95ci (float): The confidence interval of the mean of the scores
+            with confidence level C = 95% as a list of two numbers: the lower
+            and upper bound, respectively. For objects with fewer than two
+            ratings, the interval defaults to the minimum and maximum scores of
+            the object. If not minimum and maximum scores are specified with
+            ``min_score`` and ``max_score`` attributes, zero and nine are used
+            instead.
     """
     @property
     def scores(self):
@@ -131,6 +138,17 @@ class StatisticsMixin:
             return float('nan')
         stdev2 = (score_squared_sum - pow(score_sum, 2)/num_scores)/(num_scores - 1)
         return pow(stdev2, 0.5)/num_scores**0.5
+
+    @property
+    def score_95ci(self):
+        score_sum, score_squared_sum, num_scores = self._score_aggregates
+        if num_scores < 2:
+            return [getattr(self, 'min_score', 0), getattr(self, 'max_score', 9)]
+        mean = score_sum/num_scores
+        stdev2 = (score_squared_sum - pow(score_sum, 2)/num_scores)/(num_scores - 1)
+        sem = pow(stdev2, 0.5)/num_scores**0.5
+        z_crit = 1.96
+        return [mean - z_crit*sem, mean + z_crit*sem]
 
 
 class History(models.Model):
