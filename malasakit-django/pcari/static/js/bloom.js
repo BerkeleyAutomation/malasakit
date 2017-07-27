@@ -188,7 +188,7 @@ function renderComments() {
     nodes.call(drag).on('click', function(node) {
         startCommentRating(node.commentID);
     });
-    var iconWidth = Math.max(0.05*width, 32);
+    var iconWidth = Math.max(0.1*width, 32);
     nodes.append('image')
          .attr('xlink:href', 'data:' + CONTENT_TYPE + ';base64,' + ICON_IMAGE)
          .attr('width', iconWidth);
