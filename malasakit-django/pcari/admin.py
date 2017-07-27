@@ -226,11 +226,17 @@ class CommentAdmin(ResponseAdmin):
         return str(round(mean_score, 3)) if not math.isnan(mean_score) else '(No ratings)'
     display_mean_score.short_description = 'Mean score'
 
+    def display_wilson_score(self, comment):
+        # pylint: disable=no-self-use
+        wilson_score, _ = comment.score_95ci
+        return str(round(wilson_score, 3))
+    display_wilson_score.short_description = 'Wilson score'
+
     # Columns to display in the Comment change list page, in order from left to
     # right
     list_display = ('respondent', 'display_message', 'timestamp', 'language',
-                    'flagged', 'tag', 'active', 'display_mean_score',
-                    'num_ratings')
+                    'flagged', 'tag', 'active', 'num_ratings',
+                    'display_mean_score', 'display_wilson_score')
 
     # By default first column listed in list_display is clickable; this makes
     # `message` column clickable
