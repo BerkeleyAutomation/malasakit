@@ -80,9 +80,12 @@
         updateOutputReading();
         $('#current-answer-notice').css('display', 'block');
       } else if (questionData['input-type'] === 'number') {
-        var input = $('<input id="quantitative-input" type="number" value="'
-                      + value + '" min="' + min + '" max="' + max + '" step="1">');
+        var input = $('<input id="quantitative-input" type="number" min="'
+                      + min + '" max="' + max + '" step="1">');
         $('#answer').append(input);
+        if (value !== SKIPPED) {
+          $('#answer').val(value);
+        }
       }
 
       $('#progression-numerator').text(questionIndex + 1);

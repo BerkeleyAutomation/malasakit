@@ -24,6 +24,7 @@ urlpatterns = [
     url(r'^personal-information/$', views.personal_information,
         name='personal-information'),
     url(r'^end/$', views.end, name='end'),
+    url(r'^dev/$', views.dev, name='dev'),
 ]
 
 api_urlpatterns = [
