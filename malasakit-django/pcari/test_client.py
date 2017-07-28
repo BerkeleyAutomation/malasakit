@@ -97,7 +97,9 @@ def make_test_web_driver(driver_base, **options):
 
 _CHROME_OPTIONS = ChromeOptions()
 _CHROME_OPTIONS.add_argument('headless')
-CHROME = make_test_web_driver(Chrome, desired_capabilities=_CHROME_OPTIONS.to_capabilities())
+_CHROME_CAPABILITIES = _CHROME_OPTIONS.to_capabilities()
+_CHROME_CAPABILITIES['loggingPrefs'] = {'browser': 'ALL'}
+CHROME = make_test_web_driver(Chrome, desired_capabilities=_CHROME_CAPABILITIES)
 
 ALL_DRIVERS = [CHROME]
 
@@ -193,15 +195,15 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
                 self.assertEqual(len(icons), 1)
                 icons[0].find_element_by_tag_name('text').click()
 
+                if score != QuantitativeQuestionRating.SKIPPED:
+                    driver.find_element_by_id('quantitative-input').set_range_value(score)
+
                 if test_case_name:
                     self.screenshot(driver, test_case_name,
                                     'rate-comments-{0}.png'.format(comment_id))
 
-                if score == QuantitativeQuestionRating.SKIPPED:
-                    driver.find_element_by_id('skip').click()
-                else:
-                    driver.find_element_by_id('quantitative-input').set_range_value(score)
-                    driver.find_element_by_id('submit').click()
+                button_id = 'skip' if score == QuantitativeQuestionRating.SKIPPED else 'submit'
+                driver.find_element_by_id(button_id).click()
 
         driver.find_element_by_id('next').click()
         return reverse('pcari:qualitative-questions') in driver.current_url
@@ -228,14 +230,20 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
         if 'age' in respondent_data:
             driver.find_element_by_id('age').send_keys(str(respondent_data['age']))
         if 'gender' in respondent_data:
-            select = Select(driver.find_element_by_id('gender'))
+            input_element = driver.find_element_by_id('gender')
+            select = Select(input_element)
             select.select_by_value(respondent_data['gender'])
-        if 'province' in response:
+            # FIXME: for some reason, using the above selection code does not
+            #        trigger the `input` event, which you can verify manually
+            #        in Chrome
+            driver.execute_script("""$(arguments[0]).trigger('input');""",
+                                  input_element)
+        if 'province' in respondent_data:
             driver.find_element_by_id('province').send_keys(respondent_data['province'])
-        if 'city-or-municipality' in response:
+        if 'city-or-municipality' in respondent_data:
             input_element = driver.find_element_by_id('city-or-municipality')
             input_element.send_keys(respondent_data['city-or-municipality'])
-        if 'barangay' in response:
+        if 'barangay' in respondent_data:
             driver.find_element_by_id('barangay').send_keys(respondent_data['barangay'])
 
         if test_case_name:
@@ -276,20 +284,33 @@ class ResponseSubmissionTestCase(NavigationTestCase):
                 2: QuantitativeQuestionRating.SKIPPED,
             },
             'comment-ratings': {
-                1: 5,
-                2: 9,
+                1: 9,
+                2: 4,
             },
             'comments': {
-                1: 'Testing',
+                1: 'Test comment',
             },
             'respondent-data': {
-                'age': 31,
+                'age': 35,
                 'gender': 'M',
                 'province': 'Test province',
                 'city-or-municipality': 'Test city',
                 'barangay': 'Test barangay',
             },
         }, 'test_complete_full_submission'))
+
+        time.sleep(1)
+        self.assertEqual(Respondent.objects.count(), 3)
+        new_respondent = Respondent.objects.exclude(id__in=[1, 2]).first()
+        self.assertEqual(new_respondent.age, 35)
+        self.assertEqual(new_respondent.gender, 'M')
+        self.assertEqual(new_respondent.location, 'Test province, Test city, Test barangay')
+
+        print(QuantitativeQuestionRating.objects.filter(respondent=new_respondent).all())
+        self.assertEqual(new_respondent.num_questions_rated, 1)
+        self.assertEqual(new_respondent.num_comments_rated, 2)
+        self.assertEqual(new_respondent.comments.count(), 1)
+        self.assertEqual(new_respondent.comments.first().message, 'Test comment')
 
 
 

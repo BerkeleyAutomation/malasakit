@@ -14,8 +14,8 @@ var CONTENT_TYPE = 'image/png';
 if (Resource.exists('bloom-icon')) {
     var resource = Resource.load('bloom-icon');
     if (resource.data !== null) {
-        ICON_IMAGE = resource.data['encoded-image'];
-        CONTENT_TYPE = resource.data['content-type'];
+        ICON_IMAGE = resource.data['encoded-image'] || ICON_IMAGE;
+        CONTENT_TYPE = resource.data['content-type'] || CONTENT_TYPE;
     }
 }
 
