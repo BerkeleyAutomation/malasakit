@@ -6,6 +6,15 @@
 {% block title %}{% trans 'Developer Resources' %}{% endblock %}
 {% block main-heading %}{% trans 'Developer Resources' %}{% endblock %}
 
+{% block static-assets %}
+  {{ block.super }}
+  <style>
+    p, li {
+      font-size: 1.5rem;
+    }
+  </style>
+{% endblock %}
+
 {% block content %}
   <p>
     {% blocktrans trimmed %}
@@ -43,4 +52,34 @@
       {% trans 'Generated from docstrings to document individual components in detail.' %}
     </li>
   </ul>
+  <p>
+    {% trans 'For inquiries, please contact:' %}
+    <ul>
+      <li>
+        <p>
+          <strong>Ken Goldberg</strong><br>
+          William S. Floyd Jr. Distinguished Chair in Engineering, UC Berkeley<br>
+          Chair and Prof, Industrial Engineering / Operations Research (IEOR) Dept.<br>
+          Director, AUTOLAB and CITRIS "People and Robots" Initiative<br>
+          Founding Member, Berkeley AI Research (BAIR) Lab<br>
+          Joint Appointments: EECS, Art Practice, School of Information (UC
+          Berkeley) and Radiation Oncology (UC San Francisco Medical School)
+        </p>
+        <p>
+          IEOR Chair Office: 4143 Etcheverry Hall, Faculty Office: 425 Sutardja Dai Hall<br>
+          Berkeley, CA 94720
+          | <a href="mailto:goldberg@berkeley.edu">goldberg@berkeley.edu</a>
+          | <a href="https://twitter.com/Ken_Goldberg">@Ken_Goldberg</a>
+          | <a href="http://goldberg.berkeley.edu/">http://goldberg.berkeley.edu</a>
+        </p>
+      </li>
+      <li>
+        <p>
+          <strong>Brandie Nonnecke, PhD</strong><br>
+          Program Manager, CITRIS and the Banatao Institute, UC Berkeley<br>
+          <a href="mailto:nonnecke@citris-uc.org">nonnecke@citris-uc.org</a>
+        </p>
+      </li>
+    </ul>
+  </p>
 {% endblock %}
