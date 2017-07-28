@@ -96,6 +96,17 @@ def make_test_web_driver(driver_base, **options):
                 }
                 return items;
             """)
+
+        def spoof_time_change(self, time_change):
+            delta = int(1000*time_change.total_seconds())
+            self.execute_script("""
+            if (!('_getTime' in Date.prototype)) {{
+                Date.prototype._getTime = Date.prototype.getTime;
+            }}
+            Date.prototype.getTime = function() {{
+                return {delta} + this._getTime();
+            }}
+            """.format(delta=delta))
     return TestWebDriver
 
 
@@ -258,16 +269,6 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
         return reverse('pcari:peer-responses') in driver.current_url
 
 
-def spoof_time_change(driver, time_change):
-    delta = int(1000*time_change.total_seconds())
-    driver.execute_script("""
-    Date.prototype._getTime = Date.prototype.getTime;
-    Date.prototype.getTime = function() {
-        return {delta} + this._getTime();
-    };
-    """.format(delta))
-
-
 @tag('slow')
 @use_drivers(*ALL_DRIVERS)
 class ResponseSubmissionTestCase(NavigationTestCase):
@@ -370,7 +371,37 @@ class ResponseSubmissionTestCase(NavigationTestCase):
         self.assertEqual(new_respondent.comments.count(), 1)
 
     def test_partial_submission_expiration(self, driver):
-        pass
+        response = {
+            'question-ratings': {
+                1: 6,
+                2: 8,
+            },
+            'comment-ratings': {
+                2: 3,
+            },
+        }
+
+        self.assertFalse(self.walkthrough(driver, response))
+        self.assertIn(reverse('pcari:rate-comments'), driver.current_url)
+
+        driver.refresh()
+        driver.spoof_time_change(datetime.timedelta(hours=11, minutes=50))
+        driver.execute_script('main();')
+        time.sleep(1)
+        self.assertEqual(Respondent.objects.count(), 2)
+
+        driver.refresh()
+        driver.spoof_time_change(datetime.timedelta(hours=12, minutes=10))
+        driver.execute_script('main();')
+        time.sleep(1)
+        self.assertEqual(Respondent.objects.count(), 3)
+
+        new_respondent = Respondent.objects.exclude(id__in=[1, 2]).first()
+        self.assertIsNone(new_respondent.age)
+        self.assertEqual(new_respondent.num_questions_rated, 2)
+        self.assertEqual(new_respondent.num_comments_rated, 1)
+        self.assertEqual(new_respondent.comments.count(), 0)
+
 
 
 
