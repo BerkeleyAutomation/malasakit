@@ -28,12 +28,13 @@ class StatisticsTests(TestCase):
     def setUpTestData(cls):
         cls.question = QuantitativeQuestion.objects.create()
         QuantitativeQuestionRating.objects.bulk_create([
-            # `-1` (skipped) should be filtered out
+            # Skipped ratings should be filtered out
             QuantitativeQuestionRating(
                 question=cls.question,
                 score=score,
                 respondent=Respondent.objects.create(language='en')
-            ) for score in [-1, 9, 3, 3, 4, -1]
+            ) for score in [QuantitativeQuestionRating.SKIPPED, 9, 3, 3, 4,
+                            QuantitativeQuestionRating.SKIPPED]
         ] + [
             # A bunch of inactive ratings that should be filtered out
             QuantitativeQuestionRating(

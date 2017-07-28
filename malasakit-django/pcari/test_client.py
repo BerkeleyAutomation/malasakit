@@ -277,7 +277,7 @@ class ResponseSubmissionTestCase(NavigationTestCase):
         Comment.objects.create(id=2, question_id=1, message='Test comment 2',
                                respondent=Respondent.objects.create(id=2))
 
-    def test_complete_full_submission(self, driver):
+    def test_complete_submission(self, driver):
         self.assertTrue(self.walkthrough(driver, {
             'question-ratings': {
                 1: 2,
@@ -297,22 +297,76 @@ class ResponseSubmissionTestCase(NavigationTestCase):
                 'city-or-municipality': 'Test city',
                 'barangay': 'Test barangay',
             },
-        }, 'test_complete_full_submission'))
-
+        }, 'test_complete_submission'))
         time.sleep(1)
+
         self.assertEqual(Respondent.objects.count(), 3)
         new_respondent = Respondent.objects.exclude(id__in=[1, 2]).first()
         self.assertEqual(new_respondent.age, 35)
         self.assertEqual(new_respondent.gender, 'M')
         self.assertEqual(new_respondent.location, 'Test province, Test city, Test barangay')
+        self.assertEqual(new_respondent.language, 'en')
 
-        print(QuantitativeQuestionRating.objects.filter(respondent=new_respondent).all())
         self.assertEqual(new_respondent.num_questions_rated, 1)
         self.assertEqual(new_respondent.num_comments_rated, 2)
         self.assertEqual(new_respondent.comments.count(), 1)
         self.assertEqual(new_respondent.comments.first().message, 'Test comment')
 
+        query = QuantitativeQuestionRating.objects.filter(respondent=new_respondent)
+        self.assertEqual(query.get(question_id=1).score, 2)
+        self.assertEqual(query.get(question_id=2).score, QuantitativeQuestionRating.SKIPPED)
 
+        query = CommentRating.objects.filter(respondent=new_respondent)
+        self.assertEqual(query.get(comment_id=1).score, 9)
+        self.assertEqual(query.get(comment_id=2).score, 4)
+
+        self.assertEqual(Comment.objects.get(respondent=new_respondent).message,
+                         'Test comment')
+
+    def test_partial_submission_reset(self, driver):
+        response = {
+            'question-ratings': {
+                1: 7,
+                2: 0,
+            },
+            'comment-ratings': {
+                1: QuantitativeQuestionRating.SKIPPED,
+                2: 3,
+            },
+            'comments': {
+                1: 'Testing'
+            },
+        }
+
+        self.assertTrue(self.navigate_landing(driver, response))
+        self.assertTrue(self.answer_quantitative_questions(driver, response))
+        self.assertTrue(self.rate_comments(driver, response))
+        self.assertTrue(self.answer_qualitative_questions(driver, response))
+
+        driver.find_element_by_id('age').send_keys('119')
+        driver.back()  # To comment page
+        driver.back()  # To bloom page
+        driver.back()  # To quantitative question page
+        driver.back()  # To landing page
+
+        self.assertIn(reverse('pcari:landing'), driver.current_url)
+        self.assertEqual(Respondent.objects.count(), 2)
+
+        self.assertTrue(self.navigate_landing(driver, response))
+        time.sleep(1)
+        self.assertEqual(Respondent.objects.count(), 3)
+        new_respondent = Respondent.objects.exclude(id__in=[1, 2]).first()
+        self.assertEqual(new_respondent.age, 119)
+        self.assertEqual(new_respondent.gender, '')
+        self.assertEqual(new_respondent.location, '(No province), (No city or '
+                                                  'municipality), (No barangay)')
+
+        self.assertEqual(new_respondent.num_questions_rated, 2)
+        self.assertEqual(new_respondent.num_comments_rated, 1)
+        self.assertEqual(new_respondent.comments.count(), 1)
+
+    def test_partial_submission_expiration(self, driver):
+        pass
 
 
 
