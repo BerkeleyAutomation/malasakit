@@ -324,6 +324,7 @@ class ResponseSubmissionTestCase(NavigationTestCase):
         query = CommentRating.objects.filter(respondent=new_respondent)
         self.assertEqual(query.get(comment_id=1).score, 9)
         self.assertEqual(query.get(comment_id=2).score, 4)
+        self.assertEqual(query.count(), CommentRating.objects.count())
 
         self.assertEqual(Comment.objects.get(respondent=new_respondent).message,
                          'Test comment')
@@ -403,12 +404,16 @@ class ResponseSubmissionTestCase(NavigationTestCase):
         self.assertEqual(new_respondent.comments.count(), 0)
 
 
-
-
 """
+class AppearanceTestCase(NavigationTestCase):
+    def test_translation(self):
+        pass
+
+
 @use_drivers(*ALL_DRIVERS)
 class LocalStorageUpdateTestCase(NavigationTestCase):
     pass
+"""
 
 
 class ReusableLiveServerThread(LiveServerThread):
@@ -423,39 +428,49 @@ class OfflineTestCase(NavigationTestCase):
     server_thread_class = ReusableLiveServerThread
     port = 8080
 
-    DELAY = 4.0  # in seconds
-
     @classmethod
     def setUpTestData(cls):
-        QuantitativeQuestion.objects.create(id=1)
-        QuantitativeQuestion.objects.create(id=2)
-        QualitativeQuestion.objects.create(id=1)
-        Comment.objects.create(question_id=1,
-                               respondent=Respondent.objects.create(id=1))
-        Comment.objects.create(question_id=1,
-                               respondent=Respondent.objects.create(id=2))
+        QuantitativeQuestion.objects.get_or_create(id=1)
+        QuantitativeQuestion.objects.get_or_create(id=2)
+        QualitativeQuestion.objects.get_or_create(id=1)
+        Respondent.objects.get_or_create(id=1)
+        Respondent.objects.get_or_create(id=2)
+        Comment.objects.get_or_create(id=1, question_id=1, message='Test comment 1',
+                                      respondent_id=1)
+        Comment.objects.get_or_create(id=2, question_id=1, message='Test comment 2',
+                                      respondent_id=2)
 
     def assert_no_connection_refused(self, driver):
         for log_entry in driver.get_log('browser'):
             self.assertNotIn('ERR_CONNECTION_REFUSED', log_entry['message'])
 
-    @use_drivers(*ALL_DRIVERS)
     def test_basic_pages_cached(self, driver):
         driver.get(self.live_server_url + reverse('pcari:landing'))
         time.sleep(2)  # Wait for pages to be cached
         self.tearDownClass()
 
-        response = {
-            'question-ratings': {
-                1: r,
-                2: 1,
-            },
-        }
-
         driver.get(self.live_server_url + reverse('pcari:landing'))
         self.assert_no_connection_refused(driver)
-        self.walkthrough(driver, response, True)
+        self.assertTrue(self.walkthrough(driver, {
+            'question-ratings': {
+                1: 2,
+                2: 8,
+            },
+            'comment-ratings': {
+                1: 2,
+                2: CommentRating.SKIPPED,
+            },
+            'comments': {
+                1: 'Testing',
+            },
+            'respondent-data': {
+                'age': 20,
+            },
+        }))
 
+        self.assertEqual(Respondent.objects.count(), 2)
         self.setUpClass()
-        # print self.live_server_url
-"""
+        time.sleep(1)
+        driver.refresh()
+        time.sleep(1)
+        self.assertEqual(Respondent.objects.count(), 3)
