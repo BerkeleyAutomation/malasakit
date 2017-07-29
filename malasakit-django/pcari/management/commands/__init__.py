@@ -8,10 +8,9 @@ References:
     <https://docs.python.org/2/library/argparse.html#the-add-argument-method>`_
 """
 
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
-
-from pcari.models import MODELS
 
 
 class BatchProcessingCommand(BaseCommand):
@@ -69,9 +68,8 @@ class BatchProcessingCommand(BaseCommand):
             model_name, field_name = components
 
             try:
-                model = MODELS.get(model_name)
-                if model is None:
-                    raise ValueError('not a Django model')
+                models = ContentType.objects.filter(app_label='pcari')
+                model = models.get(model=model_name.lower()).model_class()
                 field = model._meta.get_field(field_name)
                 self.precondition_check(options, model, field)
             except Exception as exc:

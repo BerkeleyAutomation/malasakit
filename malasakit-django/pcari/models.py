@@ -12,20 +12,17 @@ response.
 References:
     * `Django Model Reference <https://docs.djangoproject.com/en/dev/topics/db/models/>`_
     * `Django Field Reference <https://docs.djangoproject.com/en/dev/ref/models/fields/>`_
-    * `QuerySet API <https://docs.djangoproject.com/en/1.11/ref/models/querysets/>`_
+    * `QuerySet API <https://docs.djangoproject.com/en/dev/ref/models/querysets/>`_
+    * `The contenttypes framework <https://docs.djangoproject.com/en/dev/ref/contrib/contenttypes/>`_
 
 Attributes:
     LANGUAGES (tuple): Available languages. Each language is represented as a
         tuple of two elements: a code and a translated full name. For instance,
         the language code for "English" would be "en". This attribute is pulled
         from the project ``settings`` lazily.
-    MODELS (dict): A mapping from model names to models. This attribute
-        essentially acts as a lookup table by name, and is useful for
-        determining whether a model with a given name exists.
 """
 
-from __future__ import unicode_literals
-from collections import Counter
+from __future__ import division, unicode_literals
 import json
 
 from django.core.exceptions import ValidationError
@@ -33,11 +30,12 @@ from django.conf import settings
 from django.core.validators import RegexValidator
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from django.db.models import F, Count, Avg, Sum
 from django.utils.translation import ugettext_lazy as _
 
 __all__ = ['Comment', 'QuantitativeQuestionRating', 'CommentRating',
            'QualitativeQuestion', 'QuantitativeQuestion', 'Respondent',
-           'OptionQuestion', 'OptionQuestionChoice', 'MODELS']
+           'OptionQuestion', 'OptionQuestionChoice']
 
 LANGUAGES = settings.LANGUAGES
 _LANGUAGE_CODES = [''] + [code for code, name in LANGUAGES]
@@ -77,8 +75,9 @@ class StatisticsMixin:
             ``float('nan')`` if the object has no ratings.
         mode_score (float): The most common score this object received, or
             ``float('nan')`` if the object has no ratings.
-        score_stdev (float): The standard deviation of this object's scores, or
-            ``float('nan')`` if the object has fewer than two ratings.
+        score_stdev (float): The corrected standard deviation of this object's
+            scores, or ``float('nan')`` if the object has fewer than two
+            ratings.
         score_sem (float): The standard error of the mean of this object's
             scores, or ``float('nan')`` if the object has fewer than two
             ratings.
@@ -86,42 +85,52 @@ class StatisticsMixin:
     @property
     def scores(self):
         active_ratings = self.ratings.filter(active=True)
-        excluded = [Rating.SKIPPED, Rating.NOT_RATED]
-        active_ratings = active_ratings.exclude(score__in=excluded)
+        active_ratings = active_ratings.exclude(
+            score=Rating.SKIPPED
+        ).exclude(
+            score=Rating.NOT_RATED
+        )
         return active_ratings.values_list('score', flat=True)
 
     def num_ratings(self):
-        return len(self.scores)
+        return self.scores.count()
     num_ratings.short_description = 'Number of ratings'
     num_ratings = property(num_ratings)
 
     @property
     def mean_score(self):
-        scores = self.scores
-        if len(scores):
-            return float(sum(scores))/len(scores)
-        return float('nan')
+        mean = self.scores.aggregate(Avg('score'))['score__avg']
+        return mean if mean is not None else float('nan')
 
     @property
     def mode_score(self):
-        most_common = Counter(self.scores).most_common(1)
-        return most_common[0][0] if most_common else float('nan')
+        aggregation = self.scores.annotate(count=Count('score'))
+        most_common = aggregation.order_by('-count').first()
+        return most_common if most_common is not None else float('nan')
+
+    @property
+    def _score_aggregates(self):
+        query = self.scores.annotate(score_squared=F('score')*F('score'))
+        values = query.aggregate(
+            Sum('score'), Sum('score_squared'), Count('score')
+        )
+        return values['score__sum'], values['score_squared__sum'], values['score__count']
 
     @property
     def score_stdev(self):
-        scores = self.scores
-        if len(scores) < 2:
+        score_sum, score_squared_sum, num_scores = self._score_aggregates
+        if num_scores < 2:
             return float('nan')
-        mean_score = float(sum(scores))/len(scores)
-        squared_residuals = (pow(score - mean_score, 2) for score in scores)
-        return (sum(squared_residuals)/(len(scores) - 1))**0.5
+        stdev2 = (score_squared_sum - pow(score_sum, 2)/num_scores)/(num_scores - 1)
+        return pow(stdev2, 0.5)
 
     @property
     def score_sem(self):
-        num_ratings = self.num_ratings
-        if num_ratings > 1:
-            return self.score_stdev/num_ratings**0.5
-        return float('nan')
+        score_sum, score_squared_sum, num_scores = self._score_aggregates
+        if num_scores < 2:
+            return float('nan')
+        stdev2 = (score_squared_sum - pow(score_sum, 2)/num_scores)/(num_scores - 1)
+        return pow(stdev2, 0.5)/num_scores**0.5
 
 
 class History(models.Model):
@@ -537,14 +546,14 @@ class Respondent(History):
 
     def num_questions_rated(self):
         ratings = QuantitativeQuestionRating.objects.filter(respondent=self)
-        ratings = ratings.exclude(score__in=[Rating.NOT_RATED, Rating.SKIPPED])
+        ratings = ratings.exclude(score=Rating.NOT_RATED).exclude(score=Rating.SKIPPED)
         return ratings.count()
     num_questions_rated.short_description = 'Number of questions rated'
     num_questions_rated = property(num_questions_rated)
 
     def num_comments_rated(self):
         ratings = CommentRating.objects.filter(respondent=self)
-        ratings = ratings.exclude(score__in=[Rating.NOT_RATED, Rating.SKIPPED])
+        ratings = ratings.exclude(score=Rating.NOT_RATED).exclude(score=Rating.SKIPPED)
         return ratings.count()
     num_comments_rated.short_description = 'Number of comments rated'
     num_comments_rated = property(num_comments_rated)
@@ -552,11 +561,3 @@ class Respondent(History):
     @property
     def comments(self):
         return Comment.objects.filter(respondent=self).all()
-
-
-MODELS = {
-    model.__name__: model for model in [
-        Comment, QuantitativeQuestionRating, CommentRating, QualitativeQuestion,
-        QuantitativeQuestion, Respondent, OptionQuestion, OptionQuestionChoice
-    ]
-}

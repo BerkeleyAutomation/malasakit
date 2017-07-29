@@ -3,8 +3,8 @@
 {% load i18n %}
 {% load static %}
 
-{% block title %}{% trans 'Qualitative Questions' %}{% endblock %}
-{% block main-heading %}{% trans 'Qualitative Questions' %}{% endblock %}
+{% block title %}{% trans 'Your Ideas' %}{% endblock %}
+{% block main-heading %}{% trans 'Your Ideas' %}{% endblock %}
 
 {% block scripts %}
   <script>
@@ -34,7 +34,7 @@
   <ol id="qualitative-questions">
     {% for question in questions %}
       <li>
-        <p class="prompt">{{ question.prompt }}</p>
+        <p class="prompt">{% trans question.prompt %}</p>
         <div class="container">
           <textarea question-id="{{ question.id }}" class="comment"></textarea>
         </div>

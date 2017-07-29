@@ -68,18 +68,40 @@ statistics functionality.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pcari.admin.MalasakitAdminSite.filter_actions">
+<code class="descname">filter_actions</code><span class="sig-paren">(</span><em>model</em>, <em>action_names=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.MalasakitAdminSite.filter_actions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restrict the actions a model admin may take.</p>
+<p>This restriction is accomplished by wrapping the <code class="docutils literal"><span class="pre">get_actions</span></code> method
+of the model admin associated with the given <code class="docutils literal"><span class="pre">model</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>model</strong> – The class of the model. The model must have been registered
+with the site.</li>
+<li><strong>action_names</strong> (<em>list</em>) – A list of action names (strings) whose
+associated actions should be allowed.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pcari.admin.MalasakitAdminSite.get_urls">
 <code class="descname">get_urls</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pcari.admin.MalasakitAdminSite.get_urls" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pcari.admin.MalasakitAdminSite.site_header">
-<code class="descname">site_header</code><em class="property"> = 'Malasakit'</em><a class="headerlink" href="#pcari.admin.MalasakitAdminSite.site_header" title="Permalink to this definition">¶</a></dt>
+<code class="descname">site_header</code><em class="property"> = u'Malasakit'</em><a class="headerlink" href="#pcari.admin.MalasakitAdminSite.site_header" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pcari.admin.MalasakitAdminSite.site_title">
-<code class="descname">site_title</code><em class="property"> = 'Malasakit'</em><a class="headerlink" href="#pcari.admin.MalasakitAdminSite.site_title" title="Permalink to this definition">¶</a></dt>
+<code class="descname">site_title</code><em class="property"> = u'Malasakit'</em><a class="headerlink" href="#pcari.admin.MalasakitAdminSite.site_title" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -98,7 +120,7 @@ statistics functionality.</p>
 <a class="reference internal" href="pcari.models.html#pcari.models.History" title="pcari.models.History"><code class="xref py py-class docutils literal"><span class="pre">pcari.models.History</span></code></a> models.</p>
 <dl class="attribute">
 <dt id="pcari.admin.HistoryAdmin.actions">
-<code class="descname">actions</code><em class="property"> = ('mark_active', 'mark_inactive')</em><a class="headerlink" href="#pcari.admin.HistoryAdmin.actions" title="Permalink to this definition">¶</a></dt>
+<code class="descname">actions</code><em class="property"> = (u'mark_active', u'mark_inactive')</em><a class="headerlink" href="#pcari.admin.HistoryAdmin.actions" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -150,7 +172,7 @@ statistics functionality.</p>
 <p>Base admin behavior for <a class="reference internal" href="pcari.models.html#pcari.models.Response" title="pcari.models.Response"><code class="xref py py-class docutils literal"><span class="pre">pcari.models.Response</span></code></a> models.</p>
 <dl class="attribute">
 <dt id="pcari.admin.ResponseAdmin.empty_value_display">
-<code class="descname">empty_value_display</code><em class="property"> = '-- Empty response --'</em><a class="headerlink" href="#pcari.admin.ResponseAdmin.empty_value_display" title="Permalink to this definition">¶</a></dt>
+<code class="descname">empty_value_display</code><em class="property"> = u'-- Empty response --'</em><a class="headerlink" href="#pcari.admin.ResponseAdmin.empty_value_display" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -160,7 +182,7 @@ statistics functionality.</p>
 
 <dl class="attribute">
 <dt id="pcari.admin.ResponseAdmin.ordering">
-<code class="descname">ordering</code><em class="property"> = ('-timestamp',)</em><a class="headerlink" href="#pcari.admin.ResponseAdmin.ordering" title="Permalink to this definition">¶</a></dt>
+<code class="descname">ordering</code><em class="property"> = (u'-timestamp',)</em><a class="headerlink" href="#pcari.admin.ResponseAdmin.ordering" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -172,17 +194,17 @@ statistics functionality.</p>
 <p>Admin behavior for <a class="reference internal" href="pcari.models.html#pcari.models.QuantitativeQuestion" title="pcari.models.QuantitativeQuestion"><code class="xref py py-class docutils literal"><span class="pre">pcari.models.QuantitativeQuestion</span></code></a>.</p>
 <dl class="attribute">
 <dt id="pcari.admin.QuantitativeQuestionAdmin.list_display">
-<code class="descname">list_display</code><em class="property"> = ('prompt', 'tag', 'active')</em><a class="headerlink" href="#pcari.admin.QuantitativeQuestionAdmin.list_display" title="Permalink to this definition">¶</a></dt>
+<code class="descname">list_display</code><em class="property"> = (u'prompt', u'tag', u'active')</em><a class="headerlink" href="#pcari.admin.QuantitativeQuestionAdmin.list_display" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pcari.admin.QuantitativeQuestionAdmin.list_filter">
-<code class="descname">list_filter</code><em class="property"> = ('tag', 'active')</em><a class="headerlink" href="#pcari.admin.QuantitativeQuestionAdmin.list_filter" title="Permalink to this definition">¶</a></dt>
+<code class="descname">list_filter</code><em class="property"> = (u'tag', u'active')</em><a class="headerlink" href="#pcari.admin.QuantitativeQuestionAdmin.list_filter" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pcari.admin.QuantitativeQuestionAdmin.search_fields">
-<code class="descname">search_fields</code><em class="property"> = ('prompt', 'tag')</em><a class="headerlink" href="#pcari.admin.QuantitativeQuestionAdmin.search_fields" title="Permalink to this definition">¶</a></dt>
+<code class="descname">search_fields</code><em class="property"> = (u'prompt', u'tag')</em><a class="headerlink" href="#pcari.admin.QuantitativeQuestionAdmin.search_fields" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -199,27 +221,27 @@ statistics functionality.</p>
 
 <dl class="attribute">
 <dt id="pcari.admin.QuantitativeQuestionRatingAdmin.list_display">
-<code class="descname">list_display</code><em class="property"> = ('respondent', 'get_question_prompt', 'timestamp', 'score', 'active')</em><a class="headerlink" href="#pcari.admin.QuantitativeQuestionRatingAdmin.list_display" title="Permalink to this definition">¶</a></dt>
+<code class="descname">list_display</code><em class="property"> = (u'respondent', u'get_question_prompt', u'timestamp', u'score', u'active')</em><a class="headerlink" href="#pcari.admin.QuantitativeQuestionRatingAdmin.list_display" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pcari.admin.QuantitativeQuestionRatingAdmin.list_display_links">
-<code class="descname">list_display_links</code><em class="property"> = ('get_question_prompt',)</em><a class="headerlink" href="#pcari.admin.QuantitativeQuestionRatingAdmin.list_display_links" title="Permalink to this definition">¶</a></dt>
+<code class="descname">list_display_links</code><em class="property"> = (u'get_question_prompt',)</em><a class="headerlink" href="#pcari.admin.QuantitativeQuestionRatingAdmin.list_display_links" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pcari.admin.QuantitativeQuestionRatingAdmin.list_filter">
-<code class="descname">list_filter</code><em class="property"> = ('timestamp', 'active')</em><a class="headerlink" href="#pcari.admin.QuantitativeQuestionRatingAdmin.list_filter" title="Permalink to this definition">¶</a></dt>
+<code class="descname">list_filter</code><em class="property"> = (u'timestamp', u'active')</em><a class="headerlink" href="#pcari.admin.QuantitativeQuestionRatingAdmin.list_filter" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pcari.admin.QuantitativeQuestionRatingAdmin.readonly_fields">
-<code class="descname">readonly_fields</code><em class="property"> = ('timestamp',)</em><a class="headerlink" href="#pcari.admin.QuantitativeQuestionRatingAdmin.readonly_fields" title="Permalink to this definition">¶</a></dt>
+<code class="descname">readonly_fields</code><em class="property"> = (u'timestamp',)</em><a class="headerlink" href="#pcari.admin.QuantitativeQuestionRatingAdmin.readonly_fields" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pcari.admin.QuantitativeQuestionRatingAdmin.search_fields">
-<code class="descname">search_fields</code><em class="property"> = ('question__prompt', 'score')</em><a class="headerlink" href="#pcari.admin.QuantitativeQuestionRatingAdmin.search_fields" title="Permalink to this definition">¶</a></dt>
+<code class="descname">search_fields</code><em class="property"> = (u'question__prompt', u'score')</em><a class="headerlink" href="#pcari.admin.QuantitativeQuestionRatingAdmin.search_fields" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -231,17 +253,17 @@ statistics functionality.</p>
 <p>Admin behavior for <a class="reference internal" href="pcari.models.html#pcari.models.QualitativeQuestion" title="pcari.models.QualitativeQuestion"><code class="xref py py-class docutils literal"><span class="pre">pcari.models.QualitativeQuestion</span></code></a>.</p>
 <dl class="attribute">
 <dt id="pcari.admin.QualitativeQuestionAdmin.list_display">
-<code class="descname">list_display</code><em class="property"> = ('prompt', 'tag', 'active')</em><a class="headerlink" href="#pcari.admin.QualitativeQuestionAdmin.list_display" title="Permalink to this definition">¶</a></dt>
+<code class="descname">list_display</code><em class="property"> = (u'prompt', u'tag', u'active')</em><a class="headerlink" href="#pcari.admin.QualitativeQuestionAdmin.list_display" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pcari.admin.QualitativeQuestionAdmin.list_filter">
-<code class="descname">list_filter</code><em class="property"> = ('prompt', 'tag', 'active')</em><a class="headerlink" href="#pcari.admin.QualitativeQuestionAdmin.list_filter" title="Permalink to this definition">¶</a></dt>
+<code class="descname">list_filter</code><em class="property"> = (u'prompt', u'tag', u'active')</em><a class="headerlink" href="#pcari.admin.QualitativeQuestionAdmin.list_filter" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pcari.admin.QualitativeQuestionAdmin.search_fields">
-<code class="descname">search_fields</code><em class="property"> = ('prompt', 'tag')</em><a class="headerlink" href="#pcari.admin.QualitativeQuestionAdmin.search_fields" title="Permalink to this definition">¶</a></dt>
+<code class="descname">search_fields</code><em class="property"> = (u'prompt', u'tag')</em><a class="headerlink" href="#pcari.admin.QualitativeQuestionAdmin.search_fields" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -253,7 +275,7 @@ statistics functionality.</p>
 <p>Admin behavior for <a class="reference internal" href="pcari.models.html#pcari.models.Comment" title="pcari.models.Comment"><code class="xref py py-class docutils literal"><span class="pre">pcari.models.Comment</span></code></a>.</p>
 <dl class="attribute">
 <dt id="pcari.admin.CommentAdmin.actions">
-<code class="descname">actions</code><em class="property"> = ('flag_comments', 'unflag_comments')</em><a class="headerlink" href="#pcari.admin.CommentAdmin.actions" title="Permalink to this definition">¶</a></dt>
+<code class="descname">actions</code><em class="property"> = (u'flag_comments', u'unflag_comments')</em><a class="headerlink" href="#pcari.admin.CommentAdmin.actions" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -274,22 +296,22 @@ statistics functionality.</p>
 
 <dl class="attribute">
 <dt id="pcari.admin.CommentAdmin.list_display">
-<code class="descname">list_display</code><em class="property"> = ('respondent', 'display_message', 'timestamp', 'language', 'flagged', 'tag', 'active', 'display_mean_score', 'num_ratings')</em><a class="headerlink" href="#pcari.admin.CommentAdmin.list_display" title="Permalink to this definition">¶</a></dt>
+<code class="descname">list_display</code><em class="property"> = (u'respondent', u'display_message', u'timestamp', u'language', u'flagged', u'tag', u'active', u'display_mean_score', u'num_ratings')</em><a class="headerlink" href="#pcari.admin.CommentAdmin.list_display" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pcari.admin.CommentAdmin.list_display_links">
-<code class="descname">list_display_links</code><em class="property"> = ('display_message',)</em><a class="headerlink" href="#pcari.admin.CommentAdmin.list_display_links" title="Permalink to this definition">¶</a></dt>
+<code class="descname">list_display_links</code><em class="property"> = (u'display_message',)</em><a class="headerlink" href="#pcari.admin.CommentAdmin.list_display_links" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pcari.admin.CommentAdmin.list_filter">
-<code class="descname">list_filter</code><em class="property"> = ('timestamp', 'language', 'flagged', 'tag', 'active')</em><a class="headerlink" href="#pcari.admin.CommentAdmin.list_filter" title="Permalink to this definition">¶</a></dt>
+<code class="descname">list_filter</code><em class="property"> = (u'timestamp', u'language', u'flagged', u'tag', u'active')</em><a class="headerlink" href="#pcari.admin.CommentAdmin.list_filter" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pcari.admin.CommentAdmin.search_fields">
-<code class="descname">search_fields</code><em class="property"> = ('message', 'tag')</em><a class="headerlink" href="#pcari.admin.CommentAdmin.search_fields" title="Permalink to this definition">¶</a></dt>
+<code class="descname">search_fields</code><em class="property"> = (u'message', u'tag')</em><a class="headerlink" href="#pcari.admin.CommentAdmin.search_fields" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -312,27 +334,27 @@ statistics functionality.</p>
 
 <dl class="attribute">
 <dt id="pcari.admin.CommentRatingAdmin.list_display">
-<code class="descname">list_display</code><em class="property"> = ('respondent', 'get_comment_message', 'score', 'timestamp', 'active')</em><a class="headerlink" href="#pcari.admin.CommentRatingAdmin.list_display" title="Permalink to this definition">¶</a></dt>
+<code class="descname">list_display</code><em class="property"> = (u'respondent', u'get_comment_message', u'score', u'timestamp', u'active')</em><a class="headerlink" href="#pcari.admin.CommentRatingAdmin.list_display" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pcari.admin.CommentRatingAdmin.list_display_links">
-<code class="descname">list_display_links</code><em class="property"> = ('get_comment_message',)</em><a class="headerlink" href="#pcari.admin.CommentRatingAdmin.list_display_links" title="Permalink to this definition">¶</a></dt>
+<code class="descname">list_display_links</code><em class="property"> = (u'get_comment_message',)</em><a class="headerlink" href="#pcari.admin.CommentRatingAdmin.list_display_links" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pcari.admin.CommentRatingAdmin.list_filter">
-<code class="descname">list_filter</code><em class="property"> = ('timestamp', 'active')</em><a class="headerlink" href="#pcari.admin.CommentRatingAdmin.list_filter" title="Permalink to this definition">¶</a></dt>
+<code class="descname">list_filter</code><em class="property"> = (u'timestamp', u'active')</em><a class="headerlink" href="#pcari.admin.CommentRatingAdmin.list_filter" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pcari.admin.CommentRatingAdmin.readonly_fields">
-<code class="descname">readonly_fields</code><em class="property"> = ('timestamp',)</em><a class="headerlink" href="#pcari.admin.CommentRatingAdmin.readonly_fields" title="Permalink to this definition">¶</a></dt>
+<code class="descname">readonly_fields</code><em class="property"> = (u'timestamp',)</em><a class="headerlink" href="#pcari.admin.CommentRatingAdmin.readonly_fields" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pcari.admin.CommentRatingAdmin.search_fields">
-<code class="descname">search_fields</code><em class="property"> = ('score', 'comment__message')</em><a class="headerlink" href="#pcari.admin.CommentRatingAdmin.search_fields" title="Permalink to this definition">¶</a></dt>
+<code class="descname">search_fields</code><em class="property"> = (u'score', u'comment__message')</em><a class="headerlink" href="#pcari.admin.CommentRatingAdmin.search_fields" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -354,17 +376,17 @@ statistics functionality.</p>
 
 <dl class="attribute">
 <dt id="pcari.admin.RespondentAdmin.empty_value_display">
-<code class="descname">empty_value_display</code><em class="property"> = '(Empty)'</em><a class="headerlink" href="#pcari.admin.RespondentAdmin.empty_value_display" title="Permalink to this definition">¶</a></dt>
+<code class="descname">empty_value_display</code><em class="property"> = u'(Empty)'</em><a class="headerlink" href="#pcari.admin.RespondentAdmin.empty_value_display" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pcari.admin.RespondentAdmin.list_display">
-<code class="descname">list_display</code><em class="property"> = ('id', 'comments_made', 'age', 'gender', 'display_location', 'language', 'submitted_personal_data', 'completed_survey', 'num_questions_rated', 'num_comments_rated', 'active')</em><a class="headerlink" href="#pcari.admin.RespondentAdmin.list_display" title="Permalink to this definition">¶</a></dt>
+<code class="descname">list_display</code><em class="property"> = (u'id', u'comments_made', u'age', u'gender', u'display_location', u'language', u'submitted_personal_data', u'completed_survey', u'num_questions_rated', u'num_comments_rated', u'active')</em><a class="headerlink" href="#pcari.admin.RespondentAdmin.list_display" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pcari.admin.RespondentAdmin.list_filter">
-<code class="descname">list_filter</code><em class="property"> = ('gender', 'language', 'submitted_personal_data', 'completed_survey', 'active')</em><a class="headerlink" href="#pcari.admin.RespondentAdmin.list_filter" title="Permalink to this definition">¶</a></dt>
+<code class="descname">list_filter</code><em class="property"> = (u'gender', u'language', u'submitted_personal_data', u'completed_survey', u'active')</em><a class="headerlink" href="#pcari.admin.RespondentAdmin.list_filter" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -374,7 +396,7 @@ statistics functionality.</p>
 
 <dl class="attribute">
 <dt id="pcari.admin.RespondentAdmin.search_fields">
-<code class="descname">search_fields</code><em class="property"> = ('gender', 'location', 'language', 'submitted_personal_data', 'completed_survey')</em><a class="headerlink" href="#pcari.admin.RespondentAdmin.search_fields" title="Permalink to this definition">¶</a></dt>
+<code class="descname">search_fields</code><em class="property"> = (u'gender', u'location', u'language', u'submitted_personal_data', u'completed_survey')</em><a class="headerlink" href="#pcari.admin.RespondentAdmin.search_fields" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

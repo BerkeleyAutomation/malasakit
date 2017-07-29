@@ -47,14 +47,14 @@
               {% trans question.prompt %}
             </blockquote>
             <div class="bubbled">
-              {% blocktrans trimmed with id=question.id %}
-                Your answer: <strong id="answer-{{ id }}">None</strong>
-              {% endblocktrans %}
-            </div>
-            <div class="bubbled">
               {% blocktrans trimmed %}
                 Average answer: <strong>{{ mean }}</strong>
               {% endblocktrans %}
+            </div>
+            <div class="bubbled">
+              {% with id=question.id %}
+                {% trans 'Your answer:'%} <strong id="answer-{{ id }}">{% trans 'Skip' %}</strong>
+              {% endwith %}
             </div>
           {% endif %}
         {% endwith %}

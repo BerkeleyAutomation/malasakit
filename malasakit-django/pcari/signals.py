@@ -5,10 +5,12 @@ References:
     * `Django Reference on Signals <https://docs.djangoproject.com/en/dev/topics/signals/>`_
 """
 
+from __future__ import unicode_literals
+
 from django.db.models.signals import pre_delete, post_delete
 from django.dispatch import receiver
 
-from .models import History
+from pcari.models import History
 
 
 @receiver(pre_delete)
