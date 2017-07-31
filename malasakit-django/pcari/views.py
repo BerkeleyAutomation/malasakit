@@ -600,7 +600,9 @@ def quantitative_questions(request):
 @ensure_csrf_cookie
 def peer_responses(request):
     """ Render a page showing respondents how others rated the quantitative questions. """
-    context = {'questions': QuantitativeQuestion.objects.filter(active=True).all()}
+    questions = QuantitativeQuestion.objects.filter(active=True)
+    questions = [question for question in questions if question.num_ratings]
+    context = {'questions': questions}
     return render(request, 'peer-responses.html', context)
 
 
