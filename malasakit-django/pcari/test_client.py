@@ -150,6 +150,8 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
             self.rate_comments,
             self.answer_qualitative_questions,
             self.provide_personal_information,
+            self.inspect_peer_responses,
+            self.navigate_end,
         ]
 
         return all(handler(driver, response, test_case_name)
@@ -267,6 +269,32 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
         driver.find_element_by_id('next').click()
         driver.find_element_by_id('submit').click()
         return reverse('pcari:peer-responses') in driver.current_url
+
+    def inspect_peer_responses(self, driver, response, test_case_name=None):
+        if test_case_name:
+            self.screenshot(driver, test_case_name, 'peer-responses.png')
+
+        question_ratings = response.get('question-ratings', {})
+        for box in driver.find_elements_by_class_name('boxed'):
+            answer = driver.find_element_by_css_selector('[id^=answer-]')
+            question_id = int(answer.get_attribute('id')[len('answer-'):])
+            if answer.text.strip() == 'Skip':
+                actual_score = QuantitativeQuestionRating.SKIPPED
+            else:
+                actual_score = int(answer.text)
+            expected_score = question_ratings.get(question_id,
+                                                  QuantitativeQuestionRating.SKIPPED)
+            self.assertEqual(expected_score, actual_score)
+
+        driver.find_element_by_id('next').click()
+        return reverse('pcari:end') in driver.current_url
+
+    def navigate_end(self, driver, response, test_case_name=None):
+        if test_case_name:
+            self.screenshot(driver, test_case_name, 'end.png')
+
+        driver.find_element_by_id('next').click()
+        return reverse('pcari:landing') in driver.current_url
 
 
 @tag('slow')
@@ -403,6 +431,9 @@ class ResponseSubmissionTestCase(NavigationTestCase):
         self.assertEqual(new_respondent.num_comments_rated, 1)
         self.assertEqual(new_respondent.comments.count(), 0)
 
+    def test_change_response_submission(self, driver):
+        pass
+
 
 """
 class AppearanceTestCase(NavigationTestCase):
@@ -440,17 +471,15 @@ class OfflineTestCase(NavigationTestCase):
         Comment.objects.get_or_create(id=2, question_id=1, message='Test comment 2',
                                       respondent_id=2)
 
-    def assert_no_connection_refused(self, driver):
-        for log_entry in driver.get_log('browser'):
-            self.assertNotIn('ERR_CONNECTION_REFUSED', log_entry['message'])
-
-    def test_basic_pages_cached(self, driver):
+    def cache_pages(self, driver):
         driver.get(self.live_server_url + reverse('pcari:landing'))
         time.sleep(2)  # Wait for pages to be cached
-        self.tearDownClass()
+
+    def test_pages_cached(self, driver):
+        self.cache_pages(driver)
+        self.tearDownClass()  # Shut down server
 
         driver.get(self.live_server_url + reverse('pcari:landing'))
-        self.assert_no_connection_refused(driver)
         self.assertTrue(self.walkthrough(driver, {
             'question-ratings': {
                 1: 2,
@@ -466,11 +495,21 @@ class OfflineTestCase(NavigationTestCase):
             'respondent-data': {
                 'age': 20,
             },
-        }))
+        }, 'test_pages_cached'))
 
-        self.assertEqual(Respondent.objects.count(), 2)
+        for log_entry in driver.get_log('browser'):
+            message = log_entry['message']
+            if reverse('save-response') not in message and 'favicon.ico' not in message:
+                self.assertNotIn('ERR_CONNECTION_REFUSED', message)
+
         self.setUpClass()
         time.sleep(1)
-        driver.refresh()
+
+    def test_responses_cached(self, driver):
+        self.cache_pages(driver)
+        self.tearDownClass()
+
+        pass
+
+        self.setUpClass()
         time.sleep(1)
-        self.assertEqual(Respondent.objects.count(), 3)
