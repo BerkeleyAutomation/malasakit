@@ -1,6 +1,7 @@
 import datetime
 import logging
 import os
+import random
 import re
 import time
 import types
@@ -200,7 +201,7 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
 
     def rate_comments(self, driver, response, test_case_name=None):
         scores = response.get('comment-ratings', {})
-        time.sleep(2)  # Wait for force simulation to work
+        time.sleep(1)  # Wait for force simulation to work
 
         if test_case_name:
             self.screenshot(driver, test_case_name, 'rate-comments-bloom.png')
@@ -502,14 +503,69 @@ class OfflineTestCase(NavigationTestCase):
             if reverse('save-response') not in message and 'favicon.ico' not in message:
                 self.assertNotIn('ERR_CONNECTION_REFUSED', message)
 
-        self.setUpClass()
+        self.setUpClass()  # Leave the test in the same state it entered in
         time.sleep(1)
 
     def test_responses_cached(self, driver):
         self.cache_pages(driver)
         self.tearDownClass()
 
-        pass
+        responses = [
+            {
+                'question-ratings': {
+                    1: 2,
+                    2: 9,
+                },
+                'comment-ratings' :{
+                    1: CommentRating.SKIPPED,
+                    2: 5
+                },
+                'comments': {
+                    1: 'Testing',
+                },
+                'respondent-data': {},
+            },
+            {
+                'question-ratings': {
+                    1: 8,
+                    2: 4,
+                },
+                'comment-ratings': {
+                    1: 3,
+                    2: 0,
+                },
+                'comments': {},
+                'respondent-data': {
+                    'gender': 'M',
+                },
+            }
+        ]
+
+        replicated_responses = [response for response in responses
+                                for _ in range(random.randrange(5))]
+        random.shuffle(replicated_responses)
+
+        for response in replicated_responses:
+            self.assertTrue(self.walkthrough(driver, response))
+        self.assertEqual(Respondent.objects.count(), 2)
 
         self.setUpClass()
         time.sleep(1)
+
+        driver.refresh()
+        time.sleep(1)  # Wait for responses to be uploaded
+
+        self.assertEqual(Respondent.objects.count(), 2 + len(replicated_responses))
+
+        # Compare score distributions
+        rating_model_names = {
+            'question-ratings': QuantitativeQuestionRating,
+            'comment-ratings': CommentRating,
+        }
+        for response_key, rating_model in rating_model_names.items():
+            expected_scores = sum((response.get(response_key, {}).values()
+                                   for response in replicated_responses), [])
+            actual_scores = list(rating_model.objects.values_list('score', flat=True))
+            message = ('For key "{2}", expected question scores {0}, '
+                       'but got {1}').format(expected_scores, actual_scores, response_key)
+            self.assertItemsEqual(expected_scores, actual_scores, message)
