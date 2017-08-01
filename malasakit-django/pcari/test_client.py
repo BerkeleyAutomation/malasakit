@@ -436,7 +436,6 @@ class ResponseSubmissionTestCase(NavigationTestCase):
         pass
 
 
-"""
 class AppearanceTestCase(NavigationTestCase):
     def test_translation(self):
         pass
@@ -445,7 +444,6 @@ class AppearanceTestCase(NavigationTestCase):
 @use_drivers(*ALL_DRIVERS)
 class LocalStorageUpdateTestCase(NavigationTestCase):
     pass
-"""
 
 
 class ReusableLiveServerThread(LiveServerThread):
@@ -465,6 +463,7 @@ class OfflineTestCase(NavigationTestCase):
         QuantitativeQuestion.objects.get_or_create(id=1)
         QuantitativeQuestion.objects.get_or_create(id=2)
         QualitativeQuestion.objects.get_or_create(id=1)
+        QualitativeQuestion.objects.get_or_create(id=2)
         Respondent.objects.get_or_create(id=1)
         Respondent.objects.get_or_create(id=2)
         Comment.objects.get_or_create(id=1, question_id=1, message='Test comment 1',
@@ -521,7 +520,7 @@ class OfflineTestCase(NavigationTestCase):
                     2: 5
                 },
                 'comments': {
-                    1: 'Testing',
+                    1: 'Testing ' * 50,
                 },
                 'respondent-data': {},
             },
@@ -542,7 +541,7 @@ class OfflineTestCase(NavigationTestCase):
         ]
 
         replicated_responses = [response for response in responses
-                                for _ in range(random.randrange(5))]
+                                for _ in range(random.randrange(20, 40))]
         random.shuffle(replicated_responses)
 
         for response in replicated_responses:
@@ -569,3 +568,6 @@ class OfflineTestCase(NavigationTestCase):
             message = ('For key "{2}", expected question scores {0}, '
                        'but got {1}').format(expected_scores, actual_scores, response_key)
             self.assertItemsEqual(expected_scores, actual_scores, message)
+
+        self.assertEqual(Comment.objects.count(), 2 + sum(len(response.get('comments', {}))
+                                                          for response in replicated_responses))
