@@ -513,12 +513,23 @@ class AppearanceTestCase(NavigationTestCase):
             self.assertTrue(handler(self, driver, response, 'test_no_content'))
 
     def test_quantitative_question_latest(self, driver):
-        pass
+        response = {
+            'question-ratings': {
+                1: 5,
+                2: 4,
+                3: QuantitativeQuestionRating.SKIPPED,
+            },
+        }
 
+        QuantitativeQuestion.objects.create(id=2)
+        QuantitativeQuestion.objects.create(id=3)
+        self.assertFalse(self.walkthrough(driver, response))
+        self.assertIn(reverse('pcari:rate-comments'), driver.current_url)
+        driver.back()
 
-@use_drivers(*ALL_DRIVERS)
-class LocalStorageTestCase(NavigationTestCase):
-    pass
+        numerator = driver.find_element_by_id('progression-numerator')
+        self.assertEqual(numerator.text, '3')
+        self.screenshot(driver, 'test_quantitative_question_latest', 'latest.png')
 
 
 class ReusableLiveServerThread(LiveServerThread):
