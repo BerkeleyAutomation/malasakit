@@ -33,6 +33,7 @@ ALLOWED_HOSTS = ['opinion.berkeley.edu'] if not DEBUG else ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'feature_phone',
     'pcari.apps.PCARIConfig',
     'django.contrib.admin',
     'django.contrib.auth',

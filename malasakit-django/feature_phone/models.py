@@ -1,8 +1,8 @@
 """
 Model definitions.
 
-This module defines how information used by Malasakit is structured and how the
-Python layer interfaces with a database.
+This module defines how information used by the Malasakit feature phone application
+is structured and how the Python layer interfaces with a database.
 
 The core of the database consists of concrete models derived from the abstract
 :class:`Question` and :class:`Response` models. Generally speaking, there is a
@@ -32,6 +32,8 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.db.models import F, Count, Avg, Sum
 from django.utils.translation import ugettext_lazy as _
+
+from pcari.models import StatisticsMixin
 
 # Create your models here.
 
@@ -142,12 +144,12 @@ class Response(History):
         timestamp (datetime.datetime): When this response was made. (By
             default, this field is automatically set to the time when the
             instance is created. This field is not editable.)
-        audio: A FilePathField pointing to the audio recording of the rating.
+        audio: A FileField pointing to the audio recording of the rating.
     """
     respondent = models.ForeignKey('Respondent', on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
 
-    file_path = models.FilePathField(path=MEDIA_ROOT)
+    audio = models.FileField(upload_to="/Response")
     # path to audio files in the media directory
 
     class Meta:
@@ -280,7 +282,7 @@ class Question(History):
     Attributes:
         language (str): A language code. Refers to the language of the audio
             file associated with this question.
-        file_path: Path to the audio file for this question.
+        audio: Associated audio file for this question.
         question_text: The associated text version of this question. ForeignKey
             to a pcari.Question model.
         tag (str): A short string in English that summarizes the prompt.
@@ -288,7 +290,7 @@ class Question(History):
     """
     language = models.CharField(max_length=8, choices=LANGUAGES, blank=True,
                                 default='', validators=[LANGUAGE_VALIDATOR])
-    file_path = models.FilePathField(path=MEDIA_ROOT)
+    audio = models.FileField(upload_to='Question/')
     tag = models.CharField(max_length=256, blank=True, default='')
     response_time = models.PositiveSmallIntegerField(default=5,null=True)
 
