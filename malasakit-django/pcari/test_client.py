@@ -496,10 +496,21 @@ class AppearanceTestCase(NavigationTestCase):
         self.assertIn('landing', nav_button_link.get_attribute('href'))
 
     def test_edit_previous_response_disallow(self, driver):
-        pass
+        pass # driver.walkthrough()
 
     def test_no_content(self, driver):
-        pass
+        QuantitativeQuestion.objects.all().delete()
+        QualitativeQuestion.objects.all().delete()
+        Comment.objects.all().delete()
+
+        response = {
+            'respondent-data': {},
+        }
+
+        self.assertFalse(self.navigate_landing(driver, response, 'test_no_content'))
+        self.assertIn(reverse('pcari:rate-comments'), driver.current_url)
+        for handler in self.navigation_handlers[2:]:
+            self.assertTrue(handler(self, driver, response, 'test_no_content'))
 
     def test_quantitative_question_latest(self, driver):
         pass

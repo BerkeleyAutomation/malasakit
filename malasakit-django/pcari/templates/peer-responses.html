@@ -28,39 +28,41 @@
 {% endblock %}
 
 {% block content %}
-  <p>
-    {% blocktrans trimmed %}
-      Below, you can see how the other respondents answered the survey questions.
-    {% endblocktrans %}
-  </p>
-  <div id="peer-responses">
-    {% for question in questions %}
-      {% with num_ratings=question.num_ratings mean=question.mean_score|floatformat %}
-        <div class="boxed">
-          <p>
-            {% blocktrans trimmed %}
-              <strong>{{ num_ratings }}</strong> other people answered this question:
-            {% endblocktrans %}
-          </p>
-          <blockquote>
-            {% trans question.prompt %}
-          </blockquote>
-          <div class="bubbled">
-            {% blocktrans trimmed %}
-              Average answer: <strong>{{ mean }}</strong>
-            {% endblocktrans %}
+  {% if questions %}
+    <p>
+      {% blocktrans trimmed %}
+        Below, you can see how the other respondents answered the survey questions.
+      {% endblocktrans %}
+    </p>
+    <div id="peer-responses">
+      {% for question in questions %}
+        {% with num_ratings=question.num_ratings mean=question.mean_score|floatformat %}
+          <div class="boxed">
+            <p>
+              {% blocktrans trimmed %}
+                <strong>{{ num_ratings }}</strong> other people answered this question:
+              {% endblocktrans %}
+            </p>
+            <blockquote>
+              {% trans question.prompt %}
+            </blockquote>
+            <div class="bubbled">
+              {% blocktrans trimmed %}
+                Average answer: <strong>{{ mean }}</strong>
+              {% endblocktrans %}
+            </div>
+            <div class="bubbled">
+              {% with id=question.id %}
+                {% trans 'Your answer:'%} <strong id="answer-{{ id }}">{% trans 'Skip' %}</strong>
+              {% endwith %}
+            </div>
           </div>
-          <div class="bubbled">
-            {% with id=question.id %}
-              {% trans 'Your answer:'%} <strong id="answer-{{ id }}">{% trans 'Skip' %}</strong>
-            {% endwith %}
-          </div>
-          </div>
-      {% endwith %}
-    {% empty %}
-      <p>{% trans 'There are no questions that others have answered.' %}</p>
-    {% endfor %}
-  </div>
+        {% endwith %}
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="error banner">{% trans 'There are not enough data to show how your responses compare to those of others.' %}</p>
+  {% endif %}
   {% url 'pcari:end' as next_link %}
   {% include 'nav-buttons.html' %}
 {% endblock %}

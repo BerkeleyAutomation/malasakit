@@ -31,20 +31,20 @@
 {% endblock %}
 
 {% block content %}
-  <ol id="qualitative-questions">
-    {% for question in questions %}
-      <li>
-        <p class="prompt">{% trans question.prompt %}</p>
-        <div class="container">
-          <textarea question-id="{{ question.id }}" class="comment"></textarea>
-        </div>
-      </li>
-    {% empty %}
-      <li>
-        <p>{% trans 'There are no qualitative questions at this time.' %}</p>
-      </li>
-    {% endfor %}
-  </ol>
+  {% if questions %}
+    <ol id="qualitative-questions">
+      {% for question in questions %}
+        <li>
+          <p class="prompt">{% trans question.prompt %}</p>
+          <div class="container">
+            <textarea question-id="{{ question.id }}" class="comment"></textarea>
+          </div>
+        </li>
+      {% endfor %}
+    </ol>
+  {% else %}
+    <p class="error banner">{% trans 'There are no qualitative questions at this time.' %}</p>
+  {% endif %}
   {% url 'pcari:rate-comments' as previous_link %}
   {% url 'pcari:personal-information' as next_link %}
   {% include 'nav-buttons.html' %}
