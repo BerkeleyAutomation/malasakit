@@ -115,7 +115,7 @@ if DEBUG:
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'pcari',
+        'NAME': 'freespeech',
         'USER': 'root',
         'PASSWORD': os.environ.get('mysql_pass'),
         'OPTIONS': {
@@ -152,7 +152,6 @@ HTML_MINIFY = not DEBUG
 
 LANGUAGES = (
     ('en', _('English')),
-    ('tl', _('Filipino')),
 )
 
 LOCALE_PATHS = (
@@ -172,7 +171,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-URL_ROOT = '/' if DEBUG else '/pcari/'
+URL_ROOT = '/' if DEBUG else '/free-speech/'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/

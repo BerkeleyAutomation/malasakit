@@ -40,7 +40,7 @@ CLEANTEXT_TARGETS=\
 STATIC_ROOT_CMD=./manage.py shell -c 'from django.conf import settings; print(settings.STATIC_ROOT)'
 
 CREATE_PROD_DB_QUERY=\
-	CREATE DATABASE IF NOT EXISTS pcari CHARACTER SET utf8;\
+	CREATE DATABASE IF NOT EXISTS freespeech CHARACTER SET utf8;\
 	GRANT ALL PRIVILEGES ON pcari.* TO root@localhost;\
 	FLUSH PRIVILEGES;
 

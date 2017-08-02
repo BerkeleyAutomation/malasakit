@@ -16,7 +16,7 @@ class PCARIConfig(AppConfig):
     Handle application-wide configuration.
     """
     name = 'pcari'
-    verbose_name = 'PCARI'
+    verbose_name = 'Free Speech for Free Speech'
 
     def ready(self):
         """
