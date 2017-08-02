@@ -495,8 +495,24 @@ class AppearanceTestCase(NavigationTestCase):
         nav_button_link = nav_button.find_element_by_tag_name('a')
         self.assertIn('landing', nav_button_link.get_attribute('href'))
 
-    def test_edit_previous_response_disallow(self, driver):
-        pass # driver.walkthrough()
+    def test_previous_response_edit_disallow(self, driver):
+        self.assertTrue(self.walkthrough(driver, {
+            'question-ratings': {
+                1: 6,
+            },
+            'comment-ratings': {
+                1: 2,
+            },
+            'comments': {},
+            'respondent-data': {},
+        }))
+
+        self.assertIsNone(driver.local_storage['current']['data'])
+        driver.back()  # End
+        driver.back()  # Peer responses
+        driver.back()  # Personal information
+        self.screenshot(driver, 'test_previous_response_edit_disallow',
+                        'personal-information.png')
 
     def test_no_content(self, driver):
         QuantitativeQuestion.objects.all().delete()
