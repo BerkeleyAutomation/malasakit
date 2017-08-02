@@ -39,6 +39,10 @@
           <textarea question-id="{{ question.id }}" class="comment"></textarea>
         </div>
       </li>
+    {% empty %}
+      <li>
+        <p>{% trans 'There are no qualitative questions at this time.' %}</p>
+      </li>
     {% endfor %}
   </ol>
   {% url 'pcari:rate-comments' as previous_link %}

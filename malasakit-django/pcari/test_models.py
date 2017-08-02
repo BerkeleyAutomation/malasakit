@@ -96,12 +96,14 @@ class StatisticsTests(TestCase):
                             QuantitativeQuestionRating.NOT_RATED)
 
     def test_score_stdev(self):
+        # Answers are calculated from `np.std` with `ddof=1` (one delta degree of freedom)
         self.assertAlmostEqual(self.question.score_stdev, 2.87228132327)
         self.assertAlmostEqual(self.comment.score_stdev, 2.1213203435596424)
         CommentRating.objects.filter(score=3, active=True).delete()
         self.assertTrue(math.isnan(self.comment.score_stdev))
 
     def test_score_sem(self):
+        # Answers are calculated from `scipy.stats.sem`
         self.assertAlmostEqual(self.question.score_sem, 1.436140662)
         self.assertTrue(math.isnan(self.question_no_ratings.score_sem))
         self.assertAlmostEqual(self.comment.score_sem, 1.5)

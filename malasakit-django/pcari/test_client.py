@@ -20,6 +20,7 @@ from selenium.common.exceptions import NoSuchAttributeException
 from pcari.models import QuantitativeQuestionRating, Comment, CommentRating
 from pcari.models import QuantitativeQuestion, QualitativeQuestion
 from pcari.models import Respondent
+from pcari.templatetags.localize_url import localize_url
 
 logging.disable(logging.CRITICAL)
 
@@ -139,24 +140,14 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
 
     def screenshot(self, driver, test_case_name, filename):
         screenshots_path = os.path.join(self.test_suite_screenshots_path,
-                                        test_case_name.replace('_', '-'))
+                                        test_case_name.replace('_', '-') + '-' + driver.name)
         if not os.path.exists(screenshots_path):
             os.mkdir(screenshots_path)
         driver.save_screenshot(os.path.join(screenshots_path, filename))
 
     def walkthrough(self, driver, response, test_case_name=None):
-        navigation_handlers = [
-            self.navigate_landing,
-            self.answer_quantitative_questions,
-            self.rate_comments,
-            self.answer_qualitative_questions,
-            self.provide_personal_information,
-            self.inspect_peer_responses,
-            self.navigate_end,
-        ]
-
-        return all(handler(driver, response, test_case_name)
-                   for handler in navigation_handlers)
+        return all(handler(self, driver, response, test_case_name)
+                   for handler in self.navigation_handlers)
 
     def navigate_landing(self, driver, response, test_case_name=None):
         if response:
@@ -297,6 +288,16 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
         driver.find_element_by_id('next').click()
         return reverse('pcari:landing') in driver.current_url
 
+    navigation_handlers = [
+        navigate_landing,
+        answer_quantitative_questions,
+        rate_comments,
+        answer_qualitative_questions,
+        provide_personal_information,
+        inspect_peer_responses,
+        navigate_end,
+    ]
+
 
 @tag('slow')
 @use_drivers(*ALL_DRIVERS)
@@ -436,13 +437,61 @@ class ResponseSubmissionTestCase(NavigationTestCase):
         pass
 
 
+@tag('dev')
+@use_drivers(*ALL_DRIVERS)
 class AppearanceTestCase(NavigationTestCase):
-    def test_translation(self):
+    @classmethod
+    def setUpTestData(cls):
+        QuantitativeQuestion.objects.create(id=1)
+        QualitativeQuestion.objects.create(id=1)
+        Comment.objects.create(id=1, question_id=1, message='Test comment 1',
+                               respondent=Respondent.objects.create(id=1))
+
+    def test_translation(self, driver):
+        language_pattern = re.compile(self.live_server_url + r'/([a-z][a-z\-]*[a-z])')
+        switch_probablity = 0.5
+
+        response = {
+            'question-ratings': {
+                1: 6,
+            },
+            'comment-ratings': {
+                1: 3,
+            },
+            'comments': {},
+            'respondent-data': {},
+        }
+
+        # Walk through the app, randomly switching languages
+        driver.get(self.live_server_url + reverse('pcari:landing'))
+        expected_language = language_pattern.match(driver.current_url).group(1)
+        for handler in self.navigation_handlers:
+            if random.random() < switch_probablity:
+                language_list = driver.find_element_by_id('languages')
+                for hyperlink in language_list.find_elements_by_tag_name('a'):
+                    pass
+            self.assertTrue(handler(self, driver, response, 'test_translation'))
+
+    def test_page_not_found(self, driver):
+        driver.get(self.live_server_url + '/en/no-such-url/')
+        self.screenshot(driver, 'test_page_not_found', 'page-not-found.png')
+
+        heading = driver.find_element_by_id('main-heading')
+        self.assertIn('Page Not Found', heading.text.strip())
+
+        nav_button = driver.find_element_by_id('next')
+        nav_button_link = nav_button.find_element_by_tag_name('a')
+        self.assertIn('landing', nav_button_link.get_attribute('href'))
+
+    def test_edit_previous_response_disallow(self, driver):
+        pass
+
+    def test_no_content(self, driver):
         pass
 
 
 @use_drivers(*ALL_DRIVERS)
-class LocalStorageUpdateTestCase(NavigationTestCase):
+class LocalStorageTestCase(NavigationTestCase):
     pass
 
 
@@ -453,7 +502,7 @@ class ReusableLiveServerThread(LiveServerThread):
 
 
 @tag('slow')
-@use_drivers(*ALL_DRIVERS)
+@use_drivers(CHROME)
 class OfflineTestCase(NavigationTestCase):
     server_thread_class = ReusableLiveServerThread
     port = 8080
@@ -520,7 +569,7 @@ class OfflineTestCase(NavigationTestCase):
                     2: 5
                 },
                 'comments': {
-                    1: 'Testing ' * 50,
+                    1: 'Testing ' * 100,
                 },
                 'respondent-data': {},
             },
@@ -537,7 +586,7 @@ class OfflineTestCase(NavigationTestCase):
                 'respondent-data': {
                     'gender': 'M',
                 },
-            }
+            },
         ]
 
         replicated_responses = [response for response in responses
