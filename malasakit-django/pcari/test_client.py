@@ -6,11 +6,12 @@ import re
 import time
 import types
 
+from django.conf import settings
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.core.servers.basehttp import WSGIServer
+from django.shortcuts import reverse
 from django.test import tag, TestCase
 from django.test.testcases import LiveServerThread, QuietWSGIRequestHandler
-from django.core.servers.basehttp import WSGIServer
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from django.shortcuts import reverse
 from selenium.webdriver import Chrome, ChromeOptions, Firefox
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
@@ -270,10 +271,10 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
         for box in driver.find_elements_by_class_name('boxed'):
             answer = driver.find_element_by_css_selector('[id^=answer-]')
             question_id = int(answer.get_attribute('id')[len('answer-'):])
-            if answer.text.strip() == 'Skip':
-                actual_score = QuantitativeQuestionRating.SKIPPED
-            else:
+            try:
                 actual_score = int(answer.text)
+            except ValueError:
+                actual_score = QuantitativeQuestionRating.SKIPPED
             expected_score = question_ratings.get(question_id,
                                                   QuantitativeQuestionRating.SKIPPED)
             self.assertEqual(expected_score, actual_score)
@@ -448,9 +449,9 @@ class AppearanceTestCase(NavigationTestCase):
                                respondent=Respondent.objects.create(id=1))
 
     def test_translation(self, driver):
-        language_pattern = re.compile(self.live_server_url + r'/([a-z][a-z\-]*[a-z])')
+        language_codes = [code for code, _ in settings.LANGUAGES]
+        language_pattern = re.compile(r'/({0})/'.format('|'.join(language_codes)))
         switch_probablity = 0.5
-
         response = {
             'question-ratings': {
                 1: 6,
@@ -462,15 +463,26 @@ class AppearanceTestCase(NavigationTestCase):
             'respondent-data': {},
         }
 
-        # Walk through the app, randomly switching languages
         driver.get(self.live_server_url + reverse('pcari:landing'))
-        expected_language = language_pattern.match(driver.current_url).group(1)
+        language_of = lambda url: language_pattern.search(url).group(1)
+        expected_language = language_of(driver.current_url)
+
+        # Walk through the app, randomly switching languages
         for handler in self.navigation_handlers:
-            if random.random() < switch_probablity:
+            if random.random() < switch_probablity and 'peer-responses' not in driver.current_url:
                 language_list = driver.find_element_by_id('languages')
-                for hyperlink in language_list.find_elements_by_tag_name('a'):
-                    pass
-            self.assertTrue(handler(self, driver, response, 'test_translation'))
+                hyperlinks = language_list.find_elements_by_tag_name('a')
+                hyperlink = random.choice([
+                    link for link in hyperlinks
+                    if language_of(link.get_attribute('href')) != expected_language
+                ])
+                expected_language = language_of(hyperlink.get_attribute('href'))
+                hyperlink.click()
+
+            html = driver.find_element_by_tag_name('html')
+            actual_language = html.get_attribute_safe('lang')
+            self.assertTrue(expected_language, actual_language)
+            handler(self, driver, response, 'test_translation')
 
     def test_page_not_found(self, driver):
         driver.get(self.live_server_url + '/en/no-such-url/')
@@ -487,6 +499,9 @@ class AppearanceTestCase(NavigationTestCase):
         pass
 
     def test_no_content(self, driver):
+        pass
+
+    def test_quantitative_question_latest(self, driver):
         pass
 
 
