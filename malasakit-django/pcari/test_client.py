@@ -135,7 +135,7 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
 
         test_suite_dirname = re.sub(r'(.)([A-Z])', r'\1-\2', cls.__name__)
         cls.test_suite_screenshots_path = os.path.join(global_screenshots_path,
-                                                       test_suite_dirname).lower()
+                                                       test_suite_dirname.lower())
         if not os.path.exists(cls.test_suite_screenshots_path):
             os.mkdir(cls.test_suite_screenshots_path)
 
