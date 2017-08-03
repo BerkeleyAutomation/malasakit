@@ -47,8 +47,8 @@ var CONTENT_TYPE = 'image/svg+xml';
 if (Resource.exists('bloom-icon')) {
     var resource = Resource.load('bloom-icon');
     if (resource.data !== null) {
-        ICON_IMAGE = resource.data['encoded-image'];
-        CONTENT_TYPE = resource.data['content-type'];
+        ICON_IMAGE = resource.data['encoded-image'] || ICON_IMAGE;
+        CONTENT_TYPE = resource.data['content-type'] || CONTENT_TYPE;
     }
 }
 
@@ -126,7 +126,7 @@ function startCommentRating(commentID) {
     var preferredLanguage = getResponseValue(['respondent-data', 'language']);
     var translatedPrompt = promptTranslations[preferredLanguage];
 
-    var inputElement = $('input.quantitative-input[target-id=comment-rating]');
+    var inputElement = $('input#quantitative-input');
 
     $('.modal').css('display', 'block');
     $('#question-prompt').text(translatedPrompt);
@@ -139,7 +139,7 @@ function startCommentRating(commentID) {
     }
 
     function updateOutputReading() {
-        $('#quantitative-output').text(inputElement.val().toString() + '/9');
+        $('output#quantitative-output').text(inputElement.val().toString() + '/9');
     };
 
     inputElement.unbind('input');
@@ -184,7 +184,7 @@ function renderComments() {
     }
 
     var drag = d3.drag().on('start', startDrag).on('drag', continueDrag).on('end', endDrag);
-    var nodes = bloom.selectAll('g').data(nodeData).enter().append('g');
+    var nodes = bloom.selectAll('g').data(nodeData).enter().append('g').attr('cid', node => node.commentID);
 
     nodes.call(drag).on('click', function(node) {
         startCommentRating(node.commentID);
