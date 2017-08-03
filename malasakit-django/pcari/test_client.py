@@ -220,13 +220,16 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
 
     def answer_qualitative_questions(self, driver, response, test_case_name=None):
         comment_inputs = driver.find_elements_by_class_name('comment')
-        comments = response.get('comments', {})
+        comments = response.get('comments')
+        if comments is None:
+            return False
 
         for question_id, comment in comments.iteritems():
             text_areas = [comment_input for comment_input in comment_inputs
                           if int(comment_input.get_attribute('question-id')) == int(question_id)]
             if text_areas:
                 self.assertEqual(len(text_areas), 1)
+                text_areas[0].clear()
                 text_areas[0].send_keys(str(comment))
 
         if test_case_name:
@@ -236,9 +239,18 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
         return reverse('pcari:personal-information') in driver.current_url
 
     def provide_personal_information(self, driver, response, test_case_name=None):
-        respondent_data = response.get('respondent-data', {})
+        respondent_data = response.get('respondent-data')
+        if respondent_data is None:
+            return False
+
+        def replace_answer(input_id, text):
+            input_element = driver.find_element_by_id(input_id)
+            while input_element.get_attribute('value'):
+                input_element.send_keys(Keys.BACKSPACE)
+            input_element.send_keys(text)
+
         if 'age' in respondent_data:
-            driver.find_element_by_id('age').send_keys(str(respondent_data['age']))
+            replace_answer('age', str(respondent_data['age']))
         if 'gender' in respondent_data:
             input_element = driver.find_element_by_id('gender')
             select = Select(input_element)
@@ -249,12 +261,12 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
             driver.execute_script("""$(arguments[0]).trigger('input');""",
                                   input_element)
         if 'province' in respondent_data:
-            driver.find_element_by_id('province').send_keys(respondent_data['province'])
+            replace_answer('province', str(respondent_data['province']))
         if 'city-or-municipality' in respondent_data:
-            input_element = driver.find_element_by_id('city-or-municipality')
-            input_element.send_keys(respondent_data['city-or-municipality'])
+            replace_answer('city-or-municipality',
+                           str(respondent_data['city-or-municipality']))
         if 'barangay' in respondent_data:
-            driver.find_element_by_id('barangay').send_keys(respondent_data['barangay'])
+            replace_answer('barangay', str(respondent_data['barangay']))
 
         if test_case_name:
             self.screenshot(driver, test_case_name, 'personal-information.png')
@@ -435,10 +447,64 @@ class ResponseSubmissionTestCase(NavigationTestCase):
         self.assertEqual(new_respondent.comments.count(), 0)
 
     def test_change_response_submission(self, driver):
-        pass
+        Comment.objects.create(id=3, question_id=1, message='Testing comment 3',
+                               respondent=Respondent.objects.create(id=3))
+        self.assertFalse(self.walkthrough(driver, {
+            'question-ratings': {
+                1: 0,
+                2: 9,
+            },
+            'comment-ratings' :{
+                1: 1,
+                2: 5,
+            },
+            'comments': {
+                1: 'Testing',
+            },
+        }))
+        driver.back()  # Qualitative questions
+        driver.back()  # Rate comments
+        driver.back()  # Quantitative questions
+
+        new_response = {
+            'comment-ratings': {
+                3: 8,
+            },
+            'comments': {
+                1: 'Revised',
+            },
+            'respondent-data': {
+                'age': 119,
+            },
+        }
+
+        driver.find_element_by_id('previous').click()
+        driver.find_element_by_id('quantitative-input').set_range_value(4)
+        driver.find_element_by_id('submit').click()
+        driver.find_element_by_id('quantitative-input').set_range_value(4)
+        driver.find_element_by_id('submit').click()
+
+        self.assertTrue(self.rate_comments(driver, new_response))
+        self.assertEqual(driver.find_element_by_tag_name('textarea')
+                         .get_attribute('value'), 'Testing')
+        self.assertTrue(self.answer_qualitative_questions(driver, new_response))
+        self.assertTrue(self.provide_personal_information(driver, new_response))
+        time.sleep(1)
+
+        self.assertEqual(Respondent.objects.count(), 4)
+        new_respondent = Respondent.objects.exclude(id__in=[1, 2, 3]).first()
+        self.assertEqual(new_respondent.age, 119)
+        for rating in QuantitativeQuestionRating.objects.filter(respondent=new_respondent):
+            self.assertEqual(rating.score, 4)
+        self.assertEqual(CommentRating.objects.get(
+            comment_id=3,
+            respondent=new_respondent
+        ).score, 8)
+        self.assertEqual(new_respondent.comments.count(), 1)
+        self.assertEqual(new_respondent.comments.first().message, 'Revised')
 
 
-@tag('dev')
+@tag('slow')
 @use_drivers(*ALL_DRIVERS)
 class AppearanceTestCase(NavigationTestCase):
     @classmethod
@@ -520,6 +586,7 @@ class AppearanceTestCase(NavigationTestCase):
         Comment.objects.all().delete()
 
         response = {
+            'comments': {},
             'respondent-data': {},
         }
 
