@@ -4,4 +4,4 @@ from django.apps import AppConfig
 
 
 class FeaturePhoneConfig(AppConfig):
-    name = 'feature_phone'
+    name = 'Feature Phone'
