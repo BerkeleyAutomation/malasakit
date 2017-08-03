@@ -92,5 +92,8 @@ ENV/
 node_modules/
 package-lock.json
 
-# Other
+# Other data
 bloom-icon.json
+
+# Testing
+/malasakit-django/screenshots/

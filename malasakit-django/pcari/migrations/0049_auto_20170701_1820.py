@@ -283,7 +283,8 @@ class Migration(migrations.Migration):
             name='tag',
             field=models.CharField(blank=True, default='', max_length=256),
         ),
-        migrations.RunPython(add_qualitative_question_forward),
+        # The following operation should only be used when migrating from SQLite.
+        # migrations.RunPython(add_qualitative_question_forward),
         migrations.AddField(
             model_name='comment',
             name='language',
