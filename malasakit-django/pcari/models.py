@@ -151,6 +151,15 @@ class StatisticsMixin:
         return [mean - z_crit*sem, mean + z_crit*sem]
 
 
+class ActiveObjectManager(models.Manager):
+    """
+    The ``ActiveObjectManager`` provides a shortcut for filtering for active
+    instances by default.
+    """
+    def get_queryset(self):
+        return super(ActiveObjectManager, self).get_queryset().filter(active=True)
+
+
 class History(models.Model):
     """
     The ``History`` abstract model records how one model instance derives from
@@ -176,6 +185,9 @@ class History(models.Model):
         predecessors: A generator of predecessors, from the most recent to the
             original. Analogous to crawling up the revision tree.
     """
+    objects = models.Manager()
+    active_objects = ActiveObjectManager()
+
     predecessor = models.ForeignKey('self', on_delete=models.SET_NULL,
                                     null=True, blank=True, default=None,
                                     related_name='successors')
@@ -194,7 +206,6 @@ class History(models.Model):
             if field.editable and not field.unique:
                 value = getattr(self, field.name)
                 setattr(copy, field.name, value)
-
         return copy
 
     def diff(self, other):
