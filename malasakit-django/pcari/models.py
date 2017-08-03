@@ -16,17 +16,16 @@ References:
     * `The contenttypes framework <https://docs.djangoproject.com/en/dev/ref/contrib/contenttypes/>`_
 
 Attributes:
-    LANGUAGES (tuple): Available languages. Each language is represented as a
-        tuple of two elements: a code and a translated full name. For instance,
-        the language code for "English" would be "en". This attribute is pulled
-        from the project ``settings`` lazily.
+    LANGUAGE_VALIDATOR: A compiled regular expression that matches language
+        codes specified in ``settings`` (for instance, "en"). This regular
+        expression also matches a blank string, which indicates no language.
 """
 
 from __future__ import division, unicode_literals
 import json
 
-from django.core.exceptions import ValidationError
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
@@ -37,8 +36,7 @@ __all__ = ['Comment', 'QuantitativeQuestionRating', 'CommentRating',
            'QualitativeQuestion', 'QuantitativeQuestion', 'Respondent',
            'OptionQuestion', 'OptionQuestionChoice']
 
-LANGUAGES = settings.LANGUAGES
-_LANGUAGE_CODES = [''] + [code for code, name in LANGUAGES]
+_LANGUAGE_CODES = [''] + [code for code, name in settings.LANGUAGES]
 LANGUAGE_VALIDATOR = RegexValidator(r'^({0})$'.format('|'.join(_LANGUAGE_CODES)))
 
 
@@ -331,8 +329,9 @@ class Comment(Response, StatisticsMixin):
     question = models.ForeignKey('QualitativeQuestion',
                                  on_delete=models.CASCADE,
                                  related_name='comments')
-    language = models.CharField(max_length=8, choices=LANGUAGES, blank=True,
-                                default='', validators=[LANGUAGE_VALIDATOR])
+    language = models.CharField(max_length=8, choices=settings.LANGUAGES,
+                                blank=True, default='',
+                                validators=[LANGUAGE_VALIDATOR])
     message = models.TextField(blank=True, default='')
     flagged = models.BooleanField(default=False)
     tag = models.CharField(max_length=256, blank=True, default='')
@@ -536,8 +535,9 @@ class Respondent(History):
     gender = models.CharField(max_length=1, choices=GENDERS, blank=True,
                               default='', validators=[RegexValidator(r'^(|M|F)$')])
     location = models.CharField(max_length=512, blank=True, default='')
-    language = models.CharField(max_length=8, choices=LANGUAGES, blank=True,
-                                default='', validators=[LANGUAGE_VALIDATOR])
+    language = models.CharField(max_length=8, choices=settings.LANGUAGES,
+                                blank=True, default='',
+                                validators=[LANGUAGE_VALIDATOR])
     submitted_personal_data = models.BooleanField(default=False)
     completed_survey = models.BooleanField(default=False)
 
