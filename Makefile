@@ -54,7 +54,10 @@ lint: $(LINT_TARGETS:%.py=$(DJANGO_PROJECT_ROOT)/%.py)
 	pylint --output-format=colorized --rcfile=.pylintrc $^
 
 test:
-	cd $(DJANGO_PROJECT_ROOT) && ./manage.py test
+	cd $(DJANGO_PROJECT_ROOT) && ./manage.py test --exclude-tag=slow
+
+testclient:
+	cd $(DJANGO_PROJECT_ROOT) && ./manage.py test --tag=slow --failfast
 
 preparedocs:
 	mkdir -p $(DOCS_BUILD_PATH)

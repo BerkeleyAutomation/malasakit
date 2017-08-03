@@ -149,7 +149,7 @@ class Resource {
     }
 
     push(deleteOnSuccess=true) {
-        var resource = this;  // Alias for callbacks
+        var resource = this;  // Alias for the callback
         if (resource.endpoint !== undefined) {
             $.ajax(resource.endpoint, {
                 method: 'POST',

@@ -525,6 +525,7 @@ class Respondent(History):
             respondent.
     """
     GENDERS = (
+        ('', '(Empty)'),
         ('M', 'Male'),
         ('F', 'Female'),
     )
