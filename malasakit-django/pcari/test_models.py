@@ -22,18 +22,21 @@ from pcari.models import (
 )
 
 
-class StatisticsTests(TestCase):
+class StatisticsTestCase(TestCase):
     """ Ensure all descriptive statistics are computed correctly. """
+    serialized_rollback = True
+
     @classmethod
     def setUpTestData(cls):
         cls.question = QuantitativeQuestion.objects.create()
         QuantitativeQuestionRating.objects.bulk_create([
-            # `-1` (skipped) should be filtered out
+            # Skipped ratings should be filtered out
             QuantitativeQuestionRating(
                 question=cls.question,
                 score=score,
                 respondent=Respondent.objects.create(language='en')
-            ) for score in [-1, 9, 3, 3, 4, -1]
+            ) for score in [QuantitativeQuestionRating.SKIPPED, 9, 3, 3, 4,
+                            QuantitativeQuestionRating.SKIPPED]
         ] + [
             # A bunch of inactive ratings that should be filtered out
             QuantitativeQuestionRating(
@@ -95,19 +98,23 @@ class StatisticsTests(TestCase):
                             QuantitativeQuestionRating.NOT_RATED)
 
     def test_score_stdev(self):
+        # Answers are calculated from `np.std` with `ddof=1` (one delta degree of freedom)
         self.assertAlmostEqual(self.question.score_stdev, 2.87228132327)
         self.assertAlmostEqual(self.comment.score_stdev, 2.1213203435596424)
         CommentRating.objects.filter(score=3, active=True).delete()
         self.assertTrue(math.isnan(self.comment.score_stdev))
 
     def test_score_sem(self):
+        # Answers are calculated from `scipy.stats.sem`
         self.assertAlmostEqual(self.question.score_sem, 1.436140662)
         self.assertTrue(math.isnan(self.question_no_ratings.score_sem))
         self.assertAlmostEqual(self.comment.score_sem, 1.5)
 
 
-class PropertyTests(TestCase):
+class PropertyTestCase(TestCase):
     """ Test other dynamically computed model attributes. """
+    serialized_rollback = True
+
     def test_option_question_choice_wrapping(self):
         question = OptionQuestion.objects.create(
             _options_text='["red", "green", "blue"]',
@@ -197,8 +204,10 @@ class PropertyTests(TestCase):
             self.assertLess(first.timestamp, second.timestamp)
 
 
-class HistoryTests(TestCase):
+class HistoryTestCase(TestCase):
     """ Ensure history is tracked correctly. """
+    serialized_rollback = True
+
     def test_make_copy(self):
         respondent = Respondent.objects.create(age=1, gender='M', location='?')
         copy = respondent.make_copy()
@@ -271,8 +280,10 @@ class HistoryTests(TestCase):
         self.assertEqual(primary_keys, [])
 
 
-class IntegrityTests(TransactionTestCase):
+class IntegrityTestCase(TransactionTestCase):
     """ Ensure the data passes tests for uniqueness and not being null. """
+    serialized_rollback = True
+
     def test_rating_respondent_unique_together(self):
         respondent = Respondent.objects.create()
         question = QuantitativeQuestion.objects.create()
@@ -301,8 +312,10 @@ class IntegrityTests(TransactionTestCase):
         Comment.objects.create(respondent=respondent, question=question)
 
 
-class ValidationTests(TestCase):
+class ValidationTestCase(TestCase):
     """ Ensure validation catches invalid input while allowing valid input. """
+    serialized_rollback = True
+
     def test_quantitative_question_rating_bound_validation(self):
         unbounded_question = QuantitativeQuestion.objects.create(
             min_score=None,

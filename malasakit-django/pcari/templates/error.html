@@ -6,7 +6,7 @@
 {% block main-heading %}Error: {{ heading }}{% endblock %}
 
 {% block content %}
-  <p class="error">
+  <p class="error banner">
     {% trans message %}
   </p>
   {% url 'pcari:landing' as next_link %}

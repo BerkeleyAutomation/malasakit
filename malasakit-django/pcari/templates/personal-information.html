@@ -12,7 +12,7 @@
         inputElement.on('input', function() {
           var value = preprocess($(this).val()) || null;
           if (value === null && path.length > 0) {
-            var respondentData = getResponseValue(['respondent-data']);
+            var respondentData = getResponseValue(path.slice(0, -1));
             delete respondentData[path[path.length - 1]];
             setResponseValue(['respondent-data'], respondentData);
           } else {
