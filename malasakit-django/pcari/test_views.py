@@ -45,6 +45,8 @@ def generate_page_urls(endpoints=PAGE_ENDPOINTS):
 
 
 class ResourceFetchTestCase(TestCase):
+    serialized_rollback = True
+
     def setUp(self):
         self.client = Client()
 
@@ -119,6 +121,8 @@ class ResourceFetchTestCase(TestCase):
 
 
 class ResponseSaveTestCase(TestCase):
+    serialized_rollback = True
+
     @classmethod
     def setUpTestData(cls):
         question = QuantitativeQuestion(id=1)
@@ -198,6 +202,8 @@ class ResponseSaveTestCase(TestCase):
 
 class PCACorrectnessTestCase(TestCase):
     """ Test the correctness of the principal component analysis. """
+    serialized_rollback = True
+
     fixtures = ['pca-test-data.yaml']
 
     def test_ratings_matrix_entries(self):

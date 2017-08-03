@@ -28,16 +28,16 @@
 {% endblock %}
 
 {% block content %}
-  <p>
-    {% blocktrans trimmed %}
-      Below, you can see how the other respondents answered the quantitative questions.
-    {% endblocktrans %}
-  </p>
-  <peer-responses>
-    {% for question in questions %}
-      <div class="boxed">
+  {% if questions %}
+    <p>
+      {% blocktrans trimmed %}
+        Below, you can see how the other respondents answered the survey questions.
+      {% endblocktrans %}
+    </p>
+    <div id="peer-responses">
+      {% for question in questions %}
         {% with num_ratings=question.num_ratings mean=question.mean_score|floatformat %}
-          {% if num_ratings > 0 %}
+          <div class="boxed">
             <p>
               {% blocktrans trimmed %}
                 <strong>{{ num_ratings }}</strong> other people answered this question:
@@ -56,11 +56,13 @@
                 {% trans 'Your answer:'%} <strong id="answer-{{ id }}">{% trans 'Skip' %}</strong>
               {% endwith %}
             </div>
-          {% endif %}
+          </div>
         {% endwith %}
-      </div>
-    {% endfor %}
-  </peer-responses>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="error banner">{% trans 'There are not enough data to show how your responses compare to those of others.' %}</p>
+  {% endif %}
   {% url 'pcari:end' as next_link %}
   {% include 'nav-buttons.html' %}
 {% endblock %}
