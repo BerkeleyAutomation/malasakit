@@ -24,6 +24,7 @@ Attributes:
 
 from __future__ import division, unicode_literals
 import json
+import os
 
 from django.core.exceptions import ValidationError
 from django.conf import settings
@@ -149,8 +150,13 @@ class Response(History):
     respondent = models.ForeignKey('Respondent', on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
 
-    audio = models.FileField(upload_to="/Response")
+    audio = models.FileField(upload_to=self.audio_path)
     # path to audio files in the media directory
+
+    @property
+    def audio_path(self):
+        """Model files will be saved in <model>/<id>"""
+        return os.path.join(type(self).__name__, self.id)
 
     class Meta:
         abstract = True
@@ -290,9 +296,17 @@ class Question(History):
     """
     language = models.CharField(max_length=8, choices=LANGUAGES, blank=True,
                                 default='', validators=[LANGUAGE_VALIDATOR])
-    audio = models.FileField(upload_to='Question/')
+
     tag = models.CharField(max_length=256, blank=True, default='')
     response_time = models.PositiveSmallIntegerField(default=5,null=True)
+
+    audio = models.FileField(upload_to=self.audio_path)
+    # path to audio files in the media directory
+
+    @property
+    def audio_path(self):
+        """Model files will be saved in <model>/<id>"""
+        return os.path.join(type(self).__name__, self.id)
 
     class Meta:
         abstract = True
