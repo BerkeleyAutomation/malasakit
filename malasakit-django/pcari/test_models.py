@@ -318,21 +318,21 @@ class ValidationTestCase(TestCase):
         )
         for _ in range(random.randrange(100)):
             QuantitativeQuestionRating(respondent=Respondent.objects.create(),
-                                       score=random.randint(-10000, 10000),
+                                       score=random.randint(0, 10000),
                                        question=unbounded_question).full_clean()
 
         bounded_question = QuantitativeQuestion.objects.create(
-            min_score=0,
+            min_score=5,
             max_score=20,
         )
         sentinels = [QuantitativeQuestionRating.SKIPPED]*10
-        for score in [random.randint(0, 20) for _ in range(10)] + sentinels:
+        for score in [random.randint(5, 20) for _ in range(10)] + sentinels:
             QuantitativeQuestionRating(respondent=Respondent.objects.create(),
                                        question=bounded_question,
                                        score=score).full_clean()
 
         scores = [random.randint(21, 10000) for _ in range(10)]
-        scores += [random.randint(-10000, -1) for _ in range(10)]
+        scores += [random.randrange(0, 5) for _ in range(10)]
         for score in scores:
             with self.assertRaises(ValidationError):
                 QuantitativeQuestionRating(respondent=Respondent.objects.create(),
