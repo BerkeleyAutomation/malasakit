@@ -18,8 +18,11 @@ from pcari.models import (
     QuantitativeQuestionRating,
     Comment,
     CommentRating,
-    OptionQuestionChoice
+    OptionQuestionChoice,
+    Rating,
 )
+
+RATING_CHOICES = list(range(0, 9)) + [Rating.SKIPPED]
 
 
 class StatisticsTestCase(TestCase):
@@ -41,7 +44,7 @@ class StatisticsTestCase(TestCase):
             # A bunch of inactive ratings that should be filtered out
             QuantitativeQuestionRating(
                 question=cls.question,
-                score=random.randint(-2, 9),
+                score=random.choice(RATING_CHOICES),
                 respondent=Respondent.objects.create(language='en'),
                 active=False
             ) for _ in range(random.randrange(100))
@@ -189,7 +192,7 @@ class PropertyTestCase(TestCase):
             QuantitativeQuestionRating.objects.create(
                 question=question,
                 respondent=Respondent.objects.create(),
-                score=random.randint(-2, 9)
+                score=random.choice(RATING_CHOICES),
             ) for _ in range(random.randrange(100))
         ]
         for first, second in zip(questions[:-1], questions[1:]):
@@ -282,21 +285,21 @@ class IntegrityTestCase(TransactionTestCase):
         rating = QuantitativeQuestionRating.objects.create(
             respondent=respondent,
             question=question,
-            score=random.randint(-2, 9),
+            score=random.choice(RATING_CHOICES),
         )
         with self.assertRaises(IntegrityError):
             QuantitativeQuestionRating.objects.create(respondent=respondent,
                                                       question=question,
-                                                      score=random.randint(-2, 9))
+                                                      score=random.choice(RATING_CHOICES))
 
         question = QualitativeQuestion.objects.create()
         comment = Comment.objects.create(respondent=Respondent.objects.create(),
                                          question=question)
         rating = CommentRating.objects.create(respondent=respondent,
-                                              comment=comment, score=random.randint(-2, 9))
+                                              comment=comment, score=random.choice(RATING_CHOICES))
         with self.assertRaises(IntegrityError):
             CommentRating.objects.create(respondent=respondent, comment=comment,
-                                         score=random.randint(-2, 9))
+                                         score=random.choice(RATING_CHOICES))
 
         # OK for one respondent to have two comments for the same quantitative
         # question
