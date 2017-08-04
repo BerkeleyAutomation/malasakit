@@ -173,8 +173,8 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
                 self.screenshot(driver, test_case_name,
                                 'quantitative-question-{0}.png'.format(question_id))
 
-            score = scores.get(question_id, scores.get(str(question_id)))
-            if score is None:
+            score = scores.get(question_id, scores.get(str(question_id), -1))
+            if score == -1:
                 break
             elif score == QuantitativeQuestionRating.SKIPPED:
                 driver.find_element_by_id('skip').click()
@@ -205,14 +205,14 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
                 self.assertEqual(len(icons), 1)
                 icons[0].find_element_by_tag_name('text').click()
 
-                if score != QuantitativeQuestionRating.SKIPPED:
+                if score != CommentRating.SKIPPED:
                     driver.find_element_by_id('quantitative-input').set_range_value(score)
 
                 if test_case_name:
                     self.screenshot(driver, test_case_name,
                                     'rate-comments-{0}.png'.format(comment_id))
 
-                button_id = 'skip' if score == QuantitativeQuestionRating.SKIPPED else 'submit'
+                button_id = 'skip' if score == CommentRating.SKIPPED else 'submit'
                 driver.find_element_by_id(button_id).click()
 
         driver.find_element_by_id('next').click()
