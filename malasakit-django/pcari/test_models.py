@@ -56,17 +56,17 @@ class StatisticsTestCase(TestCase):
             respondent=Respondent.objects.create(language='en'),
         )
         CommentRating.objects.bulk_create([
-            # `-2` (not rated) should be filtered out
+            # Skipped rating should be filtered out
             CommentRating(
                 comment=cls.comment,
                 score=score,
                 respondent=Respondent.objects.create(language='en')
-            ) for score in [-2, 0, 3]
+            ) for score in [CommentRating.SKIPPED, 0, 3]
         ] + [
             # A bunch of inactive ratings that should be filtered out
             CommentRating(
                 comment=cls.comment,
-                score=random.randint(-2, 9),
+                score=random.randint(0, 9),
                 respondent=Respondent.objects.create(language='en'),
                 active=False
             ) for _ in range(random.randrange(100))
@@ -95,7 +95,7 @@ class StatisticsTestCase(TestCase):
         QuantitativeQuestionRating.objects.filter(score=3).update(score=9)
         self.assertEqual(self.question.mode_score, 9)
         self.assertNotEqual(self.comment.mode_score,
-                            QuantitativeQuestionRating.NOT_RATED)
+                            QuantitativeQuestionRating.SKIPPED)
 
     def test_score_stdev(self):
         # Answers are calculated from `np.std` with `ddof=1` (one delta degree of freedom)
@@ -138,14 +138,10 @@ class PropertyTestCase(TestCase):
         respondent = Respondent.objects.create()
         num_questions_presented = random.randrange(100)
         num_questions_rated = random.randint(0, num_questions_presented)
+        num_filtered = num_questions_presented - num_questions_rated
         scores = [
             random.randrange(10) for _ in range(num_questions_rated)
-        ] + [
-            # A bunch of scores that should be filtered out
-            random.choice([QuantitativeQuestionRating.NOT_RATED,
-                           QuantitativeQuestionRating.SKIPPED])
-            for _ in range(num_questions_presented - num_questions_rated)
-        ]
+        ] + [QuantitativeQuestionRating.SKIPPED]*num_filtered
 
         random.shuffle(scores)
         for score in scores:
@@ -165,14 +161,10 @@ class PropertyTestCase(TestCase):
         question = QualitativeQuestion.objects.create()
         num_comments_presented = random.randrange(100)
         num_comments_rated = random.randint(0, num_comments_presented)
+        num_filtered = num_comments_presented - num_comments_rated
         scores = [
             random.randrange(10) for _ in range(num_comments_rated)
-        ] + [
-            # A bunch of scores that should be filtered out
-            random.choice([QuantitativeQuestionRating.NOT_RATED,
-                           QuantitativeQuestionRating.SKIPPED])
-            for _ in range(num_comments_presented - num_comments_rated)
-        ]
+        ] + [QuantitativeQuestionRating.SKIPPED]*num_filtered
 
         random.shuffle(scores)
         for score in scores:
@@ -330,16 +322,14 @@ class ValidationTestCase(TestCase):
             min_score=0,
             max_score=20,
         )
-
-        sentinels = [QuantitativeQuestionRating.SKIPPED,
-                     QuantitativeQuestionRating.NOT_RATED]
+        sentinels = [QuantitativeQuestionRating.SKIPPED]*10
         for score in [random.randint(0, 20) for _ in range(10)] + sentinels:
             QuantitativeQuestionRating(respondent=Respondent.objects.create(),
                                        question=bounded_question,
                                        score=score).full_clean()
 
         scores = [random.randint(21, 10000) for _ in range(10)]
-        scores += [random.randint(-10000, -3) for _ in range(10)]
+        scores += [random.randint(-10000, -1) for _ in range(10)]
         for score in scores:
             with self.assertRaises(ValidationError):
                 QuantitativeQuestionRating(respondent=Respondent.objects.create(),
