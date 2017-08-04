@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 
+import os
+
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -10,11 +12,15 @@ from pcari.models import LANGUAGE_VALIDATOR
 
 
 class Recording(models.Model):
+    def get_file_path(instance, filename):
+        """Determines the path for a given Recording's save location."""
+        return os.path.join(str(instance.content_type), instance.id)
+
     language = models.CharField(max_length=8, choices=settings.LANGUAGES,
                                 blank=True, default='',
                                 validators=[LANGUAGE_VALIDATOR])
     timestamp = models.DateTimeField(auto_now_add=True)
-    file = models.FileField()
+    file = models.FileField(upload_to=get_file_path)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey()
