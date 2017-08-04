@@ -159,8 +159,7 @@ it inherits from <code class="xref py py-class docutils literal"><span class="pr
 <code class="docutils literal"><span class="pre">Model</span></code>). The model must have a related name <code class="docutils literal"><span class="pre">ratings</span></code> (that is, the
 reverse relationship of a many-to-one) that accesses a <code class="docutils literal"><span class="pre">QuerySet</span></code> of
 instances of a model that inherits from <a class="reference internal" href="#pcari.models.Rating" title="pcari.models.Rating"><code class="xref py py-class docutils literal"><span class="pre">Rating</span></code></a>.</p>
-<p>All properties exclude the sentinel scores <a class="reference internal" href="#pcari.models.Rating.SKIPPED" title="pcari.models.Rating.SKIPPED"><code class="xref py py-attr docutils literal"><span class="pre">Rating.SKIPPED</span></code></a> and
-<a class="reference internal" href="#pcari.models.Rating.NOT_RATED" title="pcari.models.Rating.NOT_RATED"><code class="xref py py-attr docutils literal"><span class="pre">Rating.NOT_RATED</span></code></a>.</p>
+<p>All properties exclude skipped ratings (see <a class="reference internal" href="#pcari.models.Rating.SKIPPED" title="pcari.models.Rating.SKIPPED"><code class="xref py py-attr docutils literal"><span class="pre">Rating.SKIPPED</span></code></a>).</p>
 <dl class="attribute">
 <dt id="pcari.models.StatisticsMixin.scores">
 <code class="descname">scores</code><a class="headerlink" href="#pcari.models.StatisticsMixin.scores" title="Permalink to this definition">¶</a></dt>
@@ -272,13 +271,6 @@ instance is created. This field is not editable.)</p>
 <dd><p>Bases: <a class="reference internal" href="#pcari.models.Response" title="pcari.models.Response"><code class="xref py py-class docutils literal"><span class="pre">pcari.models.Response</span></code></a></p>
 <p>A <code class="docutils literal"><span class="pre">Rating</span></code> is an abstract model of a numeric response.</p>
 <dl class="attribute">
-<dt id="pcari.models.Rating.NOT_RATED">
-<code class="descname">NOT_RATED</code><a class="headerlink" href="#pcari.models.Rating.NOT_RATED" title="Permalink to this definition">¶</a></dt>
-<dd><p>A sentinel value assigned to a <code class="docutils literal"><span class="pre">Rating</span></code> that the
-respondent never submitted (that is, a default value).</p>
-</dd></dl>
-
-<dl class="attribute">
 <dt id="pcari.models.Rating.SKIPPED">
 <code class="descname">SKIPPED</code><a class="headerlink" href="#pcari.models.Rating.SKIPPED" title="Permalink to this definition">¶</a></dt>
 <dd><p>A sentinel value assigned to a <code class="docutils literal"><span class="pre">Rating</span></code> where the user
@@ -305,12 +297,7 @@ this model.)</p>
 
 <dl class="attribute">
 <dt>
-<code class="descname">NOT_RATED</code><em class="property"> = -2</em></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt>
-<code class="descname">SKIPPED</code><em class="property"> = -1</em></dt>
+<code class="descname">SKIPPED</code><em class="property"> = None</em></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -782,7 +769,7 @@ respondent.</p>
 
 <dl class="attribute">
 <dt>
-<code class="descname">GENDERS</code><em class="property"> = ((u'M', u'Male'), (u'F', u'Female'))</em></dt>
+<code class="descname">GENDERS</code><em class="property"> = ((u'', u'(Empty)'), (u'M', u'Male'), (u'F', u'Female'))</em></dt>
 <dd></dd></dl>
 
 <dl class="exception">

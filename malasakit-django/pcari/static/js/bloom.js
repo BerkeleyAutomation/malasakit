@@ -134,7 +134,7 @@ function startCommentRating(commentID) {
 
     inputElement.val(0);
     var path = ['comment-ratings', commentID];
-    if (getResponseValue(path) === null) {
+    if (getResponseValue(path) === undefined) {
         setResponseValue(path, parseInt(inputElement.val()));
     }
 
@@ -153,7 +153,7 @@ function startCommentRating(commentID) {
 
     $('#skip').unbind('click');
     $('#skip').on('click', function() {
-        setResponseValue(path, -1);
+        setResponseValue(path, null);
         resetBloom();
     });
 }
