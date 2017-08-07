@@ -11,17 +11,36 @@ from django.utils.translation import ugettext_lazy as _
 from pcari.models import LANGUAGE_VALIDATOR
 
 
-class Recording(models.Model):
-    def get_file_path(instance, filename):
-        """Determines the path for a given Recording's save location."""
-        return os.path.join(str(instance.content_type), instance.id)
+class RelatedModelMixin(models.Model):
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField(null=True, blank=True, default=None)
+    content_object = GenericForeignKey()
 
+    class Meta:
+        abstract = True
+
+
+class Recording(models.Model):
     language = models.CharField(max_length=8, choices=settings.LANGUAGES,
                                 blank=True, default='',
                                 validators=[LANGUAGE_VALIDATOR])
+    file = models.FileField()
+
+    class Meta:
+        abstract = True
+
+
+class QuestionRecording(Recording, RelatedModelMixin):
+    tag = models.CharField(max_length=256, blank=True, default='')
+
+
+class ResponseRecording(Recording, RelatedModelMixin):
     timestamp = models.DateTimeField(auto_now_add=True)
-    file = models.FileField(upload_to=get_file_path)
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey()
-    content_object_field_name = models.CharField(max_length=100)
+    question = QuestionRecording('QuestionRecording', on_delete=models.CASCADE)
+    respondent = models.ForeignKey('Respondent', on_delete=models.CASCADE)
+
+
+class Respondent(RelatedModelMixin):
+    age = models.FileField()
+    gender = models.FileField()
+    location = models.FileField()
