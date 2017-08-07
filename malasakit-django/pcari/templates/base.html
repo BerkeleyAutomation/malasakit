@@ -19,7 +19,7 @@
     {% block scripts %}
     {% endblock %}
 
-    <title>Free Speech for Free Speech &bullet; {% block title %}{% endblock %}</title>
+    <title>Free Speech on Free Speech &bullet; {% block title %}{% endblock %}</title>
   </head>
   <body>
     {% get_available_languages as languages %}
@@ -38,7 +38,7 @@
     {% endif %}
     <header>
       <div class="container">
-        <h1 id="main-heading">{% block main-heading %}Free Speech for Free Speech{% endblock %}</h1>
+        <h1 id="main-heading">{% block main-heading %}Free Speech on Free Speech{% endblock %}</h1>
       </div>
     </header>
     <main>
@@ -53,9 +53,7 @@
         <p id="footnote">
           {% block footnote %}
             {% blocktrans trimmed %}
-              A project by the CITRIS Connected Communities Initiative at
-              UC Berkeley and National University, Philippines
-              through the Philippine-California Advanced Research Institutes Project.
+              A project by the CITRIS Connected Communities Initiative at UC Berkeley.
             {% endblocktrans %}
             {% trans 'If you are a developer interested in this project, please view our' %} <a href="{% url 'pcari:dev' %}">{% trans 'developer page' %}</a>.
           {% endblock %}
