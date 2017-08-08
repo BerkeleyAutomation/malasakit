@@ -53,6 +53,7 @@ urlpatterns = [
 urlpatterns += i18n_patterns(url(r'^', include('pcari.urls')))
 urlpatterns += [url(r'^$', RedirectView.as_view(url=reverse('pcari:landing')),
                     name='to-landing')]
+urlpatterns += [url(r'^feature_phone/', include('feature_phone.urls'))]
 
 # Error handlers
 handler404 = 'pcari.views.handle_page_not_found'
