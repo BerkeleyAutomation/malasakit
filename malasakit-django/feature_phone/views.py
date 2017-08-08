@@ -31,15 +31,17 @@ from pcari.models import get_concrete_fields
 
 # Placeholder flow will yank content straight from v1.25 models
 
+@ensure_csrf_cookie
 def landing(request):
     res = VoiceResponse()
 
     # REPLACE WITH INTRO INSTRUCTIONS
     res.say("Welcome to Malasakit. Here you will be askd several questions about typhoon preparedness.")
     res.pause(1)
-    res.redirect(reverse('feature_phone:quantitative-questions', args=(1,)))
-    return str(res)
+    res.redirect(reverse('feature_phone:quantitative-questions'))
+    return HttpResponse(res)
 
+@ensure_csrf_cookie
 def quantitative_questions(request, question_id):
     res = VoiceResponse()
 
@@ -57,12 +59,13 @@ def quantitative_questions(request, question_id):
             next_url = reverse('feature_phone:rate-comments')
 
         res.record(max_length=3,timeout=3,action=next_url)
-        return str(res)
+        return HttpResponse(res)
     except DoesNotExist:
         res.say("ERROR: Question does not exist. Restarting.")
         res.redirect(reverse('feature_phone:landing'))
-        return str(res)
+        return HttpResponse(res)
 
+@ensure_csrf_cookie
 def process_recording(request, next_url):
     """
     After saving the recording, redirect to the next url.
@@ -72,8 +75,9 @@ def process_recording(request, next_url):
     # SAVE AUDIO RESPONSE HERE
     res.say("Recording saved.")
     res.redirect(next_url)
-    return res
+    return HttpResponse(res)
 
+@ensure_csrf_cookie
 def rate_comments(request, num_rated):
     """
     Can the user keep rating? Not sure. Let's assume no for now.
@@ -97,9 +101,10 @@ def rate_comments(request, num_rated):
         next_url = reverse('feature_phone:rate-comments', args=(num_rated + 1,))
 
     res.record(max_length=3,timeout=3,action=next_url)
-    return str(res)
+    return HttpResponse(res)
 
+@ensure_csrf_cookie
 def end(request):
     res = VoiceResponse()
     res.say('Thanks for particpating in Malasakit.')
-    return str(res)
+    return HttpResponse(res)
