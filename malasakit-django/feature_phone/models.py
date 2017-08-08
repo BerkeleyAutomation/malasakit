@@ -24,12 +24,13 @@ class RelatedModelMixin(models.Model):
         abstract = True
 
 
-class Instructions(models.Model):
-    def generate_recording_path(instance, filename):
-        model_name_plural = instance.__class__._meta.verbose_name_plural
-        model_name_slug = model_name_plural.lower().replace(' ', '-')
-        return '{0}/{1}'.format(model_name_slug, filename)
+def generate_recording_path(instance, filename):
+    model_name_plural = instance.__class__._meta.verbose_name_plural
+    model_name_slug = model_name_plural.lower().replace(' ', '-')
+    return '{0}/{1}'.format(model_name_slug, filename)
 
+
+class Instructions(models.Model):
     recording = models.FileField(upload_to=generate_recording_path)
     tag = models.CharField(max_length=256, blank=True, default='')
     language = models.CharField(max_length=8, choices=settings.LANGUAGES,
@@ -64,22 +65,30 @@ class QuestionResponse(Response, RelatedModelMixin):
 
 
 class CommentRating(Response):
-    comment = models.ForeignKey('Response', on_delete=models.CASCADE)
-    related_object = models.OneToOneField('pcari.CommentRating', null=True, on_delete=models.CASCADE)
+    comment = models.ForeignKey('QuestionResponse', on_delete=models.CASCADE)
+    related_object = models.OneToOneField('pcari.CommentRating', null=True,
+                                          blank=True, default=None,
+                                          on_delete=models.CASCADE,
+                                          related_name='related_object')
 
     class Meta:
         unique_together = ('comment', 'respondent')
 
 
-class Respondent(models.Model):
-    def make_recording_path_generator(field_name):
-        def generate_recording_path(instance, filename):
-            return 'respondent/{0}/{1}'.format(instance.pk, field_name)
+def make_recording_path_generator(field_name):
+    def generate_recording_path(instance, filename):
+        return 'respondent/{0}/{1}'.format(instance.pk, field_name)
+    return generate_recording_path
 
+
+class Respondent(models.Model):
     age = models.FileField(upload_to=make_recording_path_generator('age'))
     gender = models.FileField(upload_to=make_recording_path_generator('gender'))
     location = models.FileField(upload_to=make_recording_path_generator('location'))
     language = models.CharField(max_length=8, choices=settings.LANGUAGES,
                                 blank=True, default='',
                                 validators=[LANGUAGE_VALIDATOR])
-    related_object = models.OneToOneField('pcari.Respondent', null=True, on_delete=models.CASCADE)
+    related_object = models.OneToOneField('pcari.Respondent', null=True,
+                                          blank=True, default=None,
+                                          on_delete=models.CASCADE,
+                                          related_name='related_object')
