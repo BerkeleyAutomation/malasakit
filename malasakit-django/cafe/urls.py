@@ -16,7 +16,9 @@ Including another URLconf
 """
 
 from django.shortcuts import reverse
+from django.conf import settings
 from django.conf.urls import include, url
+from django.conf.urls.static import static
 from django.conf.urls.i18n import i18n_patterns
 from django.contrib.auth import views as auth_views
 from django.views.generic.base import TemplateView, RedirectView
@@ -53,6 +55,10 @@ urlpatterns = [
 urlpatterns += i18n_patterns(url(r'^', include('pcari.urls')))
 urlpatterns += [url(r'^$', RedirectView.as_view(url=reverse('pcari:landing')),
                     name='to-landing')]
+
+# Serve media files in development
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # Error handlers
 handler404 = 'pcari.views.handle_page_not_found'
