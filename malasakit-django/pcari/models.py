@@ -63,8 +63,7 @@ class StatisticsMixin:
     reverse relationship of a many-to-one) that accesses a ``QuerySet`` of
     instances of a model that inherits from :class:`Rating`.
 
-    All properties exclude the sentinel scores :attr:`Rating.SKIPPED` and
-    :attr:`Rating.NOT_RATED`.
+    All properties exclude skipped ratings (see :attr:`Rating.SKIPPED`).
 
     Attributes:
         scores: A flat ``QuerySet`` of integer scores.
@@ -85,8 +84,6 @@ class StatisticsMixin:
         active_ratings = self.ratings.filter(active=True)
         active_ratings = active_ratings.exclude(
             score=Rating.SKIPPED
-        ).exclude(
-            score=Rating.NOT_RATED
         )
         return active_ratings.values_list('score', flat=True)
 
@@ -230,18 +227,15 @@ class Rating(Response):
     A ``Rating`` is an abstract model of a numeric response.
 
     Attributes:
-        NOT_RATED: A sentinel value assigned to a ``Rating`` that the
-            respondent never submitted (that is, a default value).
         SKIPPED: A sentinel value assigned to a ``Rating`` where the user
             intentionally chose to decline rating a question or a comment.
         score: An integer that quantifies a rating. (No scale is provided, by
             design. Interpreting the :attr:`score` is not the responsibility of
             this model.)
     """
-    NOT_RATED = -2
-    SKIPPED = -1
+    SKIPPED = None
 
-    score = models.SmallIntegerField(default=NOT_RATED)
+    score = models.PositiveSmallIntegerField(default=SKIPPED, null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -275,8 +269,7 @@ class QuantitativeQuestionRating(Rating):
         if max_score is None:
             max_score = float('inf')
 
-        sentinels = [Rating.SKIPPED, Rating.NOT_RATED]
-        if not (min_score <= self.score <= max_score) and self.score not in sentinels:
+        if not (min_score <= self.score <= max_score) and self.score != Rating.SKIPPED:
             raise ValidationError(_('Score not in min and max bounds'),
                                   code='score-out-of-bounds')
 
@@ -408,8 +401,8 @@ class QuantitativeQuestion(Question, StatisticsMixin):
 
     left_anchor = models.TextField(blank=True, default='')
     right_anchor = models.TextField(blank=True, default='')
-    min_score = models.SmallIntegerField(default=0, null=True)
-    max_score = models.SmallIntegerField(default=9, null=True)
+    min_score = models.PositiveSmallIntegerField(default=0, null=True)
+    max_score = models.PositiveSmallIntegerField(default=9, null=True)
     input_type = models.CharField(max_length=16, choices=INPUT_TYPE_CHOICES,
                                   default='range')
 
@@ -547,15 +540,13 @@ class Respondent(History):
 
     def num_questions_rated(self):
         ratings = QuantitativeQuestionRating.objects.filter(respondent=self)
-        ratings = ratings.exclude(score=Rating.NOT_RATED).exclude(score=Rating.SKIPPED)
-        return ratings.count()
+        return ratings.exclude(score=Rating.SKIPPED).count()
     num_questions_rated.short_description = 'Number of questions rated'
     num_questions_rated = property(num_questions_rated)
 
     def num_comments_rated(self):
         ratings = CommentRating.objects.filter(respondent=self)
-        ratings = ratings.exclude(score=Rating.NOT_RATED).exclude(score=Rating.SKIPPED)
-        return ratings.count()
+        return ratings.exclude(score=Rating.SKIPPED).count()
     num_comments_rated.short_description = 'Number of comments rated'
     num_comments_rated = property(num_comments_rated)
 
