@@ -402,9 +402,9 @@ class QuantitativeQuestion(Question, StatisticsMixin):
     left_anchor = models.TextField(blank=True, default='')
     right_anchor = models.TextField(blank=True, default='')
     min_score = models.PositiveSmallIntegerField(default=0, null=True,
-                                                 verbose_name='Maximum score')
+                                                 verbose_name=_('Maximum score'))
     max_score = models.PositiveSmallIntegerField(default=9, null=True,
-                                                 verbose_name='Minimum score')
+                                                 verbose_name=_('Minimum score'))
     input_type = models.CharField(max_length=16, choices=INPUT_TYPE_CHOICES,
                                   default='range')
 
@@ -436,7 +436,7 @@ class OptionQuestion(Question):
     )
 
     _options_text = models.TextField(blank=True, default=json.dumps([]),
-                                     verbose_name='Options as JSON list')
+                                     verbose_name=_('Options as JSON list'))
     input_type = models.CharField(max_length=16, choices=INPUT_TYPE_CHOICES,
                                   default='select')
 

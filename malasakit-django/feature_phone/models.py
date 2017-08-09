@@ -19,7 +19,8 @@ class RelatedObjectMixin(models.Model):
         related_name='+',
     )
     related_object_id = models.PositiveIntegerField(null=True, blank=True,
-                                                    default=None)
+                                                    default=None,
+                                                    verbose_name=_('Related object ID'))
     related_object = GenericForeignKey('related_object_type',
                                        'related_object_id')
 
@@ -58,6 +59,8 @@ class Question(Instructions, RelatedObjectMixin):
         if not set(exclude) & fields:
             try:
                 question = Question.objects.get(related_object_type)
+                if question != self:
+                    raise ValueError
             except Question.DoesNotExist:
                 return
             except (ValueError, Question.MultipleObjectsReturned):
@@ -77,7 +80,8 @@ class Response(Recording, RelatedObjectMixin):
         on_delete=models.CASCADE,
         related_name='+',
     )
-    prompt_id = models.PositiveIntegerField(null=True, blank=True, default=None)
+    prompt_id = models.PositiveIntegerField(null=True, blank=True, default=None,
+                                            verbose_name=_('Prompt ID'))
     prompt = GenericForeignKey('prompt_type', 'prompt_id')
 
     class Meta:
@@ -88,9 +92,12 @@ class Response(Recording, RelatedObjectMixin):
 
 
 class Respondent(models.Model):
-    age = models.FileField(upload_to='respondent/age/', null=True, blank=True, default=None)
-    gender = models.FileField(upload_to='respondent/gender/', null=True, blank=True, default=True)
-    location = models.FileField(upload_to='respondent/location/', null=True, blank=True, default=True)
+    age = models.FileField(upload_to='respondent/age/', null=True, blank=True,
+                           default=None)
+    gender = models.FileField(upload_to='respondent/gender/', null=True,
+                              blank=True, default=True)
+    location = models.FileField(upload_to='respondent/location/', null=True,
+                                blank=True, default=True)
     language = models.CharField(max_length=8, choices=settings.LANGUAGES,
                                 blank=True, default='',
                                 validators=[LANGUAGE_VALIDATOR])
