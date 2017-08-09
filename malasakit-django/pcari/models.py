@@ -334,7 +334,7 @@ class Comment(Response, StatisticsMixin):
             message = self.message
             if len(message) > self.MAX_MESSAGE_DISPLAY_LENGTH:
                 message = message[:self.MAX_MESSAGE_DISPLAY_LENGTH] + ' ...'
-            return 'Comment {1}: "{0}"'.format(message, self.id)
+            return 'Comment {1}: "{0}"'.format(message, self.pk)
         return '-- Empty response --'
 
     @property
@@ -369,7 +369,7 @@ class QualitativeQuestion(Question):
     input_type = 'textarea'
 
     def __unicode__(self):
-        return 'Qualitative question {0}: "{1}"'.format(self.id, self.prompt)
+        return 'Qualitative question {0}: "{1}"'.format(self.pk, self.prompt)
 
 
 class QuantitativeQuestion(Question, StatisticsMixin):
@@ -409,7 +409,7 @@ class QuantitativeQuestion(Question, StatisticsMixin):
                                   default='range')
 
     def __unicode__(self):
-        return 'Quantitative question {0}: "{1}"'.format(self.id, self.prompt)
+        return 'Quantitative question {0}: "{1}"'.format(self.pk, self.prompt)
 
 
 class OptionQuestion(Question):
@@ -449,7 +449,7 @@ class OptionQuestion(Question):
         self._options_text = json.dumps(list(options_list))
 
     def __unicode__(self):
-        return 'Option question {0}: "{1}"'.format(self.id, self.prompt)
+        return 'Option question {0}: "{1}"'.format(self.pk, self.prompt)
 
 
 class OptionQuestionChoice(Response):
@@ -539,7 +539,7 @@ class Respondent(History):
     completed_survey = models.BooleanField(default=False)
 
     def __unicode__(self):
-        return 'Respondent {0}'.format(self.id)
+        return 'Respondent {0}'.format(self.pk)
 
     def num_questions_rated(self):
         ratings = QuantitativeQuestionRating.objects.filter(respondent=self)
