@@ -305,7 +305,7 @@ class Comment(Response, StatisticsMixin):
     :class:`QualitativeQuestion`.
 
     Attributes:
-        MAX_COMMENT_DISPLAY_LEN (int): The maximum number of characters in the
+        MAX_MESSAGE_DISPLAY_LENGTH (int): The maximum number of characters in the
             :attr:`message` to display in this comment's string representation.
         question: The question this comment answers.
         language (str): A language code.
@@ -317,7 +317,7 @@ class Comment(Response, StatisticsMixin):
         word_count (int): The number of words in the `message`. (Words are
             delimited with contiguous whitespace.)
     """
-    MAX_COMMENT_DISPLAY_LEN = 140
+    MAX_MESSAGE_DISPLAY_LENGTH = 140
 
     question = models.ForeignKey('QualitativeQuestion',
                                  on_delete=models.CASCADE,
@@ -332,8 +332,8 @@ class Comment(Response, StatisticsMixin):
     def __unicode__(self):
         if self.message is not None and self.message.strip():
             message = self.message
-            if len(message) > self.MAX_COMMENT_DISPLAY_LEN:
-                message = message[:self.MAX_COMMENT_DISPLAY_LEN] + ' ...'
+            if len(message) > self.MAX_MESSAGE_DISPLAY_LENGTH:
+                message = message[:self.MAX_MESSAGE_DISPLAY_LENGTH] + ' ...'
             return 'Comment {1}: "{0}"'.format(message, self.id)
         return '-- Empty response --'
 
