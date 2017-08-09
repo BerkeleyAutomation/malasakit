@@ -87,6 +87,8 @@ ENV/
 
 # Minified static assets
 *.min.*
+/malasakit-django/cafe/static/
+/malasakit-django/cafe/media/
 
 # Node modules and related files
 node_modules/

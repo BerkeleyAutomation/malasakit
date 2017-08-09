@@ -33,7 +33,7 @@ ALLOWED_HOSTS = ['opinion.berkeley.edu'] if not DEBUG else ['*']
 # Application definition
 
 INSTALLED_APPS = [
-    'feature_phone',
+    'feature_phone.apps.FeaturePhoneConfig',
     'pcari.apps.PCARIConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -184,3 +184,4 @@ STATIC_URL = os.path.join(URL_ROOT, 'static/')
 
 # Media files
 MEDIA_ROOT = os.path.join(PROJECT_DIR, 'media')
+MEDIA_URL = '/media/'

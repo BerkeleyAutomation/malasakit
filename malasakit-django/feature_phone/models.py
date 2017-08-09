@@ -27,7 +27,7 @@ class RelatedModelMixin(models.Model):
 def generate_recording_path(instance, filename):
     model_name_plural = instance.__class__._meta.verbose_name_plural
     model_name_slug = model_name_plural.lower().replace(' ', '-')
-    return '{0}/{1}'.format(model_name_slug, filename)
+    return '{0}/{1}'.format(model_name_slug, instance.pk)
 
 
 class Instructions(models.Model):
@@ -46,7 +46,7 @@ class Question(Instructions, RelatedModelMixin):
 
 
 class Response(models.Model):
-    recording = models.FileField(upload_to='responses/')
+    recording = models.FileField(upload_to=generate_recording_path)
     timestamp = models.DateTimeField(auto_now_add=True)
     respondent = models.ForeignKey('Respondent', on_delete=models.CASCADE)
 
