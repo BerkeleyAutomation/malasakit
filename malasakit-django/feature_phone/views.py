@@ -73,6 +73,8 @@ def quantitative_questions(request, question_id):
 def process_recording(request, next_url):
     """
     After saving the recording, redirect to the next url.
+    Probably want to pass in a newly-created Recording model, and then
+    fill in the FileField here.
     """
     res = VoiceResponse()
 
@@ -103,12 +105,39 @@ def rate_comments(request, num_rated):
 
     # Determine next url- another comment? or next phase
     if num_rated + 1 == NUM_COMMENTS_TO_RATE:
-        next_url = reverse('feature_phone:end')
+        next_url = reverse('feature_phone:qualitative-questions', args=(1,))
     else:
         next_url = reverse('feature_phone:rate-comments', args=(num_rated + 1,))
 
     res.record(max_length=3,timeout=3,action=next_url)
     return HttpResponse(res)
+
+@csrf_exempt
+def qualitative_questions(request, question_id):
+    res = VoiceResponse()
+
+    # cast to int
+    question_id = int(question_id)
+
+    try:
+        # REPLACE WITH INSTRUCTIONS AND AUDIO FROM RECORDING
+        question = QualitativeQuestion.objects.get(id=question_id)
+        res.say("Now it's your turn to offer feedback. Please respond to this question. ")
+        res.pause(1)
+        res.say(question.prompt)
+
+        # Determine next url- another question? or next phase
+        if question_id + 1 in [q.id for q in QualitativeQuestion.objects.all()]:
+            next_url = reverse('feature_phone:qualitative-questions', args=(question_id + 1,))
+        else:
+            next_url = reverse('feature_phone:end')
+
+        res.record(max_length=20,timeout=20,action=next_url)
+        return HttpResponse(res)
+    except ObjectDoesNotExist:
+        res.say("ERROR: Question does not exist. Restarting.")
+        res.redirect(reverse('feature_phone:landing'))
+        return HttpResponse(res)
 
 @csrf_exempt
 def end(request):

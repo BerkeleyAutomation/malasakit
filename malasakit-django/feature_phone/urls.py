@@ -17,5 +17,7 @@ urlpatterns = [
     url(r'quantitative-questions/([0-9]+)/$', views.quantitative_questions,
         name="quantitative-questions"),
     url(r'rate-comments/([0-9])/$', views.rate_comments, name='rate-comments'),
+    url(r'qualitative-questions/([0-9]+)/$', views.qualitative_questions,
+        name="qualitative-questions"),
     url(r'end/$', views.end, name='end'),
 ]
