@@ -20,6 +20,7 @@ from django.conf.urls import url
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import User, Group
+from django.contrib.contenttypes.models import ContentType
 
 from pcari.models import QualitativeQuestion, QuantitativeQuestion
 from pcari.models import CommentRating, Comment
@@ -121,9 +122,11 @@ class MalasakitAdminSite(admin.AdminSite):
 # pylint: disable=invalid-name
 site = MalasakitAdminSite()
 site.register(User, UserAdmin)
-site.register(Group, GroupAdmin)
 site.filter_actions(User, ['delete_selected'])
+site.register(Group, GroupAdmin)
 site.filter_actions(Group, ['delete_selected'])
+site.register(ContentType)
+site.filter_actions(ContentType, ['delete_selected'])
 
 
 class HistoryAdmin(admin.ModelAdmin):
