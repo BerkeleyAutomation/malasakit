@@ -25,8 +25,6 @@ urlpatterns = [
     url(r'^personal-information/$', views.personal_information,
         name='personal-information'),
     url(r'^end/$', views.end, name='end'),
-    url(r'^dev/$', TemplateView.as_view(template_name='dev.html'),
-        name='dev'),
     url(r'^about/$', TemplateView.as_view(template_name='about.html'),
         name='about'),
 ]

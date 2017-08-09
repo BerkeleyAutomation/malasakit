@@ -22,18 +22,20 @@
     <title>Malasakit &bullet; {% block title %}{% endblock %}</title>
   </head>
   <body>
-    <nav>
-      <div class="container">
-        <ul id="languages">
-          {% get_available_languages as languages %}
-          {% for code, name in languages %}
-          <li>
-            <a href="{{ request.path|localize_url:code }}">{{ name }}</a>
-          </li>
-          {% endfor %}
-        </ul>
-      </div>
-    </nav>
+    {% get_available_languages as languages %}
+    {% if languages|length > 1 %}
+      <nav>
+        <div class="container">
+          <ul id="languages">
+            {% for code, name in languages %}
+              <li>
+                <a href="{{ request.path|localize_url:code }}">{{ name }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </nav>
+    {% endif %}
     <header>
       <div class="container">
         <h1 id="main-heading">{% block main-heading %}Malasakit{% endblock %}</h1>
@@ -55,7 +57,6 @@
               UC Berkeley and National University, Philippines
               through the Philippine-California Advanced Research Institutes Project.
             {% endblocktrans %}
-            {% trans 'If you are a developer interested in this project, please view our' %} <a href="{% url 'pcari:dev' %}">{% trans 'developer page' %}</a>.
           {% endblock %}
         </p>
       </div>
