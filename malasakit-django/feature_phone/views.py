@@ -16,7 +16,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.conf import settings
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
-from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 from django.urls import reverse
 
@@ -31,19 +31,23 @@ from pcari.models import get_concrete_fields
 
 # Placeholder flow will yank content straight from v1.25 models
 
-@ensure_csrf_cookie
+@csrf_exempt
 def landing(request):
     res = VoiceResponse()
 
     # REPLACE WITH INTRO INSTRUCTIONS
     res.say("Welcome to Malasakit. Here you will be askd several questions about typhoon preparedness.")
     res.pause(1)
-    res.redirect(reverse('feature_phone:quantitative-questions'))
+    # need a better way to flag down the first question in the sequence
+    res.redirect(reverse('feature_phone:quantitative-questions', args=(1,)))
     return HttpResponse(res)
 
-@ensure_csrf_cookie
+@csrf_exempt
 def quantitative_questions(request, question_id):
     res = VoiceResponse()
+
+    # cast to int
+    question_id = int(question_id)
 
     try:
         # REPLACE WITH INSTRUCTIONS AND AUDIO FROM RECORDING
@@ -56,16 +60,16 @@ def quantitative_questions(request, question_id):
         if question_id + 1 in [q.id for q in QuantitativeQuestion.objects.all()]:
             next_url = reverse('feature_phone:quantitative-questions', args=(question_id + 1,))
         else:
-            next_url = reverse('feature_phone:rate-comments')
+            next_url = reverse('feature_phone:rate-comments', args=(0,))
 
         res.record(max_length=3,timeout=3,action=next_url)
         return HttpResponse(res)
-    except DoesNotExist:
+    except ObjectDoesNotExist:
         res.say("ERROR: Question does not exist. Restarting.")
         res.redirect(reverse('feature_phone:landing'))
         return HttpResponse(res)
 
-@ensure_csrf_cookie
+@csrf_exempt
 def process_recording(request, next_url):
     """
     After saving the recording, redirect to the next url.
@@ -77,11 +81,14 @@ def process_recording(request, next_url):
     res.redirect(next_url)
     return HttpResponse(res)
 
-@ensure_csrf_cookie
+@csrf_exempt
 def rate_comments(request, num_rated):
     """
     Can the user keep rating? Not sure. Let's assume no for now.
     """
+    # cast again
+    num_rated = int(num_rated)
+
     NUM_COMMENTS_TO_RATE = 2
 
     res = VoiceResponse()
@@ -103,7 +110,7 @@ def rate_comments(request, num_rated):
     res.record(max_length=3,timeout=3,action=next_url)
     return HttpResponse(res)
 
-@ensure_csrf_cookie
+@csrf_exempt
 def end(request):
     res = VoiceResponse()
     res.say('Thanks for particpating in Malasakit.')

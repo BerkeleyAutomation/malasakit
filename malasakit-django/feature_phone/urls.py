@@ -14,8 +14,8 @@ app_name = 'feature_phone'
 urlpatterns = [
     # User-facing views
     url(r'landing/$', views.landing, name='landing'),
-    url(r'quantitative-questions/$', views.quantitative_questions,
+    url(r'quantitative-questions/([0-9]+)/$', views.quantitative_questions,
         name="quantitative-questions"),
-    url(r'rate-comments/$', views.rate_comments, name='rate-comments'),
+    url(r'rate-comments/([0-9])/$', views.rate_comments, name='rate-comments'),
     url(r'end/$', views.end, name='end'),
 ]
