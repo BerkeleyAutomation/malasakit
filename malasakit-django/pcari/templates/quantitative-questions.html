@@ -139,13 +139,17 @@
 
 {% block content %}
   <p class="instructions">
-    {% blocktrans trimmed %}
-      Below, you will see either a slider or a text box.
-      Please answer each question by moving the slider knob or filling in the box with a number.
-    {% endblocktrans %}
+    <strong>
+      {% blocktrans trimmed %}
+        Below, you will see either a slider or a text box.
+        Please answer each question by moving the slider knob or filling in the box with a number.
+      {% endblocktrans %}
+    </strong>
   </p>
   <p id="progression">
-    {% trans 'Question' %} <span id="progression-numerator"></span>/<span id="progression-denominator"></span>:
+    <strong>
+      {% trans 'Question' %} <span id="progression-numerator"></span>/<span id="progression-denominator"></span>:
+    </strong>
   </p>
   <p id="prompt"></p>
   <div id="answer"></div>
