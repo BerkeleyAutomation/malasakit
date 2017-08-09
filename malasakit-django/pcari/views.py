@@ -635,13 +635,6 @@ def end(request):
 
 @profile
 @ensure_csrf_cookie
-def dev(request):
-    """ Render a page providing resources for developers. """
-    return render(request, 'dev.html')
-
-
-@profile
-@ensure_csrf_cookie
 def handle_page_not_found(request):
     """ Render a page for HTTP 404 errors (page not found). """
     context = {'heading': _('Page Not Found'),
