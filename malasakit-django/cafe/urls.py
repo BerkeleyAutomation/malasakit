@@ -32,6 +32,8 @@ urlpatterns = [
                              content_type='application/javascript'),
         name='service-worker'),
 
+    # Admin site
+    url(r'^admin/', site.urls),
     # Admin site password reset
     url(r'^admin/password_reset/$', auth_views.password_reset,
         name='admin_password_reset'),
@@ -42,17 +44,16 @@ urlpatterns = [
     url(r'^reset/done/$', auth_views.password_reset_complete,
         name='password_reset_complete'),
 
-    # Admin site
-    url(r'^admin/', site.urls),
-
     # AJAX endpoints
     url(r'^api/', include(api_urlpatterns)),
 ]
 
 # Translate all `pcari` urls
 urlpatterns += i18n_patterns(url(r'^', include('pcari.urls')))
-urlpatterns += [url(r'^$', RedirectView.as_view(url=reverse('pcari:landing')),
-                    name='to-landing')]
+urlpatterns += [
+    url(r'^$', RedirectView.as_view(url=reverse('pcari:landing')),
+        name='to-landing'),
+]
 
 # Error handlers
 handler404 = 'pcari.views.handle_page_not_found'

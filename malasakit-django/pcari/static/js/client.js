@@ -352,7 +352,7 @@ function getNestedValue(obj, path) {
         return obj;
     }
     var first = path[0], rest = path.slice(1);
-    return first in obj ? getNestedValue(obj[first], rest) : null;
+    return first in obj ? getNestedValue(obj[first], rest) : undefined;
 }
 
 function setNestedValue(obj, path, value) {
@@ -375,6 +375,15 @@ function setResponseValue(path, value) {
     var response = Resource.load(currentResponseName);
     setNestedValue(response.data, path, value);
     response.put();
+}
+
+function deleteResponseValue(path) {
+    if (path.length > 0) {
+        var rest = path.slice(0, -1);
+        var obj = getResponseValue(rest);
+        delete obj[path[path.length - 1]];
+        setResponseValue(rest, obj);
+    }
 }
 
 function main() {

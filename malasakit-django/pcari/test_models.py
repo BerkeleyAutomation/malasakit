@@ -18,8 +18,11 @@ from pcari.models import (
     QuantitativeQuestionRating,
     Comment,
     CommentRating,
-    OptionQuestionChoice
+    OptionQuestionChoice,
+    Rating,
 )
+
+RATING_CHOICES = list(range(0, 9)) + [Rating.SKIPPED]
 
 
 class StatisticsTestCase(TestCase):
@@ -41,7 +44,7 @@ class StatisticsTestCase(TestCase):
             # A bunch of inactive ratings that should be filtered out
             QuantitativeQuestionRating(
                 question=cls.question,
-                score=random.randint(-2, 9),
+                score=random.choice(RATING_CHOICES),
                 respondent=Respondent.objects.create(language='en'),
                 active=False
             ) for _ in range(random.randrange(100))
@@ -56,17 +59,17 @@ class StatisticsTestCase(TestCase):
             respondent=Respondent.objects.create(language='en'),
         )
         CommentRating.objects.bulk_create([
-            # `-2` (not rated) should be filtered out
+            # Skipped rating should be filtered out
             CommentRating(
                 comment=cls.comment,
                 score=score,
                 respondent=Respondent.objects.create(language='en')
-            ) for score in [-2, 0, 3]
+            ) for score in [CommentRating.SKIPPED, 0, 3]
         ] + [
             # A bunch of inactive ratings that should be filtered out
             CommentRating(
                 comment=cls.comment,
-                score=random.randint(-2, 9),
+                score=random.randint(0, 9),
                 respondent=Respondent.objects.create(language='en'),
                 active=False
             ) for _ in range(random.randrange(100))
@@ -95,7 +98,7 @@ class StatisticsTestCase(TestCase):
         QuantitativeQuestionRating.objects.filter(score=3).update(score=9)
         self.assertEqual(self.question.mode_score, 9)
         self.assertNotEqual(self.comment.mode_score,
-                            QuantitativeQuestionRating.NOT_RATED)
+                            QuantitativeQuestionRating.SKIPPED)
 
     def test_score_stdev(self):
         # Answers are calculated from `np.std` with `ddof=1` (one delta degree of freedom)
@@ -138,14 +141,10 @@ class PropertyTestCase(TestCase):
         respondent = Respondent.objects.create()
         num_questions_presented = random.randrange(100)
         num_questions_rated = random.randint(0, num_questions_presented)
+        num_filtered = num_questions_presented - num_questions_rated
         scores = [
             random.randrange(10) for _ in range(num_questions_rated)
-        ] + [
-            # A bunch of scores that should be filtered out
-            random.choice([QuantitativeQuestionRating.NOT_RATED,
-                           QuantitativeQuestionRating.SKIPPED])
-            for _ in range(num_questions_presented - num_questions_rated)
-        ]
+        ] + [QuantitativeQuestionRating.SKIPPED]*num_filtered
 
         random.shuffle(scores)
         for score in scores:
@@ -165,14 +164,10 @@ class PropertyTestCase(TestCase):
         question = QualitativeQuestion.objects.create()
         num_comments_presented = random.randrange(100)
         num_comments_rated = random.randint(0, num_comments_presented)
+        num_filtered = num_comments_presented - num_comments_rated
         scores = [
             random.randrange(10) for _ in range(num_comments_rated)
-        ] + [
-            # A bunch of scores that should be filtered out
-            random.choice([QuantitativeQuestionRating.NOT_RATED,
-                           QuantitativeQuestionRating.SKIPPED])
-            for _ in range(num_comments_presented - num_comments_rated)
-        ]
+        ] + [QuantitativeQuestionRating.SKIPPED]*num_filtered
 
         random.shuffle(scores)
         for score in scores:
@@ -197,7 +192,7 @@ class PropertyTestCase(TestCase):
             QuantitativeQuestionRating.objects.create(
                 question=question,
                 respondent=Respondent.objects.create(),
-                score=random.randint(-2, 9)
+                score=random.choice(RATING_CHOICES),
             ) for _ in range(random.randrange(100))
         ]
         for first, second in zip(questions[:-1], questions[1:]):
@@ -290,21 +285,21 @@ class IntegrityTestCase(TransactionTestCase):
         rating = QuantitativeQuestionRating.objects.create(
             respondent=respondent,
             question=question,
-            score=random.randint(-2, 9),
+            score=random.choice(RATING_CHOICES),
         )
         with self.assertRaises(IntegrityError):
             QuantitativeQuestionRating.objects.create(respondent=respondent,
                                                       question=question,
-                                                      score=random.randint(-2, 9))
+                                                      score=random.choice(RATING_CHOICES))
 
         question = QualitativeQuestion.objects.create()
         comment = Comment.objects.create(respondent=Respondent.objects.create(),
                                          question=question)
         rating = CommentRating.objects.create(respondent=respondent,
-                                              comment=comment, score=random.randint(-2, 9))
+                                              comment=comment, score=random.choice(RATING_CHOICES))
         with self.assertRaises(IntegrityError):
             CommentRating.objects.create(respondent=respondent, comment=comment,
-                                         score=random.randint(-2, 9))
+                                         score=random.choice(RATING_CHOICES))
 
         # OK for one respondent to have two comments for the same quantitative
         # question
@@ -323,23 +318,21 @@ class ValidationTestCase(TestCase):
         )
         for _ in range(random.randrange(100)):
             QuantitativeQuestionRating(respondent=Respondent.objects.create(),
-                                       score=random.randint(-10000, 10000),
+                                       score=random.randint(0, 10000),
                                        question=unbounded_question).full_clean()
 
         bounded_question = QuantitativeQuestion.objects.create(
-            min_score=0,
+            min_score=5,
             max_score=20,
         )
-
-        sentinels = [QuantitativeQuestionRating.SKIPPED,
-                     QuantitativeQuestionRating.NOT_RATED]
-        for score in [random.randint(0, 20) for _ in range(10)] + sentinels:
+        sentinels = [QuantitativeQuestionRating.SKIPPED]*10
+        for score in [random.randint(5, 20) for _ in range(10)] + sentinels:
             QuantitativeQuestionRating(respondent=Respondent.objects.create(),
                                        question=bounded_question,
                                        score=score).full_clean()
 
         scores = [random.randint(21, 10000) for _ in range(10)]
-        scores += [random.randint(-10000, -3) for _ in range(10)]
+        scores += [random.randrange(0, 5) for _ in range(10)]
         for score in scores:
             with self.assertRaises(ValidationError):
                 QuantitativeQuestionRating(respondent=Respondent.objects.create(),

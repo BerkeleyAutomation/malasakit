@@ -1,3 +1,5 @@
+@import 'forms';
+
 // Vietnamese
 @font-face {
   font-family: 'Quicksand';
@@ -27,4 +29,32 @@
 
 * {
   font-family: 'Quicksand', sans-serif;
+}
+
+.left-anchor, .right-anchor, #footnote {
+  font-size: small;
+  @media all and (min-width: @breakpoint) {
+    font-size: medium;
+  }
+}
+
+button, .nav-button {
+  font-size: large;
+}
+
+textarea {
+  font-size: medium;
+}
+
+@media all and (min-width: @breakpoint) {
+  p, ul, ol, div, .nav-button a, blockquote, input, select, textarea, button {
+    font-size: x-large;
+  }
+  h1, h2 {
+    font-size: xx-large;
+  }
+}
+
+tt, code, pre {
+  font-family: monospace;
 }
