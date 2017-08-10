@@ -2,8 +2,8 @@
 
 {% load i18n %}
 
-{% block title %}{% trans 'About Malasakit' %}{% endblock %}
-{% block main-heading %}{% trans 'About Malasakit' %}{% endblock %}
+{% block title %}{% trans 'About CAFÉ' %}{% endblock %}
+{% block main-heading %}{% trans 'About CAFÉ' %}{% endblock %}
 
 {% block content %}
   <section>
@@ -54,7 +54,7 @@
     </p>
   </section>
   <section id="papers">
-    <h2><a href="#papers">{% trans 'Recent Papers' %}</a></h2>
+    <a href="#papers"><h2>{% trans 'Recent Papers' %}</h2></a>
     <ol>
       <li>
         <p>
@@ -82,11 +82,18 @@
     </p>
   </section>
   <section id="dev">
-    <h2><a href="#dev">{% trans 'Developer Resources' %}</a></h2>
+    <a href="#dev"><h2>{% trans 'Developer Resources' %}</h2></a>
     <p>
       {% blocktrans trimmed %}
         Malasakit is a variant of CAFÉ originally intended for assessing
         disaster risk reduction strategies in the Phillipines.
+        Malasakit was developed and deployed through a partnership between UC
+        Berkeley and National University in the Phillipines through the
+        Philippine-California Advanced Research Institutes (PCARI) Project.
+      {% endblocktrans %}
+    </p>
+    <p>
+      {% blocktrans trimmed %}
         However, Malasakit can be applied to a variety of domains, and has been
         designed with the open-source community in mind.
         The following resources are available to anyone who would like to
@@ -112,7 +119,7 @@
     </ul>
   </section>
   <section id="contact">
-    <h2><a href="#contact">{% trans 'Contact Information' %}</a></h2>
+    <a href="#contact"><h2>{% trans 'Contact Information' %}</h2></a>
     <p>
       {% trans 'For inquiries, please contact:' %}
     </p>
