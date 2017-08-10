@@ -8,7 +8,7 @@
 
 {% block scripts %}
   <script>
-    const SKIPPED = -1, NOT_SCORED = -2;
+    const SKIPPED = null;
 
     function getSortedQuestionIDs() {
       var questionIDs = Object.keys(Resource.get('quantitative-questions').data);
@@ -48,15 +48,16 @@
       var questionID = questionIDs[index];
       var questionData = Resource.load('quantitative-questions').data[questionID];
 
+      var min = questionData['min-score'] || 0;
+      var max = questionData['max-score'] || 9;
+
       var value = getResponseValue(['question-ratings', questionID]);
       if (value === SKIPPED) {
         $('#skip-notice').css('display', 'block');
+        value = min;
       } else {
-        value = value === null ? 0 : value;
+        value = value === undefined ? min : value;
       }
-
-      var min = questionData['min-score'] || 0;
-      var max = questionData['max-score'] || 9;
 
       var prompt = questionData['prompts'][LANGUAGE];
       var left_anchor = questionData['left-anchors'][LANGUAGE];
@@ -91,11 +92,6 @@
       $('#progression-numerator').text(questionIndex + 1);
     }
 
-    function saveRating(questionIDs, score) {
-      var questionID = questionIDs[questionIndex];
-      setResponseValue(['question-ratings', questionID], score);
-    }
-
     const QUESTION_IDS = getSortedQuestionIDs();
     if (QUESTION_IDS.length === 0) {
       redirect(APP_URL_ROOT + '/' + LANGUAGE + '/rate-comments/');
@@ -119,15 +115,21 @@
       });
 
       $('#skip').on('click', function() {
-        saveRating(QUESTION_IDS, SKIPPED);
+        var questionID = QUESTION_IDS[questionIndex];
+        setResponseValue(['question-ratings', questionID], SKIPPED);
         questionIndex++;
         renderQuestion(QUESTION_IDS, questionIndex);
       });
 
       $('#submit').on('click', function() {
-        var value = parseInt($('#quantitative-input').val());
-        value = isNaN(value) ? NOT_SCORED : value;
-        saveRating(QUESTION_IDS, value);
+        var score = parseInt($('#quantitative-input').val());
+        var questionID = QUESTION_IDS[questionIndex];
+        var path = ['question-ratings', questionID];
+        if (isNaN(score)) {
+          deleteResponsevalue(path);
+        } else {
+          setResponseValue(path, score);
+        }
         questionIndex++;
         renderQuestion(QUESTION_IDS, questionIndex);
       });
@@ -137,13 +139,17 @@
 
 {% block content %}
   <p class="instructions">
-    {% blocktrans trimmed %}
-      Below, you will see either a slider or a text box.
-      Please answer each question by moving the slider knob or filling in the box with a number.
-    {% endblocktrans %}
+    <strong>
+      {% blocktrans trimmed %}
+        Below, you will see either a slider or a text box.
+        Please answer each question by moving the slider knob or filling in the box with a number.
+      {% endblocktrans %}
+    </strong>
   </p>
   <p id="progression">
-    {% trans 'Question' %} <span id="progression-numerator"></span>/<span id="progression-denominator"></span>:
+    <strong>
+      {% trans 'Question' %} <span id="progression-numerator"></span>/<span id="progression-denominator"></span>:
+    </strong>
   </p>
   <p id="prompt"></p>
   <div id="answer"></div>

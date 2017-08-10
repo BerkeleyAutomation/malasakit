@@ -22,7 +22,7 @@
         });
 
         var comment = getResponseValue(path);
-        if (comment !== null) {
+        if (comment !== undefined) {
           inputElement.val(comment);
         }
       });

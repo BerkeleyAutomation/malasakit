@@ -11,17 +11,15 @@
       function initializeField(inputElement, path, preprocess = x => x) {
         inputElement.on('input', function() {
           var value = preprocess($(this).val()) || null;
-          if (value === null && path.length > 0) {
-            var respondentData = getResponseValue(path.slice(0, -1));
-            delete respondentData[path[path.length - 1]];
-            setResponseValue(['respondent-data'], respondentData);
+          if (value === null) {
+            deleteResponseValue(path);
           } else {
             setResponseValue(path, value);
           }
         });
 
         var value = getResponseValue(path);
-        if (value !== null) {
+        if (value !== undefined) {
           inputElement.val(value);
         }
       }
