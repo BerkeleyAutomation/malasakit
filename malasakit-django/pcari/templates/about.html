@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+
+{% block title %}{% trans 'About CAFÉ' %}{% endblock %}
+{% block main-heading %}{% trans 'About CAFÉ' %}{% endblock %}
+
+{% block content %}
+  <section>
+    <p>
+      {% blocktrans trimmed %}
+        With support from USAID and the Development Impact Lab at UC Berkeley,
+        the CITRIS Data and Democracy Initiative is developing a new social media
+        platform that directly engages citizens and communities from developing
+        regions to collectively assess conditions, needs, and outcomes related to
+        engineering innovations in humanitarian assistance, solar energy,
+        democracy and governance, and global health.
+      {% endblocktrans %}
+    </p>
+    <p>
+      {% blocktrans trimmed %}
+        In contrast to polls and surveys that are extremely valuable for
+        analysts, <a href="http://cafesystem.org/">CAFÉ</a> is user-facing: the
+        CAFÉ platform will provide direct, immediate visual feedback to
+        participants, allowing them to instantly understand where they stand on
+        key issues with respect to other participants, and encourage open-ended
+        qualitative responses that can enhance interaction between users. Like a
+        coffeehouse, we envision CAFÉ as a grassroots, user-friendly,
+        self-organizing environment that allows the wisdom of crowds to identify,
+        highlight, and display patterns, trends, and insights as they emerge. To
+        facilitate interactions, CAFÉ will incorporate techniques from
+        deliberative polling, collaborative filtering, and multidimensional
+        visualization.
+      {% endblocktrans %}
+    </p>
+    <p>
+      {% blocktrans trimmed %}
+        Opinion Space, a precursor to CAFÉ that focused on social innovation, has
+        been used since 2010 by the U.S. State Department. Thousands of
+        participants from around the world use it to organize, visualize, and
+        analyze constructive suggestions on foreign policy:
+      {% endblocktrans %}
+    </p>
+    <p>
+      <blockquote>
+        {% blocktrans trimmed %}
+          "Opinion Space will harness the power of connection technologies to provide
+          a unique forum for international dialogue. This is &#x2026; an opportunity
+          to extend our engagement beyond the halls of government directly to the
+          people of the world."
+        {% endblocktrans %} <br>
+        &#x2015; <cite>{% trans 'U.S. Secretary of State Hillary Clinton (2010)' %}</cite>
+      </blockquote>
+    </p>
+  </section>
+  <section id="papers">
+    <a href="#papers"><h2>{% trans 'Recent Papers' %}</h2></a>
+    <ol>
+      <li>
+        <p>
+          Using a Social Media Platform to Explore How Social Media Can
+          Enhance Primary and Secondary Learning. Sanjay Krishnan, Yuko Okubo,
+          Kanji Uchino, and Ken Goldberg. Learning International Networks
+          Consortium (LINC) 2013 Conference. MIT, Cambridge, MA. June
+          2013.
+          <a href="http://goldberg.berkeley.edu/pubs/MIT-LINC-OS-Learning-S13.pdf">[.pdf]</a>
+        </p>
+      </li>
+      <li>
+        <p>
+          Distributed Spectral Dimensionality Reduction for Visualizing
+          Textual Data. Sanjay Krishnan and Ken Goldberg. International
+          Conference on Machine Learning (ICML) Workshop on Spectral Learning
+          Methods, Atlanta, GA, June 2013.
+          <a href="http://goldberg.berkeley.edu/pubs/krishnan-ICML-Wkshp-2013.pdf">[.pdf]</a>
+        </p>
+      </li>
+    </ol>
+    <p>
+      {% trans 'Available for download from:' %}
+      <a href="http://goldberg.berkeley.edu/pubs/"><tt>http://goldberg.berkeley.edu/pubs/</tt></a>
+    </p>
+  </section>
+  <section id="dev">
+    <a href="#dev"><h2>{% trans 'Developer Resources' %}</h2></a>
+    <p>
+      {% blocktrans trimmed %}
+        Malasakit is a variant of CAFÉ originally intended for assessing
+        disaster risk reduction strategies in the Phillipines.
+        Malasakit was developed and deployed through a partnership between UC
+        Berkeley and National University in the Phillipines through the
+        Philippine-California Advanced Research Institutes (PCARI) Project.
+      {% endblocktrans %}
+    </p>
+    <p>
+      {% blocktrans trimmed %}
+        However, Malasakit can be applied to a variety of domains, and has been
+        designed with the open-source community in mind.
+        The following resources are available to anyone who would like to
+        contribute to the project:
+      {% endblocktrans %}
+    </p>
+    <ul>
+      <li><a href="https://opinion.berkeley.edu/pcari/">{% trans 'Malasakit web toolkit' %}</a></li>
+      <li>
+        <a href="https://github.com/BerkeleyAutomation/malasakit-v1">{% trans 'GitHub repository' %}</a>
+        <ul>
+          <li><a href="https://github.com/BerkeleyAutomation/malasakit-v1/issues">{% trans 'Issue tracker' %}</a></li>
+          <li>
+            <a href="https://github.com/BerkeleyAutomation/malasakit-v1/wiki">{% trans 'Wiki documentation' %}</a>:
+            {% trans 'a high-level overview of the application architecture' %}
+          </li>
+          <li>
+            <a href="https://berkeleyautomation.github.io/malasakit-v1/">{% trans 'Docstring documentation' %}</a>:
+            {% trans 'a GitHub pages site autogenerated from comments in the source code' %}
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </section>
+  <section id="contact">
+    <a href="#contact"><h2>{% trans 'Contact Information' %}</h2></a>
+    <p>
+      {% trans 'For inquiries, please contact:' %}
+    </p>
+    <ul>
+      <li>
+        <p>
+          <strong>Ken Goldberg</strong><br>
+          William S. Floyd Jr. Distinguished Chair in Engineering, UC Berkeley<br>
+          craigslist Distinguished Professor of New Media<br>
+          Chair and Professor, Industrial Engineering / Operations Research (IEOR) Dept.<br>
+          Director, AUTOLAB and CITRIS "People and Robots" Initiative<br>
+          Founding Member, Berkeley AI Research (BAIR) Lab<br>
+          Joint Appointments: EECS, Art Practice, School of Information (UC
+          Berkeley) and Radiation Oncology (UC San Francisco Medical School)
+        </p>
+        <p>
+          IEOR Chair Office: 4143 Etcheverry Hall, Faculty Office: 425 Sutardja Dai Hall<br>
+          Berkeley, CA 94720-1758<br>
+          Twitter: <a href="https://twitter.com/Ken_Goldberg">@Ken_Goldberg</a>
+          | G+: <a href="http://j.mp/Ken_Goldberg"><tt>http://j.mp/Ken_Goldberg</tt></a><br>
+          <a href="tel:510-643-9565">(510) 643-9565</a>
+          | <a href="mailto:goldberg@berkeley.edu"><tt>goldberg@berkeley.edu</tt></a>
+          | <a href="http://goldberg.berkeley.edu/"><tt>http://goldberg.berkeley.edu</tt></a>
+        </p>
+      </li>
+      <li>
+        <p>
+          <strong>Brandie Nonnecke, PhD</strong><br>
+          Program Manager, CITRIS and the Banatao Institute, UC Berkeley<br>
+          <a href="mailto:nonnecke@citris-uc.org"><tt>nonnecke@citris-uc.org</tt></a>
+        </p>
+      </li>
+    </ul>
+  </section>
+{% endblock %}

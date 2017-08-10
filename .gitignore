@@ -95,5 +95,5 @@ package-lock.json
 # Other data
 bloom-icon.json
 
-# Testing
+# Screenshots generated during testing
 /malasakit-django/screenshots/
