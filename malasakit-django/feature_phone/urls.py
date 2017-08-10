@@ -19,5 +19,7 @@ urlpatterns = [
     url(r'rate-comments/([0-9])/$', views.rate_comments, name='rate-comments'),
     url(r'qualitative-questions/([0-9]+)/$', views.qualitative_questions,
         name="qualitative-questions"),
+    url(r'process-recording/(.+)/', views.process_recording,
+        name="process-recording"),
     url(r'end/$', views.end, name='end'),
 ]

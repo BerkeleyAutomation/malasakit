@@ -8,20 +8,15 @@ See https://www.twilio.com/docs/api/twiml and
 https://twilio.github.io/twilio-python/6.5.0/twiml/
 """
 
-import decorator
-
 import random
 
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.conf import settings
-from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
-from django.shortcuts import render, redirect
+from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_GET, require_POST
 from django.urls import reverse
 
 from twilio.twiml.voice_response import VoiceResponse
-# from django_twilio.decorators import twilio_view
 
 from pcari.models import Respondent
 from pcari.models import QuantitativeQuestion, QualitativeQuestion
@@ -33,17 +28,25 @@ from pcari.models import get_concrete_fields
 
 @csrf_exempt
 def landing(request):
+    """Landing page welcome message"""
     res = VoiceResponse()
 
     # REPLACE WITH INTRO INSTRUCTIONS
-    res.say("Welcome to Malasakit. Here you will be askd several questions about typhoon preparedness.")
+    res.say("Welcome to Malasakit.")
+    res.say("You will be asked several questions about typhoon preparedness.")
     res.pause(1)
     # need a better way to flag down the first question in the sequence
     res.redirect(reverse('feature_phone:quantitative-questions', args=(1,)))
     return HttpResponse(res)
 
 @csrf_exempt
+def personal_info(request):
+    """Holding tight on this to see how we handle models and stuff"""
+    pass
+
+@csrf_exempt
 def quantitative_questions(request, question_id):
+    """Plays quantitative question."""
     res = VoiceResponse()
 
     # cast to int
@@ -62,7 +65,8 @@ def quantitative_questions(request, question_id):
         else:
             next_url = reverse('feature_phone:rate-comments', args=(0,))
 
-        res.record(max_length=3,timeout=3,action=next_url)
+        res.record(max_length=3, timeout=3,
+                   action=reverse('feature_phone:process-recording', args=(next_url,)))
         return HttpResponse(res)
     except ObjectDoesNotExist:
         res.say("ERROR: Question does not exist. Restarting.")
@@ -75,11 +79,22 @@ def process_recording(request, next_url):
     After saving the recording, redirect to the next url.
     Probably want to pass in a newly-created Recording model, and then
     fill in the FileField here.
+
+    TODO: Figure out how to pass in a url as a request to a url...
     """
     res = VoiceResponse()
 
     # SAVE AUDIO RESPONSE HERE
     res.say("Recording saved.")
+
+    print next_url
+
+    # Recording might not be available yet, use recordingStatusCallback
+    # while rendering Record verb.
+    # https://www.twilio.com/docs/api/twiml/record#attributes-recording-status-callback
+
+    print request.POST.get('RecordingUrl', 'NOT AVAILABLE')
+
     res.redirect(next_url)
     return HttpResponse(res)
 
@@ -91,7 +106,7 @@ def rate_comments(request, num_rated):
     # cast again
     num_rated = int(num_rated)
 
-    NUM_COMMENTS_TO_RATE = 2
+    NUM_COMMENTS = 2 # maxinumber of comments to rate
 
     res = VoiceResponse()
 
@@ -104,16 +119,18 @@ def rate_comments(request, num_rated):
     res.say(comment.message)
 
     # Determine next url- another comment? or next phase
-    if num_rated + 1 == NUM_COMMENTS_TO_RATE:
+    if num_rated + 1 == NUM_COMMENTS:
         next_url = reverse('feature_phone:qualitative-questions', args=(1,))
     else:
         next_url = reverse('feature_phone:rate-comments', args=(num_rated + 1,))
 
-    res.record(max_length=3,timeout=3,action=next_url)
+    res.record(max_length=3, timeout=3,
+               action=reverse('feature_phone:process-recording', args=(next_url,)))
     return HttpResponse(res)
 
 @csrf_exempt
 def qualitative_questions(request, question_id):
+    """Plays qualitative question."""
     res = VoiceResponse()
 
     # cast to int
@@ -132,7 +149,8 @@ def qualitative_questions(request, question_id):
         else:
             next_url = reverse('feature_phone:end')
 
-        res.record(max_length=20,timeout=20,action=next_url)
+        res.record(max_length=20, timeout=20,
+                   action=reverse('feature_phone:process-recording', args=(next_url,)))
         return HttpResponse(res)
     except ObjectDoesNotExist:
         res.say("ERROR: Question does not exist. Restarting.")
