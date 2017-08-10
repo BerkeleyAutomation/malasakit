@@ -178,9 +178,10 @@ function initializeResources() {
                                              API_URL_ROOT + '/fetch/quantitative-questions/');
     var current = new Resource('current', null, 12*60*60*1000);
     var bloomIcon = new Resource('bloom-icon', null, 0, STATIC_URL_ROOT + '/data/bloom-icon.json');
+    var countries = new Resource('countries', null, 0, STATIC_URL_ROOT + '/data/countries.json');
     var initialResources = [comments, qualitativeQuestions,
                             quantitativeQuestions, current,
-                            bloomIcon];
+                            bloomIcon, countries];
 
     comments.default_sample_size = 8;
     current.updateTimestamp();
@@ -245,7 +246,9 @@ function refreshResources() {
 }
 
 function postprocess(responseData) {
-    responseData['respondent-data'].location = '(None)';
+    var country = responseData['respondent-data']['country'] || '(No country)';
+    var zipCode = responseData['respondent-data']['zip-code'] || '(No zip code)';
+    responseData['respondent-data'].location = country + ', zip code: ' + zipCode;
 }
 
 function pushCompletedResponses() {

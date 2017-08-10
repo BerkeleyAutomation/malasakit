@@ -25,7 +25,14 @@
       }
 
       initializeField($('#age'), ['respondent-data', 'age'], parseInt);
-      initializeField($('#gender'), ['respondent-data', 'gender']);
+      initializeField($('#country'), ['respondent-data', 'country']);
+      initializeField($('#zip-code'), ['respondent-data', 'zip-code']);
+      var countries = Resource.load('countries').data;
+      if (countries !== null) {
+        countries.forEach(function(country) {
+          $('#countries').append($('<option></option>', {text: country}));
+        });
+      }
 
       setResponseValue(['respondent-data', 'submitted-personal-data'], true);
 
@@ -64,14 +71,15 @@
       <td><input id="age" type="number" min="1" max="120"></td>
     </tr>
     <tr>
-      <td>{% trans 'Gender' %}</td>
+      <td>{% trans 'Country' %}</td>
       <td>
-        <select id="gender">
-          <option value="" selected>{% trans 'Select gender' %}</option>
-          <option value="M">{% trans 'Male' %}</option>
-          <option value="F">{% trans 'Female' %}</option>
-        </select>
+        <input id="country" type="text" list="countries">
+        <datalist id="countries"></datalist>
       </td>
+    </tr>
+    <tr>
+      <td>{% trans 'ZIP Code (optional)' %}</td>
+      <td><input id="zip-code" type="text" pattern="\d{5}(-\d{5})?"></td>
     </tr>
   </table>
   <div class="modal">
