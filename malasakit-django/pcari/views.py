@@ -621,13 +621,6 @@ def qualitative_questions(request):
 
 @profile
 @ensure_csrf_cookie
-def personal_information(request):
-    """ Render a page asking respondents for personal information. """
-    return render(request, 'personal-information.html')
-
-
-@profile
-@ensure_csrf_cookie
 def end(request):
     """ Render an end-of-survey page. """
     return render(request, 'end.html')

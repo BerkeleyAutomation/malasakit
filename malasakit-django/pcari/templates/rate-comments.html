@@ -15,15 +15,7 @@
 {% block content %}
   <p>
     {% blocktrans trimmed %}
-      Each icon below is a comment made by another participant.
-      Next to each icon is the topic of the comment, or <span class="no-tag">(?)</span> if no topic was found.
-      Comments that are closer together were authored by participants who answered the previous questions similarly.
-    {% endblocktrans %}
-  <p>
-    {% blocktrans trimmed %}
-      Click on an icon to rate a comment on its helpfulness.
-      <strong>You must rate at least two comments to proceed.</strong>
-      You can also drag the icons to read the topics more clearly.
+      Click on any 2 text bubbles from other participants to review and rate them.
     {% endblocktrans %}
   </p>
   <p id="no-more-comments-notice" class="error banner">
@@ -39,20 +31,20 @@
 
       <div class="range-container">
         <input id="quantitative-input" target-id="comment-rating" type="range"
-               value="0" step="1" min="0" max="9">
+               step="1" min="1" max="5">
         <span class="left-anchor">{% trans 'Not helpful' %}</span>
         <span class="right-anchor">{% trans 'Helpful' %}</span>
       </div>
-      <p>
-        {% trans 'Your current answer is ' %} <output id="quantitative-output"></output>.
-      </p>
 
       <ul class="button-group">
         <li>
-          <button id="skip" class="red">{% trans 'Skip' %}</button>
+          <button id="previous">{% trans 'Back' %}</button>
         </li>
         <li>
-          <button id="submit" class="blue">{% trans 'Submit' %}</button>
+          <button id="submit">{% trans 'Submit' %}</button>
+        </li>
+        <li>
+          <button id="skip">{% trans 'Skip' %}</button>
         </li>
       </ul>
     </div>

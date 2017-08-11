@@ -170,7 +170,7 @@ class Resource {
 }
 
 function initializeResources() {
-    var comments = new Resource('comments', null, 0,
+    var comments = new Resource('comments', null, 30*60*1000,
                                 API_URL_ROOT + '/fetch/comments/');
     var qualitativeQuestions = new Resource('qualitative-questions', null, 0,
                                             API_URL_ROOT + '/fetch/qualitative-questions/');

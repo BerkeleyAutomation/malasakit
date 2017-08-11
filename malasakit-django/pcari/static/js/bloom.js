@@ -131,30 +131,23 @@ function startCommentRating(commentID) {
     $('#question-prompt').text(translatedPrompt);
     $('#comment-message').text(comments[commentID].msg);
 
-    inputElement.val(0);
+    inputElement.val(1 + Math.floor(5*Math.random()));
     var path = ['comment-ratings', commentID];
-    if (getResponseValue(path) === undefined) {
-        setResponseValue(path, parseInt(inputElement.val()));
-    }
 
-    function updateOutputReading() {
-        $('output#quantitative-output').text(inputElement.val().toString() + '/9');
-    };
-
-    inputElement.unbind('input');
-    inputElement.on('input', function() {
-        updateOutputReading();
+    $('#submit').unbind('click');
+    $('#submit').on('click', function() {
         setResponseValue(path, parseInt(inputElement.val()));
+        resetBloom();
     });
-    updateOutputReading();
-
-    $('#submit').on('click', resetBloom);
 
     $('#skip').unbind('click');
     $('#skip').on('click', function() {
         setResponseValue(path, null);
         resetBloom();
     });
+
+    $('#previous').unbind('click');
+    $('#previous').on('click', resetBloom);
 }
 
 var simulation;

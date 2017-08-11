@@ -75,8 +75,6 @@
         input.append($('<span class="left-anchor">' + left_anchor + '</span>'));
         input.append($('<span class="right-anchor">' + right_anchor + '</span>'));
         $('#answer').append(input);
-
-        range.on('input', updateOutputReading);
       } else if (questionData['input-type'] === 'number') {
         var input = $('<input id="quantitative-input" type="number" min="'
                       + min + '" max="' + max + '" step="1">');
