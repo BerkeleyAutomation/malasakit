@@ -35,6 +35,10 @@ def resolve_history_on_deletion(**kwargs):
             successor.predecessor = instance.predecessor
             successor.save()
 
-        if instance.predecessor is not None:
-            instance.predecessor.active = instance.active
-            instance.predecessor.save()
+        # FIXME
+        try:
+            if instance.predecessor is not None:
+                instance.predecessor.active = instance.active
+                instance.predecessor.save()
+        except sender.DoesNotExist:
+            pass

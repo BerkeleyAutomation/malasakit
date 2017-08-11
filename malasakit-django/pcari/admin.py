@@ -243,17 +243,16 @@ class QuantitativeQuestionRatingAdmin(ResponseAdmin):
     """
     Admin behavior for :class:`pcari.models.QuantitativeQuestionRating`.
     """
-    def get_question_prompt(self, question_rating):
+    def question_prompt(self, question_rating):
         # pylint: disable=no-self-use
         return question_rating.question.prompt
-    get_question_prompt.short_description = 'Question prompt'
 
-    list_display = ('respondent', 'get_question_prompt', 'timestamp', 'score',
+    list_display = ('respondent', 'question_prompt', 'timestamp', 'score',
                     'active')
-    list_display_links = ('get_question_prompt', )
+    list_display_links = ('question_prompt', )
     list_filter = ('timestamp', 'active')
     readonly_fields = ('timestamp', )
-    search_fields = ('question__prompt', 'score')
+    search_fields = ('question_prompt', 'score')
 
 
 @admin.register(OptionQuestionChoice, site=site)
@@ -261,6 +260,15 @@ class OptionQuestionChoiceAdmin(HistoryAdmin):
     """
     Admin behavior for :class:`pcari.models.OptionQuestionChoice`.
     """
+    def question_prompt(self, choice):
+        # pylint: disable=no-self-use
+        return choice.question.prompt
+
+    list_display = ('respondent', 'question_prompt', 'timestamp', 'option',
+                    'active')
+    list_display_links = ('question_prompt', )
+    list_filter = ('timestamp', 'active')
+    search_fields = ('question_prompt', 'option')
 
 
 @admin.register(QualitativeQuestion, site=site)
@@ -269,7 +277,7 @@ class QualitativeQuestionAdmin(HistoryAdmin):
     Admin behavior for :class:`pcari.models.QualitativeQuestion`.
     """
     list_display = ('prompt', 'tag', 'active')
-    list_filter = ('prompt', 'tag', 'active')
+    list_filter = ('tag', 'active')
     search_fields = ('prompt', 'tag')
 
 
@@ -288,6 +296,24 @@ class OptionQuestionAdmin(HistoryAdmin):
     """
     Admin behavior for :class:`pcari.models.OptionQuestion`.
     """
+    def get_prompt(self, option_question):
+        if option_question.prompt.strip():
+            return option_question.prompt
+        return self.empty_value_display
+    get_prompt.short_description = 'Prompt'
+
+    def get_tag(self, option_question):
+        if option_question.tag.strip():
+            return option_question.tag
+        return self.empty_value_display
+    get_tag.short_description = 'Tag'
+
+    def options(self, option_question):
+        return ', '.join(option_question.options)
+
+    list_display = ('get_prompt', 'options', 'get_tag', 'active')
+    list_filter = ('tag', 'active')
+    search_fields = ('prompt', 'options', 'tag')
 
 
 @admin.register(Respondent, site=site)
