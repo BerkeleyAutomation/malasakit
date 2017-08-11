@@ -4,7 +4,11 @@
 {% load static %}
 
 {% block title %}{% trans 'Survey Questions' %}{% endblock %}
-{% block main-heading %}{% trans 'Survey Questions' %}{% endblock %}
+{% block main-heading %}
+  {% blocktrans trimmed %}
+    Welcome! Please answer {{ num_questions }} quick questions to get started.
+  {% endblocktrans %}
+{% endblock %}
 
 {% block scripts %}
   <script>
@@ -42,7 +46,6 @@
         $('#previous').prop('disabled', false);
       }
       $('#answer').empty();
-      $('#current-answer-notice').css('display', 'none');
       $('#skip-notice').css('display', 'none');
 
       var questionID = questionIDs[index];
@@ -73,13 +76,7 @@
         input.append($('<span class="right-anchor">' + right_anchor + '</span>'));
         $('#answer').append(input);
 
-        function updateOutputReading() {
-          $('#quantitative-output').text(range.val().toString() + '/' + max.toString());
-        };
-
         range.on('input', updateOutputReading);
-        updateOutputReading();
-        $('#current-answer-notice').css('display', 'block');
       } else if (questionData['input-type'] === 'number') {
         var input = $('<input id="quantitative-input" type="number" min="'
                       + min + '" max="' + max + '" step="1">');
@@ -138,14 +135,6 @@
 {% endblock %}
 
 {% block content %}
-  <p class="instructions">
-    <strong>
-      {% blocktrans trimmed %}
-        Below, you will see either a slider or a text box.
-        Please answer each question by moving the slider knob or filling in the box with a number.
-      {% endblocktrans %}
-    </strong>
-  </p>
   <p id="progression">
     <strong>
       {% trans 'Question' %} <span id="progression-numerator"></span>/<span id="progression-denominator"></span>:
@@ -155,22 +144,19 @@
   <div id="answer"></div>
   <!-- FIXME: more elegant solution for translations -->
   <div class="center">
-    <p id="current-answer-notice">
-      {% trans 'Your current answer is ' %} <output id="quantitative-output"></output>.
-    </p>
     <p id="skip-notice">
       {% trans 'You previously chose to skip this question.' %}
     </p>
   </div>
   <ul class="button-group">
     <li>
-      <button id="previous" class="blue">{% trans 'Previous' %}</button>
+      <button id="previous">{% trans 'Back' %}</button>
     </li>
     <li>
-      <button id="skip" class="red">{% trans 'Skip' %}</button>
+      <button id="submit">{% trans 'Submit' %}</button>
     </li>
     <li>
-      <button id="submit" class="blue">{% trans 'Submit' %}</button>
+      <button id="skip">{% trans 'Skip' %}</button>
     </li>
   </ul>
 {% endblock %}

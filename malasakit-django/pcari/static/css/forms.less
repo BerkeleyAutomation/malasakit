@@ -39,16 +39,27 @@ input[type="range"] {
 }
 
 button {
-  border: none;
+  border: 1px black solid;
   border-radius: 0.2rem;
   padding: 0.5rem 1rem;
   transition-duration: 0.5s;
+  color: black;
+  background-color: white;
   &:active {
     outline: none;
   }
   &:disabled {
     cursor: not-allowed;
   }
+}
+
+
+#previous, #skip {
+  font-size: 1rem;
+}
+
+#submit {
+  font-size: 2rem;
 }
 
 @media all and (max-width: @breakpoint) {

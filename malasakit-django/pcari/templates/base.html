@@ -52,11 +52,7 @@
         <hr>
         <p id="footnote">
           {% block footnote %}
-            {% url 'pcari:about' as about_url %}
-            {% blocktrans trimmed %}
-              This site uses the <a href="http://cafesystem.org/">Collective Assessment and Feedback Engine (CAFÉ)</a>.
-              Learn more about <a href="{{ about_url }}">CAFÉ</a>.
-            {% endblocktrans %}
+            <a href="{% url 'pcari:landing' %}">Home</a>
           {% endblock %}
         </p>
       </div>

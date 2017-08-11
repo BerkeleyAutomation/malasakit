@@ -17,14 +17,25 @@
   <div>
     <p class="center">
       {% blocktrans trimmed %}
-        How should university campuses facilitate free speech when there is potential for violence?
-        {{ num_responses }} participants have responded.
-        Join them!
+        If you can spare 5 minutes, we welcome your perspective on the future of free speech on college campuses.
       {% endblocktrans %}
     </p>
     <img src="{% static 'img/landing.jpg' %}">
+    <p class="center">
+      {% blocktrans trimmed %}
+        {{ num_responses }} participants so far.
+      {% endblocktrans %}
+    </p>
   </div>
   {% url 'pcari:quantitative-questions' as next_link %}
   {% trans 'Begin' as next_label %}
   {% include 'nav-buttons.html' %}
+{% endblock %}
+
+{% block footnote %}
+  {% url 'pcari:about' as about_url %}
+  {% blocktrans trimmed %}
+    Powered by the Collective Assessment and Feedback Engine (CAFÉ).
+    <a href="{{ about_url }}">About</a>.
+  {% endblocktrans %}
 {% endblock %}

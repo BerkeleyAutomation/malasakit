@@ -3,8 +3,8 @@
 {% load i18n %}
 {% load static %}
 
-{% block title %}{% trans 'Your Idea' %}{% endblock %}
-{% block main-heading %}{% trans 'Your Idea' %}{% endblock %}
+{% block title %}{% trans 'Share your perspective' %}{% endblock %}
+{% block main-heading %}{% trans 'Share your perspective:' %}{% endblock %}
 
 {% block scripts %}
   <script>
@@ -32,16 +32,22 @@
 
 {% block content %}
   {% if questions %}
-    <ol id="qualitative-questions">
-      {% for question in questions %}
-        <li>
-          <p class="prompt">{% trans question.prompt %}</p>
-          <div class="container">
+    {% if questions|length > 1 %}
+      <ol id="qualitative-questions">
+        {% for question in questions %}
+          <li>
+            <p class="prompt">{% trans question.prompt %}</p>
             <textarea question-id="{{ question.id }}" class="comment"></textarea>
-          </div>
-        </li>
-      {% endfor %}
-    </ol>
+          </li>
+        {% endfor %}
+      </ol>
+    {% else %}
+      {% with question=questions.0 %}
+        <p class="prompt">{% trans question.prompt %}</p>
+        <textarea question-id="{{ question.id }}" class="comment"></textarea>
+      {% endwith %}
+      </p>
+    {% endif %}
   {% else %}
     <p class="error banner">{% trans 'There are no qualitative questions at this time.' %}</p>
   {% endif %}
