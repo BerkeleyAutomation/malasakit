@@ -21,23 +21,23 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import User, Group
 
-from pcari.models import QualitativeQuestion, QuantitativeQuestion
-from pcari.models import CommentRating, Comment
-from pcari.models import QuantitativeQuestionRating, Respondent
+from pcari.models import QualitativeQuestion, Comment, CommentRating
+from pcari.models import OptionQuestion, OptionQuestionChoice
+from pcari.models import QuantitativeQuestionRating, QuantitativeQuestion
+from pcari.models import Respondent
 from pcari.models import History
 from pcari.models import get_direct_fields
 from pcari.views import export_data
 
 __all__ = [
     'MalasakitAdminSite',
-    'HistoryAdmin',
-    'QuestionAdmin',
-    'ResponseAdmin',
     'QuantitativeQuestionAdmin',
     'QuantitativeQuestionRatingAdmin',
     'QualitativeQuestionAdmin',
     'CommentAdmin',
     'CommentRatingAdmin',
+    'OptionQuestionAdmin',
+    'OptionQuestionChoiceAdmin',
     'RespondentAdmin',
 ]
 
@@ -256,6 +256,13 @@ class QuantitativeQuestionRatingAdmin(ResponseAdmin):
     search_fields = ('question__prompt', 'score')
 
 
+@admin.register(OptionQuestionChoice, site=site)
+class OptionQuestionChoiceAdmin(HistoryAdmin):
+    """
+    Admin behavior for :class:`pcari.models.OptionQuestionChoice`.
+    """
+
+
 @admin.register(QualitativeQuestion, site=site)
 class QualitativeQuestionAdmin(HistoryAdmin):
     """
@@ -274,6 +281,13 @@ class QuantitativeQuestionAdmin(HistoryAdmin):
     list_display = ('prompt', 'tag', 'active')
     list_filter = ('tag', 'active')
     search_fields = ('prompt', 'tag')
+
+
+@admin.register(OptionQuestion, site=site)
+class OptionQuestionAdmin(HistoryAdmin):
+    """
+    Admin behavior for :class:`pcari.models.OptionQuestion`.
+    """
 
 
 @admin.register(Respondent, site=site)
