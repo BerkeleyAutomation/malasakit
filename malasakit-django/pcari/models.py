@@ -54,6 +54,17 @@ def get_direct_fields(model):
             if not field.auto_created or field.concrete]
 
 
+class RatingStatisticsManager(models.Manager):
+    def get_queryset(self):
+        queryset = super(RatingStatisticsManager, self).get_queryset()
+        queryset = queryset.annotate(
+            num_ratings=Count('ratings__score'),
+            mean_score=Avg('ratings__score'),
+        )
+        # TODO: use coalesce
+        return queryset
+
+
 class StatisticsMixin:
     """
     A ``StatisticsMixin`` adds descriptive statistics capabilities to a model
@@ -95,16 +106,6 @@ class StatisticsMixin:
             score=Rating.SKIPPED
         )
         return active_ratings.values_list('score', flat=True)
-
-    def num_ratings(self):
-        return self.scores.count()
-    num_ratings.short_description = 'Number of ratings'
-    num_ratings = property(num_ratings)
-
-    @property
-    def mean_score(self):
-        mean = self.scores.aggregate(Avg('score'))['score__avg']
-        return mean if mean is not None else float('nan')
 
     @property
     def mode_score(self):
@@ -349,7 +350,7 @@ class Comment(Response, StatisticsMixin):
             delimited with contiguous whitespace.)
     """
     MAX_COMMENT_DISPLAY_LEN = 140
-
+    objects = RatingStatisticsManager()
     question = models.ForeignKey('QualitativeQuestion',
                                  on_delete=models.CASCADE,
                                  related_name='comments')

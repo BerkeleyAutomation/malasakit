@@ -220,10 +220,15 @@ class CommentAdmin(ResponseAdmin):
         return comment.message if comment.message.strip() else self.empty_value_display
     display_message.short_description = 'Message'
 
+    def num_ratings(self, comment):
+        return comment.num_ratings
+    num_ratings.admin_order_field = 'Number of ratings'
+    num_ratings.admin_order_field = 'num_ratings'
+
     def display_mean_score(self, comment):
         # pylint: disable=no-self-use
         mean_score = comment.mean_score
-        return str(round(mean_score, 3)) if not math.isnan(mean_score) else '(No ratings)'
+        return str(round(mean_score, 3)) if mean_score is not None else '(No ratings)'
     display_mean_score.short_description = 'Mean score'
 
     def display_wilson_score(self, comment):
@@ -311,9 +316,13 @@ class QualitativeQuestionAdmin(QuestionAdmin):
     """
     Admin behavior for :class:`pcari.models.QualitativeQuestion`.
     """
+    def display_question_num_comments(self, question):
+        return question.comments.count()
+    display_question_num_comments.short_description = 'Number of comments'
+
     # Columns to display in the Comment change list page, in order from left to
     # right
-    list_display = ('prompt', 'tag', 'active')
+    list_display = ('prompt', 'tag', 'active', 'display_question_num_comments')
 
     # Specify which columns we want filtering capabilities for
     list_filter = ('prompt', 'tag', 'active')
