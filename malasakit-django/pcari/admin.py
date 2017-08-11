@@ -200,9 +200,7 @@ class CommentAdmin(ResponseAdmin):
     Admin behavior for :class:`pcari.models.Comment`.
     """
     def display_message(self, comment):
-        if comment.message.strip():
-            return comment.message
-        return self.empty_value_display
+        return comment.message.strip() or self.empty_value_display
     display_message.short_description = 'Message'
 
     def display_mean_score(self, comment):
@@ -243,9 +241,8 @@ class QuantitativeQuestionRatingAdmin(ResponseAdmin):
     """
     Admin behavior for :class:`pcari.models.QuantitativeQuestionRating`.
     """
-    def question_prompt(self, question_rating):
-        # pylint: disable=no-self-use
-        return question_rating.question.prompt
+    def question_prompt(self, rating):
+        return rating.question.prompt.strip() or self.empty_value_display
 
     list_display = ('respondent', 'question_prompt', 'timestamp', 'score',
                     'active')
@@ -261,8 +258,7 @@ class OptionQuestionChoiceAdmin(HistoryAdmin):
     Admin behavior for :class:`pcari.models.OptionQuestionChoice`.
     """
     def question_prompt(self, choice):
-        # pylint: disable=no-self-use
-        return choice.question.prompt
+        return choice.question.prompt.strip() or self.empty_value_display
 
     list_display = ('respondent', 'question_prompt', 'timestamp', 'option',
                     'active')
@@ -296,20 +292,16 @@ class OptionQuestionAdmin(HistoryAdmin):
     """
     Admin behavior for :class:`pcari.models.OptionQuestion`.
     """
-    def get_prompt(self, option_question):
-        if option_question.prompt.strip():
-            return option_question.prompt
-        return self.empty_value_display
+    def get_prompt(self, question):
+        return question.prompt.strip() or self.empty_value_display
     get_prompt.short_description = 'Prompt'
 
-    def get_tag(self, option_question):
-        if option_question.tag.strip():
-            return option_question.tag
-        return self.empty_value_display
+    def get_tag(self, question):
+        return question.tag.strip() or self.empty_value_display
     get_tag.short_description = 'Tag'
 
     def options(self, option_question):
-        return ', '.join(option_question.options)
+        return ', '.join(option_question.options) or self.empty_value_display
 
     list_display = ('get_prompt', 'options', 'get_tag', 'active')
     list_filter = ('tag', 'active')
@@ -322,9 +314,7 @@ class RespondentAdmin(HistoryAdmin):
     Admin behavior for :class:`pcari.models.Respondent`.
     """
     def display_location(self, respondent):
-        if respondent.location.strip():
-            return respondent.location
-        return self.empty_value_display
+        return respondent.location.strip() or self.empty_value_display
     display_location.short_description = 'Location'
 
     def comments(self, respondent):
