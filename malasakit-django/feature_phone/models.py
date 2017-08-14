@@ -112,9 +112,9 @@ class Respondent(models.Model):
     age = models.FileField(upload_to='respondent/age/', null=True, blank=True,
                            default=None)
     gender = models.FileField(upload_to='respondent/gender/', null=True,
-                              blank=True, default=True)
+                              blank=True, default=None)
     location = models.FileField(upload_to='respondent/location/', null=True,
-                                blank=True, default=True)
+                                blank=True, default=None)
     language = models.CharField(max_length=8, choices=settings.LANGUAGES,
                                 blank=True, default='',
                                 validators=[LANGUAGE_VALIDATOR])
