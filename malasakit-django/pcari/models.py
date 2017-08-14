@@ -553,6 +553,8 @@ class Respondent(History):
                                 default='', validators=[LANGUAGE_VALIDATOR])
     submitted_personal_data = models.BooleanField(default=False)
     completed_survey = models.BooleanField(default=False)
+    uuid = models.UUIDField(unique=True, default=None, editable=False,
+                            null=True, blank=True)
 
     def __unicode__(self):
         return 'Respondent {0}'.format(self.id)
