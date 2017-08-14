@@ -305,7 +305,7 @@ class Comment(Response, StatisticsMixin):
     :class:`QualitativeQuestion`.
 
     Attributes:
-        MAX_COMMENT_DISPLAY_LEN (int): The maximum number of characters in the
+        MAX_MESSAGE_DISPLAY_LENGTH (int): The maximum number of characters in the
             :attr:`message` to display in this comment's string representation.
         question: The question this comment answers.
         language (str): A language code.
@@ -317,7 +317,7 @@ class Comment(Response, StatisticsMixin):
         word_count (int): The number of words in the `message`. (Words are
             delimited with contiguous whitespace.)
     """
-    MAX_COMMENT_DISPLAY_LEN = 140
+    MAX_MESSAGE_DISPLAY_LENGTH = 140
 
     question = models.ForeignKey('QualitativeQuestion',
                                  on_delete=models.CASCADE,
@@ -332,9 +332,9 @@ class Comment(Response, StatisticsMixin):
     def __unicode__(self):
         if self.message is not None and self.message.strip():
             message = self.message
-            if len(message) > self.MAX_COMMENT_DISPLAY_LEN:
-                message = message[:self.MAX_COMMENT_DISPLAY_LEN] + ' ...'
-            return 'Comment {1}: "{0}"'.format(message, self.id)
+            if len(message) > self.MAX_MESSAGE_DISPLAY_LENGTH:
+                message = message[:self.MAX_MESSAGE_DISPLAY_LENGTH] + ' ...'
+            return 'Comment {1}: "{0}"'.format(message, self.pk)
         return '-- Empty response --'
 
     @property
@@ -369,7 +369,7 @@ class QualitativeQuestion(Question):
     input_type = 'textarea'
 
     def __unicode__(self):
-        return 'Qualitative question {0}: "{1}"'.format(self.id, self.prompt)
+        return 'Qualitative question {0}: "{1}"'.format(self.pk, self.prompt)
 
 
 class QuantitativeQuestion(Question, StatisticsMixin):
@@ -402,14 +402,14 @@ class QuantitativeQuestion(Question, StatisticsMixin):
     left_anchor = models.TextField(blank=True, default='')
     right_anchor = models.TextField(blank=True, default='')
     min_score = models.PositiveSmallIntegerField(default=0, null=True,
-                                                 verbose_name='Maximum score')
+                                                 verbose_name=_('Maximum score'))
     max_score = models.PositiveSmallIntegerField(default=9, null=True,
-                                                 verbose_name='Minimum score')
+                                                 verbose_name=_('Minimum score'))
     input_type = models.CharField(max_length=16, choices=INPUT_TYPE_CHOICES,
                                   default='range')
 
     def __unicode__(self):
-        return 'Quantitative question {0}: "{1}"'.format(self.id, self.prompt)
+        return 'Quantitative question {0}: "{1}"'.format(self.pk, self.prompt)
 
 
 class OptionQuestion(Question):
@@ -436,7 +436,7 @@ class OptionQuestion(Question):
     )
 
     _options_text = models.TextField(blank=True, default=json.dumps([]),
-                                     verbose_name='Options as JSON list')
+                                     verbose_name=_('Options as JSON list'))
     input_type = models.CharField(max_length=16, choices=INPUT_TYPE_CHOICES,
                                   default='select')
 
@@ -449,7 +449,7 @@ class OptionQuestion(Question):
         self._options_text = json.dumps(list(options_list))
 
     def __unicode__(self):
-        return 'Option question {0}: "{1}"'.format(self.id, self.prompt)
+        return 'Option question {0}: "{1}"'.format(self.pk, self.prompt)
 
 
 class OptionQuestionChoice(Response):
@@ -539,7 +539,7 @@ class Respondent(History):
     completed_survey = models.BooleanField(default=False)
 
     def __unicode__(self):
-        return 'Respondent {0}'.format(self.id)
+        return 'Respondent {0}'.format(self.pk)
 
     def num_questions_rated(self):
         ratings = QuantitativeQuestionRating.objects.filter(respondent=self)

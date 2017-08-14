@@ -17,7 +17,13 @@ LINT_TARGETS=\
 	pcari/apps.py\
 	pcari/signals.py\
 	pcari/urls.py\
-	pcari/views.py
+	pcari/views.py\
+	feature_phone/admin.py\
+	feature_phone/apps.py\
+	feature_phone/models.py\
+	feature_phone/tests.py\
+	feature_phone/urls.py\
+	feature_phone/views.py
 
 DB_TRANS_TARGETS=\
 	QuantitativeQuestion.prompt\
