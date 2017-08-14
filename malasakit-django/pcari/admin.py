@@ -58,7 +58,8 @@ class MalasakitAdminSite(admin.AdminSite):
                 name='configuration'),
             url(r'^statistics/$', self.admin_view(self.statistics),
                 name='statistics'),
-            url(r'^change-landing-image/$', self.admin_view(require_POST(self.change_landing_image)),
+            url(r'^change-landing-image/$',
+                self.admin_view(require_POST(self.change_landing_image)),
                 name='change-landing-image'),
             url(r'^change-bloom-icon/$', self.admin_view(require_POST(self.change_bloom_icon)),
                 name='change-bloom-icon'),
@@ -79,6 +80,7 @@ class MalasakitAdminSite(admin.AdminSite):
 
     def change_landing_image(self, request):
         """ Save an image file as the landing page image. """
+        # pylint: disable=no-self-use
         uploaded_file = request.FILES['landing-image']
         img_dir = os.path.join(settings.STATIC_ROOT, 'img')
         if not os.path.exists(img_dir):
