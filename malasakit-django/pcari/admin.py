@@ -14,6 +14,8 @@ import math
 import os
 
 from django.conf import settings
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.shortcuts import redirect, reverse, render
 from django.views.decorators.http import require_POST
 from django.conf.urls import url
@@ -56,6 +58,8 @@ class MalasakitAdminSite(admin.AdminSite):
                 name='configuration'),
             url(r'^statistics/$', self.admin_view(self.statistics),
                 name='statistics'),
+            url(r'^change-landing-image/$', self.admin_view(require_POST(self.change_landing_image)),
+                name='change-landing-image'),
             url(r'^change-bloom-icon/$', self.admin_view(require_POST(self.change_bloom_icon)),
                 name='change-bloom-icon'),
         ]
@@ -73,8 +77,22 @@ class MalasakitAdminSite(admin.AdminSite):
         """ Render a statistics page. """
         return render(request, 'admin/statistics.html', self.each_context(request))
 
+    def change_landing_image(self, request):
+        """ Save an image file as the landing page image. """
+        uploaded_file = request.FILES['landing-image']
+        img_dir = os.path.join(settings.STATIC_ROOT, 'img')
+        if not os.path.exists(img_dir):
+            os.mkdir(img_dir)
+
+        destination = os.path.join(img_dir, 'landing')
+        default_storage.delete(destination)
+        default_storage.save(destination, ContentFile(uploaded_file.read()))
+
+        request.session['messages'] = ['Successfully changed landing image.']
+        return redirect(reverse('admin:configuration'))
+
     def change_bloom_icon(self, request):
-        """ Save an image file of a custom bloom icon. """
+        """ Save an image file as a custom bloom icon. """
         # pylint: disable=no-self-use
         uploaded_file = request.FILES['bloom-icon']
         image_data = b64encode(uploaded_file.read())
