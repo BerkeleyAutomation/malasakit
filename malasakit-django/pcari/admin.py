@@ -21,23 +21,23 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import User, Group
 
-from pcari.models import QualitativeQuestion, QuantitativeQuestion
-from pcari.models import CommentRating, Comment
-from pcari.models import QuantitativeQuestionRating, Respondent
+from pcari.models import QualitativeQuestion, Comment, CommentRating
+from pcari.models import OptionQuestion, OptionQuestionChoice
+from pcari.models import QuantitativeQuestionRating, QuantitativeQuestion
+from pcari.models import Respondent
 from pcari.models import History
 from pcari.models import get_direct_fields
 from pcari.views import export_data
 
 __all__ = [
     'MalasakitAdminSite',
-    'HistoryAdmin',
-    'QuestionAdmin',
-    'ResponseAdmin',
     'QuantitativeQuestionAdmin',
     'QuantitativeQuestionRatingAdmin',
     'QualitativeQuestionAdmin',
     'CommentAdmin',
     'CommentRatingAdmin',
+    'OptionQuestionAdmin',
+    'OptionQuestionChoiceAdmin',
     'RespondentAdmin',
 ]
 
@@ -133,6 +133,7 @@ class HistoryAdmin(admin.ModelAdmin):
     """
     save_as_continue = False
 
+    empty_value_display = '(Empty)'
     actions = ('mark_active', 'mark_inactive')
 
     def save_model(self, request, obj, form, change):
@@ -172,13 +173,6 @@ class ResponseAdmin(HistoryAdmin):
     """
     Base admin behavior for :class:`pcari.models.Response` models.
     """
-    # Empty responses (recorded as None) will be replaced by this placeholder
-    empty_value_display = '-- Empty response --'
-
-    # Performance optimizer to limit database queries
-    list_select_related = True
-
-    # Sets default ordering to be most recent comment first
     ordering = ('-timestamp',)
 
 
@@ -192,22 +186,11 @@ class CommentRatingAdmin(ResponseAdmin):
         return message if message.strip() else self.empty_value_display
     get_comment_message.short_description = 'Comment message'
 
-    # Columns to display in the Comment change list page, in order from left to
-    # right
     list_display = ('respondent', 'get_comment_message', 'score', 'timestamp',
                     'active')
-
-    # By default first column listed in list_display is clickable; this makes
-    # `message` column clickable
     list_display_links = ('get_comment_message',)
-
-    # Specify which columns we want filtering capabilities for
     list_filter = ('timestamp', 'active')
-
-    # Sets fields as readonly
     readonly_fields = ('timestamp', )
-
-    # Enables search
     search_fields = ('score', 'comment__message')
 
 
@@ -217,7 +200,7 @@ class CommentAdmin(ResponseAdmin):
     Admin behavior for :class:`pcari.models.Comment`.
     """
     def display_message(self, comment):
-        return comment.message if comment.message.strip() else self.empty_value_display
+        return comment.message.strip() or self.empty_value_display
     display_message.short_description = 'Message'
 
     def display_mean_score(self, comment):
@@ -226,22 +209,12 @@ class CommentAdmin(ResponseAdmin):
         return str(round(mean_score, 3)) if not math.isnan(mean_score) else '(No ratings)'
     display_mean_score.short_description = 'Mean score'
 
-    # Columns to display in the Comment change list page, in order from left to
-    # right
     list_display = ('respondent', 'display_message', 'timestamp', 'language',
                     'flagged', 'tag', 'active', 'display_mean_score',
                     'num_ratings')
-
-    # By default first column listed in list_display is clickable; this makes
-    # `message` column clickable
     list_display_links = ('display_message',)
-
-    # Specify which columns we want filtering capabilities for
     list_filter = ('timestamp', 'language', 'flagged', 'tag', 'active')
-
-    # Enables search
     search_fields = ('message', 'tag')
-
     actions = ('flag_comments', 'unflag_comments')
 
     def flag_comments(self, request, queryset):
@@ -268,68 +241,71 @@ class QuantitativeQuestionRatingAdmin(ResponseAdmin):
     """
     Admin behavior for :class:`pcari.models.QuantitativeQuestionRating`.
     """
-    def get_question_prompt(self, question_rating):
-        # pylint: disable=no-self-use
-        return question_rating.question.prompt
-    get_question_prompt.short_description = 'Question prompt'
+    def question_prompt(self, rating):
+        return rating.question.prompt.strip() or self.empty_value_display
 
-    # Columns to display in the Comment change list page, in order from left to
-    # right
-    list_display = ('respondent', 'get_question_prompt', 'timestamp', 'score',
+    list_display = ('respondent', 'question_prompt', 'timestamp', 'score',
                     'active')
-
-    # By default first column listed in list_display is clickable; this makes
-    # `message` column clickable
-    list_display_links = ('get_question_prompt',)
-
-    # Specify which columns we want filtering capabilities for
+    list_display_links = ('question_prompt', )
     list_filter = ('timestamp', 'active')
-
-    # Sets fields as readonly
     readonly_fields = ('timestamp', )
-
-    # Enables search
-    search_fields = ('question__prompt', 'score')
+    search_fields = ('question_prompt', 'score')
 
 
-class QuestionAdmin(HistoryAdmin):
+@admin.register(OptionQuestionChoice, site=site)
+class OptionQuestionChoiceAdmin(HistoryAdmin):
     """
-    Base admin behavior for :class:`pcari.models.Question` models.
+    Admin behavior for :class:`pcari.models.OptionQuestionChoice`.
     """
-    list_select_related = True
-    """ bool: Performance optimizer to limit database queries. """
+    def question_prompt(self, choice):
+        return choice.question.prompt.strip() or self.empty_value_display
+
+    list_display = ('respondent', 'question_prompt', 'timestamp', 'option',
+                    'active')
+    list_display_links = ('question_prompt', )
+    list_filter = ('timestamp', 'active')
+    search_fields = ('question_prompt', 'option')
 
 
 @admin.register(QualitativeQuestion, site=site)
-class QualitativeQuestionAdmin(QuestionAdmin):
+class QualitativeQuestionAdmin(HistoryAdmin):
     """
     Admin behavior for :class:`pcari.models.QualitativeQuestion`.
     """
-    # Columns to display in the Comment change list page, in order from left to
-    # right
     list_display = ('prompt', 'tag', 'active')
-
-    # Specify which columns we want filtering capabilities for
-    list_filter = ('prompt', 'tag', 'active')
-
-    # Enables search
+    list_filter = ('tag', 'active')
     search_fields = ('prompt', 'tag')
 
 
 @admin.register(QuantitativeQuestion, site=site)
-class QuantitativeQuestionAdmin(QuestionAdmin):
+class QuantitativeQuestionAdmin(HistoryAdmin):
     """
     Admin behavior for :class:`pcari.models.QuantitativeQuestion`.
     """
-    # Columns to display in the Comment change list page, in order from left to
-    # right
     list_display = ('prompt', 'tag', 'active')
-
-    # Specify which columns we want filtering capabilities for
     list_filter = ('tag', 'active')
-
-    # Enables search
     search_fields = ('prompt', 'tag')
+
+
+@admin.register(OptionQuestion, site=site)
+class OptionQuestionAdmin(HistoryAdmin):
+    """
+    Admin behavior for :class:`pcari.models.OptionQuestion`.
+    """
+    def get_prompt(self, question):
+        return question.prompt.strip() or self.empty_value_display
+    get_prompt.short_description = 'Prompt'
+
+    def get_tag(self, question):
+        return question.tag.strip() or self.empty_value_display
+    get_tag.short_description = 'Tag'
+
+    def options(self, option_question):
+        return ', '.join(option_question.options) or self.empty_value_display
+
+    list_display = ('get_prompt', 'options', 'get_tag', 'active')
+    list_filter = ('tag', 'active')
+    search_fields = ('prompt', 'options', 'tag')
 
 
 @admin.register(Respondent, site=site)
@@ -338,31 +314,19 @@ class RespondentAdmin(HistoryAdmin):
     Admin behavior for :class:`pcari.models.Respondent`.
     """
     def display_location(self, respondent):
-        return respondent.location if respondent.location.strip() else self.empty_value_display
+        return respondent.location.strip() or self.empty_value_display
     display_location.short_description = 'Location'
 
-    def comments_made(self, respondent):
+    def comments(self, respondent):
         # pylint: disable=no-self-use
         comments = list(respondent.comments)
         return '(No comments)' if not comments else ''.join(map(str, comments))
 
-    # Empty responses (recorded as None) will be replaced by this placeholder
-    empty_value_display = '(Empty)'
-
-    # Performance optimizer to limit database queries
-    list_select_related = True
-
-    # Columns to display in the Comment change list page, in order from left to
-    # right
-    list_display = ('id', 'comments_made', 'age', 'gender', 'display_location',
+    list_display = ('id', 'comments', 'age', 'gender', 'display_location',
                     'language', 'submitted_personal_data', 'completed_survey',
                     'num_questions_rated', 'num_comments_rated', 'active')
-
-    # Specify which columns we want filtering capabilities for
     list_filter = ('gender', 'language', 'submitted_personal_data',
                    'completed_survey', 'active')
-
-    # Enables search
     search_fields = ('gender', 'location', 'language',
                      'submitted_personal_data', 'completed_survey')
 
