@@ -69,9 +69,14 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django_settings_export.settings_export',
             ],
         },
     },
+]
+
+SETTINGS_EXPORT = [
+    'SERVICE_WORKERS',
 ]
 
 WSGI_APPLICATION = 'cafe.wsgi.application'
@@ -149,6 +154,9 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 HTML_MINIFY = not DEBUG
+
+# Custom setting that should be `True` to enable service workers for offline functionality
+SERVICE_WORKERS = True
 
 LANGUAGES = (
     ('en', _('English')),
