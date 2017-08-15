@@ -1,10 +1,4 @@
-/** client.js
- *
- *  This script is based on ECMAScript 6, which may not be supported by all
- *  browsers at the time of this writing. The optimal way to use this script is
- *  to transpile it to ECMAScript 5 using something like `babel`, the NPM
- *  package.
- */
+/** client.js */
 
 const DEFAULT_LANGUAGE = 'tl';
 const DEFAULT_TIMEOUT = 5000;
