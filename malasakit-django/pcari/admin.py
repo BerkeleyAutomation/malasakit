@@ -280,7 +280,11 @@ class OptionQuestionChoiceAdmin(HistoryAdmin):
     def question_prompt(self, choice):
         return choice.question.prompt.strip() or self.empty_value_display
 
-    list_display = ('respondent', 'question_prompt', 'timestamp', 'option',
+    def option_display(self, choice):
+        return choice.option or self.empty_value_display
+    option_display.short_description = 'Option'
+
+    list_display = ('respondent', 'question_prompt', 'timestamp', 'option_display',
                     'active')
     list_display_links = ('question_prompt', )
     list_filter = ('timestamp', 'active')

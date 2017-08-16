@@ -491,7 +491,7 @@ class OptionQuestionChoice(Response):
                 ``question.options``.
         """
         super(OptionQuestionChoice, self).clean()
-        if self.option not in self.question.options:
+        if self.option and self.option not in self.question.options:
             raise ValidationError(_('"%(option)s" is not a valid option'),
                                   code='invalid-selection',
                                   params={'option': str(self.option)})

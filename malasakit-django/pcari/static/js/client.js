@@ -18,6 +18,11 @@ const STATIC_RESOURCES = [
         lifetime: 0
     },
     {
+        name: 'option-questions',
+        endpoint: API_URL_ROOT + '/fetch/option-questions/',
+        lifetime: 0
+    },
+    {
         name: 'qualitative-questions',
         endpoint: API_URL_ROOT + '/fetch/qualitative-questions/',
         lifetime: 0
@@ -61,18 +66,18 @@ function getCurrentLanguage() {
 }
 
 function displayError(message) {
-    var banner = $('<p>').addClass('error banner').text(message);
+    var banner = $('<p>').addClass('error banner').html(message);
     $('header > .container').append(banner);
 }
 
 function displayNoCurrentRespondentError() {
     var current = Resource.load('current');
-    if (!isResponseName(current.data)) {
-        var language = getCurrentLanguage();
-        var landingURL = APP_URL_ROOT + '/' + language + '/landing/';
+    if (current === undefined || current.data === null || !isResponseName(current.data)) {
+        var landingURL = APP_URL_ROOT + '/' + getCurrentLanguage() + '/landing/';
         var landingLink = $('<a>').attr('href', landingURL).text('new response');
+        console.log(landingLink[0].outerHTML);
         displayError('Your answers are not being saved. '
-                   + 'You should start a ' + landingLink.html() + '.');
+                   + 'You should start a ' + landingLink[0].outerHTML + '.');
     }
 }
 

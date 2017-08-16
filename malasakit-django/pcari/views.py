@@ -349,7 +349,7 @@ def fetch_option_questions(request):
                 code: translate(question.prompt, code)
                 for code, _ in settings.LANGUAGES
             },
-            'choices': {
+            'options': {
                 code: [translate(option, code) for option in question.options]
                 for code, _ in settings.LANGUAGES
             },
