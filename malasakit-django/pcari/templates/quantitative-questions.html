@@ -29,11 +29,9 @@
       return questionIDs.length - 1;
     }
 
-    var LANGUAGE = $('html').attr('lang') || DEFAULT_LANGUAGE;
-
     function renderQuestion(questionIDs, index) {
       if (index >= questionIDs.length) {
-        redirect(APP_URL_ROOT + '/' + LANGUAGE + '/rate-comments/');
+        redirect(APP_URL_ROOT + '/' + getCurrentLanguage() + '/rate-comments/');
       }
 
       if (index === 0) {
