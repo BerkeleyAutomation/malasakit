@@ -10,6 +10,7 @@ https://twilio.github.io/twilio-python/6.5.0/twiml/
 
 import random
 import requests
+from tempfile import TemporaryFile
 
 from django.core.files import File
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
@@ -39,14 +40,14 @@ def landing(request):
     res.say("You will be asked several questions about typhoon preparedness.")
     res.pause(1)
     # need a better way to flag down the first question in the sequence
-    res.redirect(reverse('feature_phone:quantitative-questions', args=(1,)))
+    res.redirect(reverse('feature_phone:quantitative-questions'))
 
     # create a new Respondent and save to database
     user = Respondent()
     user.save()
     request.session['respondent_id'] = user.id # set current Respondent id in sessions
 
-    print request.session['respondent_id']
+    print "Respondent ID: %s" % request.session['respondent_id']
 
     return HttpResponse(res)
 
@@ -60,7 +61,11 @@ def quantitative_questions(request):
     """Plays quantitative question."""
     res = VoiceResponse()
 
+    print "Respondent ID: %s" % request.session['respondent_id']
+
     user = Respondent.objects.get(id=request.session['respondent_id'])
+
+    print "User: %s" % str(user)
 
     # query all questions for which user does NOT have a response
     # use related_object_type in RelatedObjectMixin
@@ -69,9 +74,13 @@ def quantitative_questions(request):
     questions = Question.objects.filter(related_object_type=ContentType.objects.get(
         app_label='pcari', model='quantitativequestion'))
 
+    print "Questions: %s" % str(questions)
+
     # get all the questions that user has not made responses for
 
     not_answered = [q for q in questions if q not in [r.prompt for r in Response.objects.filter(respondent=user)]]
+
+    print "Questions not answered: %s" % str(questions)
 
     if len(not_answered) == 0:
         # we have answered all quantitative questions! redirect to comment rating phase
@@ -83,6 +92,9 @@ def quantitative_questions(request):
         # initialize response for user. this response will be filled in at process_recording
         user_response = Response()
         user_response.respondent = user
+
+        # this response is for a Question
+        user_response.prompt = not_answered[0]
 
         # what quantitative question was this in response to?
         quant_q_model = not_answered[0].related_object
@@ -109,7 +121,7 @@ def process_recording(request, next_url):
     user = Respondent.objects.get(id=request.session['respondent_id'])
 
     # User will have a Response without a recording field that was just created.
-    user_responses = Response.objects.get(respondent=user)
+    user_responses = Response.objects.filter(respondent=user)
     empty_response = None
     for r in user_responses:
         if not r.recording:
@@ -121,10 +133,10 @@ def process_recording(request, next_url):
 
     recording_url = request.POST.get('RecordingUrl', 'NOT AVAILABLE')
 
-    empty_response.recording = File(requests.get(recording_url).content,
-                                    name="%s.mp3" % (empty_response.id))
-
-    empty_response.save()
+    with TemporaryFile() as f:
+        f.write(requests.get(recording_url).content)
+        empty_response.recording = File(f, name="%s.mp3" % (empty_response.id))
+        empty_response.save()
 
     res = VoiceResponse()
 
