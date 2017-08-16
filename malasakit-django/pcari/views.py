@@ -38,7 +38,7 @@ from openpyxl import Workbook
 import unicodecsv as csv
 
 from pcari.models import Respondent
-from pcari.models import QuantitativeQuestion, QualitativeQuestion
+from pcari.models import QuantitativeQuestion, OptionQuestion, QualitativeQuestion
 from pcari.models import Comment, CommentRating, QuantitativeQuestionRating
 from pcari.models import get_concrete_fields
 
@@ -292,8 +292,9 @@ def fetch_quantitative_questions(request):
     Returns:
         A ``JsonResponse`` containing a JSON object of the form::
 
-            {
-                "<question.id>": {
+            [
+                {
+                    "id": <question.id>,
                     "prompts": {
                         "<language-code>": "<translated question.prompt>",
                         ...
@@ -311,13 +312,14 @@ def fetch_quantitative_questions(request):
                     "input-type": <question.input_type>
                 },
                 ...
-            }
+            ]
 
         Each language code is obtained from ``settings.LANGUAGES``.
     """
     # pylint: disable=unused-argument
-    return JsonResponse({
-        str(question.id): {
+    return JsonResponse([
+        {
+            'id': question.id,
             'prompts': {
                 code: translate(question.prompt, code)
                 for code, _ in settings.LANGUAGES
@@ -334,7 +336,26 @@ def fetch_quantitative_questions(request):
             'max-score': question.max_score,
             'input-type': question.input_type,
         } for question in QuantitativeQuestion.objects.filter(active=True)
-    })
+    ], safe=False)
+
+
+@profile
+@require_GET
+def fetch_option_questions(request):
+    return JsonResponse([
+        {
+            'id': question.id,
+            'prompts': {
+                code: translate(question.prompt, code)
+                for code, _ in settings.LANGUAGES
+            },
+            'choices': {
+                code: [translate(option, code) for option in question.options]
+                for code, _ in settings.LANGUAGES
+            },
+            'input-type': question.input_type
+        } for question in OptionQuestion.objects.filter(active=True)
+    ], safe=False)
 
 
 @profile
