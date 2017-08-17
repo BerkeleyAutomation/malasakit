@@ -84,7 +84,7 @@ def quantitative_questions(request):
 
     if len(not_answered) == 0:
         # we have answered all quantitative questions! redirect to comment rating phase
-        res.redirect(reverse('feature_phone:rate-comments', args=(0,)))
+        res.redirect(reverse('feature_phone:rate-comments'))
     else:
         # redirect back after recording
         res.play(not_answered[0].recording.url) # play the first unanswered question
@@ -148,33 +148,53 @@ def process_recording(request, next_url):
     return HttpResponse(res)
 
 @csrf_exempt
-def rate_comments(request, num_rated):
+def rate_comments(request):
     """
     Can the user keep rating? Not sure. Let's assume no for now.
     """
+
+    # How many comment ratings has the user produced?
+    user = Respondent.objects.get(id=request.session['respondent_id'])
+
+    num_rated = len(Response.objects.filter(respondent=user,
+                            prompt_type=ContentType.objects.get(
+                                      app_label='feature_phone',
+                                      model='response'
+                                  )))
+
     # cast again
-    num_rated = int(num_rated)
 
     NUM_COMMENTS = 2 # maxinumber of comments to rate
 
     res = VoiceResponse()
 
-    # REPLACE WITH SAMPLING CODE
-    comments = Comment.objects.all()
-    comment = comments[random.randint(1, len(comments))]
+    ##### REPLACE WITH SAMPLING CODE #####
+    comments = Response.objects.filter(related_object_type=ContentType.objects.get(
+        app_label='pcari',
+        model='comment'
+    ))
+    # get all responses that are supposed to be linked to pcari.comments
 
-    res.say("This user made a suggestion. Please rate it from 0 to 9.")
-    res.pause(1)
-    res.say(comment.message)
+    if len(comments) > 0 and num_rated < 2:
+        # more comments to rate. so we'll redirect back here
+        next_url = reverse('feature_phone:rate-comments')
 
-    # Determine next url- another comment? or next phase
-    if num_rated + 1 == NUM_COMMENTS:
-        next_url = reverse('feature_phone:qualitative-questions', args=(1,))
-    else:
-        next_url = reverse('feature_phone:rate-comments', args=(num_rated + 1,))
+        comment = random.sample(comments, 1)
+        res.say("This user made a suggestion. Please rate it from 0 to 9.")
+        res.pause(1)
+        res.play(comment.recording.url)
 
-    res.record(max_length=3, timeout=3,
+        res.record(max_length=20, timeout=20,
                action=reverse('feature_phone:process-recording', args=(next_url,)))
+
+        # initialize response for user. this response will be filled in at process_recording
+        user_response = Response()
+        user_response.respondent = user
+
+        user_response.prompt = comment
+
+        num_rated += 1
+
     return HttpResponse(res)
 
 @csrf_exempt
