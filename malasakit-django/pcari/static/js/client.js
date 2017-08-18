@@ -11,6 +11,7 @@ const STATIC_URL_ROOT = APP_URL_ROOT + '/static';
 const RESPONSE_SAVE_ENDPOINT = API_URL_ROOT + '/save-response/';
 
 const RESPONSE_LIFETIME = 12*60*60*1000;
+const DEFAULT_COMMENT_SAMPLE_SIZE = 8;
 const STATIC_RESOURCES = [
     {
         name: 'quantitative-questions',
@@ -93,7 +94,7 @@ class Resource {
     }
 
     static exists(name) {
-        return localStorage.getItem(Resource._key(this.name)) !== null;
+        return localStorage.getItem(Resource._key(name)) !== null;
     }
 
     static load(name) {
@@ -303,11 +304,10 @@ function selectCommentFromStandardError(comments) {
 }
 
 function selectComments(method) {
-    var selectedComments = new Resource('selected-comments');
-    if (!selectedComments.exists() && Resource.exists('comments')) {
-        selectedComments.data = {};
+    if (!Resource.exists('selected-comments') && Resource.exists('comments')) {
+        var selectedComments = new Resource('selected-comments', getCurrentTimestamp(), {});
         var comments = Resource.load('comments');
-        var numToSelect = Math.min(comments.default_sample_size,
+        var numToSelect = Math.min(DEFAULT_COMMENT_SAMPLE_SIZE,
                                    Object.keys(comments.data).length);
 
         for (var index = 0; index < numToSelect; index++) {
