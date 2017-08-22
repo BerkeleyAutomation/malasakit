@@ -80,7 +80,7 @@ def quantitative_questions(request):
 
     not_answered = [q for q in questions if q not in [r.prompt for r in Response.objects.filter(respondent=user)]]
 
-    print "Questions not answered: %s" % str(questions)
+    print "Questions not answered: %s" % len(not_answered)
 
     if len(not_answered) == 0:
         # we have answered all quantitative questions! redirect to comment rating phase
@@ -124,6 +124,7 @@ def process_recording(request, next_url):
     user_responses = Response.objects.filter(respondent=user)
     empty_response = None
     for r in user_responses:
+        print r
         if not r.recording:
             empty_response = r
 
@@ -164,7 +165,7 @@ def rate_comments(request):
 
     # cast again
 
-    NUM_COMMENTS = 2 # maxinumber of comments to rate
+    NUM_COMMENTS = 2 # max number of comments to rate
 
     res = VoiceResponse()
 
@@ -175,16 +176,22 @@ def rate_comments(request):
     ))
     # get all responses that are supposed to be linked to pcari.comments
 
-    if len(comments) > 0 and num_rated < 2:
+    print "Comments: %s" % str(comments)
+
+
+    if len(comments) < NUM_COMMENTS or num_rated >= NUM_COMMENTS:
+        # not enough comments or enough have been rated? move to qualittative questions
+        res.redirect(reverse('feature_phone:qualitative-questions'))
+    elif num_rated < NUM_COMMENTS:
         # more comments to rate. so we'll redirect back here
         next_url = reverse('feature_phone:rate-comments')
 
-        comment = random.sample(comments, 1)
+        comment = random.sample(comments, 1)[0]
         res.say("This user made a suggestion. Please rate it from 0 to 9.")
         res.pause(1)
         res.play(comment.recording.url)
 
-        res.record(max_length=20, timeout=20,
+        res.record(max_length=3, timeout=3,
                action=reverse('feature_phone:process-recording', args=(next_url,)))
 
         # initialize response for user. this response will be filled in at process_recording
@@ -192,39 +199,64 @@ def rate_comments(request):
         user_response.respondent = user
 
         user_response.prompt = comment
-
+        user_response.related_object_type = ContentType.objects.get(app_label='pcari',
+                                                                    model='commentrating')
         num_rated += 1
 
     return HttpResponse(res)
 
 @csrf_exempt
-def qualitative_questions(request, question_id):
-    """Plays qualitative question."""
+def qualitative_questions(request):
+    """Plays qualitative question. Essentially the same as quantitative_questions but
+    with longer recording verbs."""
     res = VoiceResponse()
 
-    # cast to int
-    question_id = int(question_id)
+    user = Respondent.objects.get(id=request.session['respondent_id'])
 
-    try:
-        # REPLACE WITH INSTRUCTIONS AND AUDIO FROM RECORDING
-        question = QualitativeQuestion.objects.get(id=question_id)
-        res.say("Now it's your turn to offer feedback. Please respond to this question. ")
-        res.pause(1)
-        res.say(question.prompt)
+    # query all questions for which user does NOT have a response
+    # use related_object_type in RelatedObjectMixin
 
-        # Determine next url- another question? or next phase
-        if question_id + 1 in [q.id for q in QualitativeQuestion.objects.all()]:
-            next_url = reverse('feature_phone:qualitative-questions', args=(question_id + 1,))
-        else:
-            next_url = reverse('feature_phone:end')
+    # get all the quantitative question recordings
+    questions = Question.objects.filter(related_object_type=ContentType.objects.get(
+        app_label='pcari', model='qualitativequestion'))
 
-        res.record(max_length=20, timeout=20,
+    print "Questions: %s" % str(questions)
+
+    # get all the questions that user has not made responses for
+
+    not_answered = [q for q in questions if q not in [r.prompt for r in Response.objects.filter(respondent=user)]]
+
+    print "Questions not answered: %s" % len(not_answered)
+
+    if len(not_answered) == 0:
+        # we have answered all quantitative questions! redirect to comment rating phase
+        res.redirect(reverse('feature_phone:end'))
+    else:
+        # redirect back after recording
+        res.play(not_answered[0].recording.url) # play the first unanswered question
+
+        # initialize response for user. this response will be filled in at process_recording
+        user_response = Response()
+        user_response.respondent = user
+
+        # this response is for a Question
+        user_response.prompt = not_answered[0]
+
+        # what quantitative question was this in response to?
+        qual_q_model = not_answered[0].related_object
+
+        user_response.related_object = Comment(question=qual_q_model)
+
+        user_response.save()
+
+        # redirect back to quant question
+        next_url = reverse('feature_phone:qualitative-questions')
+        res.record(max_length=10, timeout=10,
                    action=reverse('feature_phone:process-recording', args=(next_url,)))
-        return HttpResponse(res)
-    except ObjectDoesNotExist:
-        res.say("ERROR: Question does not exist. Restarting.")
-        res.redirect(reverse('feature_phone:landing'))
-        return HttpResponse(res)
+
+    return HttpResponse(res)
+
+
 
 @csrf_exempt
 def end(request):
