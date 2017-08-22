@@ -128,8 +128,8 @@ class Resource {
         localStorage.setItem(Resource._key(this.name), JSON.stringify(this));
     }
 
-    delete() {
-        localStorage.removeItem(Resource._key(this.name));
+    static delete(name) {
+        localStorage.removeItem(Resource._key(name));
     }
 
     updateTimestamp() {
@@ -222,7 +222,7 @@ function pushResponse(response, deleteOnSuccess=true) {
             var message = 'Successfully pushed %s';
             console.log(interpolate(message, [response.name]));
             if (deleteOnSuccess) {
-                response.delete();
+                Resource.delete(response.name);
             }
         },
         failure: function() {

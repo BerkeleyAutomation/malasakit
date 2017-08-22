@@ -201,13 +201,17 @@ class CommentRatingAdmin(ResponseAdmin):
     """
     Admin behavior for :class:`pcari.models.CommentRating`.
     """
-    def get_comment_message(self, comment_rating):
-        message = comment_rating.comment.message
+    def get_comment_message(self, rating):
+        message = rating.comment.message
         return message if message.strip() else self.empty_value_display
     get_comment_message.short_description = 'Comment message'
 
-    list_display = ('respondent', 'get_comment_message', 'score', 'timestamp',
-                    'active')
+    def get_score(self, rating):
+        return rating.score if rating.score is not None else '(Skipped)'
+    get_score.short_description = 'Score'
+
+    list_display = ('respondent', 'get_comment_message', 'get_score',
+                    'timestamp', 'active')
     list_display_links = ('get_comment_message',)
     list_filter = ('timestamp', 'active')
     readonly_fields = ('timestamp', )
@@ -264,7 +268,11 @@ class QuantitativeQuestionRatingAdmin(ResponseAdmin):
     def question_prompt(self, rating):
         return rating.question.prompt.strip() or self.empty_value_display
 
-    list_display = ('respondent', 'question_prompt', 'timestamp', 'score',
+    def get_score(self, rating):
+        return rating.score if rating.score is not None else '(Skipped)'
+    get_score.short_description = 'Score'
+
+    list_display = ('respondent', 'question_prompt', 'timestamp', 'get_score',
                     'active')
     list_display_links = ('question_prompt', )
     list_filter = ('timestamp', 'active')
