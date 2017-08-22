@@ -207,6 +207,7 @@ class CommentRatingAdmin(ResponseAdmin):
     get_comment_message.short_description = 'Comment message'
 
     def get_score(self, rating):
+        # pylint: disable=no-self-use
         return rating.score if rating.score is not None else '(Skipped)'
     get_score.short_description = 'Score'
 
@@ -269,6 +270,7 @@ class QuantitativeQuestionRatingAdmin(ResponseAdmin):
         return rating.question.prompt.strip() or self.empty_value_display
 
     def get_score(self, rating):
+        # pylint: disable=no-self-use
         return rating.score if rating.score is not None else '(Skipped)'
     get_score.short_description = 'Score'
 

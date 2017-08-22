@@ -24,7 +24,6 @@ import random
 import time
 
 import decorator
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.conf import settings
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
@@ -47,8 +46,9 @@ __all__ = [
     'normalize_ratings_matrix',
     'calculate_principal_components',
     'fetch_comments',
-    'fetch_qualitative_questions',
     'fetch_quantitative_questions',
+    'fetch_option_questions',
+    'fetch_qualitative_questions',
     'fetch_question_ratings',
     'save_response',
     'export_data',
@@ -342,6 +342,7 @@ def fetch_quantitative_questions(request):
 @profile
 @require_GET
 def fetch_option_questions(request):
+    # pylint: disable=unused-argument
     return JsonResponse([
         {
             'id': question.id,
@@ -507,7 +508,6 @@ def save_response(request):
     """
     try:
         response = json.loads(request.body)
-        print json.dumps(response, indent=4)
         uuid = response.get('respondent-data', {}).get('uuid', None)
         if uuid is None:
             respondent = Respondent.objects.create()
@@ -527,6 +527,7 @@ def save_response(request):
     except (ValueError, AttributeError) as error:
         message = type(error).__name__ + ': ' + str(error)
         LOGGER.log(logging.ERROR, message)
+        respondent.delete()
         return HttpResponseBadRequest(message)
 
     return HttpResponse()

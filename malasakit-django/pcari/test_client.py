@@ -159,13 +159,11 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
         return reverse('pcari:quantitative-questions') in driver.current_url
 
     def answer_quantitative_questions(self, driver, response, test_case_name=None):
-        try:
-            question_ids = driver.execute_script('return QUESTION_IDS;')
-        except WebElement:
-            question_ids = []
-        finally:
-            num_questions = QuantitativeQuestion.objects.filter(active=True).count()
-            self.assertEqual(len(question_ids), num_questions)
+        question_ids = driver.execute_script("""
+        return Resource.load('quantitative-questions').data.map(question => question.id);
+        """)
+        num_questions = QuantitativeQuestion.objects.filter(active=True).count()
+        self.assertEqual(len(question_ids), num_questions)
         scores = response.get('question-ratings', {})
 
         for question_id in question_ids:
@@ -573,7 +571,7 @@ class AppearanceTestCase(NavigationTestCase):
             'respondent-data': {},
         }))
 
-        self.assertIsNone(driver.local_storage['current']['data'])
+        self.assertIsNone(driver.local_storage['malasakit-current']['data'])
         driver.back()  # End
         driver.back()  # Peer responses
         driver.back()  # Personal information
