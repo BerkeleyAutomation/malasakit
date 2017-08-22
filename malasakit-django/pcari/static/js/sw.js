@@ -26,7 +26,8 @@ const STATIC_RESOURCES = [
     'js/d3.v4.min.js',
     'js/client.js',
     'js/bloom.js',
-    'js/sw-bootstrap.js'
+    'js/sw-bootstrap.js',
+    'js/uuid4.js'
 ];
 
 function makeURLsToCache() {
@@ -43,6 +44,7 @@ function makeURLsToCache() {
         urls.push(STATIC_ROOT + urlFragment);
     });
 
+    urls.push(APP_ROOT + 'jsi18n/');
     return urls;
 }
 

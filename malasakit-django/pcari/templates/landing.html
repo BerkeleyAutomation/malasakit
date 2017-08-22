@@ -8,7 +8,7 @@
 {% block scripts %}
   <script>
     $(document).ready(function() {
-      $('#next').on('click', initializeNewResponse);
+      $('#next').on('click', startResponse);
     });
   </script>
 {% endblock %}
@@ -20,12 +20,7 @@
         If you can spare 5 minutes, we welcome your perspective on the future of free speech on college campuses.
       {% endblocktrans %}
     </p>
-    <img src="{% static 'img/landing.jpg' %}">
-    <p class="center">
-      {% blocktrans trimmed %}
-        {{ num_responses }} participants so far.
-      {% endblocktrans %}
-    </p>
+    <img src="{% static 'img/landing' %}">
   </div>
   {% url 'pcari:quantitative-questions' as next_link %}
   {% trans 'Begin' as next_label %}

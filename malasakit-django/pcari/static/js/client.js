@@ -1,10 +1,6 @@
-/** client.js
- *
- *  This script is based on ECMAScript 6, which may not be supported by all
- *  browsers at the time of this writing. The optimal way to use this script is
- *  to transpile it to ECMAScript 5 using something like `babel`, the NPM
- *  package.
- */
+/** client.js */
+
+const APP_NAME = 'malasakit';
 
 const DEFAULT_LANGUAGE = 'tl';
 const DEFAULT_TIMEOUT = 5000;
@@ -14,28 +10,51 @@ const API_URL_ROOT = APP_URL_ROOT + '/api';
 const STATIC_URL_ROOT = APP_URL_ROOT + '/static';
 const RESPONSE_SAVE_ENDPOINT = API_URL_ROOT + '/save-response/';
 
+const RESPONSE_LIFETIME = 12*60*60*1000;
+const DEFAULT_COMMENT_SAMPLE_SIZE = 8;
+const STATIC_RESOURCES = [
+    {
+        name: 'quantitative-questions',
+        endpoint: API_URL_ROOT + '/fetch/quantitative-questions/',
+        lifetime: 0
+    },
+    {
+        name: 'option-questions',
+        endpoint: API_URL_ROOT + '/fetch/option-questions/',
+        lifetime: 0
+    },
+    {
+        name: 'qualitative-questions',
+        endpoint: API_URL_ROOT + '/fetch/qualitative-questions/',
+        lifetime: 0
+    },
+    {
+        name: 'comments',
+        endpoint: API_URL_ROOT + '/fetch/comments/',
+        lifetime: 12*60*60*1000
+    },
+    {
+        name: 'location-data',
+        endpoint: STATIC_URL_ROOT + '/data/location-data.json',
+        lifetime: 12*60*60*1000
+    },
+    {
+        name: 'bloom-icon',
+        endpoint: STATIC_URL_ROOT + '/data/bloom-icon.json',
+        lifetime: 0
+    }
+];
+
 const RESPONSE_KEY_PREFIX = 'response-';
 const EMPTY_RESPONSE = {
     'question-ratings': {},
+    'question-choices': {},
     'comments': {},
     'comment-ratings': {},
     'respondent-data': {},
 };
 
-function displayError(message) {
-    var bannerMarkup = '<p class="error banner">' + message + '</p>';
-    $('header > .container').append(bannerMarkup);
-}
-
-function displayNoCurrentRespondentError() {
-    var current = Resource.load('current');
-    if (!isResponseName(current.data)) {
-        var language = $('html').attr('lang') || DEFAULT_LANGUAGE;
-        var landingURL = APP_URL_ROOT + '/' + language + '/landing/';
-        displayError('Your answers are not being saved. '
-                   + 'You should start a <a href="' + landingURL + '">new response</a>.');
-    }
-}
+const SKIPPED = null;
 
 function redirect(url) {
     $(location).attr('href', url);
@@ -45,201 +64,141 @@ function getCurrentTimestamp() {
     return new Date().getTime();
 }
 
+function getCurrentLanguage() {
+    return $('html').attr('lang') || DEFAULT_LANGUAGE;
+}
+
+function displayError(message) {
+    var banner = $('<p>').addClass('error banner').html(message);
+    $('header > .container').append(banner);
+}
+
+function displayNoCurrentRespondentError() {
+    var current = Resource.load('current');
+    if (current === undefined || current.data === null || !isResponseName(current.data)) {
+        var landingURL = APP_URL_ROOT + '/' + getCurrentLanguage() + '/landing/';
+        var landingLink = $('<a>').attr('href', landingURL).text('new response');
+        displayError('Your answers are not being saved. '
+                   + 'You should start a ' + landingLink[0].outerHTML + '.');
+    }
+}
+
 class Resource {
-    constructor(name, timestamp=null, lifetime=0, endpoint=null,
-                timeout=DEFAULT_TIMEOUT, data=null) {
+    constructor(name, timestamp, data) {
         this.name = name;
         this.timestamp = timestamp;
-        // JSON cannot represent `Infinity`, so this is the sentinel value
-        // for the lifetime of a resource that does not expire
-        this.lifetime = lifetime === Infinity ? null : lifetime;
-        this.endpoint = endpoint;
-        this.timeout = timeout;
         this.data = data;
     }
 
-    static make(obj) {
-        // Wrap a raw JavaScript object with the `Resource` class
-        var resource = new Resource(obj.name, obj.timestamp, obj.lifetime,
-                                    obj.endpoint, obj.timeout, obj.data);
-        for (var name in obj) {
-            if (resource[name] === undefined) {
-                resource[name] = obj[name];
-            }
-        }
-        return resource;
+    static _key(name) {
+        return APP_NAME + '-' + name;
+    }
+
+    static exists(name) {
+        return localStorage.getItem(Resource._key(name)) !== null;
     }
 
     static load(name) {
-        var rawResource = Resource.get(name);
-        return Resource.make(rawResource);
+        var obj = JSON.parse(localStorage.getItem(Resource._key(name)));
+        if (obj !== null) {
+            var resource = new Resource(obj.name, obj.timestamp, obj.data);
+            for (var name in obj) {
+                if (resource[name] === undefined) {
+                    resource[name] = obj[name];
+                }
+            }
+            return resource;
+        }
     }
 
-    static loadNames() {
+    static names() {
+        var prefix = APP_NAME + '-';
         var names = [];
         for (var index = 0; index < localStorage.length; index++) {
-            names.push(localStorage.key(index));
+            var key = localStorage.key(index);
+            if (key.startsWith(prefix)) {
+                names.push(key.substring(prefix.length));
+            }
         }
         return names;
     }
 
-    static exists(name) {
-        return localStorage.getItem(name) !== null;
-    }
-
-    static get(name) {
-        return JSON.parse(localStorage.getItem(name));
-    }
-
-    static put(name, resource) {
-        localStorage.setItem(name, JSON.stringify(resource));
+    put() {
+        localStorage.setItem(Resource._key(this.name), JSON.stringify(this));
     }
 
     static delete(name) {
-        localStorage.removeItem(name);
-    }
-
-    exists() {
-        return localStorage.getItem(this.name) !== null;
-    }
-
-    get() {
-        return Resource.load(this.name);
-    }
-
-    put() {
-        localStorage.setItem(this.name, JSON.stringify(this));
-    }
-
-    delete() {
-        localStorage.removeItem(this.name);
+        localStorage.removeItem(Resource._key(name));
     }
 
     updateTimestamp() {
         this.timestamp = getCurrentTimestamp();
     }
 
-    get stale() {
-        if (this.timestamp === undefined) {
-            return true;
-        } else if (this.lifetime === null || !isFinite(this.lifetime)) {
-            return false;
-        }
-        var now = getCurrentTimestamp();
-        var timedelta = now - this.timestamp;
-        return timedelta > this.lifetime;
+    stale(lifetime) {
+        return getCurrentTimestamp() - this.timestamp > lifetime;
     }
-
-    fetch() {
-        var resource = this;  // Alias to avoid conflicts in callbacks
-        if (resource.endpoint !== undefined) {
-            $.ajax(resource.endpoint, {
-                timeout: resource.timeout || DEFAULT_TIMEOUT,
-                success: function(data) {
-                    resource.data = data;
-                    resource.updateTimestamp();
-                    resource.put();
-                    console.log('Successfully fetched ' + resource.name);
-                },
-                failure: function() {
-                    console.log('Failed to fetch data for ' + resource.name);
-                },
-            });
-        }
-    }
-
-    push(deleteOnSuccess=true) {
-        var resource = this;  // Alias for the callback
-        if (resource.endpoint !== undefined) {
-            $.ajax(resource.endpoint, {
-                method: 'POST',
-                data: JSON.stringify(this.data),
-                timeout: resource.timeout || DEFAULT_TIMEOUT,
-                success: function() {
-                    console.log('Successfully pushed ' + resource.name);
-                    if (deleteOnSuccess) {
-                        resource.delete();
-                    }
-                },
-                failure: function() {
-                    console.log('Failed to push data for ' + resource.name);
-                },
-            })
-        }
-    }
-}
-
-function initializeResources() {
-    var comments = new Resource('comments', null, 30*60*1000,
-                                API_URL_ROOT + '/fetch/comments/');
-    var qualitativeQuestions = new Resource('qualitative-questions', null, 0,
-                                            API_URL_ROOT + '/fetch/qualitative-questions/');
-    var quantitativeQuestions = new Resource('quantitative-questions', null, 0,
-                                             API_URL_ROOT + '/fetch/quantitative-questions/');
-    var current = new Resource('current', null, 12*60*60*1000);
-    var bloomIcon = new Resource('bloom-icon', null, 0, STATIC_URL_ROOT + '/data/bloom-icon.json');
-    var countries = new Resource('countries', null, 0, STATIC_URL_ROOT + '/data/countries.json');
-    var initialResources = [comments, qualitativeQuestions,
-                            quantitativeQuestions, current,
-                            bloomIcon, countries];
-
-    comments.default_sample_size = 8;
-    current.updateTimestamp();
-
-    for (var index in initialResources) {
-        var resource = initialResources[index];
-        if (!resource.exists()) {
-            resource.put();
-        } else {
-            initialResources[index] = Resource.load(resource.name);
-        }
-    }
-
-    return initialResources;
 }
 
 function isResponseName(resourceName) {
     return resourceName !== null && resourceName.startsWith(RESPONSE_KEY_PREFIX);
 }
 
-function initializeNewResponse() {
+function startResponse() {
     var now = getCurrentTimestamp();
-    var responseKey = RESPONSE_KEY_PREFIX + now.toString();
-    var response = new Resource(responseKey, now, Infinity,
-                                API_URL_ROOT + '/save-response/',
-                                DEFAULT_TIMEOUT, EMPTY_RESPONSE);
+    var responseName = RESPONSE_KEY_PREFIX + now.toString();
+    var response = new Resource(responseName, now, EMPTY_RESPONSE);
+    response.put();
+
+    response = Resource.load(responseName);
+    response.data['respondent-data'].uuid = uuidv4();
     response.put();
 
     var current = Resource.load('current');
-    current.data = responseKey;
+    current.data = responseName;
     current.updateTimestamp();
     current.put();
 }
 
 function recordCurrentLanguage() {
-    var language = $('html').attr('lang') || DEFAULT_LANGUAGE;
     var current = Resource.load('current');
-    if (current.data !== null) {
+    if (current !== undefined && current.data !== null) {
         var response = Resource.load(current.data);
-        response.data['respondent-data'].language = language;
+        response.data['respondent-data'].language = getCurrentLanguage();
         response.put();
     }
 }
 
 function refreshResources() {
-    var resourceNames = Resource.loadNames();
-    for (var index in resourceNames) {
-        var name = resourceNames[index];
-        if (!isResponseName(name)) {
-            var resource = Resource.load(name);
-            if (resource.stale && resource.endpoint !== undefined) {
-                resource.fetch();
+    STATIC_RESOURCES.forEach(function(metadata) {
+        var resource = Resource.load(metadata.name);
+        if (resource === undefined || resource.stale(metadata.lifetime)) {
+            if (resource === undefined) {
+                resource = new Resource(metadata.name, null, null);
             }
+            $.ajax(metadata.endpoint, {
+                timeout: metadata.timeout || DEFAULT_TIMEOUT,
+                success: function(data) {
+                    resource.data = data;
+                    resource.updateTimestamp();
+                    resource.put();
+
+                    var message = gettext('Successfully fetched %s');
+                    console.log(interpolate(message, [metadata.name]));
+                },
+                failure: function() {
+                    var message = gettext('Failed to fetch %s');
+                    console.log(interpolate(message, [metadata.name]));
+                }
+            });
         }
-    }
+    });
 
     var current = Resource.load('current');
-    if (current.stale) {
+    if (current === undefined) {
+        current = new Resource('current', getCurrentTimestamp(), null);
+        current.put();
+    } else if (current.stale(RESPONSE_LIFETIME)) {
         current.data = null;
         current.put();
     }
@@ -251,17 +210,34 @@ function postprocess(responseData) {
     responseData['respondent-data'].location = country + ', zip code: ' + zipCode;
 }
 
-function pushCompletedResponses() {
-    var resourceNames = Resource.loadNames();
-    var currentResponseName = Resource.load('current').data;
-    for (var index in resourceNames) {
-        var name = resourceNames[index];
-        if (isResponseName(name) && name !== currentResponseName) {
-            var response = Resource.load(name);
-            postprocess(response.data);
-            response.push();
+function pushResponse(response, deleteOnSuccess=true) {
+    postprocess(response.data);
+    $.ajax(RESPONSE_SAVE_ENDPOINT, {
+        method: 'POST',
+        data: JSON.stringify(response.data),
+        timeout: DEFAULT_TIMEOUT,
+        success: function() {
+            var message = 'Successfully pushed %s';
+            console.log(interpolate(message, [response.name]));
+            if (deleteOnSuccess) {
+                Resource.delete(response.name);
+            }
+        },
+        failure: function() {
+            var message = 'Failed to push %s';
+            console.log(interpolate(message, [response.name]));
         }
-    }
+    });
+}
+
+function pushCompletedResponses() {
+    var current = Resource.load('current');
+    Resource.names().filter(isResponseName).forEach(function(name) {
+        var response = Resource.load(name);
+        if (current === undefined || response.name !== current.data) {
+            pushResponse(response);
+        }
+    });
 }
 
 function getCookie(name) {
@@ -292,7 +268,7 @@ function csrfSetup() {
             }
         }
     });
-    console.log('AJAX with CSRF token usage initialized');
+    console.log(gettext('AJAX with CSRF token usage initialized'));
 }
 
 function displayLocalStorageUsage(precision=3) {
@@ -328,17 +304,16 @@ function selectCommentFromStandardError(comments) {
 }
 
 function selectComments(method) {
-    var selectedComments = new Resource('selected-comments');
-    if (!selectedComments.exists() && Resource.exists('comments')) {
-        selectedComments.data = {};
+    if (!Resource.exists('selected-comments') && Resource.exists('comments')) {
+        var selectedComments = new Resource('selected-comments', getCurrentTimestamp(), {});
         var comments = Resource.load('comments');
-        var numToSelect = Math.min(comments.default_sample_size,
+        var numToSelect = Math.min(DEFAULT_COMMENT_SAMPLE_SIZE,
                                    Object.keys(comments.data).length);
 
         for (var index = 0; index < numToSelect; index++) {
-            var commentID = method(comments.data);
-            selectedComments.data[commentID] = comments.data[commentID];
-            delete comments.data[commentID];
+            var id = method(comments.data);
+            selectedComments.data[id] = comments.data[id];
+            delete comments.data[id];
         }
 
         selectedComments.put();
@@ -386,9 +361,8 @@ function deleteResponseValue(path) {
 
 function main() {
     csrfSetup();
-    initializeResources();
-    recordCurrentLanguage();
     refreshResources();
+    recordCurrentLanguage();
     pushCompletedResponses();
 }
 

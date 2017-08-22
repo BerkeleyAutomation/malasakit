@@ -7,20 +7,19 @@
 
 {% block scripts %}
   <script>
-    const SKIPPED = null;
-
     $(document).ready(function() {
-      var current = Resource.load('current');
-      var ratings = getResponseValue(['question-ratings']);
-      current.data = null;
-      current.put();
-      pushCompletedResponses();
-      Resource.delete('selected-comments');
+      displayNoCurrentRespondentError();
 
-      for (var questionID in ratings) {
-        var score = ratings[questionID];
+      var current = Resource.load('current');
+      pushResponse(Resource.load(current.data), false);
+
+      var ratings = getResponseValue(['question-ratings']);
+      for (var id in ratings) {
+        var score = ratings[id];
         if (score !== SKIPPED) {
-          $('#answer-' + questionID).text(score);
+          $('#answer-' + id).text(score);
+        } else {
+          $('#answer-' + id).text(gettext('Skipped'));
         }
       }
     });
@@ -53,7 +52,7 @@
             </div>
             <div class="bubbled">
               {% with id=question.id %}
-                {% trans 'Your answer:'%} <strong id="answer-{{ id }}">{% trans 'Skip' %}</strong>
+                {% trans 'Your answer:'%} <strong id="answer-{{ id }}">{% trans 'Not rated' %}</strong>
               {% endwith %}
             </div>
           </div>

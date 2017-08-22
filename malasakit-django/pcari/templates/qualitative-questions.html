@@ -50,7 +50,6 @@
         <p class="prompt">{% trans question.prompt %}</p>
         <textarea question-id="{{ question.id }}" class="comment"></textarea>
       {% endwith %}
-      </p>
     {% endif %}
   {% else %}
     <p class="error banner">{% trans 'There are no qualitative questions at this time.' %}</p>

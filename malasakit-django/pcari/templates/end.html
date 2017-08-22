@@ -5,6 +5,17 @@
 {% block title %}{% trans 'Thank You' %}{% endblock %}
 {% block main-heading %}{% trans 'Thank You' %}{% endblock %}
 
+{% block scripts %}
+  <script>
+    $(document).ready(function() {
+      var current = Resource.load('current');
+      current.data = null;
+      current.put();
+      Resource.delete('selected-comments');
+    });
+  </script>
+{% endblock %}
+
 {% block content %}
   <p class="center">
     {% trans 'Thank you for your perspectives!' %}
