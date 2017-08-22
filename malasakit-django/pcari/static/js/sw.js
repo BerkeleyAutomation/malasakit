@@ -44,6 +44,7 @@ function makeURLsToCache() {
         urls.push(STATIC_ROOT + urlFragment);
     });
 
+    urls.push(APP_ROOT + 'jsi18n/');
     return urls;
 }
 

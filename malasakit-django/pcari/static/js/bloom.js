@@ -179,7 +179,7 @@ function renderComments() {
     var nodeData = makeNodeData(selectedComments, width, height);
     if (nodeData.length === 0) {
         $('#notice').empty();
-        $('#notice').append($('<p>').addClass('error banner').text(gettext('There are no more comments to rate.')))
+        $('#notice').append($('<p>').addClass('error banner').text(gettext('There are no more comments to rate.')));
         return;
     }
 

@@ -171,10 +171,8 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
                 self.screenshot(driver, test_case_name,
                                 'quantitative-question-{0}.png'.format(question_id))
 
-            score = scores.get(question_id, scores.get(str(question_id), -1))
-            if score == -1:
-                break
-            elif score == QuantitativeQuestionRating.SKIPPED:
+            score = scores.get(question_id, scores.get(str(question_id)))
+            if score == QuantitativeQuestionRating.SKIPPED:
                 driver.find_element_by_id('skip').click()
                 continue
 
