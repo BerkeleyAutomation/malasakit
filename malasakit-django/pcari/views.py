@@ -24,7 +24,6 @@ import random
 import time
 
 import decorator
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.conf import settings
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
@@ -38,8 +37,8 @@ from openpyxl import Workbook
 import unicodecsv as csv
 
 from pcari.models import Respondent
-from pcari.models import QuantitativeQuestion, QualitativeQuestion
-from pcari.models import Comment, CommentRating, QuantitativeQuestionRating
+from pcari.models import QuantitativeQuestion, OptionQuestion, QualitativeQuestion
+from pcari.models import Comment, CommentRating, QuantitativeQuestionRating, OptionQuestionChoice
 from pcari.models import get_concrete_fields
 
 __all__ = [
@@ -47,8 +46,9 @@ __all__ = [
     'normalize_ratings_matrix',
     'calculate_principal_components',
     'fetch_comments',
-    'fetch_qualitative_questions',
     'fetch_quantitative_questions',
+    'fetch_option_questions',
+    'fetch_qualitative_questions',
     'fetch_question_ratings',
     'save_response',
     'export_data',
@@ -292,8 +292,9 @@ def fetch_quantitative_questions(request):
     Returns:
         A ``JsonResponse`` containing a JSON object of the form::
 
-            {
-                "<question.id>": {
+            [
+                {
+                    "id": <question.id>,
                     "prompts": {
                         "<language-code>": "<translated question.prompt>",
                         ...
@@ -311,13 +312,14 @@ def fetch_quantitative_questions(request):
                     "input-type": <question.input_type>
                 },
                 ...
-            }
+            ]
 
         Each language code is obtained from ``settings.LANGUAGES``.
     """
     # pylint: disable=unused-argument
-    return JsonResponse({
-        str(question.id): {
+    return JsonResponse([
+        {
+            'id': question.id,
             'prompts': {
                 code: translate(question.prompt, code)
                 for code, _ in settings.LANGUAGES
@@ -334,7 +336,27 @@ def fetch_quantitative_questions(request):
             'max-score': question.max_score,
             'input-type': question.input_type,
         } for question in QuantitativeQuestion.objects.filter(active=True)
-    })
+    ], safe=False)
+
+
+@profile
+@require_GET
+def fetch_option_questions(request):
+    # pylint: disable=unused-argument
+    return JsonResponse([
+        {
+            'id': question.id,
+            'prompts': {
+                code: translate(question.prompt, code)
+                for code, _ in settings.LANGUAGES
+            },
+            'options': {
+                code: [translate(option, code) for option in question.options]
+                for code, _ in settings.LANGUAGES
+            },
+            'input-type': question.input_type
+        } for question in OptionQuestion.objects.filter(active=True)
+    ], safe=False)
 
 
 @profile
@@ -369,41 +391,69 @@ def fetch_question_ratings(request):
 
 
 @profile
-def make_question_ratings(respondent, responses):
+def make_question_ratings(respondent, response):
     """ Generate new quantitative question model instances. """
-    for question_id, score in responses.get('question-ratings', {}).iteritems():
-        yield QuantitativeQuestionRating(respondent=respondent,
-                                         question_id=int(question_id), score=score)
+    for question_id, score in response.get('question-ratings', {}).iteritems():
+        QuantitativeQuestionRating.objects.update_or_create(
+            question_id=int(question_id),
+            respondent=respondent,
+            defaults={'score': score},
+        )
 
 
 @profile
-def make_comments(respondent, responses):
+def make_question_choices(respondent, response):
+    """ Generate new option question choice instances. """
+    for question_id, choice in response.get('question-choices', {}).iteritems():
+        OptionQuestionChoice.objects.update_or_create(
+            question_id=int(question_id),
+            respondent=respondent,
+            defaults={'option': choice},
+        )
+
+
+@profile
+def make_comments(respondent, response):
     """ Generate new comment model instances. """
-    for question_id, message in responses.get('comments', {}).iteritems():
-        yield Comment(respondent=respondent, question_id=int(question_id),
-                      language=respondent.language, message=message.strip())
+    for question_id, message in response.get('comments', {}).iteritems():
+        Comment.objects.update_or_create(
+            question_id=int(question_id),
+            respondent=respondent,
+            defaults={
+                'message': (message or '').strip(),
+                'language': respondent.language,
+            },
+        )
 
 
 @profile
-def make_comment_ratings(respondent, responses):
+def make_comment_ratings(respondent, response):
     """ Generate new comment rating instances. """
-    for comment_id, score in responses.get('comment-ratings', {}).iteritems():
-        yield CommentRating(respondent=respondent, comment_id=int(comment_id),
-                            score=score)
+    for comment_id, score in response.get('comment-ratings', {}).iteritems():
+        CommentRating.objects.update_or_create(
+            comment_id=int(comment_id),
+            respondent=respondent,
+            defaults={'score': score},
+        )
 
 
 @profile
-def make_respondent_data(respondent, responses):
+def make_respondent_data(respondent, response):
     """ Save respondent data from a given response object. """
-    respondent_data = responses.get('respondent-data', {})
-    attributes = ['age', 'gender', 'location', 'submitted_personal_data',
-                  'completed_survey']
+    respondent_data = response.get('respondent-data', {})
+    attributes = [
+        'age',
+        'gender',
+        'language',
+        'location',
+        'submitted_personal_data',
+        'completed_survey',
+    ]
     for attribute in attributes:
         serialized_name = attribute.replace('_', '-')
         if serialized_name in respondent_data:
             setattr(respondent, attribute, respondent_data[serialized_name])
-    respondent.language = respondent_data['language']
-    yield respondent
+    respondent.save()
 
 
 @profile
@@ -420,6 +470,10 @@ def save_response(request):
                 "<question.id>": <score>,
                 ...
             },
+            "question-choices": {
+                "<question.id>": "<choice>",
+                ...
+            },
             "comments": [
                 "<question.id>": "<message>",
                 ...
@@ -429,6 +483,7 @@ def save_response(request):
                 ...
             ],
             "respondent-data": {
+                "uuid": "<uuid>",
                 "age": <age>,
                 "gender": "<gender>",
                 "location": "<location>",
@@ -438,9 +493,8 @@ def save_response(request):
             }
         }
 
-    Args:
-        request: This parameter is ignored (the data should arrive in the body
-            of the request).
+    No validation is performed. Validation through ``full_clean`` should be
+    performed during analysis.
 
     Returns:
         A ``HttpResponse`` with a status code of 200 if the data were saved
@@ -452,34 +506,30 @@ def save_response(request):
         written to the database, and the client should not send another request
         without modifications to the payload.
     """
-    respondent = Respondent()
-    respondent.save()
-
     try:
-        responses = json.loads(request.body)
-        model_instances = []
+        response = json.loads(request.body)
+        uuid = response.get('respondent-data', {}).get('uuid', None)
+        if uuid is None:
+            respondent = Respondent.objects.create()
+        else:
+            respondent, _ = Respondent.objects.get_or_create(uuid=uuid)
 
-        model_generator_functions = [
+        model_build_functions = [
             make_respondent_data,
             make_question_ratings,
+            make_question_choices,
             make_comments,
             make_comment_ratings,
         ]
 
-        for model_generator in model_generator_functions:
-            model_instances.extend(model_generator(respondent, responses))
-
-        for instance in model_instances:
-            instance.full_clean()
-    except (KeyError, ValueError, AttributeError, ObjectDoesNotExist,
-            ValidationError) as error:
+        for build_model_instances in model_build_functions:
+            build_model_instances(respondent, response)
+    except (ValueError, AttributeError) as error:
+        message = type(error).__name__ + ': ' + str(error)
+        LOGGER.log(logging.ERROR, message)
         respondent.delete()
-        LOGGER.log(logging.ERROR, error)
-        return HttpResponseBadRequest(str(error))
+        return HttpResponseBadRequest(message)
 
-    for instance in model_instances:
-        instance.save()
-        LOGGER.log(logging.DEBUG, 'Saved instance %s', instance)
     return HttpResponse()
 
 
