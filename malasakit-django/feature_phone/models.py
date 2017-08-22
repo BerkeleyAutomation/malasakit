@@ -1,3 +1,18 @@
+"""
+Model definitions.
+
+This module defines how information used by Malasakit is structured and how the
+Python layer interfaces with a database.
+
+The Question and Response models used in v2.0 are linked to their corresponding quantitative
+question, qualitative question, and response objects from v1.25 through the RelatedObjectMixin.
+
+References:
+    * `Django Model Reference <https://docs.djangoproject.com/en/dev/topics/db/models/>`_
+    * `Django Field Reference <https://docs.djangoproject.com/en/dev/ref/models/fields/>`_
+    * `QuerySet API <https://docs.djangoproject.com/en/dev/ref/models/querysets/>`_
+    * `The contenttypes framework <https://docs.djangoproject.com/en/dev/ref/contrib/contenttypes/>`_
+"""
 from __future__ import unicode_literals
 
 from django.conf import settings
@@ -11,6 +26,20 @@ from pcari.models import LANGUAGE_VALIDATOR
 
 
 class RelatedObjectMixin(models.Model):
+    """
+    The ``RelatedObjectMixin`` provides models access to their corresponding linked
+    database objects from PCARI v1.25 models.
+
+    To use this mixin on a model, have the model inherit from this class after
+    it inherits from :class:`django.db.models.Model` (or some subclass of
+    ``Model``). It cannot be inherited on its own, and must be included via multiple
+    inheritance to any v2 model.
+
+    Attributes:
+        related_object_type: The type of the linked v1.25 object.
+        related_object_id: The id of the linked v1.25 object.
+        related_object: The linked v1.25 object.
+    """
     related_object_type = models.ForeignKey(
         ContentType,
         limit_choices_to=models.Q(app_label='pcari'),
@@ -28,12 +57,29 @@ class RelatedObjectMixin(models.Model):
 
 
 def generate_recording_path(instance, filename):
+    """
+    Create a path in the file tree to which the recording is stored.
+
+    Args:
+        instance: A recording object.
+        filename (String): The filename for the recording.
+
+    Returns:
+        String: A path, containing a folder and a directory, to which the recording
+        is stored.
+    """
     model_name_plural = instance.__class__._meta.verbose_name_plural
     model_name_slug = model_name_plural.lower().replace(' ', '-')
     return '{0}/{1}'.format(model_name_slug, filename)
 
 
 class Recording(models.Model):
+    """
+    A Recording is an abstract model of a recording
+
+    Attributes:
+        recording: Contains the path to which the recording is stored in disk.
+    """
     recording = models.FileField(upload_to=generate_recording_path)
 
     class Meta:
@@ -41,6 +87,14 @@ class Recording(models.Model):
 
 
 class Instructions(Recording):
+    """
+    An ``Instruction`` is a string of text that will be spoken to the caller using text-to-speech.
+
+    Attributes:
+        text (str): The content of the Instruction
+        tag (str): A short summary of the Instruction's content
+        language (str): The language the Instruction is written in
+    """
     MAX_TEXT_DISPLAY_LENGTH = 140
 
     text = models.TextField(blank=True, default='')
@@ -60,6 +114,10 @@ class Instructions(Recording):
 
 
 class Question(Instructions, RelatedObjectMixin):
+    """
+    A ``Question`` is a type of Instruction that is specifically spoken to the caller during the
+    quantitative and qualitative question part of the call.
+    """
     # pylint: disable=model-no-explicit-unicode
 
     def validate_unique(self, exclude=None):
@@ -80,6 +138,16 @@ class Question(Instructions, RelatedObjectMixin):
 
 
 class Response(Recording, RelatedObjectMixin):
+    """
+    A ``Response`` is a Recording of the caller's answer to the prompted Questions.
+
+    Attributes:
+        timestamp (datetime.datetime): When this Response was made.
+        respondent: The Respondent who made this Response.
+        prompt_type: The type of the prompt which this Response addressed.
+        prompt_id: The ID of the prompt which this Response addressed.
+        prompt: The prompt which this Response addressed.
+    """
     timestamp = models.DateTimeField(auto_now_add=True)
     respondent = models.ForeignKey('Respondent', on_delete=models.CASCADE,
                                    related_name='responses')
@@ -109,6 +177,20 @@ class Response(Recording, RelatedObjectMixin):
 
 
 class Respondent(models.Model):
+    """
+    A ``Respondent`` represents a one-time participant in the survey.
+
+    Attributes:
+        age: The age of the respondent in years.
+        gender: The gender of the respondent
+        location: The respondent's residence. (In the particular context of
+            the Philippines, this field should contain the respondent's province,
+            city or municipality, and barangay.)
+        language: The language preferred by this respondent. Selected
+            from :attr:`pcari.models.LANGUAGES`.
+        related_object: Ties the respondent with the corresponding database
+            object from v1.25
+    """
     age = models.FileField(upload_to='respondent/age/', null=True, blank=True,
                            default=None)
     gender = models.FileField(upload_to='respondent/gender/', null=True,
