@@ -8,10 +8,10 @@
 {% block scripts %}
   <script>
     $(document).ready(function() {
+      displayNoCurrentRespondentError();
+
       var current = Resource.load('current');
-      current.data = null;
-      current.put();
-      Resource.delete('selected-comments');
+      pushResponse(Resource.load(current.data), false);
     });
   </script>
 {% endblock %}
@@ -20,6 +20,7 @@
   <p class="center">
     {% trans 'Thank you for your perspectives!' %}
   </p>
-  {% url 'pcari:landing' as next_link %}
-  {% include 'nav-buttons.html' with next_label=_('Next') %}
+  <p class="center">
+    If you have time, please review and <a href="{% url 'pcari:rate-comments' %}">rate more perspectives</a> from others.
+  </p>
 {% endblock %}

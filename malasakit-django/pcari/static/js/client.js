@@ -34,11 +34,6 @@ const STATIC_RESOURCES = [
         lifetime: 12*60*60*1000
     },
     {
-        name: 'location-data',
-        endpoint: STATIC_URL_ROOT + '/data/location-data.json',
-        lifetime: 12*60*60*1000
-    },
-    {
         name: 'bloom-icon',
         endpoint: STATIC_URL_ROOT + '/data/bloom-icon.json',
         lifetime: 0
@@ -205,13 +200,12 @@ function refreshResources() {
 }
 
 function postprocess(responseData) {
-    var country = responseData['respondent-data']['country'] || '(No country)';
-    var zipCode = responseData['respondent-data']['zip-code'] || '(No zip code)';
-    responseData['respondent-data'].location = country + ', zip code: ' + zipCode;
+    responseData['respondent-data']['completed-survey'] = true;
 }
 
 function pushResponse(response, deleteOnSuccess=true) {
     postprocess(response.data);
+    response.put();
     $.ajax(RESPONSE_SAVE_ENDPOINT, {
         method: 'POST',
         data: JSON.stringify(response.data),

@@ -49,5 +49,7 @@
   </div>
   {% url 'pcari:quantitative-questions' as previous_link %}
   {% url 'pcari:qualitative-questions' as next_link %}
-  {% include 'nav-buttons.html' %}
+  {% with enable_skip=True %}
+    {% include 'nav-buttons.html' %}
+  {% endwith %}
 {% endblock %}

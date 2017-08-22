@@ -408,7 +408,7 @@ def make_question_choices(respondent, response):
         OptionQuestionChoice.objects.update_or_create(
             question_id=int(question_id),
             respondent=respondent,
-            defaults={'option': choice},
+            defaults={'option': choice or ''},
         )
 
 
@@ -641,7 +641,11 @@ def landing(request):
 @ensure_csrf_cookie
 def quantitative_questions(request):
     """ Render a page asking respondents to rate statements. """
-    return render(request, 'quantitative-questions.html')
+    context = {
+        'num_questions': QuantitativeQuestion.objects.filter(active=True).count()
+                       + OptionQuestion.objects.filter(active=True).count(),
+    }
+    return render(request, 'quantitative-questions.html', context)
 
 
 @profile

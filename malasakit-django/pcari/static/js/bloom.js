@@ -209,18 +209,23 @@ function setNextButtonStatus() {
     var disabled = Object.keys(commentRatings).length < requiredRatings;
 
     if (disabled) {
-        $('#next > a').click(function(event) {
+        $('#nav-next > a').click(function(event) {
             event.preventDefault();
         });
-        $('#next').addClass('blocked');
+        $('#nav-next').addClass('blocked');
     } else {
-        $('#next > a').unbind('click');
-        $('#next').removeClass('blocked');
+        $('#nav-next > a').unbind('click');
+        $('#nav-next').removeClass('blocked');
     }
 }
 
 $(document).ready(function() {
     displayNoCurrentRespondentError();
+    if (getResponseValue(['respondent-data', 'completed-survey'])) {
+        var link = APP_URL_ROOT + '/' + getCurrentLanguage() + '/end/';
+        $('#nav-next a').attr('href', link);
+        $('#nav-skip a').attr('href', link);
+    }
     selectComments(selectCommentFromStandardError);
     resetBloom();
     $(window).resize(renderComments);

@@ -8,19 +8,24 @@
 {% block scripts %}
   <script>
     $(document).ready(function() {
-      $('#next').on('click', startResponse);
+      $('#nav-next').on('click', startResponse);
     });
   </script>
 {% endblock %}
 
 {% block content %}
-  <div>
-    <p class="center">
+  <div class="center">
+    <p>
       {% blocktrans trimmed %}
         If you can spare 5 minutes, we welcome your perspective on the future of free speech on college campuses.
       {% endblocktrans %}
     </p>
     <img src="{% static 'img/landing' %}">
+    <p>
+      {% blocktrans trimmed %}
+        {{ num_responses }} participants so far.
+      {% endblocktrans %}
+    </p>
   </div>
   {% url 'pcari:quantitative-questions' as next_link %}
   {% trans 'Begin' as next_label %}

@@ -53,18 +53,6 @@
         container.append($('<span>').addClass('left-anchor').text(question['left-anchor'] || ''));
         container.append($('<span>').addClass('right-anchor').text(question['right-anchor'] || ''));
         $('#answer').append(container);
-
-        var reading = $('<output>').attr('id', 'quantitative-output');
-        var output = $('<p>').append(gettext('Your current answer is: ')).append(reading);
-        $('#notice').append(output);
-
-        function updateOutputReading() {
-          $('#quantitative-output').text(range.val() + '/' + max);
-        };
-
-        range.on('input', updateOutputReading);
-        updateOutputReading();
-        $('#current-answer-notice').css('display', 'block');
       } else if (question['input-type'] === 'number') {
         var number = $('<input>').attr('id', 'quantitative-input').attr('type', 'number');
         number = number.attr('min', min).attr('max', max).attr('step', step);
@@ -107,7 +95,6 @@
       $('#notice').empty();
       $('#progression-numerator').text(questionIndex + 1);
       $('#current-answer-notice').css('display', 'none');
-      $('#skip-notice').css('display', 'none');
 
       if (questionIndex < QUANTITATIVE_QUESTIONS.length) {
         renderQuantitativeQuestion(QUANTITATIVE_QUESTIONS[questionIndex]);

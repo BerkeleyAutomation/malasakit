@@ -27,7 +27,7 @@
         }
       });
 
-      $('#skip').on('click', function() {
+      $('#nav-skip').on('click', function() {
         setResponseValue(['comments'], {});
       });
     });
@@ -56,5 +56,7 @@
   {% endif %}
   {% url 'pcari:rate-comments' as previous_link %}
   {% url 'pcari:peer-responses' as next_link %}
-  {% include 'nav-buttons.html' %}
+  {% with enable_skip=True %}
+    {% include 'nav-buttons.html' %}
+  {% endwith %}
 {% endblock %}
