@@ -8,8 +8,6 @@
 
 {% block scripts %}
   <script>
-    const SKIPPED = null;
-
     const QUANTITATIVE_QUESTIONS = (Resource.load('quantitative-questions') || {data: []}).data;
     const OPTION_QUESTIONS = (Resource.load('option-questions') || {data: []}).data;
     const NUM_QUESTIONS = QUANTITATIVE_QUESTIONS.length + OPTION_QUESTIONS.length;

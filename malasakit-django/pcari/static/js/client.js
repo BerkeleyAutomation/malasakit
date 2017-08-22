@@ -54,6 +54,8 @@ const EMPTY_RESPONSE = {
     'respondent-data': {},
 };
 
+const SKIPPED = null;
+
 function redirect(url) {
     $(location).attr('href', url);
 }
