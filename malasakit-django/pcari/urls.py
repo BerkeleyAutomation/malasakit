@@ -5,6 +5,7 @@ This module defines how URLs should route to views.
 from __future__ import unicode_literals
 
 from django.conf.urls import url
+from django.views.generic.base import TemplateView
 
 from pcari import views
 
@@ -24,13 +25,16 @@ urlpatterns = [
     url(r'^personal-information/$', views.personal_information,
         name='personal-information'),
     url(r'^end/$', views.end, name='end'),
-    url(r'^dev/$', views.dev, name='dev'),
+    url(r'^about/$', TemplateView.as_view(template_name='about.html'),
+        name='about'),
 ]
 
 api_urlpatterns = [
     url(r'^fetch/comments/$', views.fetch_comments, name='fetch-comments'),
     url(r'^fetch/quantitative-questions/$', views.fetch_quantitative_questions,
         name='fetch-quantitative-questions'),
+    url(r'^fetch/option-questions/$', views.fetch_option_questions,
+        name='fetch-option-questions'),
     url(r'^fetch/qualitative-questions/$', views.fetch_qualitative_questions,
         name='fetch-qualitative-questions'),
     url(r'^fetch/question-ratings/$', views.fetch_question_ratings,

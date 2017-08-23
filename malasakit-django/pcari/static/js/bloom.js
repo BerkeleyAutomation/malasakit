@@ -61,7 +61,7 @@ function calculateBounds(comments) {
 
     for (var commentID in comments) {
       var comment = comments[commentID];
-        var x = comment['pos'][0], y = comment['pos'][1];
+        var x = comment.pos[0], y = comment.pos[1];
         bounds.top = Math.max(bounds.top, y);
         bounds.bottom = Math.min(bounds.bottom, y);
         bounds.left = Math.min(bounds.left, x);
@@ -77,7 +77,7 @@ function makeNodeData(comments, width, height) {
     var nodeData = [];
     for (var commentID in comments) {
         var comment = comments[commentID];
-        var x = comment['pos'][0], y = comment['pos'][1], tag = comment['tag'];
+        var x = comment.pos[0], y = comment.pos[1], tag = comment.tag;
 
         // Normalized coordinates
         nodeData.push({
@@ -166,7 +166,7 @@ function renderComments() {
     bloom.attr('height', height);
 
     console.log('Rendering ' + width + 'x' + height + ' bloom');
-    simulation = d3.forceSimulation().force('charge', d3.forceManyBody());
+    simulation = d3.forceSimulation().force('charge', d3.forceManyBody().strength(-60));
     bloom.selectAll('*').remove();
 
     var selectedComments = Resource.load('selected-comments').data || {};
@@ -177,8 +177,9 @@ function renderComments() {
         }
     }
     var nodeData = makeNodeData(selectedComments, width, height);
-    if (nodeData.length == 0) {
-        $('#no-more-comments-notice').css('display', 'block');
+    if (nodeData.length === 0) {
+        $('#notice').empty();
+        $('#notice').append($('<p>').addClass('error banner').text(gettext('There are no more comments to rate.')));
         return;
     }
 

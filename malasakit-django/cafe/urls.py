@@ -22,6 +22,7 @@ from django.conf.urls.static import static
 from django.conf.urls.i18n import i18n_patterns
 from django.contrib.auth import views as auth_views
 from django.views.generic.base import TemplateView, RedirectView
+from django.views.i18n import JavaScriptCatalog
 
 from pcari.admin import site
 from pcari.urls import api_urlpatterns
@@ -34,6 +35,8 @@ urlpatterns = [
                              content_type='application/javascript'),
         name='service-worker'),
 
+    # Admin site
+    url(r'^admin/', site.urls),
     # Admin site password reset
     url(r'^admin/password_reset/$', auth_views.password_reset,
         name='admin_password_reset'),
@@ -44,18 +47,20 @@ urlpatterns = [
     url(r'^reset/done/$', auth_views.password_reset_complete,
         name='password_reset_complete'),
 
-    # Admin site
-    url(r'^admin/', site.urls),
-
     # AJAX endpoints
     url(r'^api/', include(api_urlpatterns)),
+
+    # Translations in JavaScript
+    url(r'^jsi18n/$', JavaScriptCatalog.as_view(), name='javascript-catalog'),
 ]
 
 # Translate all `pcari` urls
 urlpatterns += i18n_patterns(url(r'^', include('pcari.urls')))
-urlpatterns += [url(r'^$', RedirectView.as_view(url=reverse('pcari:landing')),
-                    name='to-landing')]
-urlpatterns += [url(r'^feature_phone/', include('feature_phone.urls'))]
+urlpatterns += [
+    url(r'^$', RedirectView.as_view(url=reverse('pcari:landing')),
+        name='to-landing'),
+    url(r'^feature_phone/', include('feature_phone.urls')),
+]
 
 # Serve media files in development
 if settings.DEBUG:

@@ -435,8 +435,14 @@ class OptionQuestion(Question):
         ('radio', 'Radio'),
     )
 
-    _options_text = models.TextField(blank=True, default=json.dumps([]),
-                                     verbose_name=_('Options as JSON list'))
+    _options_text = models.TextField(
+        blank=True,
+        default=json.dumps([]),
+        verbose_name='Options as JSON',
+        help_text='A JSON list has the form: <tt>["Choice A", "Choice B"]</tt>. '
+                  'Each option is wrapped in double quotation marks. '
+                  'The options are then separated by commas within the square brackets.',
+    )
     input_type = models.CharField(max_length=16, choices=INPUT_TYPE_CHOICES,
                                   default='select')
 
@@ -450,6 +456,18 @@ class OptionQuestion(Question):
 
     def __unicode__(self):
         return 'Option question {0}: "{1}"'.format(self.pk, self.prompt)
+
+    def clean_fields(self, exclude=None):
+        super(OptionQuestion, self).clean_fields(exclude=exclude)
+        exclude = exclude or []
+        if '_options_text' not in exclude:
+            try:
+                options = json.loads(self._options_text)
+                assert isinstance(options, list)
+                for option in options:
+                    assert isinstance(option, (str, unicode))
+            except (ValueError, AssertionError):
+                raise ValidationError(_('"_options_text" is not a JSON list of strings'))
 
 
 class OptionQuestionChoice(Response):
@@ -474,7 +492,7 @@ class OptionQuestionChoice(Response):
                 ``question.options``.
         """
         super(OptionQuestionChoice, self).clean()
-        if self.option not in self.question.options:
+        if self.option and self.option not in self.question.options:
             raise ValidationError(_('"%(option)s" is not a valid option'),
                                   code='invalid-selection',
                                   params={'option': str(self.option)})
@@ -537,6 +555,8 @@ class Respondent(History):
                                 validators=[LANGUAGE_VALIDATOR])
     submitted_personal_data = models.BooleanField(default=False)
     completed_survey = models.BooleanField(default=False)
+    uuid = models.UUIDField(unique=True, default=None, editable=False,
+                            null=True, blank=True)
 
     def __unicode__(self):
         return 'Respondent {0}'.format(self.pk)

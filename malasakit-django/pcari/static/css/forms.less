@@ -1,3 +1,5 @@
+@breakpoint: 568px;
+
 .range-container {
   display: flex;
   flex-flow: row wrap;
@@ -21,6 +23,9 @@ input[type="range"] {
   text-align: left;
   order: 1;
   padding-right: 1rem;
+  @media all and (min-width: @breakpoint) {
+    text-align: right;
+  }
 }
 
 .right-anchor {
@@ -28,6 +33,9 @@ input[type="range"] {
   text-align: right;
   order: 3;
   padding-left: 1rem;
+  @media all and (min-width: @breakpoint) {
+    text-align: left;
+  }
 }
 
 button {
@@ -35,7 +43,6 @@ button {
   border-radius: 0.2rem;
   padding: 0.5rem 1rem;
   transition-duration: 0.5s;
-  font-size: 1rem;
   &:active {
     outline: none;
   }
@@ -44,18 +51,17 @@ button {
   }
 }
 
-@media all and (max-width: 568px) {
-  input[type=range] {
+@media all and (max-width: @breakpoint) {
+  input[type="range"] {
     flex-basis: 100%;
     padding: 0.5rem 1rem;
   }
 
   .left-anchor, .right-anchor {
     flex-basis: 50%;
-    font-size: 0.8rem;
   }
 
-  input[type=range], .left-anchor, .right-anchor {
+  input[type="range"], .left-anchor, .right-anchor {
     order: 0;
   }
 }
@@ -66,7 +72,7 @@ button {
   border-radius: 0.2rem;
 }
 
-input[type=range] {
+input[type="range"] {
   -webkit-appearance: none;
 
   &:focus {
@@ -104,15 +110,13 @@ input[type=range] {
   }
 }
 
-input[type=number], input[type=text], select {
+input[type="number"], input[type="text"], select {
   margin: 0.5rem auto;
-  padding: 0 0.5rem;
-  width: 10rem;
-  height: 35px;
+  padding: 0.5rem;
+  min-width: 10rem;
   overflow: hidden;
   background: solid white;
   border: 1px solid goldenrod;
-  font-size: medium;
 }
 
 textarea {
@@ -121,5 +125,4 @@ textarea {
   height: 10rem;
   border: 1px solid goldenrod;
   resize: none;
-  font-size: 1rem;
 }

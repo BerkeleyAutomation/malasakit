@@ -8,130 +8,147 @@
 
 {% block scripts %}
   <script>
-    const SKIPPED = null;
+    const QUANTITATIVE_QUESTIONS = (Resource.load('quantitative-questions') || {data: []}).data;
+    const OPTION_QUESTIONS = (Resource.load('option-questions') || {data: []}).data;
+    const NUM_QUESTIONS = QUANTITATIVE_QUESTIONS.length + OPTION_QUESTIONS.length;
 
-    function getSortedQuestionIDs() {
-      var questionIDs = Object.keys(Resource.get('quantitative-questions').data);
-      for (var index in questionIDs) {
-        questionIDs[index] = parseInt(questionIDs[index]);
-      }
-      questionIDs.sort();
-      return questionIDs;
-    }
-
-    function currentQuestionIndex(questionIDs) {
-      var questionRatings = getResponseValue(['question-ratings']);
-      for (var index in questionIDs) {
-        if (!(questionIDs[index] in questionRatings)) {
+    function currentQuestionIndex() {
+      var ratings = getResponseValue(['question-ratings']) || [];
+      for (var index in QUANTITATIVE_QUESTIONS) {
+        var question = QUANTITATIVE_QUESTIONS[index];
+        if (!(question.id in ratings)) {
           return parseInt(index);
         }
       }
-      return questionIDs.length - 1;
+
+      var choices = getResponseValue(['question-choices']) || [];
+      for (var index in OPTION_QUESTIONS) {
+        var question = OPTION_QUESTIONS[index];
+        if (!(question.id in choices)) {
+          return QUANTITATIVE_QUESTIONS.length + parseInt(index);
+        }
+      }
+
+      return Math.max(0, NUM_QUESTIONS - 1);
     }
 
-    var LANGUAGE = $('html').attr('lang') || DEFAULT_LANGUAGE;
+    function randint(a, b) {
+      return Math.floor((b - a + 1)*Math.random()) + a;
+    }
 
-    function renderQuestion(questionIDs, index) {
-      if (index >= questionIDs.length) {
-        redirect(APP_URL_ROOT + '/' + LANGUAGE + '/rate-comments/');
-      }
+    function renderQuantitativeQuestion(question) {
+      var container = $('<div>').addClass('range-container');
+      var min = question['min-score'] || 0, max = question['max-score'] || 9, step = question['step'] || 1;
+      var value = getResponseValue(['question-ratings', question.id]);
+      $('#prompt').text(question.prompts[getCurrentLanguage()] || '');
 
-      if (index === 0) {
-        $('#previous').prop('disabled', true);
-      } else {
-        $('#previous').prop('disabled', false);
-      }
-      $('#answer').empty();
-      $('#current-answer-notice').css('display', 'none');
-      $('#skip-notice').css('display', 'none');
+      if (question['input-type'] === 'range') {
+        var range = $('<input>').attr('id', 'quantitative-input').attr('type', 'range');
+        range = range.attr('min', min).attr('max', max).attr('value', value || randint(min, max)).attr('step', step);
+        container.append(range);
+        container.append($('<span>').addClass('left-anchor').text(question['left-anchor'] || ''));
+        container.append($('<span>').addClass('right-anchor').text(question['right-anchor'] || ''));
+        $('#answer').append(container);
 
-      var questionID = questionIDs[index];
-      var questionData = Resource.load('quantitative-questions').data[questionID];
-
-      var min = questionData['min-score'] || 0;
-      var max = questionData['max-score'] || 9;
-
-      var value = getResponseValue(['question-ratings', questionID]);
-      if (value === SKIPPED) {
-        $('#skip-notice').css('display', 'block');
-        value = min;
-      } else {
-        value = value === undefined ? min : value;
-      }
-
-      var prompt = questionData['prompts'][LANGUAGE];
-      var left_anchor = questionData['left-anchors'][LANGUAGE];
-      var right_anchor = questionData['right-anchors'][LANGUAGE];
-
-      $('#prompt').text(prompt);
-      if (questionData['input-type'] === 'range') {
-        var input = $('<div class="range-container"></div>');
-        var range = $('<input id="quantitative-input" type="range" value="'
-                      + value + '" min="' + min + '" max="' + max + '" step="1">');
-        input.append(range);
-        input.append($('<span class="left-anchor">' + left_anchor + '</span>'));
-        input.append($('<span class="right-anchor">' + right_anchor + '</span>'));
-        $('#answer').append(input);
+        var reading = $('<output>').attr('id', 'quantitative-output');
+        var output = $('<p>').append(gettext('Your current answer is: ')).append(reading);
+        $('#notice').append(output);
 
         function updateOutputReading() {
-          $('#quantitative-output').text(range.val().toString() + '/' + max.toString());
+          $('#quantitative-output').text(range.val() + '/' + max);
         };
 
         range.on('input', updateOutputReading);
         updateOutputReading();
         $('#current-answer-notice').css('display', 'block');
-      } else if (questionData['input-type'] === 'number') {
-        var input = $('<input id="quantitative-input" type="number" min="'
-                      + min + '" max="' + max + '" step="1">');
-        $('#answer').append(input);
-        if (value !== SKIPPED) {
-          $('#answer').val(value);
-        }
+      } else if (question['input-type'] === 'number') {
+        var number = $('<input>').attr('id', 'quantitative-input').attr('type', 'number');
+        number = number.attr('min', min).attr('max', max).attr('step', step);
+        $('#answer').append(number);
       }
 
-      $('#progression-numerator').text(questionIndex + 1);
+      if (value === SKIPPED) {
+        $('#notice').append($('<p>').text(gettext('You previously chose to skip this question.')));
+      }
     }
 
-    const QUESTION_IDS = getSortedQuestionIDs();
-    if (QUESTION_IDS.length === 0) {
-      redirect(APP_URL_ROOT + '/' + LANGUAGE + '/rate-comments/');
+    function renderOptionQuestion(question) {
+      $('#prompt').text(question.prompts[getCurrentLanguage()] || '');
+      var choices = question.options[getCurrentLanguage()];
+      var previousAnswer = getResponseValue(['question-choices', question.id]);
+
+      if (question['input-type'] === 'select') {
+        var select = $('<select>').attr('id', 'option-input');
+        for (var index in choices) {
+          var choice = choices[index];
+          select.append($('<option>').text(choice).prop('selected', previousAnswer === choice));
+        }
+        $('#answer').append(select);
+      } else if (question['input-type'] === 'radio') {
+        // TODO
+      }
+
+      if (previousAnswer === null) {
+        $('#notice').append($('<p>').text(gettext('You previously chose to skip this question.')));
+      }
     }
-    var questionIndex = currentQuestionIndex(QUESTION_IDS);
+
+    function renderQuestion(questionIndex) {
+      if (questionIndex >= NUM_QUESTIONS) {
+        redirect(APP_URL_ROOT + '/' + getCurrentLanguage() + '/rate-comments/');
+      }
+
+      $('#previous').prop('disabled', questionIndex === 0);
+      $('#answer').empty();
+      $('#notice').empty();
+      $('#progression-numerator').text(questionIndex + 1);
+      $('#current-answer-notice').css('display', 'none');
+      $('#skip-notice').css('display', 'none');
+
+      if (questionIndex < QUANTITATIVE_QUESTIONS.length) {
+        renderQuantitativeQuestion(QUANTITATIVE_QUESTIONS[questionIndex]);
+      } else {
+        renderOptionQuestion(OPTION_QUESTIONS[questionIndex - QUANTITATIVE_QUESTIONS.length]);
+      }
+    }
 
     $(document).ready(function() {
       displayNoCurrentRespondentError();
+      $('#progression-denominator').text(NUM_QUESTIONS);
 
-      if (!Resource.exists('quantitative-questions')) {
-        displayError('No quantitative question data found.');
-        return;
-      }
-
-      renderQuestion(QUESTION_IDS, questionIndex);
-      $('#progression-denominator').text(QUESTION_IDS.length);
-
+      var questionIndex = currentQuestionIndex();
+      renderQuestion(questionIndex);
       $('#previous').on('click', function() {
         questionIndex--;
-        renderQuestion(QUESTION_IDS, questionIndex);
+        renderQuestion(questionIndex);
       });
-
       $('#skip').on('click', function() {
-        var questionID = QUESTION_IDS[questionIndex];
-        setResponseValue(['question-ratings', questionID], SKIPPED);
-        questionIndex++;
-        renderQuestion(QUESTION_IDS, questionIndex);
-      });
-
-      $('#submit').on('click', function() {
-        var score = parseInt($('#quantitative-input').val());
-        var questionID = QUESTION_IDS[questionIndex];
-        var path = ['question-ratings', questionID];
-        if (isNaN(score)) {
-          deleteResponsevalue(path);
+        if (questionIndex < QUANTITATIVE_QUESTIONS.length) {
+          var question = QUANTITATIVE_QUESTIONS[questionIndex];
+          setResponseValue(['question-ratings', question.id], SKIPPED);
         } else {
-          setResponseValue(path, score);
+          var question = OPTION_QUESTIONS[questionIndex - QUANTITATIVE_QUESTIONS.length];
+          setResponseValue(['question-choices', question.id], SKIPPED);
         }
         questionIndex++;
-        renderQuestion(QUESTION_IDS, questionIndex);
+        renderQuestion(questionIndex);
+      });
+      $('#submit').on('click', function() {
+        if (questionIndex < QUANTITATIVE_QUESTIONS.length) {
+          var question = QUANTITATIVE_QUESTIONS[questionIndex];
+          var path = ['question-ratings', question.id];
+          var score = parseInt($('#quantitative-input').val());
+          if (isNaN(score)) {
+            deleteResponsevalue(path);
+          } else {
+            setResponseValue(path, score);
+          }
+        } else {
+          var question = OPTION_QUESTIONS[questionIndex - QUANTITATIVE_QUESTIONS.length];
+          setResponseValue(['question-choices', question.id], $('#option-input').val());
+        }
+        questionIndex++;
+        renderQuestion(questionIndex);
       });
     });
   </script>
@@ -139,25 +156,21 @@
 
 {% block content %}
   <p class="instructions">
-    {% blocktrans trimmed %}
-      Below, you will see either a slider or a text box.
-      Please answer each question by moving the slider knob or filling in the box with a number.
-    {% endblocktrans %}
+    <strong>
+      {% blocktrans trimmed %}
+        Below, you will see either a slider or a text box.
+        Please answer each question by moving the slider knob or filling in the box with a number.
+      {% endblocktrans %}
+    </strong>
   </p>
   <p id="progression">
-    {% trans 'Question' %} <span id="progression-numerator"></span>/<span id="progression-denominator"></span>:
+    <strong>
+      {% trans 'Question' %} <span id="progression-numerator"></span>/<span id="progression-denominator"></span>:
+    </strong>
   </p>
   <p id="prompt"></p>
   <div id="answer"></div>
-  <!-- FIXME: more elegant solution for translations -->
-  <div class="center">
-    <p id="current-answer-notice">
-      {% trans 'Your current answer is ' %} <output id="quantitative-output"></output>.
-    </p>
-    <p id="skip-notice">
-      {% trans 'You previously chose to skip this question.' %}
-    </p>
-  </div>
+  <div id="notice" class="center"></div>
   <ul class="button-group">
     <li>
       <button id="previous" class="blue">{% trans 'Previous' %}</button>

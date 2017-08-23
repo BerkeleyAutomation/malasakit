@@ -20,12 +20,13 @@ img {
   display: block;
 }
 
-.instructions {
-  font-weight: bold;
-}
-
 a {
   text-decoration: none;
+  color: darken(@blue, 15%);
+  &:hover {
+    text-decoration: underline;
+    color: @blue;
+  }
 }
 
 table {
@@ -83,7 +84,7 @@ ul.button-group {
   padding-left: 0;
   li {
     display: inline-block;
-    margin: 0.5rem;
+    margin: 0.2rem;
   }
 }
 
@@ -91,13 +92,13 @@ ul.button-group {
   padding: 0.5rem 1rem;
   border: 1px solid black;
   transition-duration: 0.5s;
-  font-size: 1.3rem;
   a {
     color: black;
   }
   &:hover {
     a {
       color: white;
+      text-decoration: none;
     }
     background-color: goldenrod;
   }
@@ -129,7 +130,6 @@ ul.button-group {
 }
 
 #footnote {
-  font-size: 0.7rem;
   margin: 1rem 0;
 }
 
@@ -204,10 +204,6 @@ blockquote {
 
 td {
   padding: 0 0.4rem;
-}
-
-p#progression {
-  font-weight: bold;
 }
 
 .boxed {

@@ -17,7 +17,7 @@
     {% blocktrans trimmed %}
       Each icon below is a comment made by another participant.
       Next to each icon is the topic of the comment, or <span class="no-tag">(?)</span> if no topic was found.
-      Comments that are closer together were authored by participants who answered the quantitative questions similarly.
+      Comments that are closer together were authored by participants who answered the previous questions similarly.
     {% endblocktrans %}
   <p>
     {% blocktrans trimmed %}
@@ -26,9 +26,7 @@
       You can also drag the icons to read the topics more clearly.
     {% endblocktrans %}
   </p>
-  <p id="no-more-comments-notice" class="error banner">
-    {% trans 'There are no more comments to rate.' %}
-  </p>
+  <div id="notice"></div>
   <svg id="bloom" width="100%"></svg>
   <div class="modal">
     <div class="modal-container">

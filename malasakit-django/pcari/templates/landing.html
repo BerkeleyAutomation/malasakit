@@ -8,7 +8,7 @@
 {% block scripts %}
   <script>
     $(document).ready(function() {
-      $('#next').on('click', initializeNewResponse);
+      $('#next').on('click', startResponse);
     });
   </script>
 {% endblock %}
@@ -22,7 +22,7 @@
         Join them!
       {% endblocktrans %}
     </p>
-    <img src="{% static 'img/landing1.jpg' %}">
+    <img src="{% static 'img/landing' %}">
   </div>
   {% url 'pcari:quantitative-questions' as next_link %}
   {% trans 'Begin' as next_label %}
