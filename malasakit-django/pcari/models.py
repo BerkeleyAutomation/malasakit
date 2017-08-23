@@ -237,7 +237,7 @@ class Rating(Response):
     """
     SKIPPED = None
 
-    score = models.PositiveSmallIntegerField(default=SKIPPED, null=True, blank=True)
+    score = models.PositiveIntegerField(default=SKIPPED, null=True, blank=True)
 
     class Meta:
         abstract = True
