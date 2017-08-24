@@ -37,17 +37,18 @@
     }
 
     function renderQuantitativeQuestion(question) {
+      var language = getCurrentLanguage();
       var container = $('<div>').addClass('range-container');
       var min = question['min-score'] || 0, max = question['max-score'] || 9, step = question['step'] || 1;
       var value = getResponseValue(['question-ratings', question.id]);
-      $('#prompt').text(question.prompts[getCurrentLanguage()] || '');
+      $('#prompt').text(question.prompts[language] || '');
 
       if (question['input-type'] === 'range') {
         var range = $('<input>').attr('id', 'quantitative-input').attr('type', 'range');
         range = range.attr('min', min).attr('max', max).attr('value', value || randint(min, max)).attr('step', step);
         container.append(range);
-        container.append($('<span>').addClass('left-anchor').text(question['left-anchor'] || ''));
-        container.append($('<span>').addClass('right-anchor').text(question['right-anchor'] || ''));
+        container.append($('<span>').addClass('left-anchor').text(question['left-anchors'][language] || ''));
+        container.append($('<span>').addClass('right-anchor').text(question['right-anchors'][language] || ''));
         $('#answer').append(container);
 
         var reading = $('<output>').attr('id', 'quantitative-output');
@@ -64,6 +65,9 @@
       } else if (question['input-type'] === 'number') {
         var number = $('<input>').attr('id', 'quantitative-input').attr('type', 'number');
         number = number.attr('min', min).attr('max', max).attr('step', step);
+        if (value !== SKIPPED) {
+          number.attr('value', value);
+        }
         $('#answer').append(number);
       }
 
@@ -73,8 +77,9 @@
     }
 
     function renderOptionQuestion(question) {
-      $('#prompt').text(question.prompts[getCurrentLanguage()] || '');
-      var choices = question.options[getCurrentLanguage()];
+      var language = getCurrentLanguage();
+      $('#prompt').text(question.prompts[language] || '');
+      var choices = question.options[language];
       var previousAnswer = getResponseValue(['question-choices', question.id]);
 
       if (question['input-type'] === 'select') {
@@ -139,7 +144,7 @@
           var path = ['question-ratings', question.id];
           var score = parseInt($('#quantitative-input').val());
           if (isNaN(score)) {
-            deleteResponsevalue(path);
+            deleteResponseValue(path);
           } else {
             setResponseValue(path, score);
           }
