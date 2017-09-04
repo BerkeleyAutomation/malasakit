@@ -36,14 +36,16 @@
       <ol id="qualitative-questions">
         {% for question in questions %}
           <li>
-            <p class="prompt">{% trans question.prompt %}</p>
+            {% trans question.prompt as prompt %}
+            <p class="prompt">{{ prompt|linebreaksbr }}</p>
             <textarea question-id="{{ question.id }}" class="comment"></textarea>
           </li>
         {% endfor %}
       </ol>
     {% else %}
       {% with question=questions.0 %}
-        <p class="prompt">{% trans question.prompt %}</p>
+        {% trans question.prompt as prompt %}
+        <p class="prompt">{{ prompt|linebreaksbr }}</p>
         <textarea question-id="{{ question.id }}" class="comment"></textarea>
       {% endwith %}
     {% endif %}

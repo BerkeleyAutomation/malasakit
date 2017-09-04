@@ -128,8 +128,8 @@ function startCommentRating(commentID) {
     var inputElement = $('input#quantitative-input');
 
     $('.modal').css('display', 'block');
-    $('#question-prompt').text(translatedPrompt);
-    $('#comment-message').text(comments[commentID].msg);
+    $('#question-prompt').html(translatedPrompt.replace(/\n/g, '<br>'));
+    $('#comment-message').html(comments[commentID].msg.replace(/\n/g, '<br>'));
 
     inputElement.val(0);
     var path = ['comment-ratings', commentID];

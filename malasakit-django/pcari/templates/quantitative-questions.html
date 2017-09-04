@@ -41,7 +41,7 @@
       var container = $('<div>').addClass('range-container');
       var min = question['min-score'] || 0, max = question['max-score'] || 9, step = question['step'] || 1;
       var value = getResponseValue(['question-ratings', question.id]);
-      $('#prompt').text(question.prompts[language] || '');
+      $('#prompt').html(question.prompts[language].replace(/\n/g, '<br>') || '');
 
       if (question['input-type'] === 'range') {
         var range = $('<input>').attr('id', 'quantitative-input').attr('type', 'range');
@@ -78,7 +78,7 @@
 
     function renderOptionQuestion(question) {
       var language = getCurrentLanguage();
-      $('#prompt').text(question.prompts[language] || '');
+      $('#prompt').html(question.prompts[language].replace(/\n/g, '<br>') || '');
       var choices = question.options[language];
       var previousAnswer = getResponseValue(['question-choices', question.id]);
 
