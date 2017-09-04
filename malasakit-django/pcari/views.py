@@ -310,7 +310,8 @@ def fetch_quantitative_questions(request):
                     },
                     "min-score": <question.min_score>,
                     "max-score": <question.max_score>,
-                    "input-type": <question.input_type>
+                    "input-type": <question.input_type>,
+                    "order": <question.order>
                 },
                 ...
             ]
@@ -336,6 +337,7 @@ def fetch_quantitative_questions(request):
             'min-score': question.min_score,
             'max-score': question.max_score,
             'input-type': question.input_type,
+            'order': question.order,
         } for question in QuantitativeQuestion.objects.filter(active=True)
     ], safe=False)
 
@@ -343,6 +345,29 @@ def fetch_quantitative_questions(request):
 @profile
 @require_GET
 def fetch_option_questions(request):
+    """
+    Fetch option question data as JSON.
+
+    Args:
+        request: This parameter is ignored.
+
+    Returns:
+        A ``JsonResponse`` containing a JSON object with the following structure::
+
+          {
+              "id": <question.id>,
+              "prompts": {
+                  "<language-code>": "<translated question.prompt>",
+                  ...
+              },
+              "options": {
+                  "<language-code>": ["<translated member of question.options>", ...],
+                  ...
+              },
+              "input-type": "<question.input_type>",
+              "order": <question.order>
+          }
+    """
     # pylint: disable=unused-argument
     return JsonResponse([
         {
@@ -355,7 +380,8 @@ def fetch_option_questions(request):
                 code: [escape_html(translate(option, code)) for option in question.options]
                 for code, _ in settings.LANGUAGES
             },
-            'input-type': question.input_type
+            'input-type': question.input_type,
+            'order': question.order,
         } for question in OptionQuestion.objects.filter(active=True)
     ], safe=False)
 
