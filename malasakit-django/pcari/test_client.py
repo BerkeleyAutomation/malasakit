@@ -159,8 +159,11 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
         return reverse('pcari:quantitative-questions') in driver.current_url
 
     def answer_quantitative_questions(self, driver, response, test_case_name=None):
+        self.assertTrue(driver.execute_script("""
+            return Resource.load('option-questions').data.length === 0;
+        """))  # TODO: implement option question testing
         question_ids = driver.execute_script("""
-        return Resource.load('quantitative-questions').data.map(question => question.id);
+            return ALL_QUESTIONS.map(question => question.id);
         """)
         num_questions = QuantitativeQuestion.objects.filter(active=True).count()
         self.assertEqual(len(question_ids), num_questions)
@@ -189,7 +192,7 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
 
     def rate_comments(self, driver, response, test_case_name=None):
         scores = response.get('comment-ratings', {})
-        time.sleep(1)  # Wait for force simulation to work
+        time.sleep(2)  # Wait for force simulation to work
 
         if test_case_name:
             self.screenshot(driver, test_case_name, 'rate-comments-bloom.png')
@@ -450,7 +453,7 @@ class ResponseSubmissionTestCase(NavigationTestCase):
                 1: 0,
                 2: 9,
             },
-            'comment-ratings' :{
+            'comment-ratings': {
                 1: 1,
                 2: 5,
             },

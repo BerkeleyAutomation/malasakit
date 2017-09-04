@@ -166,7 +166,7 @@ function renderComments() {
     bloom.attr('height', height);
 
     console.log('Rendering ' + width + 'x' + height + ' bloom');
-    simulation = d3.forceSimulation().force('charge', d3.forceManyBody().strength(-60));
+    simulation = d3.forceSimulation().force('charge', d3.forceManyBody().strength(-120));
     bloom.selectAll('*').remove();
 
     var selectedComments = Resource.load('selected-comments').data || {};
@@ -200,7 +200,7 @@ function renderComments() {
         var iconHeight = nodes.node().getBoundingClientRect().height;
         nodes.attr('transform', function(node) {
             var x = Math.max(0, Math.min(node.x, width - 1.5*iconWidth));
-            var y = Math.max(0.2*iconHeight, Math.min(node.y, height - iconHeight));
+            var y = Math.max(0.05*iconHeight, Math.min(node.y, height - iconHeight));
             return 'translate(' + x + ', ' + y + ')';
         });
     }

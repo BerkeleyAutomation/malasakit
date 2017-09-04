@@ -141,7 +141,7 @@
         if (question.type === 'quantitativequestion') {
           setResponseValue(['question-ratings', question.id], SKIPPED);
         } else if (question.type === 'optionquestion') {
-          setResponseValue(['question-choices', question.id], SKIPPED);
+          setResponseValue(['question-choices', question.id], "");
         }
         questionIndex++;
         renderQuestion(questionIndex);
