@@ -128,8 +128,8 @@ function startCommentRating(commentID) {
     var inputElement = $('input#quantitative-input');
 
     $('.modal').css('display', 'block');
-    $('#question-prompt').text(translatedPrompt);
-    $('#comment-message').text(comments[commentID].msg);
+    $('#question-prompt').html(translatedPrompt.replace(/\n/g, '<br>'));
+    $('#comment-message').html(comments[commentID].msg.replace(/\n/g, '<br>'));
 
     inputElement.val(0);
     var path = ['comment-ratings', commentID];
@@ -166,7 +166,7 @@ function renderComments() {
     bloom.attr('height', height);
 
     console.log('Rendering ' + width + 'x' + height + ' bloom');
-    simulation = d3.forceSimulation().force('charge', d3.forceManyBody().strength(-60));
+    simulation = d3.forceSimulation().force('charge', d3.forceManyBody().strength(-120));
     bloom.selectAll('*').remove();
 
     var selectedComments = Resource.load('selected-comments').data || {};
@@ -200,7 +200,7 @@ function renderComments() {
         var iconHeight = nodes.node().getBoundingClientRect().height;
         nodes.attr('transform', function(node) {
             var x = Math.max(0, Math.min(node.x, width - 1.5*iconWidth));
-            var y = Math.max(0, Math.min(node.y, height - iconHeight));
+            var y = Math.max(0.05*iconHeight, Math.min(node.y, height - iconHeight));
             return 'translate(' + x + ', ' + y + ')';
         });
     }
