@@ -476,6 +476,9 @@ class OptionQuestion(Question):
             except (ValueError, AssertionError):
                 raise ValidationError(_('"_options_text" is not a JSON list of strings'))
 
+            if not len(options):
+                raise ValidationError(_('"_options_text" must contain at least one option'))
+
 
 class OptionQuestionChoice(Response):
     """
