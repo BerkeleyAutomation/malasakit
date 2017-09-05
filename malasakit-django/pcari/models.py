@@ -237,7 +237,7 @@ class Rating(Response):
     """
     SKIPPED = None
 
-    score = models.PositiveSmallIntegerField(default=SKIPPED, null=True, blank=True)
+    score = models.PositiveIntegerField(default=SKIPPED, null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -351,9 +351,17 @@ class Question(History):
         prompt (str): The prompt in English. (Translations can be specified
             with Django's localization system.)
         tag (str): A short string in English that summarizes the prompt.
+        order (int): A key used for sorting questions in ascending order before
+            being displayed. This value need not be unique--ties are broken
+            arbitrarily. Questions without an ``order`` are displayed last.
     """
     prompt = models.TextField(blank=True, default='')
     tag = models.CharField(max_length=256, blank=True, default='')
+    order = models.IntegerField(null=True, blank=True, default=None,
+                                help_text='Questions are displayed using this '
+                                          'value sorted in ascending order. '
+                                          'Questions without a given <tt>order</tt> '
+                                          'are displayed last.')
 
     class Meta:
         abstract = True
@@ -467,6 +475,9 @@ class OptionQuestion(Question):
                     assert isinstance(option, (str, unicode))
             except (ValueError, AssertionError):
                 raise ValidationError(_('"_options_text" is not a JSON list of strings'))
+
+            if not len(options):
+                raise ValidationError(_('"_options_text" must contain at least one option'))
 
 
 class OptionQuestionChoice(Response):
