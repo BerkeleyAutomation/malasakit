@@ -31,7 +31,7 @@ const STATIC_RESOURCES = [
     {
         name: 'comments',
         endpoint: API_URL_ROOT + '/fetch/comments/',
-        lifetime: 12*60*60*1000
+        lifetime: 60*1000
     },
     {
         name: 'bloom-icon',
