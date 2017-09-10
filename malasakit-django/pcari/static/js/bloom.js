@@ -51,7 +51,7 @@ if (Resource.exists('bloom-icon')) {
     }
 }
 
-const NO_TAG_PLACEHOLDER = '(?)';
+const NO_TAG_PLACEHOLDER = '';
 const MIN_REQUIRED_COMMENT_RATINGS = 2;
 
 function calculateBounds(comments) {
@@ -128,7 +128,6 @@ function startCommentRating(commentID) {
     var inputElement = $('input#quantitative-input');
 
     $('.modal').css('display', 'block');
-    $('#question-prompt').html(translatedPrompt.replace(/\n/g, '<br>'));
     $('#comment-message').html(comments[commentID].msg.replace(/\n/g, '<br>'));
 
     inputElement.val(1 + Math.floor(5*Math.random()));
