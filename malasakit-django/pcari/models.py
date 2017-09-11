@@ -54,7 +54,7 @@ def get_direct_fields(model):
             if not field.auto_created or field.concrete]
 
 
-class StatisticsMixin:
+class StatisticsMixin(models.Model):
     """
     A ``StatisticsMixin`` adds descriptive statistics capabilities to a model
     that accepts ratings.
@@ -68,6 +68,7 @@ class StatisticsMixin:
     All properties exclude skipped ratings (see :attr:`Rating.SKIPPED`).
 
     Attributes:
+        show_statistics (bool): Show statistics for this object on various pages.
         scores: A flat ``QuerySet`` of integer scores.
         num_ratings (int): The number of ratings the object has received.
         mean_score (float): The mean score the object has received, or
@@ -81,6 +82,8 @@ class StatisticsMixin:
             scores, or ``float('nan')`` if the object has fewer than two
             ratings.
     """
+    show_statistics = models.BooleanField(default=True)
+
     @property
     def scores(self):
         active_ratings = self.ratings.filter(active=True)
@@ -128,6 +131,9 @@ class StatisticsMixin:
             return float('nan')
         stdev2 = (score_squared_sum - pow(score_sum, 2)/num_scores)/(num_scores - 1)
         return pow(stdev2, 0.5)/num_scores**0.5
+
+    class Meta:
+        abstract = True
 
 
 class History(models.Model):
@@ -383,7 +389,7 @@ class QualitativeQuestion(Question):
 
 class QuantitativeQuestion(Question, StatisticsMixin):
     """
-    A ``QuantitativeQuestion`` is a question that asks for a numeric rating.
+    A ``QuantitativeQuestion`` is a question that asks for a number.
 
     Attributes:
         INPUT_TYPE_CHOICES (tuple): Input type choices, each of which is a
@@ -406,6 +412,7 @@ class QuantitativeQuestion(Question, StatisticsMixin):
     INPUT_TYPE_CHOICES = (
         ('range', 'Range'),
         ('number', 'Number'),
+        # Possibly allow for a row of buttons as well
     )
 
     left_anchor = models.TextField(blank=True, default='')
