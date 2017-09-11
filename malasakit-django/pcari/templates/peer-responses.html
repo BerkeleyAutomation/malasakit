@@ -64,5 +64,5 @@
   {% endif %}
   {% url 'pcari:qualitative-questions' as previous_link %}
   {% url 'pcari:end' as next_link %}
-  {% include 'nav-buttons.html' %}
+  {% include 'nav-buttons.html' with next_label=_('Next') %}
 {% endblock %}
