@@ -49,6 +49,16 @@
               {% blocktrans trimmed %}
                 Average answer: <strong>{{ mean }}</strong>
               {% endblocktrans %}
+              {% if question.mean_score <= 2 %}
+                ({% trans 'Strongly disagreed' %})
+              {% elif question.mean_score <= 3 %}
+                ({% trans 'Somewhat disagreed' %})
+              {% elif question.mean_score <= 4 %}
+                ({% trans 'Somewhat agreed' %})
+              {% elif question.mean_score <= 5 %}
+                ({% trans 'Strongly agreed' %})
+              {% else %}
+              {% endif %}
             </div>
             <div class="bubbled">
               {% with id=question.id %}
