@@ -311,7 +311,8 @@ def fetch_quantitative_questions(request):
                     "min-score": <question.min_score>,
                     "max-score": <question.max_score>,
                     "input-type": <question.input_type>,
-                    "order": <question.order>
+                    "order": <question.order>,
+                    "show-statistics": <question.show-statistics>
                 },
                 ...
             ]
@@ -338,6 +339,7 @@ def fetch_quantitative_questions(request):
             'max-score': question.max_score,
             'input-type': question.input_type,
             'order': question.order,
+            "show-statistics": question.show_statistics,
         } for question in QuantitativeQuestion.objects.filter(active=True)
     ], safe=False)
 
@@ -675,7 +677,7 @@ def quantitative_questions(request):
 @ensure_csrf_cookie
 def peer_responses(request):
     """ Render a page showing respondents how others rated the quantitative questions. """
-    questions = QuantitativeQuestion.objects.filter(active=True)
+    questions = QuantitativeQuestion.objects.filter(active=True, show_statistics=True)
     questions = [question for question in questions if question.num_ratings]
     context = {'questions': questions}
     return render(request, 'peer-responses.html', context)

@@ -189,17 +189,18 @@ function renderComments() {
     nodes.call(drag).on('click', function(node) {
         startCommentRating(node.commentID);
     });
-    var iconWidth = Math.max(0.1*width, 32);
+    var iconSize = Math.max(0.1*width, 32);
     nodes.append('image')
          .attr('xlink:href', 'data:' + CONTENT_TYPE + ';base64,' + ICON_IMAGE)
-         .attr('width', iconWidth);
-    nodes.append('text').text(node => node.tag).attr('x', iconWidth + 3).attr('y', 15)
+         .attr('width', iconSize)
+         .attr('height', iconSize);
+    nodes.append('text').text(node => node.tag).attr('x', iconSize + 3).attr('y', 15)
          .attr('fill', '#1371ad');
 
     function tick() {
         var iconHeight = nodes.node().getBoundingClientRect().height;
         nodes.attr('transform', function(node) {
-            var x = Math.max(0, Math.min(node.x, width - 1.5*iconWidth));
+            var x = Math.max(0, Math.min(node.x, width - 2*iconSize));
             var y = Math.max(0.05*iconHeight, Math.min(node.y, height - iconHeight));
             return 'translate(' + x + ', ' + y + ')';
         });
