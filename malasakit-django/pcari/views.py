@@ -226,7 +226,13 @@ def fetch_comments(request):
     for comment in comments:
         standard_error = comment.score_sem
         row_index = respondent_id_map[comment.respondent.id]
-        position = [0, 0]
+
+        # Technically, the position for an unrated comment should be centered
+        # at the origin (which represents the mean). However, given that many
+        # comments are not rated, odds are that you will have many bubbles can
+        # clumped together. This uniformly distributes the position on the
+        # square [-5, 5)^2 instead.
+        position = [10*(random.random() - 0.5), 10*(random.random() - 0.5)]
         if data_in_every_column:
             position = list(np.round(components.dot(normalized_ratings[row_index, :]), 3))
 
