@@ -8,7 +8,10 @@
 {% block scripts %}
   <script>
     $(document).ready(function() {
-      $('#nav-next').on('click', startResponse);
+      $('#next').on('click', function() {
+        startResponse();
+        Resource.delete('selected-comments');
+      });
     });
   </script>
 {% endblock %}
