@@ -192,7 +192,7 @@ function renderComments() {
     function tick() {
         var iconHeight = nodes.node().getBoundingClientRect().height;
         nodes.attr('transform', function(node) {
-            var x = Math.max(0, Math.min(node.x, width - 20*node.tag.length));
+            var x = Math.max(0, Math.min(node.x, width - 2*iconSize - 20*node.tag.length));
             var y = Math.max(0.05*iconHeight, Math.min(node.y, height - iconHeight));
             return 'translate(' + x + ', ' + y + ')';
         });
