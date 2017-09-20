@@ -3,8 +3,8 @@
 {% load i18n %}
 {% load static %}
 
-{% block title %}{% trans 'Rate Comments by Other Users' %}{% endblock %}
-{% block main-heading %}{% trans 'Rate Comments by Other Users' %}{% endblock %}
+{% block title %}{% trans 'Please Rate Responses from Other Participants' %}{% endblock %}
+{% block main-heading %}{% trans 'Please Rate Responses from Other Participants' %}{% endblock %}
 
 {% block static-assets %}
   {{ block.super }}
@@ -15,7 +15,7 @@
 {% block content %}
   <p>
     {% blocktrans trimmed %}
-      Click on any 2 text bubbles from other participants to review and rate them.
+      Click on any 2 text bubbles to rate them and then click the Submit button to enter your own response.
     {% endblocktrans %}
   </p>
   <div id="notice"></div>
