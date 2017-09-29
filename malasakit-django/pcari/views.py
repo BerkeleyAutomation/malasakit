@@ -115,7 +115,7 @@ def generate_ratings_matrix():
         (see :attr:`pcari.models.History.active`).
     """
     respondent_ids = Respondent.objects.filter(active=True).values_list('id', flat=True)
-    question_ids = QuantitativeQuestion.objects.filter(active=True).values_list('id', flat=True)
+    question_ids = QuantitativeQuestion.objects.filter(active=True, show_statistics=True).values_list('id', flat=True)
 
     respondent_id_map = {key: index for index, key in enumerate(respondent_ids)}
     question_id_map = {key: index for index, key in enumerate(question_ids)}

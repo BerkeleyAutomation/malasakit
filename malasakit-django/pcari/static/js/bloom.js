@@ -75,17 +75,23 @@ var bounds;
 
 function makeNodeData(comments, width, height) {
     var nodeData = [];
+    var gridSize = Math.ceil(Math.sqrt(Object.keys(comments).length));
+    var rowHeight = height/gridSize;
+    var columnWidth = width/gridSize;
+    var index = 0;
     for (var commentID in comments) {
         var comment = comments[commentID];
-        var x = comment.pos[0], y = comment.pos[1], tag = comment.tag;
+        var tag = comment.tag;
+        var row = Math.floor(index/gridSize), column = index%gridSize;
 
         // Normalized coordinates
         nodeData.push({
-            x: (x - bounds.left)/(bounds.right - bounds.left)*width,
-            y: (y - bounds.bottom)/(bounds.top - bounds.bottom)*height,
+            x: (row + Math.random())*columnWidth,
+            y: (column + Math.random())*rowHeight,
             tag: (tag !== null && tag.trim()) ? tag : NO_TAG_PLACEHOLDER,
             commentID: commentID,
         });
+        index++;
     }
     return nodeData;
 }
