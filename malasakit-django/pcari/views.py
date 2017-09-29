@@ -125,7 +125,8 @@ def generate_ratings_matrix():
 
     values = QuantitativeQuestionRating.objects.filter(respondent__active=True,
                                                        question__active=True,
-                                                       active=True)
+                                                       active=True,
+                                                       question__show_statistics=True)
     features = 'respondent_id', 'question_id', 'score'
     values = values.exclude(score=QuantitativeQuestionRating.SKIPPED).values_list(*features)
 

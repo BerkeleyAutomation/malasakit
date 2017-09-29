@@ -89,7 +89,7 @@ function makeNodeData(comments, width, height) {
             x: (row + Math.random())*columnWidth,
             y: (column + Math.random())*rowHeight,
             tag: (tag !== null && tag.trim()) ? tag : NO_TAG_PLACEHOLDER,
-            commentID: commentID,
+            commentID: commentID
         });
         index++;
     }
