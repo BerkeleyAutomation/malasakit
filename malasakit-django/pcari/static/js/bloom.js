@@ -75,23 +75,33 @@ var bounds;
 
 function makeNodeData(comments, width, height) {
     var nodeData = [];
-    var gridSize = Math.ceil(Math.sqrt(Object.keys(comments).length));
+    var numComments = Object.keys(comments).length;
+    var gridSize = Math.ceil(Math.sqrt(numComments));
     var rowHeight = height/gridSize;
-    var columnWidth = width/gridSize;
+    var columnWidth = (width - 100)/gridSize;  // Offset from side (roughly)
     var index = 0;
+
+    var heights = [];  // Stagger icons
+    for (var i = 0; i < numComments; i++) {
+        heights.push(i/numComments*height);
+    }
+
     for (var commentID in comments) {
         var comment = comments[commentID];
         var tag = comment.tag;
         var row = Math.floor(index/gridSize), column = index%gridSize;
+        var heightIndex = Math.floor(heights.length*Math.random());
 
         // Normalized coordinates
         nodeData.push({
-            x: (row + Math.random())*columnWidth,
-            y: (column + Math.random())*rowHeight,
+            x: (row + 0.2 + 0.25*(Math.random() - 0.5))*columnWidth,
+            y: heights[heightIndex],
             tag: (tag !== null && tag.trim()) ? tag : NO_TAG_PLACEHOLDER,
             commentID: commentID
         });
         index++;
+
+        heights.splice(heightIndex, 1);
     }
     return nodeData;
 }
@@ -164,16 +174,18 @@ function renderComments() {
     bloom.attr('height', height);
 
     console.log('Rendering ' + width + 'x' + height + ' bloom');
-    simulation = d3.forceSimulation().force('charge', d3.forceManyBody().strength(-120));
+    simulation = d3.forceSimulation().force('charge', d3.forceManyBody().strength(-5));
     bloom.selectAll('*').remove();
 
     var selectedComments = Resource.load('selected-comments').data || {};
     bounds = calculateBounds(selectedComments);
+    var alreadyRated = getResponseValue(['comment-ratings']);
     for (var commentID in selectedComments) {
-        if (commentID in getResponseValue(['comment-ratings'])) {
+        if (commentID in alreadyRated) {
             delete selectedComments[commentID];
         }
     }
+
     var nodeData = makeNodeData(selectedComments, width, height);
     if (nodeData.length === 0) {
         $('#notice').empty();
@@ -196,10 +208,10 @@ function renderComments() {
          .attr('fill', '#1371ad');
 
     function tick() {
-        var iconHeight = nodes.node().getBoundingClientRect().height;
-        nodes.attr('transform', function(node) {
-            var x = Math.max(0, Math.min(node.x, width - 2*iconSize - 20*node.tag.length));
-            var y = Math.max(0.05*iconHeight, Math.min(node.y, height - iconHeight));
+        var bounds = nodes.node().getBoundingClientRect();
+        nodes.attr('transform', function(nodeData) {
+            var x = Math.max(0, Math.min(nodeData.x, width - bounds.width));
+            var y = Math.max(0.05*bounds.height, Math.min(nodeData.y, height - bounds.height));
             return 'translate(' + x + ', ' + y + ')';
         });
     }
@@ -234,5 +246,5 @@ $(document).ready(function() {
     }
     selectComments(selectCommentFromStandardError);
     resetBloom();
-    $(window).resize(renderComments);
+    // $(window).resize(renderComments);
 });
