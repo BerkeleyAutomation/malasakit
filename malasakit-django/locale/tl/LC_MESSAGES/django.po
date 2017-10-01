@@ -187,7 +187,7 @@ msgstr "Resulta ng mga kuwantitatibong katanungan"
 #: pcari/templates/base.html:56
 #, python-format
 msgid "This site uses the <a href=\"http://cafesystem.org/\">Collective Assessment and Feedback Engine (CAFÉ)</a>. Learn more about <a href=\"%(about_url)s \">CAFÉ</a>."
-msgstr "Ang site na ito ay gumagamit ng <a href=\"http://cafesystem.org/\"> Collective Assessment and Feedback Engine (CAFÉ) </a>. Matuto nang higit pa tungkol sa <a href=\"%(about_url)s"> CAFÉ </a>."
+msgstr ""
  
 #: pcari/templates/end.html:5 pcari/templates/end.html:6
 msgid "Thank You"
@@ -206,7 +206,7 @@ msgid "Welcome"
 msgstr "Maligayang pagdating"
  
 #: pcari/templates/landing.html:19
-#: python-format
+#, python-format
 msgid "How prepared are you in times of disaster? %(num_responses)s barangay citizens have responded. Join them!"
 msgstr "Gaano ka kahanda sa panahon ng kalamidad? %(num_responses)s na ang nag MALASAKIT. Sali na!"
  
@@ -348,7 +348,7 @@ msgstr "Puntusan ang mungkahi ng ibang kalahok"
  
 #: pcari/templates/rate-comments.html:17
 msgid "Each icon below is a comment made by another participant. Next to each icon is the topic of the comment, or <span class=\"no-tag\">(?)</span> if no topic was found. Comments that are closer together were authored by participants who answered the previous questions similarly."
-msgstr "Ang bawat icon sa ibaba ay isang komentong nilikha ng isa pang kalahok. Sa tabi ng bawat icon ay ang paksa ng komento, o <span class = \ "no-tag \"> (?) </ Span> kung walang natagpuang paksa. Ang mga komento na mas malapit sa isa't isa ay nilikha ng mga kalahok na sumagot sa mga nakaraang tanong na katulad nito."
+msgstr ""
  
 #: pcari/templates/rate-comments.html:23
 msgid "Click on an icon to rate a comment on its helpfulness. <strong>You must rate at least two comments to proceed.</strong> You can also drag the icons to read the topics more clearly."
