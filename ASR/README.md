@@ -12,5 +12,7 @@ Usage of ASR:
 . ./recognize.sh "example.wav"
 
 input: example.wav
+
+
 output: recognition/one-best-hypothesis.txt  (word)
         recognition/recognized_digit.txt   (number equivalent of the word)
