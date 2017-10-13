@@ -30,6 +30,13 @@ from pcari.models import get_concrete_fields
 
 # Placeholder flow will yank content straight from v1.25 models
 
+def select_comments():
+    comment_content_type = ContentType.objects.get(app_label='pcari', model='comment')
+    voice_responses = Response.objects.filter(related_object_type=comment_content_type)
+    comment_ids = list(voice_responses.values_list('related_object_id', flat=True))
+    comments = Comment.objects.filter(id__in=comment_ids)
+
+
 @csrf_exempt
 def landing(request):
     """Landing page welcome message"""
