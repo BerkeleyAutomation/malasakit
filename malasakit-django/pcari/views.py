@@ -31,6 +31,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
 from django.urls import reverse
 from django.utils import translation
+from django.utils.html import escape as escape_html
 from django.utils.translation import ugettext_lazy as _, ugettext
 import numpy as np
 from openpyxl import Workbook
@@ -205,11 +206,11 @@ def fetch_comments(request):
         containing two numbers: the first and second projections, respectively.
     """
     try:
-        limit = int(request.GET.get('limit', str(DEFAULT_COMMENT_LIMIT)))
+        limit = int(request.GET.get('limit', unicode(DEFAULT_COMMENT_LIMIT)))
     except ValueError as error:
-        return HttpResponseBadRequest(str(error))
+        return HttpResponseBadRequest(unicode(error))
 
-    comments = (Comment.objects.filter(active=True, flagged=False)
+    comments = (Comment.objects.filter(active=True, question__active=True, flagged=False)
                 .exclude(message='').all())
     if len(comments) > limit:
         comments = random.sample(comments, limit)
@@ -233,11 +234,11 @@ def fetch_comments(request):
         # principal components to generate the position (`pos`).
         if math.isnan(standard_error):
             standard_error = DEFAULT_STANDARD_ERROR
-        data[str(comment.id)] = {
-            'msg': comment.message,
+        data[unicode(comment.id)] = {
+            'msg': escape_html(comment.message),
             'sem': round(standard_error, 3),
             'pos': position,
-            'tag': comment.tag,
+            'tag': escape_html(comment.tag),
             'qid': comment.question_id
         }
 
@@ -273,8 +274,8 @@ def fetch_qualitative_questions(request):
     """
     # pylint: disable=unused-argument
     return JsonResponse({
-        str(question.id): {
-            code: translate(question.prompt, code)
+        unicode(question.id): {
+            code: escape_html(translate(question.prompt, code))
             for code, _ in settings.LANGUAGES
         } for question in QualitativeQuestion.objects.filter(active=True)
     })
@@ -309,7 +310,9 @@ def fetch_quantitative_questions(request):
                     },
                     "min-score": <question.min_score>,
                     "max-score": <question.max_score>,
-                    "input-type": <question.input_type>
+                    "input-type": <question.input_type>,
+                    "order": <question.order>,
+                    "show-statistics": <question.show-statistics>
                 },
                 ...
             ]
@@ -321,20 +324,22 @@ def fetch_quantitative_questions(request):
         {
             'id': question.id,
             'prompts': {
-                code: translate(question.prompt, code)
+                code: escape_html(translate(question.prompt, code))
                 for code, _ in settings.LANGUAGES
             },
             'left-anchors': {
-                code: translate(question.left_anchor, code)
+                code: escape_html(translate(question.left_anchor, code))
                 for code, _ in settings.LANGUAGES
             },
             'right-anchors': {
-                code: translate(question.right_anchor, code)
+                code: escape_html(translate(question.right_anchor, code))
                 for code, _ in settings.LANGUAGES
             },
             'min-score': question.min_score,
             'max-score': question.max_score,
             'input-type': question.input_type,
+            'order': question.order,
+            "show-statistics": question.show_statistics,
         } for question in QuantitativeQuestion.objects.filter(active=True)
     ], safe=False)
 
@@ -342,19 +347,43 @@ def fetch_quantitative_questions(request):
 @profile
 @require_GET
 def fetch_option_questions(request):
+    """
+    Fetch option question data as JSON.
+
+    Args:
+        request: This parameter is ignored.
+
+    Returns:
+        A ``JsonResponse`` containing a JSON object with the following structure::
+
+          {
+              "id": <question.id>,
+              "prompts": {
+                  "<language-code>": "<translated question.prompt>",
+                  ...
+              },
+              "options": {
+                  "<language-code>": ["<translated member of question.options>", ...],
+                  ...
+              },
+              "input-type": "<question.input_type>",
+              "order": <question.order>
+          }
+    """
     # pylint: disable=unused-argument
     return JsonResponse([
         {
             'id': question.id,
             'prompts': {
-                code: translate(question.prompt, code)
+                code: escape_html(translate(question.prompt, code))
                 for code, _ in settings.LANGUAGES
             },
             'options': {
-                code: [translate(option, code) for option in question.options]
+                code: [escape_html(translate(option, code)) for option in question.options]
                 for code, _ in settings.LANGUAGES
             },
-            'input-type': question.input_type
+            'input-type': question.input_type,
+            'order': question.order,
         } for question in OptionQuestion.objects.filter(active=True)
     ], safe=False)
 
@@ -383,7 +412,7 @@ def fetch_question_ratings(request):
     ratings = QuantitativeQuestionRating.objects
     ratings = ratings.filter(active=True, question__active=True)
     return JsonResponse({
-        str(rating.id): {
+        unicode(rating.id): {
             'qid': rating.question_id,
             'score': rating.score,
         } for rating in ratings
@@ -525,7 +554,7 @@ def save_response(request):
         for build_model_instances in model_build_functions:
             build_model_instances(respondent, response)
     except (ValueError, AttributeError) as error:
-        message = type(error).__name__ + ': ' + str(error)
+        message = type(error).__name__ + ': ' + unicode(error)
         LOGGER.log(logging.ERROR, message)
         respondent.delete()
         return HttpResponseBadRequest(message)
@@ -648,7 +677,7 @@ def quantitative_questions(request):
 @ensure_csrf_cookie
 def peer_responses(request):
     """ Render a page showing respondents how others rated the quantitative questions. """
-    questions = QuantitativeQuestion.objects.filter(active=True)
+    questions = QuantitativeQuestion.objects.filter(active=True, show_statistics=True)
     questions = [question for question in questions if question.num_ratings]
     context = {'questions': questions}
     return render(request, 'peer-responses.html', context)

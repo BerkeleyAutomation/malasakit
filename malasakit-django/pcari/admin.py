@@ -234,7 +234,7 @@ class CommentAdmin(ResponseAdmin):
     def display_mean_score(self, comment):
         # pylint: disable=no-self-use
         mean_score = comment.mean_score
-        return str(round(mean_score, 3)) if not math.isnan(mean_score) else '(No ratings)'
+        return unicode(round(mean_score, 3)) if not math.isnan(mean_score) else '(No ratings)'
     display_mean_score.short_description = 'Mean score'
 
     list_display = ('respondent', 'display_message', 'timestamp', 'language',
@@ -357,7 +357,7 @@ class RespondentAdmin(HistoryAdmin):
     def comments(self, respondent):
         # pylint: disable=no-self-use
         comments = list(respondent.comments)
-        return '(No comments)' if not comments else ''.join(map(str, comments))
+        return '(No comments)' if not comments else ''.join(map(unicode, comments))
 
     list_display = ('id', 'comments', 'age', 'gender', 'display_location',
                     'language', 'submitted_personal_data', 'completed_survey',

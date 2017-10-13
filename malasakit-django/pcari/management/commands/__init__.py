@@ -74,7 +74,7 @@ class BatchProcessingCommand(BaseCommand):
                 self.precondition_check(options, model, field)
             except Exception as exc:
                 message = 'model or field failed precondition check: {0}'
-                raise CommandError(message.format(str(exc)))
+                raise CommandError(message.format(unicode(exc)))
 
             for instance in model.objects.all():
                 self.process(options, instance, model_name, field_name)
