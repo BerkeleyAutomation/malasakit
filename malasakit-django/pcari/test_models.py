@@ -155,7 +155,7 @@ class PropertyTestCase(TestCase):
             )
 
         self.assertEqual(respondent.num_questions_rated, num_questions_rated,
-                         'Failed with:' + ', '.join(map(str, scores)))
+                         'Failed with:' + ', '.join(map(unicode, scores)))
         QuantitativeQuestionRating.objects.all().delete()
         self.assertEqual(respondent.num_questions_rated, 0)
 
@@ -182,7 +182,7 @@ class PropertyTestCase(TestCase):
             )
 
         self.assertEqual(respondent.num_comments_rated, num_comments_rated,
-                         'Failed with:' + ', '.join(map(str, scores)))
+                         'Failed with:' + ', '.join(map(unicode, scores)))
         CommentRating.objects.all().delete()
         self.assertEqual(respondent.num_comments_rated, 0)
 

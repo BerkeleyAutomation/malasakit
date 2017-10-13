@@ -512,7 +512,7 @@ class OptionQuestionChoice(Response):
         if self.option and self.option not in self.question.options:
             raise ValidationError(_('"%(option)s" is not a valid option'),
                                   code='invalid-selection',
-                                  params={'option': str(self.option)})
+                                  params={'option': unicode(self.option)})
 
     def __unicode__(self):
         template = 'Option question choice {0}: "{1}"'
