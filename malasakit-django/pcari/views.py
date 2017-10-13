@@ -206,9 +206,9 @@ def fetch_comments(request):
         containing two numbers: the first and second projections, respectively.
     """
     try:
-        limit = int(request.GET.get('limit', str(DEFAULT_COMMENT_LIMIT)))
+        limit = int(request.GET.get('limit', unicode(DEFAULT_COMMENT_LIMIT)))
     except ValueError as error:
-        return HttpResponseBadRequest(str(error))
+        return HttpResponseBadRequest(unicode(error))
 
     comments = (Comment.objects.filter(active=True, question__active=True, flagged=False)
                 .exclude(message='').all())
@@ -234,7 +234,7 @@ def fetch_comments(request):
         # principal components to generate the position (`pos`).
         if math.isnan(standard_error):
             standard_error = DEFAULT_STANDARD_ERROR
-        data[str(comment.id)] = {
+        data[unicode(comment.id)] = {
             'msg': escape_html(comment.message),
             'sem': round(standard_error, 3),
             'pos': position,
@@ -274,7 +274,7 @@ def fetch_qualitative_questions(request):
     """
     # pylint: disable=unused-argument
     return JsonResponse({
-        str(question.id): {
+        unicode(question.id): {
             code: escape_html(translate(question.prompt, code))
             for code, _ in settings.LANGUAGES
         } for question in QualitativeQuestion.objects.filter(active=True)
@@ -412,7 +412,7 @@ def fetch_question_ratings(request):
     ratings = QuantitativeQuestionRating.objects
     ratings = ratings.filter(active=True, question__active=True)
     return JsonResponse({
-        str(rating.id): {
+        unicode(rating.id): {
             'qid': rating.question_id,
             'score': rating.score,
         } for rating in ratings
@@ -554,7 +554,7 @@ def save_response(request):
         for build_model_instances in model_build_functions:
             build_model_instances(respondent, response)
     except (ValueError, AttributeError) as error:
-        message = type(error).__name__ + ': ' + str(error)
+        message = type(error).__name__ + ': ' + unicode(error)
         LOGGER.log(logging.ERROR, message)
         respondent.delete()
         return HttpResponseBadRequest(message)

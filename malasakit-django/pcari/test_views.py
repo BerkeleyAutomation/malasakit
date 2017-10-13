@@ -168,7 +168,7 @@ class ResponseSaveTestCase(TestCase):
                 '1': 'hello world',
             },
             'comment-ratings': {
-                str(comment.id): 2
+                unicode(comment.id): 2
             },
             'respondent-data': {
                 'language': 'tl'
