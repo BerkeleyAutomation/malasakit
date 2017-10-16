@@ -30,7 +30,8 @@ from django.conf import settings
 from django.core.validators import RegexValidator
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
-from django.db.models import F, Count, Avg, Sum
+from django.db.models import F, Count, Avg, Sum, StdDev, Case, When
+from django.db.models.functions.base import Coalesce
 from django.utils.translation import ugettext_lazy as _
 
 __all__ = ['Comment', 'QuantitativeQuestionRating', 'CommentRating',
@@ -58,14 +59,15 @@ class RatingStatisticsManager(models.Manager):
     def get_queryset(self):
         queryset = super(RatingStatisticsManager, self).get_queryset()
         queryset = queryset.annotate(
-            num_ratings=Count('ratings__score'),
+            num_ratings=Coalesce(Sum(
+                Case(
+                    When(ratings__score__isnull=False, ratings__active=True, then=1),
+                    output_field=models.PositiveIntegerField(),
+                ),
+            ), 0),
             mean_score=Avg('ratings__score'),
+            score_stddev=StdDev('ratings__score', sample=True),
         )
-
-        # .annotate(
-        #     stdev=Sum((F('ratings__score') - F('mean_score'))**2)/F('num_ratings')
-        # )
-        # TODO: use coalesce
         return queryset
 
 
@@ -103,7 +105,6 @@ class StatisticsMixin:
             ``min_score`` and ``max_score`` attributes, zero and nine are used
             instead.
     """
-
     @property
     def scores(self):
         active_ratings = self.ratings.filter(active=True)
