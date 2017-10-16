@@ -101,6 +101,7 @@ class StatisticsTestCase(TestCase):
         self.assertIsNone(self.question_no_ratings.mean_score)
         self.assertAlmostEqual(self.comment.mean_score, 1.5)
         CommentRating.objects.filter(score=3, active=True).delete()
+        self.comment = Comment.objects.filter(pk=self.comment.pk).first()
         self.assertAlmostEqual(self.comment.mean_score, 0)
 
     def test_mode_score(self):

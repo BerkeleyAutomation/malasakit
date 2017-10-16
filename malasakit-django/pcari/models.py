@@ -65,7 +65,9 @@ class RatingStatisticsManager(models.Manager):
                     output_field=models.PositiveIntegerField(),
                 ),
             ), 0),
-            mean_score=Avg('ratings__score'),
+            mean_score=Avg(Case(
+                When(ratings__active=True, then='ratings__score'),
+            )),
             score_stddev=StdDev('ratings__score', sample=True),
         )
         return queryset
