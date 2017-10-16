@@ -32,16 +32,23 @@
 
 {% block content %}
   {% if questions %}
-    <ol id="qualitative-questions">
-      {% for question in questions %}
-        <li>
-          <p class="prompt">{% trans question.prompt %}</p>
-          <div class="container">
+    {% if questions|length > 1 %}
+      <ol id="qualitative-questions">
+        {% for question in questions %}
+          <li>
+            {% trans question.prompt as prompt %}
+            <p class="prompt">{{ prompt|linebreaksbr }}</p>
             <textarea question-id="{{ question.id }}" class="comment"></textarea>
-          </div>
-        </li>
-      {% endfor %}
-    </ol>
+          </li>
+        {% endfor %}
+      </ol>
+    {% else %}
+      {% with question=questions.0 %}
+        {% trans question.prompt as prompt %}
+        <p class="prompt">{{ prompt|linebreaksbr }}</p>
+        <textarea question-id="{{ question.id }}" class="comment"></textarea>
+      {% endwith %}
+    {% endif %}
   {% else %}
     <p class="error banner">{% trans 'There are no qualitative questions at this time.' %}</p>
   {% endif %}

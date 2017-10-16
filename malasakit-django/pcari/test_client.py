@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import datetime
 import logging
 import os
@@ -66,7 +67,7 @@ def use_drivers(*test_drivers):
                 obj = getattr(test_suite, test_name)
                 if isinstance(obj, types.MethodType):
                     for index, test_driver_cls in enumerate(test_drivers):
-                        subtest_name = obj.__name__ + '_' + str(index)
+                        subtest_name = obj.__name__ + b'_' + str(index)
                         subtest = make_subtest(subtest_name, test_driver_cls, obj)
                         setattr(test_suite, subtest_name, subtest)
                     delattr(test_suite, test_name)
@@ -159,13 +160,14 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
         return reverse('pcari:quantitative-questions') in driver.current_url
 
     def answer_quantitative_questions(self, driver, response, test_case_name=None):
-        try:
-            question_ids = driver.execute_script('return QUESTION_IDS;')
-        except WebElement:
-            question_ids = []
-        finally:
-            num_questions = QuantitativeQuestion.objects.filter(active=True).count()
-            self.assertEqual(len(question_ids), num_questions)
+        self.assertTrue(driver.execute_script("""
+            return Resource.load('option-questions').data.length === 0;
+        """))  # TODO: implement option question testing
+        question_ids = driver.execute_script("""
+            return ALL_QUESTIONS.map(question => question.id);
+        """)
+        num_questions = QuantitativeQuestion.objects.filter(active=True).count()
+        self.assertEqual(len(question_ids), num_questions)
         scores = response.get('question-ratings', {})
 
         for question_id in question_ids:
@@ -173,10 +175,8 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
                 self.screenshot(driver, test_case_name,
                                 'quantitative-question-{0}.png'.format(question_id))
 
-            score = scores.get(question_id, scores.get(str(question_id), -1))
-            if score == -1:
-                break
-            elif score == QuantitativeQuestionRating.SKIPPED:
+            score = scores.get(question_id, scores.get(unicode(question_id)))
+            if score == QuantitativeQuestionRating.SKIPPED:
                 driver.find_element_by_id('skip').click()
                 continue
 
@@ -186,14 +186,14 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
             except ValueError as exc:
                 self.assertEqual(exc.message, 'not a range element')
                 self.assertEqual(input_element.get_attribute('type'), 'number')
-                input_element.send_keys(str(score))
+                input_element.send_keys(unicode(score))
             driver.find_element_by_id('submit').click()
 
         return reverse('pcari:rate-comments') in driver.current_url
 
     def rate_comments(self, driver, response, test_case_name=None):
         scores = response.get('comment-ratings', {})
-        time.sleep(1)  # Wait for force simulation to work
+        time.sleep(2)  # Wait for force simulation to work
 
         if test_case_name:
             self.screenshot(driver, test_case_name, 'rate-comments-bloom.png')
@@ -230,7 +230,7 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
             if text_areas:
                 self.assertEqual(len(text_areas), 1)
                 text_areas[0].clear()
-                text_areas[0].send_keys(str(comment))
+                text_areas[0].send_keys(unicode(comment))
 
         if test_case_name:
             self.screenshot(driver, test_case_name, 'qualitative-questions.png')
@@ -250,7 +250,7 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
             input_element.send_keys(text)
 
         if 'age' in respondent_data:
-            replace_answer('age', str(respondent_data['age']))
+            replace_answer('age', unicode(respondent_data['age']))
         if 'gender' in respondent_data:
             input_element = driver.find_element_by_id('gender')
             select = Select(input_element)
@@ -261,12 +261,12 @@ class NavigationTestCase(StaticLiveServerTestCase, TestCase):
             driver.execute_script("""$(arguments[0]).trigger('input');""",
                                   input_element)
         if 'province' in respondent_data:
-            replace_answer('province', str(respondent_data['province']))
+            replace_answer('province', unicode(respondent_data['province']))
         if 'city-or-municipality' in respondent_data:
             replace_answer('city-or-municipality',
-                           str(respondent_data['city-or-municipality']))
+                           unicode(respondent_data['city-or-municipality']))
         if 'barangay' in respondent_data:
-            replace_answer('barangay', str(respondent_data['barangay']))
+            replace_answer('barangay', unicode(respondent_data['barangay']))
 
         if test_case_name:
             self.screenshot(driver, test_case_name, 'personal-information.png')
@@ -454,7 +454,7 @@ class ResponseSubmissionTestCase(NavigationTestCase):
                 1: 0,
                 2: 9,
             },
-            'comment-ratings' :{
+            'comment-ratings': {
                 1: 1,
                 2: 5,
             },
@@ -573,7 +573,7 @@ class AppearanceTestCase(NavigationTestCase):
             'respondent-data': {},
         }))
 
-        self.assertIsNone(driver.local_storage['current']['data'])
+        self.assertIsNone(driver.local_storage['malasakit-current']['data'])
         driver.back()  # End
         driver.back()  # Peer responses
         driver.back()  # Personal information
