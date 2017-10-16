@@ -28,7 +28,6 @@ urlpatterns = [
 
 
 if settings.DEBUG:
-    print settings.MEDIA_ROOT
     urlpatterns += [
         url(r'^media/(?P<path>.*)$', serve, {
             'document_root': settings.MEDIA_ROOT,

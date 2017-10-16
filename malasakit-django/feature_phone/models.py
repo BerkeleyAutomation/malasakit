@@ -13,6 +13,7 @@ References:
     * `QuerySet API <https://docs.djangoproject.com/en/dev/ref/models/querysets/>`_
     * `The contenttypes framework <https://docs.djangoproject.com/en/dev/ref/contrib/contenttypes/>`_
 """
+
 from __future__ import unicode_literals
 
 from django.conf import settings
