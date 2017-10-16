@@ -230,7 +230,7 @@ class CommentAdmin(ResponseAdmin):
     def num_ratings(self, comment):
         # pylint: disable=no-self-use
         return comment.num_ratings
-    num_ratings.admin_order_field = 'Number of ratings'
+    num_ratings.short_description = 'Number of ratings'
     num_ratings.admin_order_field = 'num_ratings'
 
     def display_mean_score(self, comment):
@@ -238,16 +238,17 @@ class CommentAdmin(ResponseAdmin):
         mean_score = comment.mean_score
         return unicode(round(mean_score, 3)) if mean_score is not None else '(No ratings)'
     display_mean_score.short_description = 'Mean score'
+    display_mean_score.admin_order_field = 'mean_score'
 
     def display_wilson_score(self, comment):
         # pylint: disable=no-self-use
-        wilson_score, _ = comment.score_95ci
-        return unicode(round(wilson_score, 3))
+        return unicode(round(comment.score_95ci_lower, 3))
     display_wilson_score.short_description = 'Wilson score'
+    display_wilson_score.admin_order_field = 'score_95ci_lower'
 
     list_display = ('respondent', 'display_message', 'timestamp', 'language',
-                    'flagged', 'tag', 'active', 'display_mean_score',
-                    'num_ratings')
+                    'flagged', 'tag', 'active', 'num_ratings',
+                    'display_mean_score', 'display_wilson_score')
     list_display_links = ('display_message',)
     list_filter = ('timestamp', 'language', 'flagged', 'tag', 'active')
     search_fields = ('message', 'tag')
@@ -322,7 +323,7 @@ class QualitativeQuestionAdmin(HistoryAdmin):
         return question.comments.count()
     display_question_num_comments.short_description = 'Number of comments'
 
-    list_display = ('prompt', 'tag', 'active')
+    list_display = ('prompt', 'tag', 'active', 'display_question_num_comments')
     list_filter = ('tag', 'active')
     search_fields = ('prompt', 'tag')
 
@@ -332,7 +333,13 @@ class QuantitativeQuestionAdmin(HistoryAdmin):
     """
     Admin behavior for :class:`pcari.models.QuantitativeQuestion`.
     """
-    list_display = ('prompt', 'tag', 'active')
+    def num_ratings(self, comment):
+        # pylint: disable=no-self-use
+        return comment.num_ratings
+    num_ratings.short_description = 'Number of ratings'
+    num_ratings.admin_order_field = 'num_ratings'
+
+    list_display = ('prompt', 'tag', 'active', 'num_ratings')
     list_filter = ('tag', 'active')
     search_fields = ('prompt', 'tag')
 

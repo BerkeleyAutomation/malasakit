@@ -31,7 +31,7 @@ from django.core.validators import RegexValidator
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.db.models import F, Func, Count, Avg, Sum, StdDev, Case, When
-from django.db.models.functions.base import Coalesce
+from django.db.models.functions.base import Coalesce, Greatest, Least
 from django.utils.translation import ugettext_lazy as _
 
 __all__ = ['Comment', 'QuantitativeQuestionRating', 'CommentRating',
@@ -63,7 +63,8 @@ class Sqrt(Func):
 class RatingStatisticsManager(models.Manager):
     """
     A ``RatingStatisticsManager`` annotates ``QuerySet``s of ratable models
-    with descriptive statistical attributes.
+    with descriptive statistical attributes. All statistics exclude inactive
+    or skipped ratings.
 
     Attributes:
         num_ratings (int): The number of ratings the object has received.
@@ -101,8 +102,12 @@ class RatingStatisticsManager(models.Manager):
             score_sem=F('score_stddev')/Sqrt(F('num_ratings'),
                                              output_field=models.FloatField()),
         ).annotate(
-            score_95ci_lower=Coalesce(F('mean_score') - self.z_crit*F('score_sem'), 0),
-            score_95ci_upper=Coalesce(F('mean_score') + self.z_crit*F('score_sem'), 9),
+            score_95ci_lower=Greatest(Coalesce(
+                F('mean_score') - self.z_crit*F('score_sem'),
+            0), 0),
+            score_95ci_upper=Least(Coalesce(
+                F('mean_score') + self.z_crit*F('score_sem'),
+            9), 9),
         )
         return queryset
 
