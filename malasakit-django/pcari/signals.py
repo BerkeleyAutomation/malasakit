@@ -48,8 +48,9 @@ def make_stddev_aggregate(sample=False):
         def finalize(self):
             dof = self.num_values - (1 if sample else 0)  # Degrees of freedom
             if dof > 0:
-                return (float(self.value_squared_sum) -
-                        pow(self.value_sum, 2)/self.num_values)/dof
+                stddev2 = (self.value_squared_sum -
+                           float(pow(self.value_sum, 2))/self.num_values)/dof
+                return sqrt(stddev2)
     return StdDev
 
 

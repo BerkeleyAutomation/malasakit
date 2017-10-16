@@ -116,6 +116,7 @@ class StatisticsTestCase(TestCase):
         self.assertAlmostEqual(self.question.score_stddev, 2.87228132327)
         self.assertAlmostEqual(self.comment.score_stddev, 2.1213203435596424)
         CommentRating.objects.filter(score=3, active=True).delete()
+        self.comment = Comment.objects.filter(pk=self.comment.pk).first()
         self.assertIsNone(self.comment.score_stddev)
 
     def test_score_sem(self):

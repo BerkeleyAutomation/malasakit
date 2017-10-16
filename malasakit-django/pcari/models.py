@@ -30,7 +30,7 @@ from django.conf import settings
 from django.core.validators import RegexValidator
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
-from django.db.models import F, Count, Avg, Sum, StdDev, Case, When
+from django.db.models import F, Func, Count, Avg, Sum, StdDev, Case, When
 from django.db.models.functions.base import Coalesce
 from django.utils.translation import ugettext_lazy as _
 
@@ -55,6 +55,11 @@ def get_direct_fields(model):
             if not field.auto_created or field.concrete]
 
 
+class Sqrt(Func):
+    function = 'SQRT'
+    arity = 1
+
+
 class RatingStatisticsManager(models.Manager):
     def get_queryset(self):
         queryset = super(RatingStatisticsManager, self).get_queryset()
@@ -68,7 +73,12 @@ class RatingStatisticsManager(models.Manager):
             mean_score=Avg(Case(
                 When(ratings__active=True, then='ratings__score'),
             )),
-            score_stddev=StdDev('ratings__score', sample=True),
+            score_stddev=StdDev(Case(
+                When(ratings__active=True, then='ratings__score'),
+            ), sample=True),
+        ).annotate(
+            score_sem=F('score_stddev')/Sqrt(F('num_ratings'),
+                                             output_field=models.FloatField()),
         )
         return queryset
 
@@ -128,22 +138,6 @@ class StatisticsMixin:
             Sum('score'), Sum('score_squared'), Count('score')
         )
         return values['score__sum'], values['score_squared__sum'], values['score__count']
-
-    @property
-    def score_stdev(self):
-        score_sum, score_squared_sum, num_scores = self._score_aggregates
-        if num_scores < 2:
-            return float('nan')
-        stdev2 = (score_squared_sum - pow(score_sum, 2)/num_scores)/(num_scores - 1)
-        return pow(stdev2, 0.5)
-
-    @property
-    def score_sem(self):
-        score_sum, score_squared_sum, num_scores = self._score_aggregates
-        if num_scores < 2:
-            return float('nan')
-        stdev2 = (score_squared_sum - pow(score_sum, 2)/num_scores)/(num_scores - 1)
-        return pow(stdev2, 0.5)/num_scores**0.5
 
     @property
     def score_95ci(self):

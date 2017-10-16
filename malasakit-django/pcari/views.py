@@ -231,7 +231,7 @@ def fetch_comments(request):
 
         # Projects the ratings by this comment's author onto the first two
         # principal components to generate the position (`pos`).
-        if math.isnan(standard_error):
+        if standard_error is None:
             standard_error = DEFAULT_STANDARD_ERROR
         data[unicode(comment.id)] = {
             'msg': escape_html(comment.message),
