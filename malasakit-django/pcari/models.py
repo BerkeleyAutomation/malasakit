@@ -79,7 +79,6 @@ class StatisticsMixin:
     All properties exclude skipped ratings (see :attr:`Rating.SKIPPED`).
 
     Attributes:
-        show_statistics (bool): Show statistics for this object on various pages.
         scores: A flat ``QuerySet`` of integer scores.
         num_ratings (int): The number of ratings the object has received.
         mean_score (float): The mean score the object has received, or
@@ -100,7 +99,6 @@ class StatisticsMixin:
             ``min_score`` and ``max_score`` attributes, zero and nine are used
             instead.
     """
-    show_statistics = models.BooleanField(default=True)
 
     @property
     def scores(self):
@@ -435,6 +433,8 @@ class QuantitativeQuestion(Question, StatisticsMixin):
         max_score (int): The largest possible score for this question. A value
             of `None` is treated as positive infinity (that is, no upper bound).
         input_type (str): How the input should be rendered.
+        show_statistics (bool): Show statistics for this question on the peer
+            responses page.
     """
     INPUT_TYPE_CHOICES = (
         ('range', 'Range'),
@@ -442,12 +442,14 @@ class QuantitativeQuestion(Question, StatisticsMixin):
         # Possibly allow for a row of buttons as well
     )
 
+    objects = RatingStatisticsManager()
     left_anchor = models.TextField(blank=True, default='')
     right_anchor = models.TextField(blank=True, default='')
     min_score = models.PositiveSmallIntegerField(default=0, null=True)
     max_score = models.PositiveSmallIntegerField(default=9, null=True)
     input_type = models.CharField(max_length=16, choices=INPUT_TYPE_CHOICES,
                                   default='range')
+    show_statistics = models.BooleanField(default=True)
 
     def __unicode__(self):
         return 'Quantitative question {0}: "{1}"'.format(self.id, self.prompt)
