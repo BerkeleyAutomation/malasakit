@@ -187,7 +187,6 @@ class History(models.Model):
     """
     objects = models.Manager()
     active_objects = ActiveObjectManager()
-
     predecessor = models.ForeignKey('self', on_delete=models.SET_NULL,
                                     null=True, blank=True, default=None,
                                     related_name='successors')

@@ -18,7 +18,6 @@ from __future__ import unicode_literals
 import datetime
 import logging
 import json
-import math
 import mimetypes
 import random
 import time
@@ -339,7 +338,7 @@ def fetch_quantitative_questions(request):
             'input-type': question.input_type,
             'order': question.order,
             "show-statistics": question.show_statistics,
-        } for question in QuantitativeQuestion.objects.filter(active=True)
+        } for question in QuantitativeQuestion.active_objects.iterator()
     ], safe=False)
 
 
@@ -383,7 +382,7 @@ def fetch_option_questions(request):
             },
             'input-type': question.input_type,
             'order': question.order,
-        } for question in OptionQuestion.objects.filter(active=True)
+        } for question in OptionQuestion.active_objects.iterator()
     ], safe=False)
 
 
@@ -420,6 +419,7 @@ def fetch_question_ratings(request):
 @profile
 def make_question_ratings(respondent, response):
     """ Generate new quantitative question model instances. """
+    # pylint: disable=no-member
     for question_id, score in response.get('question-ratings', {}).iteritems():
         QuantitativeQuestionRating.objects.update_or_create(
             question_id=int(question_id),
@@ -431,6 +431,7 @@ def make_question_ratings(respondent, response):
 @profile
 def make_question_choices(respondent, response):
     """ Generate new option question choice instances. """
+    # pylint: disable=no-member
     for question_id, choice in response.get('question-choices', {}).iteritems():
         OptionQuestionChoice.objects.update_or_create(
             question_id=int(question_id),
@@ -456,6 +457,7 @@ def make_comments(respondent, response):
 @profile
 def make_comment_ratings(respondent, response):
     """ Generate new comment rating instances. """
+    # pylint: disable=no-member
     for comment_id, score in response.get('comment-ratings', {}).iteritems():
         CommentRating.objects.update_or_create(
             comment_id=int(comment_id),

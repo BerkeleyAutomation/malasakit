@@ -10,7 +10,6 @@ from __future__ import unicode_literals
 from base64 import b64encode
 from collections import OrderedDict
 import json
-import math
 import os
 
 from django.conf import settings
@@ -229,6 +228,7 @@ class CommentAdmin(ResponseAdmin):
     display_message.short_description = 'Message'
 
     def num_ratings(self, comment):
+        # pylint: disable=no-self-use
         return comment.num_ratings
     num_ratings.admin_order_field = 'Number of ratings'
     num_ratings.admin_order_field = 'num_ratings'
@@ -318,6 +318,7 @@ class QualitativeQuestionAdmin(HistoryAdmin):
     Admin behavior for :class:`pcari.models.QualitativeQuestion`.
     """
     def display_question_num_comments(self, question):
+        # pylint: disable=no-self-use
         return question.comments.count()
     display_question_num_comments.short_description = 'Number of comments'
 
