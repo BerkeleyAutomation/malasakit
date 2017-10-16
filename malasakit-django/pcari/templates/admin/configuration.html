@@ -7,7 +7,7 @@
 {% block extrastyle %}
   {{ block.super }}
   <style>
-    input[type="file"]#bloom-icon::-webkit-file-upload-button {
+    input[type="file"]::-webkit-file-upload-button {
       font-size: 12.5px;
       background: #79aec8;
       padding: 10px 15px;
@@ -17,7 +17,7 @@
       cursor: pointer;
     }
 
-    input[type="file"]#bloom-icon::-webkit-file-upload-button:hover {
+    input[type="file"]::-webkit-file-upload-button:hover {
       background: #609ab6;
     }
 
@@ -41,12 +41,29 @@
   <div id="content-main">
     <h1>{% trans 'Site configuration' %}</h1>
     <div class="module inline-group card-container">
+      <h2>{% trans 'Change landing page image' %}</h2>
+      <div class="card">
+        <p>
+          {% blocktrans trimmed %}
+            You may use any image file to show on the landing page.
+          {% endblocktrans %}
+        </p>
+        <form action="{% url 'admin:change-landing-image' %}" method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input id="landing-image" type="file" name="landing-image" accept="image/*">
+          <input type="submit" value="{% trans 'Submit' %}">
+        </form>
+      </div>
+    </div>
+    <div class="module inline-group card-container">
       <h2>{% trans 'Change bloom icon' %}</h2>
       <div class="card">
         <p>
-          You may use any image file as an icon for the bloom page.
-          Icons will automatically scale with the width of the page.
-          For this reason, <a href="https://www.w3.org/Graphics/SVG/">Scalable Vector Graphics</a> (<code>.svg</code> files) work best, since they do not lose resolution when expanded.
+          {% blocktrans trimmed %}
+            You may use any image file as an icon for the bloom page.
+            Icons will automatically scale with the width of the page.
+            For this reason, <a href="https://www.w3.org/Graphics/SVG/">Scalable Vector Graphics</a> (<code>.svg</code> files) work best, since they do not lose resolution when expanded.
+          {% endblocktrans %}
         </p>
         <form action="{% url 'admin:change-bloom-icon' %}" method="POST" enctype="multipart/form-data">
           {% csrf_token %}

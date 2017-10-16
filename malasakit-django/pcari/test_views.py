@@ -168,7 +168,7 @@ class ResponseSaveTestCase(TestCase):
                 '1': 'hello world',
             },
             'comment-ratings': {
-                str(comment.id): 2
+                unicode(comment.id): 2
             },
             'respondent-data': {
                 'language': 'tl'
@@ -188,16 +188,16 @@ class ResponseSaveTestCase(TestCase):
             {'question-ratings': 1, 'respondent-data': {'language': 'en'}},
             {'question-ratings': {'?': ''}, 'respondent-data': {'language': 'en'}},
             {'comments': {'?': ''}, 'respondent-data': {'language': 'en'}},
-            {'respondent-data': {'age': 140, 'language': 'en'}},
         ]
 
         for bad_format in bad_formats:
             response = self.push(bad_format)
-            self.assertEqual(response.status_code, 400)
-            self.assertEqual(QuantitativeQuestionRating.objects.count(), 0)
-            self.assertEqual(Comment.objects.count(), 0)
-            self.assertEqual(CommentRating.objects.count(), 0)
-            self.assertEqual(Respondent.objects.count(), 0)
+            message = 'Failed on: {0}'.format(bad_format)
+            self.assertEqual(response.status_code, 400, message)
+            self.assertEqual(QuantitativeQuestionRating.objects.count(), 0, message)
+            self.assertEqual(Comment.objects.count(), 0, message)
+            self.assertEqual(CommentRating.objects.count(), 0, message)
+            self.assertEqual(Respondent.objects.count(), 0, message)
 
 
 class PCACorrectnessTestCase(TestCase):

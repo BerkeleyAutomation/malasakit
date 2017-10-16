@@ -20,6 +20,7 @@ from django.conf.urls import include, url
 from django.conf.urls.i18n import i18n_patterns
 from django.contrib.auth import views as auth_views
 from django.views.generic.base import TemplateView, RedirectView
+from django.views.i18n import JavaScriptCatalog
 
 from pcari.admin import site
 from pcari.urls import api_urlpatterns
@@ -46,6 +47,9 @@ urlpatterns = [
 
     # AJAX endpoints
     url(r'^api/', include(api_urlpatterns)),
+
+    # Translations in JavaScript
+    url(r'^jsi18n/$', JavaScriptCatalog.as_view(), name='javascript-catalog'),
 ]
 
 # Translate all `pcari` urls

@@ -54,7 +54,7 @@ def get_direct_fields(model):
             if not field.auto_created or field.concrete]
 
 
-class StatisticsMixin:
+class StatisticsMixin(models.Model):
     """
     A ``StatisticsMixin`` adds descriptive statistics capabilities to a model
     that accepts ratings.
@@ -68,6 +68,7 @@ class StatisticsMixin:
     All properties exclude skipped ratings (see :attr:`Rating.SKIPPED`).
 
     Attributes:
+        show_statistics (bool): Show statistics for this object on various pages.
         scores: A flat ``QuerySet`` of integer scores.
         num_ratings (int): The number of ratings the object has received.
         mean_score (float): The mean score the object has received, or
@@ -81,6 +82,8 @@ class StatisticsMixin:
             scores, or ``float('nan')`` if the object has fewer than two
             ratings.
     """
+    show_statistics = models.BooleanField(default=True)
+
     @property
     def scores(self):
         active_ratings = self.ratings.filter(active=True)
@@ -128,6 +131,9 @@ class StatisticsMixin:
             return float('nan')
         stdev2 = (score_squared_sum - pow(score_sum, 2)/num_scores)/(num_scores - 1)
         return pow(stdev2, 0.5)/num_scores**0.5
+
+    class Meta:
+        abstract = True
 
 
 class History(models.Model):
@@ -237,7 +243,7 @@ class Rating(Response):
     """
     SKIPPED = None
 
-    score = models.PositiveSmallIntegerField(default=SKIPPED, null=True, blank=True)
+    score = models.PositiveIntegerField(default=SKIPPED, null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -351,9 +357,17 @@ class Question(History):
         prompt (str): The prompt in English. (Translations can be specified
             with Django's localization system.)
         tag (str): A short string in English that summarizes the prompt.
+        order (int): A key used for sorting questions in ascending order before
+            being displayed. This value need not be unique--ties are broken
+            arbitrarily. Questions without an ``order`` are displayed last.
     """
     prompt = models.TextField(blank=True, default='')
     tag = models.CharField(max_length=256, blank=True, default='')
+    order = models.IntegerField(null=True, blank=True, default=None,
+                                help_text='Questions are displayed using this '
+                                          'value sorted in ascending order. '
+                                          'Questions without a given <tt>order</tt> '
+                                          'are displayed last.')
 
     class Meta:
         abstract = True
@@ -375,7 +389,7 @@ class QualitativeQuestion(Question):
 
 class QuantitativeQuestion(Question, StatisticsMixin):
     """
-    A ``QuantitativeQuestion`` is a question that asks for a numeric rating.
+    A ``QuantitativeQuestion`` is a question that asks for a number.
 
     Attributes:
         INPUT_TYPE_CHOICES (tuple): Input type choices, each of which is a
@@ -398,6 +412,7 @@ class QuantitativeQuestion(Question, StatisticsMixin):
     INPUT_TYPE_CHOICES = (
         ('range', 'Range'),
         ('number', 'Number'),
+        # Possibly allow for a row of buttons as well
     )
 
     left_anchor = models.TextField(blank=True, default='')
@@ -434,7 +449,14 @@ class OptionQuestion(Question):
         ('radio', 'Radio'),
     )
 
-    _options_text = models.TextField(blank=True, default=json.dumps([]))
+    _options_text = models.TextField(
+        blank=True,
+        default=json.dumps([]),
+        verbose_name='Options as JSON',
+        help_text='A JSON list has the form: <tt>["Choice A", "Choice B"]</tt>. '
+                  'Each option is wrapped in double quotation marks. '
+                  'The options are then separated by commas within the square brackets.',
+    )
     input_type = models.CharField(max_length=16, choices=INPUT_TYPE_CHOICES,
                                   default='select')
 
@@ -448,6 +470,21 @@ class OptionQuestion(Question):
 
     def __unicode__(self):
         return 'Option question {0}: "{1}"'.format(self.id, self.prompt)
+
+    def clean_fields(self, exclude=None):
+        super(OptionQuestion, self).clean_fields(exclude=exclude)
+        exclude = exclude or []
+        if '_options_text' not in exclude:
+            try:
+                options = json.loads(self._options_text)
+                assert isinstance(options, list)
+                for option in options:
+                    assert isinstance(option, (str, unicode))
+            except (ValueError, AssertionError):
+                raise ValidationError(_('"_options_text" is not a JSON list of strings'))
+
+            if not len(options):
+                raise ValidationError(_('"_options_text" must contain at least one option'))
 
 
 class OptionQuestionChoice(Response):
@@ -472,10 +509,10 @@ class OptionQuestionChoice(Response):
                 ``question.options``.
         """
         super(OptionQuestionChoice, self).clean()
-        if self.option not in self.question.options:
+        if self.option and self.option not in self.question.options:
             raise ValidationError(_('"%(option)s" is not a valid option'),
                                   code='invalid-selection',
-                                  params={'option': str(self.option)})
+                                  params={'option': unicode(self.option)})
 
     def __unicode__(self):
         template = 'Option question choice {0}: "{1}"'
@@ -534,6 +571,8 @@ class Respondent(History):
                                 default='', validators=[LANGUAGE_VALIDATOR])
     submitted_personal_data = models.BooleanField(default=False)
     completed_survey = models.BooleanField(default=False)
+    uuid = models.UUIDField(unique=True, default=None, editable=False,
+                            null=True, blank=True)
 
     def __unicode__(self):
         return 'Respondent {0}'.format(self.id)
