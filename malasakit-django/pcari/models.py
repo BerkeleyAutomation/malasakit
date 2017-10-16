@@ -61,6 +61,10 @@ class RatingStatisticsManager(models.Manager):
             num_ratings=Count('ratings__score'),
             mean_score=Avg('ratings__score'),
         )
+
+        # .annotate(
+        #     stdev=Sum((F('ratings__score') - F('mean_score'))**2)/F('num_ratings')
+        # )
         # TODO: use coalesce
         return queryset
 
