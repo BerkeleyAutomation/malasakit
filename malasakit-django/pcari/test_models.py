@@ -104,13 +104,6 @@ class StatisticsTestCase(TestCase):
         self.comment = Comment.objects.filter(pk=self.comment.pk).first()
         self.assertAlmostEqual(self.comment.mean_score, 0)
 
-    def test_mode_score(self):
-        self.assertEqual(self.question.mode_score, 3)
-        QuantitativeQuestionRating.objects.filter(score=3).update(score=9)
-        self.assertEqual(self.question.mode_score, 9)
-        self.assertNotEqual(self.comment.mode_score,
-                            QuantitativeQuestionRating.SKIPPED)
-
     def test_score_stddev(self):
         # Answers are calculated from `np.std` with `ddof=1` (one delta degree of freedom)
         self.assertAlmostEqual(self.question.score_stddev, 2.87228132327)

@@ -61,6 +61,27 @@ class Sqrt(Func):
 
 
 class RatingStatisticsManager(models.Manager):
+    """
+    A ``RatingStatisticsManager`` annotates ``QuerySet``s of ratable models
+    with descriptive statistical attributes.
+
+    Attributes:
+        num_ratings (int): The number of ratings the object has received.
+        mean_score (float): The mean score the object has received, or ``None``
+            with fewer than one rating.
+        score_stddev (float): The corrected standard deviation of this object's
+            scores, or ``None`` if the object has fewer than two ratings.
+        score_sem (float): The standard error of the mean of this object's
+            scores, or ``None`` if the object has fewer than two ratings.
+        score_95ci_lower (float): The lowerbound of the confidence interval
+            about the mean score with confidence level C = 95%. With fewer than
+            two ratings, this bound defaults to the minimum possible, a rating
+            of zero.
+        score_95ci_upper (float): The upperbound of the confidence interval,
+            which defaults to nine, the maximum possible, with fewer than two
+            ratings.
+    """
+    z_crit = 1.96
     def get_queryset(self):
         queryset = super(RatingStatisticsManager, self).get_queryset()
         queryset = queryset.annotate(
@@ -79,76 +100,11 @@ class RatingStatisticsManager(models.Manager):
         ).annotate(
             score_sem=F('score_stddev')/Sqrt(F('num_ratings'),
                                              output_field=models.FloatField()),
+        ).annotate(
+            score_95ci_lower=Coalesce(F('mean_score') - self.z_crit*F('score_sem'), 0),
+            score_95ci_upper=Coalesce(F('mean_score') + self.z_crit*F('score_sem'), 9),
         )
         return queryset
-
-
-class StatisticsMixin:
-    """
-    A ``StatisticsMixin`` adds descriptive statistics capabilities to a model
-    that accepts ratings.
-
-    To use this mixin on a model, have the model inherit from this class after
-    it inherits from :class:`django.db.models.Model` (or some subclass of
-    ``Model``). The model must have a related name ``ratings`` (that is, the
-    reverse relationship of a many-to-one) that accesses a ``QuerySet`` of
-    instances of a model that inherits from :class:`Rating`.
-
-    All properties exclude skipped ratings (see :attr:`Rating.SKIPPED`).
-
-    Attributes:
-        scores: A flat ``QuerySet`` of integer scores.
-        num_ratings (int): The number of ratings the object has received.
-        mean_score (float): The mean score the object has received, or
-            ``float('nan')`` if the object has no ratings.
-        mode_score (float): The most common score this object received, or
-            ``float('nan')`` if the object has no ratings.
-        score_stdev (float): The corrected standard deviation of this object's
-            scores, or ``float('nan')`` if the object has fewer than two
-            ratings.
-        score_sem (float): The standard error of the mean of this object's
-            scores, or ``float('nan')`` if the object has fewer than two
-            ratings.
-        score_95ci (float): The confidence interval of the mean of the scores
-            with confidence level C = 95% as a list of two numbers: the lower
-            and upper bound, respectively. For objects with fewer than two
-            ratings, the interval defaults to the minimum and maximum scores of
-            the object. If not minimum and maximum scores are specified with
-            ``min_score`` and ``max_score`` attributes, zero and nine are used
-            instead.
-    """
-    @property
-    def scores(self):
-        active_ratings = self.ratings.filter(active=True)
-        active_ratings = active_ratings.exclude(
-            score=Rating.SKIPPED
-        )
-        return active_ratings.values_list('score', flat=True)
-
-    @property
-    def mode_score(self):
-        aggregation = self.scores.annotate(count=Count('score'))
-        most_common = aggregation.order_by('-count').first()
-        return most_common if most_common is not None else float('nan')
-
-    @property
-    def _score_aggregates(self):
-        query = self.scores.annotate(score_squared=F('score')*F('score'))
-        values = query.aggregate(
-            Sum('score'), Sum('score_squared'), Count('score')
-        )
-        return values['score__sum'], values['score_squared__sum'], values['score__count']
-
-    @property
-    def score_95ci(self):
-        score_sum, score_squared_sum, num_scores = self._score_aggregates
-        if num_scores < 2:
-            return [getattr(self, 'min_score', 0), getattr(self, 'max_score', 9)]
-        mean = score_sum/num_scores
-        stdev2 = (score_squared_sum - pow(score_sum, 2)/num_scores)/(num_scores - 1)
-        sem = pow(stdev2, 0.5)/num_scores**0.5
-        z_crit = 1.96
-        return [mean - z_crit*sem, mean + z_crit*sem]
 
 
 class ActiveObjectManager(models.Manager):
@@ -332,7 +288,7 @@ class CommentRating(Rating):
         unique_together = ('respondent', 'comment')
 
 
-class Comment(Response, StatisticsMixin):
+class Comment(Response):
     """
     A ``Comment`` is an open-ended text response to a
     :class:`QualitativeQuestion`.
@@ -412,7 +368,7 @@ class QualitativeQuestion(Question):
         return 'Qualitative question {0}: "{1}"'.format(self.id, self.prompt)
 
 
-class QuantitativeQuestion(Question, StatisticsMixin):
+class QuantitativeQuestion(Question):
     """
     A ``QuantitativeQuestion`` is a question that asks for a number.
 
