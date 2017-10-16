@@ -242,11 +242,8 @@ class CommentAdmin(ResponseAdmin):
     def display_wilson_score(self, comment):
         # pylint: disable=no-self-use
         wilson_score, _ = comment.score_95ci
-        return str(round(wilson_score, 3))
+        return unicode(round(wilson_score, 3))
     display_wilson_score.short_description = 'Wilson score'
-
-        return unicode(round(mean_score, 3)) if not math.isnan(mean_score) else '(No ratings)'
-    display_mean_score.short_description = 'Mean score'
 
     list_display = ('respondent', 'display_message', 'timestamp', 'language',
                     'flagged', 'tag', 'active', 'display_mean_score',
