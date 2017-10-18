@@ -18,7 +18,6 @@ from __future__ import unicode_literals
 import datetime
 import logging
 import json
-import math
 import mimetypes
 import random
 import time
@@ -114,8 +113,8 @@ def generate_ratings_matrix():
         Only active respondents, active questions, and active ratings are used
         (see :attr:`pcari.models.History.active`).
     """
-    respondent_ids = Respondent.objects.filter(active=True).values_list('id', flat=True)
-    question_ids = QuantitativeQuestion.objects.filter(active=True).values_list('id', flat=True)
+    respondent_ids = Respondent.active_objects.values_list('id', flat=True)
+    question_ids = QuantitativeQuestion.active_objects.values_list('id', flat=True)
 
     respondent_id_map = {key: index for index, key in enumerate(respondent_ids)}
     question_id_map = {key: index for index, key in enumerate(question_ids)}
@@ -123,9 +122,8 @@ def generate_ratings_matrix():
     shape = len(respondent_id_map), len(question_id_map)
     ratings_matrix = np.full(shape, np.nan)
 
-    values = QuantitativeQuestionRating.objects.filter(respondent__active=True,
-                                                       question__active=True,
-                                                       active=True)
+    values = QuantitativeQuestionRating.active_objects.filter(respondent__active=True,
+                                                              question__active=True)
     features = 'respondent_id', 'question_id', 'score'
     values = values.exclude(score=QuantitativeQuestionRating.SKIPPED).values_list(*features)
 
@@ -232,7 +230,7 @@ def fetch_comments(request):
 
         # Projects the ratings by this comment's author onto the first two
         # principal components to generate the position (`pos`).
-        if math.isnan(standard_error):
+        if standard_error is None:
             standard_error = DEFAULT_STANDARD_ERROR
         data[unicode(comment.id)] = {
             'msg': escape_html(comment.message),
@@ -277,7 +275,7 @@ def fetch_qualitative_questions(request):
         unicode(question.id): {
             code: escape_html(translate(question.prompt, code))
             for code, _ in settings.LANGUAGES
-        } for question in QualitativeQuestion.objects.filter(active=True)
+        } for question in QualitativeQuestion.active_objects.iterator()
     })
 
 
@@ -340,7 +338,7 @@ def fetch_quantitative_questions(request):
             'input-type': question.input_type,
             'order': question.order,
             "show-statistics": question.show_statistics,
-        } for question in QuantitativeQuestion.objects.filter(active=True)
+        } for question in QuantitativeQuestion.active_objects.iterator()
     ], safe=False)
 
 
@@ -384,7 +382,7 @@ def fetch_option_questions(request):
             },
             'input-type': question.input_type,
             'order': question.order,
-        } for question in OptionQuestion.objects.filter(active=True)
+        } for question in OptionQuestion.active_objects.iterator()
     ], safe=False)
 
 
@@ -409,8 +407,7 @@ def fetch_question_ratings(request):
             }
     """
     # pylint: disable=unused-argument
-    ratings = QuantitativeQuestionRating.objects
-    ratings = ratings.filter(active=True, question__active=True)
+    ratings = QuantitativeQuestionRating.active_objects.filter(question__active=True)
     return JsonResponse({
         unicode(rating.id): {
             'qid': rating.question_id,
@@ -422,6 +419,7 @@ def fetch_question_ratings(request):
 @profile
 def make_question_ratings(respondent, response):
     """ Generate new quantitative question model instances. """
+    # pylint: disable=no-member
     for question_id, score in response.get('question-ratings', {}).iteritems():
         QuantitativeQuestionRating.objects.update_or_create(
             question_id=int(question_id),
@@ -433,6 +431,7 @@ def make_question_ratings(respondent, response):
 @profile
 def make_question_choices(respondent, response):
     """ Generate new option question choice instances. """
+    # pylint: disable=no-member
     for question_id, choice in response.get('question-choices', {}).iteritems():
         OptionQuestionChoice.objects.update_or_create(
             question_id=int(question_id),
@@ -458,6 +457,7 @@ def make_comments(respondent, response):
 @profile
 def make_comment_ratings(respondent, response):
     """ Generate new comment rating instances. """
+    # pylint: disable=no-member
     for comment_id, score in response.get('comment-ratings', {}).iteritems():
         CommentRating.objects.update_or_create(
             comment_id=int(comment_id),
@@ -662,7 +662,7 @@ def index(request):
 @ensure_csrf_cookie
 def landing(request):
     """ Render a landing page. """
-    context = {'num_responses': Respondent.objects.filter(active=True).count()}
+    context = {'num_responses': Respondent.active_objects.count()}
     return render(request, 'landing.html', context)
 
 
@@ -694,7 +694,7 @@ def rate_comments(request):
 @ensure_csrf_cookie
 def qualitative_questions(request):
     """ Render a page asking respondents for comments (i.e. suggestions). """
-    context = {'questions': QualitativeQuestion.objects.filter(active=True).all()}
+    context = {'questions': QualitativeQuestion.active_objects.all()}
     return render(request, 'qualitative-questions.html', context)
 
 
