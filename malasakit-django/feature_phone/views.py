@@ -19,16 +19,14 @@ from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
-
 from twilio.twiml.voice_response import VoiceResponse
 
 from feature_phone.models import Respondent, Question, Response
-
+from pcari import models as web_models
 from pcari.models import QuantitativeQuestion, QualitativeQuestion
 from pcari.models import Comment, CommentRating, QuantitativeQuestionRating
 from pcari.models import get_concrete_fields
 
-# Placeholder flow will yank content straight from v1.25 models
 
 def select_comments():
     comment_content_type = ContentType.objects.get(app_label='pcari', model='comment')
@@ -37,26 +35,29 @@ def select_comments():
     comments = Comment.objects.filter(id__in=comment_ids)
 
 
+def play_recording(voice_response, recording: Recording):
+    """
+    Play a voice recording, either from a file or using speech synthesis.
+    """
+    if recording.recording:
+        pass # voice_response.play_recording()
+    # voice_response.say()
+
+
 @csrf_exempt
 def landing(request):
-    """Landing page welcome message"""
-    res = VoiceResponse()
+    """ Landing page plays a welcome message. """
+    if 'respondent-pk' not in request.session:
+        related_object = web_models.Respondent.objects.create()
+        respondent = Respondent.objects.create(related_object=related_object)
+        request.session['respondent-pk'] = respondent.pk
 
-    # REPLACE WITH INTRO INSTRUCTIONS
-    res.say("Welcome to Malasakit.")
-    res.say("You will be asked several questions about typhoon preparedness.")
-    res.pause(1)
-    # need a better way to flag down the first question in the sequence
-    res.redirect(reverse('feature_phone:quantitative-questions'))
+    intro = VoiceResponse()
+    # play_recording(intro, )
+    intro.pause(1)
+    intro.redirect(reverse('feature_phone:quantitative-questions'))
+    return HttpResponse(intro)
 
-    # create a new Respondent and save to database
-    user = Respondent()
-    user.save()
-    request.session['respondent_id'] = user.id # set current Respondent id in sessions
-
-    print "Respondent ID: %s" % request.session['respondent_id']
-
-    return HttpResponse(res)
 
 @csrf_exempt
 def personal_info(request):

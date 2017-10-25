@@ -59,7 +59,7 @@ urlpatterns += i18n_patterns(url(r'^', include('pcari.urls')))
 urlpatterns += [
     url(r'^$', RedirectView.as_view(url=reverse('pcari:landing')),
         name='to-landing'),
-    url(r'^feature_phone/', include('feature_phone.urls')),
+    url(r'^feature-phone/', include('feature_phone.urls')),
 ]
 
 # Serve media files in development
