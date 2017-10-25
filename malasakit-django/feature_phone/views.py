@@ -19,10 +19,12 @@ from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
+import numpy as np
 from twilio.twiml.voice_response import VoiceResponse
 
 from feature_phone.models import Respondent, Question, Response
 from pcari import models as web_models
+from pcari.views import DEFAULT_COMMENT_LIMIT
 from pcari.models import QuantitativeQuestion, QualitativeQuestion
 from pcari.models import Comment, CommentRating, QuantitativeQuestionRating
 from pcari.models import get_concrete_fields
@@ -32,10 +34,15 @@ def select_comments():
     comment_content_type = ContentType.objects.get(app_label='pcari', model='comment')
     voice_responses = Response.objects.filter(related_object_type=comment_content_type)
     comment_ids = list(voice_responses.values_list('related_object_id', flat=True))
-    comments = Comment.objects.filter(id__in=comment_ids)
+    comment_ids = random.sample(comment_ids, min(len(comment_ids), DEFAULT_COMMENT_LIMIT))
+    comments = list(Comment.objects.filter(id__in=comment_ids))
+    if comments:
+        standard_errors = np.array([comment.score_sem for comment in comments])
+        probabilities = standard_errors/np.sum(standard_errors)
+        return np.random.choice(comments, size=8, replace=False, p=probabilities)
 
 
-def play_recording(voice_response, recording: Recording):
+def play_recording(voice_response, recording):
     """
     Play a voice recording, either from a file or using speech synthesis.
     """
