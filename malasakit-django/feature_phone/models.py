@@ -79,7 +79,7 @@ class Recording(models.Model):
     A Recording is an abstract model of a recording
 
     Attributes:
-        recording: Contains the path to which the recording is stored in disk.
+        recording: Contains the path to which the recording is stored on disk.
     """
     recording = models.FileField(upload_to=generate_recording_path)
 
@@ -99,7 +99,7 @@ class Instructions(Recording):
     MAX_TEXT_DISPLAY_LENGTH = 140
 
     text = models.TextField(blank=True, default='')
-    tag = models.CharField(max_length=256, blank=True, default='')
+    tag = models.CharField(max_length=256, blank=True, default='', unique=True)
     language = models.CharField(max_length=8, choices=settings.LANGUAGES,
                                 blank=True, default='',
                                 validators=[LANGUAGE_VALIDATOR])
