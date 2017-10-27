@@ -18,6 +18,11 @@ urlpatterns = [
     url(r'landing/$', views.landing, name='landing'),
     url(r'quantitative-questions/$', views.quantitative_questions,
         name='quantitative-questions'),
+    url(r'ask-quantitative-question/$', views.ask_quantitative_question,
+        name='ask-quantitative-question'),
+    url(r'process-recording/$', views.process_recording,
+        name='process-recording'),
+    url(r'error/$', views.error, name='error'),
 ]
 
 
