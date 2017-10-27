@@ -21,10 +21,10 @@ class InstructionsAdmin(RecordingAdmin):
     def display_text(self, instructions):
         return instructions.text or self.get_empty_value_display()
     display_text.short_description = 'Text'
-    def display_tag(self, instructions):
-        return instructions.tag or self.get_empty_value_display()
-    display_tag.short_description = 'Tag'
-    list_display = ('display_text', 'display_tag', 'language', 'recording')
+    def display_key(self, instructions):
+        return instructions.key or self.get_empty_value_display()
+    display_key.short_description = 'Tag'
+    list_display = ('display_text', 'display_key', 'language', 'recording')
     list_filter = ('language', )
     search_fields = ('text', 'tag')
     empty_value_display = '(Empty)'

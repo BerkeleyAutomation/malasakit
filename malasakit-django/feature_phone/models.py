@@ -89,17 +89,17 @@ class Recording(models.Model):
 
 class Instructions(Recording):
     """
-    An ``Instruction`` is a string of text that will be spoken to the caller using text-to-speech.
+    An ``Instruction`` is a string of text that will be spoken to a caller.
 
     Attributes:
-        text (str): The content of the Instruction
-        tag (str): A short summary of the Instruction's content
-        language (str): The language the Instruction is written in
+        key (str): A unique identifier for this ``Instruction``.
+        text (str): The text content of the ``Instruction``.
+        language (str): The language the ``Instruction`` is written in.
     """
     MAX_TEXT_DISPLAY_LENGTH = 140
 
+    key = models.SlugField(unique=True)
     text = models.TextField(blank=True, default='')
-    tag = models.CharField(max_length=256, blank=True, default='', unique=True)
     language = models.CharField(max_length=8, choices=settings.LANGUAGES,
                                 blank=True, default='',
                                 validators=[LANGUAGE_VALIDATOR])

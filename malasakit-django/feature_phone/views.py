@@ -61,7 +61,7 @@ def play_recording(voice_response, recording):
 @csrf_exempt
 @require_POST
 def landing(request):
-    """ Landing page plays a welcome message. """
+    """ The landing endpoint plays a welcome message and initializes the session. """
     if 'respondent-pk' not in request.session:
         related_object = web_models.Respondent.objects.create()
         respondent = Respondent.objects.create(related_object=related_object)
