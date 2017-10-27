@@ -49,13 +49,15 @@ def get_quantitative_questions():
     return [question for question in questions if questions.related_object.active]
 
 
-def play_recording(voice_response, recording):
+def play_recording(response, recording):
     """
     Play a voice recording, either from a file or using speech synthesis.
     """
-    if recording.recording:
-        pass # voice_response.play_recording()
-    # voice_response.say()
+    if recording.recording.name:
+        url = os.path.join(settings.MEDIA_URL, recording.recording.name)
+        response.play(url)
+    elif hasattr(recording, 'text'):
+        response.say(recording.text)
 
 
 @csrf_exempt
@@ -67,22 +69,18 @@ def landing(request):
         respondent = Respondent.objects.create(related_object=related_object)
         request.session['respondent-pk'] = respondent.pk
 
-    intro = VoiceResponse()
-    intro.say('Welcome to Malasakit. We look forward to hearing from you on '
-              'how your Barangay can better prepare for natural disasters.')
-    # play_recording(intro, )
-    intro.pause(1)
-    intro.redirect(reverse('feature_phone:quantitative-questions'))
-    return HttpResponse(intro)
+    response = VoiceResponse()
+    play_recording(response, Instructions.objects.get(key='welcome'))
+    response.pause(1)
+    response.redirect(reverse('feature_phone:quantitative-questions'))
+    return HttpResponse(response)
 
 
 @csrf_exempt
 @require_POST
 def quantitative_questions(request):
     response = VoiceResponse()
-    response.say('In a few moments, we will ask you to rate a series of '
-                 "statements. You may either use your phone's keypad "
-                 'or speak your response.')
+    play_recording(response, Instructions.objects.get(key='quantitative-question-directions'))
     response.pause(1)
     response.redirect(reverse('feature_phone:ask-quantitative-question'))
     return HttpResponse(response)
@@ -103,7 +101,6 @@ def ask_quantitative_question(request):
 @csrf_exempt
 @require_POST
 def process_recording(request):
-    print(request.POST)
     response = VoiceResponse()
     response.pause(1)
     response.say('Thank you for your time.')
@@ -114,6 +111,6 @@ def process_recording(request):
 @require_POST
 def error(request):
     response = VoiceResponse()
-    response.say('Our apologies: Malasakit is temporarily not available. '
+    response.say('Our apologies: Malasakit is experiencing issues at this time. '
                  'Please try again momentarily.')
     return HttpResponse(response)

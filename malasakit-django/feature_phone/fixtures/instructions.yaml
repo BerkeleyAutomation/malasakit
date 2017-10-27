@@ -1,0 +1,16 @@
+- model: feature_phone.instructions
+  pk: 1
+  fields:
+    key: welcome
+    language: en
+    text:
+      Welcome to Malasakit. We look forward to listening to your suggestions on
+      how your Barangay can better prepare for natural disasters.
+- model: feature_phone.instructions
+  pk: 2
+  fields:
+    key: quantitative-question-directions
+    language: en
+    text:
+      In a few moments, we will ask you to rate several statements on a numerical scale.
+      You may either use your phone's keypad or speak your response.
