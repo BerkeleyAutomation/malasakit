@@ -17,13 +17,7 @@ urlpatterns = [
     # User-facing views
     url(r'landing/$', views.landing, name='landing'),
     url(r'quantitative-questions/$', views.quantitative_questions,
-        name="quantitative-questions"),
-    url(r'rate-comments/$', views.rate_comments, name='rate-comments'),
-    url(r'qualitative-questions/$', views.qualitative_questions,
-        name="qualitative-questions"),
-    url(r'process-recording/(.+)/', views.process_recording,
-        name="process-recording"),
-    url(r'end/$', views.end, name='end'),
+        name='quantitative-questions'),
 ]
 
 

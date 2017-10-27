@@ -16,8 +16,10 @@ from django.core.files import File
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from django.urls import reverse
 import numpy as np
 from twilio.twiml.voice_response import VoiceResponse
@@ -42,6 +44,11 @@ def select_comments():
         return np.random.choice(comments, size=8, replace=False, p=probabilities)
 
 
+def get_quantitative_questions():
+    questions = Question.objects.filter(Q(related_object_id__isnull=True))
+    return [question for question in questions if questions.related_object.active]
+
+
 def play_recording(voice_response, recording):
     """
     Play a voice recording, either from a file or using speech synthesis.
@@ -52,6 +59,7 @@ def play_recording(voice_response, recording):
 
 
 @csrf_exempt
+@require_POST
 def landing(request):
     """ Landing page plays a welcome message. """
     if 'respondent-pk' not in request.session:
@@ -60,6 +68,8 @@ def landing(request):
         request.session['respondent-pk'] = respondent.pk
 
     intro = VoiceResponse()
+    intro.say('Welcome to Malasakit. We look forward to hearing from you on '
+              'how your Barangay can better prepare for natural disasters.')
     # play_recording(intro, )
     intro.pause(1)
     intro.redirect(reverse('feature_phone:quantitative-questions'))
@@ -67,13 +77,25 @@ def landing(request):
 
 
 @csrf_exempt
-def personal_info(request):
-    """Holding tight on this to see how we handle models and stuff"""
-    pass
+@require_POST
+def quantitative_questions(request):
+    response = VoiceResponse()
+    response.say('In a few moments, we will ask you to rate a series of '
+                 "numerical statements. You may either use your phone's keypad "
+                 'or speak your response.')
+    response.pause(1)
+    return HttpResponse(response)
+
 
 @csrf_exempt
+@require_POST
+def ask_quantitative_question(request):
+    pass
+
+
+"""
+@csrf_exempt
 def quantitative_questions(request):
-    """Plays quantitative question."""
     res = VoiceResponse()
 
     print "Respondent ID: %s" % request.session['respondent_id']
@@ -124,6 +146,7 @@ def quantitative_questions(request):
                    action=reverse('feature_phone:process-recording', args=(next_url,)))
 
     return HttpResponse(res)
+"""
 
 @csrf_exempt
 def process_recording(request, next_url):
