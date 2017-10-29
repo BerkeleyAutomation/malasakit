@@ -10,7 +10,6 @@ from __future__ import unicode_literals
 from base64 import b64encode
 from collections import OrderedDict
 import json
-import math
 import os
 
 from django.conf import settings
@@ -228,15 +227,28 @@ class CommentAdmin(ResponseAdmin):
         return comment.message.strip() or self.empty_value_display
     display_message.short_description = 'Message'
 
+    def num_ratings(self, comment):
+        # pylint: disable=no-self-use
+        return comment.num_ratings
+    num_ratings.short_description = 'Number of ratings'
+    num_ratings.admin_order_field = 'num_ratings'
+
     def display_mean_score(self, comment):
         # pylint: disable=no-self-use
         mean_score = comment.mean_score
-        return str(round(mean_score, 3)) if not math.isnan(mean_score) else '(No ratings)'
+        return unicode(round(mean_score, 3)) if mean_score is not None else '(No ratings)'
     display_mean_score.short_description = 'Mean score'
+    display_mean_score.admin_order_field = 'mean_score'
+
+    def display_wilson_score(self, comment):
+        # pylint: disable=no-self-use
+        return unicode(round(comment.score_95ci_lower, 3))
+    display_wilson_score.short_description = 'Wilson score'
+    display_wilson_score.admin_order_field = 'score_95ci_lower'
 
     list_display = ('respondent', 'display_message', 'timestamp', 'language',
-                    'flagged', 'tag', 'active', 'display_mean_score',
-                    'num_ratings')
+                    'flagged', 'tag', 'active', 'num_ratings',
+                    'display_mean_score', 'display_wilson_score')
     list_display_links = ('display_message',)
     list_filter = ('timestamp', 'language', 'flagged', 'tag', 'active')
     search_fields = ('message', 'tag')
@@ -306,7 +318,12 @@ class QualitativeQuestionAdmin(HistoryAdmin):
     """
     Admin behavior for :class:`pcari.models.QualitativeQuestion`.
     """
-    list_display = ('prompt', 'tag', 'active')
+    def display_question_num_comments(self, question):
+        # pylint: disable=no-self-use
+        return question.comments.count()
+    display_question_num_comments.short_description = 'Number of comments'
+
+    list_display = ('prompt', 'tag', 'active', 'display_question_num_comments')
     list_filter = ('tag', 'active')
     search_fields = ('prompt', 'tag')
 
@@ -316,7 +333,13 @@ class QuantitativeQuestionAdmin(HistoryAdmin):
     """
     Admin behavior for :class:`pcari.models.QuantitativeQuestion`.
     """
-    list_display = ('prompt', 'tag', 'active')
+    def num_ratings(self, comment):
+        # pylint: disable=no-self-use
+        return comment.num_ratings
+    num_ratings.short_description = 'Number of ratings'
+    num_ratings.admin_order_field = 'num_ratings'
+
+    list_display = ('prompt', 'tag', 'active', 'num_ratings')
     list_filter = ('tag', 'active')
     search_fields = ('prompt', 'tag')
 
@@ -354,7 +377,7 @@ class RespondentAdmin(HistoryAdmin):
     def comments(self, respondent):
         # pylint: disable=no-self-use
         comments = list(respondent.comments)
-        return '(No comments)' if not comments else ''.join(map(str, comments))
+        return '(No comments)' if not comments else ''.join(map(unicode, comments))
 
     list_display = ('id', 'comments', 'age', 'gender', 'display_location',
                     'language', 'submitted_personal_data', 'completed_survey',

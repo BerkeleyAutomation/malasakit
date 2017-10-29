@@ -1,7 +1,8 @@
 /** bloom.js
  */
 
-// The Base64 representation of a PNG of `fa-comment` from Font Awesome
+// The Base64 representation of an SVG of `fa-comment` from Font Awesome
+// colored using `goldenrod`
 var ICON_IMAGE = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/"
                + "PjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4x"
                + "Ly9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEv"
