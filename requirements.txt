@@ -1,6 +1,5 @@
 django==1.11.3
 twilio
-django-twilio
 django-settings-export==1.2.1
 openpyxl==2.4.7
 numpy==1.12.1

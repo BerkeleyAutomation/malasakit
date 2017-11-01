@@ -21,10 +21,11 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.urls import reverse
+from django.utils.translation import get_language
 import numpy as np
 from twilio.twiml.voice_response import VoiceResponse
 
-from feature_phone.models import Respondent, Question, Response
+from feature_phone.models import Respondent, Question, Response, Instructions
 from pcari import models as web_models
 from pcari.views import DEFAULT_COMMENT_LIMIT
 from pcari.models import QuantitativeQuestion, QualitativeQuestion
@@ -44,9 +45,16 @@ def select_comments():
         return np.random.choice(comments, size=8, replace=False, p=probabilities)
 
 
-def get_quantitative_questions():
-    questions = Question.objects.filter(Q(related_object_id__isnull=True))
-    return [question for question in questions if questions.related_object.active]
+def fetch_questions(question_type):
+    questions = Question.objects.filter(related_object_type=question_type,
+                                        language=get_language() or settings.LANGUAGE_CODE)
+    # Need to use a list because the filter needs to access a field of `related_object`
+    questions = [question for question in questions if question.related_object is None or
+                                                       question.related_object.active]
+    questions.sort(key=lambda quesiton: quesiton.related_object.order
+                   if question.related_object and question.related_object.order
+                   else float('inf'))
+    return questions
 
 
 def play_recording(response, recording):
@@ -79,6 +87,8 @@ def landing(request):
 @csrf_exempt
 @require_POST
 def quantitative_questions(request):
+    question_type = ContentType.objects.get(app_label='pcari', model='quantitativequestion')
+    request.session['quantitative-questions'] = fetch_questions(question_type)
     response = VoiceResponse()
     play_recording(response, Instructions.objects.get(key='quantitative-question-directions'))
     response.pause(1)

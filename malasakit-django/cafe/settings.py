@@ -193,6 +193,3 @@ STATIC_URL = os.path.join(URL_ROOT, 'static/')
 # Media files
 MEDIA_ROOT = os.path.join(PROJECT_DIR, 'media')
 MEDIA_URL = '/media/'
-
-# Options for `django-twilio`
-DJANGO_TWILIO_FORGERY_PROTECTION = True
