@@ -82,6 +82,7 @@ class Recording(models.Model):
         recording: Contains the path to which the recording is stored on disk.
     """
     recording = models.FileField(upload_to=generate_recording_path)
+    text = models.TextField(blank=True, default='')
 
     class Meta:
         abstract = True
@@ -99,7 +100,6 @@ class Instructions(Recording):
     MAX_TEXT_DISPLAY_LENGTH = 140
 
     key = models.SlugField(unique=True)
-    text = models.TextField(blank=True, default='')
     language = models.CharField(max_length=8, choices=settings.LANGUAGES,
                                 blank=True, default='',
                                 validators=[LANGUAGE_VALIDATOR])

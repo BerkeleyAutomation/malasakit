@@ -32,6 +32,9 @@ from pcari.models import QuantitativeQuestion, QualitativeQuestion
 from pcari.models import Comment, CommentRating, QuantitativeQuestionRating
 from pcari.models import get_concrete_fields
 
+REPLAY_QUESTION_DIGIT = '*'
+SKIP_QUESTION_DIGIT = '#'
+
 
 def select_comments():
     comment_content_type = ContentType.objects.get(app_label='pcari', model='comment')
@@ -109,18 +112,31 @@ def ask_quantitative_question(request):
     play_recording(response, question)
     response.record(action=reverse('feature_phone:process-recording'),
                     finish_on_key='0123456789*#', max_length=30, play_beep=True)
-    response.say('Sorry, we are not sure if you entered a response.')
+    response.redirect(reverse('feature_phone:process-recording'))
     return HttpResponse(response)
 
 
 @csrf_exempt
 @require_POST
 def process_recording(request):
-    request.session['quantitative-question-pks'].pop(0)
-    request.session.modified = True
-
     response = VoiceResponse()
     response.redirect(reverse('feature_phone:ask-quantitative-question'))
+
+    digit = request.POST.get('Digits', '')
+    if digit == REPLAY_QUESTION_DIGIT:
+        return HttpResponse(response)
+
+    question_pk = request.session['quantitative-question-pks'].pop(0)
+    request.session.modified = True
+
+    respondent = Respondent.objects.get(pk=request.session['respondent-pk'])
+    response = Response.objects.create(
+        respondent=respondent,
+        prompt_type=ContentType.objects.get_for_model(Question),
+        prompt_id=question_pk,
+        text=('' if not digit or digit == SKIP_QUESTION_DIGIT else digit),
+    )
+
     return HttpResponse(response)
 
 
