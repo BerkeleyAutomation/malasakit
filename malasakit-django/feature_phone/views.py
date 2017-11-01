@@ -45,16 +45,16 @@ def select_comments():
         return np.random.choice(comments, size=8, replace=False, p=probabilities)
 
 
-def fetch_questions(question_type):
+def fetch_question_pks(question_type):
     questions = Question.objects.filter(related_object_type=question_type,
                                         language=get_language() or settings.LANGUAGE_CODE)
     # Need to use a list because the filter needs to access a field of `related_object`
     questions = [question for question in questions if question.related_object is None or
                                                        question.related_object.active]
-    questions.sort(key=lambda quesiton: quesiton.related_object.order
+    questions.sort(key=lambda question: question.related_object.order
                    if question.related_object and question.related_object.order
                    else float('inf'))
-    return questions
+    return [question.pk for question in questions]
 
 
 def play_recording(response, recording):
@@ -64,7 +64,7 @@ def play_recording(response, recording):
     if recording.recording.name:
         url = os.path.join(settings.MEDIA_URL, recording.recording.name)
         response.play(url)
-    elif hasattr(recording, 'text'):
+    elif recording.text:
         response.say(recording.text)
 
 
@@ -88,7 +88,7 @@ def landing(request):
 @require_POST
 def quantitative_questions(request):
     question_type = ContentType.objects.get(app_label='pcari', model='quantitativequestion')
-    request.session['quantitative-questions'] = fetch_questions(question_type)
+    request.session['quantitative-question-pks'] = fetch_question_pks(question_type)
     response = VoiceResponse()
     play_recording(response, Instructions.objects.get(key='quantitative-question-directions'))
     response.pause(1)
@@ -100,8 +100,13 @@ def quantitative_questions(request):
 @require_POST
 def ask_quantitative_question(request):
     response = VoiceResponse()
-    response.say('How prepared are you for a typhoon?')
-    response.pause(1)
+    if not request.session['quantitative-question-pks']:
+        del request.session['quantitative-question-pks']
+        response.say('Thank you for your time.')
+        return HttpResponse(response)
+
+    question = Question.objects.get(pk=request.session['quantitative-question-pks'][0])
+    play_recording(response, question)
     response.record(action=reverse('feature_phone:process-recording'),
                     finish_on_key='0123456789*#', max_length=30, play_beep=True)
     response.say('Sorry, we are not sure if you entered a response.')
@@ -111,9 +116,11 @@ def ask_quantitative_question(request):
 @csrf_exempt
 @require_POST
 def process_recording(request):
+    request.session['quantitative-question-pks'].pop(0)
+    request.session.modified = True
+
     response = VoiceResponse()
-    response.pause(1)
-    response.say('Thank you for your time.')
+    response.redirect(reverse('feature_phone:ask-quantitative-question'))
     return HttpResponse(response)
 
 
