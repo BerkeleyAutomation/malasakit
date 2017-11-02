@@ -20,8 +20,10 @@ urlpatterns = [
         name='quantitative-questions'),
     url(r'ask-quantitative-question/$', views.ask_quantitative_question,
         name='ask-quantitative-question'),
-    url(r'process-recording/$', views.process_recording,
-        name='process-recording'),
+    url(r'process-quantitative-response/$', views.process_quantitative_response,
+        name='process-quantitative-response'),
+    url(r'process-quantitative-recording/$', views.process_quantitative_recording,
+        name='process-quantitative-recording'),
     url(r'error/$', views.error, name='error'),
 ]
 

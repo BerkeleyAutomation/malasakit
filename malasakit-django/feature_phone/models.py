@@ -80,6 +80,7 @@ class Recording(models.Model):
 
     Attributes:
         recording: Contains the path to which the recording is stored on disk.
+        text (str): The text content of the ``Recording``.
     """
     recording = models.FileField(upload_to=generate_recording_path)
     text = models.TextField(blank=True, default='')
@@ -94,7 +95,6 @@ class Instructions(Recording):
 
     Attributes:
         key (str): A unique identifier for this ``Instruction``.
-        text (str): The text content of the ``Instruction``.
         language (str): The language the ``Instruction`` is written in.
     """
     MAX_TEXT_DISPLAY_LENGTH = 140
@@ -145,6 +145,7 @@ class Response(Recording, RelatedObjectMixin):
     Attributes:
         timestamp (datetime.datetime): When this Response was made.
         respondent: The Respondent who made this Response.
+        url (str): The voice response's Twilio URL.
         prompt_type: The type of the prompt which this Response addressed.
         prompt_id: The ID of the prompt which this Response addressed.
         prompt: The prompt which this Response addressed.
@@ -152,6 +153,7 @@ class Response(Recording, RelatedObjectMixin):
     timestamp = models.DateTimeField(auto_now_add=True)
     respondent = models.ForeignKey('Respondent', on_delete=models.CASCADE,
                                    related_name='responses')
+    url = models.URLField(blank=True, default='')
     prompt_type = models.ForeignKey(
         ContentType,
         limit_choices_to=models.Q(app_label='feature_phone', model='question')

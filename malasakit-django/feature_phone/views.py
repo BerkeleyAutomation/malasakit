@@ -8,9 +8,10 @@ See https://www.twilio.com/docs/api/twiml and
 https://twilio.github.io/twilio-python/6.5.0/twiml/
 """
 
+import os
 import random
 import requests
-from tempfile import TemporaryFile
+import urllib
 
 from django.core.files import File
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
@@ -71,6 +72,12 @@ def play_recording(response, recording):
         response.say(recording.text)
 
 
+def save_recording(file_field, url):
+    filename, _ = urllib.urlretrieve(url)
+    with open(filename, 'wb+') as audio_file:
+        file_field.save(os.path.basename(url), File(audio_file))
+
+
 @csrf_exempt
 @require_POST
 def landing(request):
@@ -110,19 +117,22 @@ def ask_quantitative_question(request):
 
     question = Question.objects.get(pk=request.session['quantitative-question-pks'][0])
     play_recording(response, question)
-    response.record(action=reverse('feature_phone:process-recording'),
-                    finish_on_key='0123456789*#', max_length=30, play_beep=True)
-    response.redirect(reverse('feature_phone:process-recording'))
+    response.record(action=reverse('feature_phone:process-quantitative-response'),
+                    finish_on_key='0123456789*#', max_length=30, play_beep=True,
+                    recording_status_callback=reverse('feature_phone:process-quantitative-recording'))
+    response.redirect(reverse('feature_phone:process-quantitative-response'))
     return HttpResponse(response)
 
 
 @csrf_exempt
 @require_POST
-def process_recording(request):
+def process_quantitative_response(request):
     response = VoiceResponse()
     response.redirect(reverse('feature_phone:ask-quantitative-question'))
 
     digit = request.POST.get('Digits', '')
+    if digit == 'hangup':
+        return HttpResponse()
     if digit == REPLAY_QUESTION_DIGIT:
         return HttpResponse(response)
 
@@ -130,14 +140,30 @@ def process_recording(request):
     request.session.modified = True
 
     respondent = Respondent.objects.get(pk=request.session['respondent-pk'])
-    response = Response.objects.create(
+    voice_response = Response.objects.create(
         respondent=respondent,
         prompt_type=ContentType.objects.get_for_model(Question),
         prompt_id=question_pk,
         text=('' if not digit or digit == SKIP_QUESTION_DIGIT else digit),
+        url=request.POST['RecordingUrl'],
+        related_object_type=ContentType.objects.get_for_model(web_models.QuantitativeQuestion),
     )
 
+    # TODO: create backreference
     return HttpResponse(response)
+
+
+@csrf_exempt
+@require_POST
+def process_quantitative_recording(request):
+    if 'RecordingUrl' in request.POST:
+        try:
+            url = request.POST['RecordingUrl']
+            response = Response.objects.get(url=url)
+            save_recording(response.recording, url)
+        except Response.DoesNotExist:
+            pass
+    return HttpResponse()
 
 
 @csrf_exempt
