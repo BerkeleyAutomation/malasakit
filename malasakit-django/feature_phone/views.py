@@ -120,7 +120,6 @@ def ask_quantitative_question(request):
     response.record(action=reverse('feature_phone:process-quantitative-response'),
                     finish_on_key='0123456789*#', max_length=30, play_beep=True,
                     recording_status_callback=reverse('feature_phone:process-quantitative-recording'))
-    response.redirect(reverse('feature_phone:process-quantitative-response'))
     return HttpResponse(response)
 
 
@@ -137,19 +136,32 @@ def process_quantitative_response(request):
         return HttpResponse(response)
 
     question_pk = request.session['quantitative-question-pks'].pop(0)
+    question = Question.objects.get(pk=question_pk)
     request.session.modified = True
 
     respondent = Respondent.objects.get(pk=request.session['respondent-pk'])
+    rating = web_models.QuantitativeQuestionRating.objects.create(
+        question=question.related_object,
+        respondent=respondent.related_object,
+    )
     voice_response = Response.objects.create(
         respondent=respondent,
         prompt_type=ContentType.objects.get_for_model(Question),
         prompt_id=question_pk,
-        text=('' if not digit or digit == SKIP_QUESTION_DIGIT else digit),
+        text=digit,
         url=request.POST['RecordingUrl'],
-        related_object_type=ContentType.objects.get_for_model(web_models.QuantitativeQuestion),
+        related_object_type=ContentType.objects.get_for_model(
+            web_models.QuantitativeQuestion
+        ),
+        related_object=rating,
     )
 
-    # TODO: create backreference
+    if voice_response.text.isdigit():
+        rating.score = int(voice_response.text)
+        rating.save()
+    elif voice_response.text == SKIP_QUESTION_DIGIT:
+        rating.score = rating.SKIPPED
+        rating.save()
     return HttpResponse(response)
 
 
