@@ -33,6 +33,13 @@ urlpatterns = [
     url(r'ask-qualitative-question/$', views.ask_qualitative_question,
         name='ask-qualitative-question'),
     url(r'process-comment/$', views.process_comment, name='process-comment'),
+    url(r'ask-age/$', views.ask_age, name='ask-age'),
+    url(r'process-age/$', views.process_age, name='process-age'),
+    url(r'ask-gender/$', views.ask_gender, name='ask-gender'),
+    url(r'process-gender/$', views.process_gender, name='process-gender'),
+    url(r'record-age/$', views.record_age, name='record-age'),
+    url(r'record-gender/$', views.record_gender, name='record-gender'),
+    url(r'end/$', views.end, name='end'),
     url(r'error/$', views.error, name='error'),
 ]
 

@@ -290,8 +290,7 @@ def ask_qualitative_question(request):
     response = VoiceResponse()
     index, question_pks = request.session['index'], request.session['obj-keys']
     if index >= len(question_pks):
-        response.say('Thank you for your time.')
-        # response.redirect(reverse('feature_phone:comments'))
+        response.redirect(reverse('feature_phone:ask-age'))
         return HttpResponse(response)
 
     question = Question.objects.get(pk=question_pks[index])
@@ -324,11 +323,88 @@ def process_comment(request):
         language=get_language() or '',
     )
     voice_response = make_response(respondent, question, comment)
-    transcribe_rating(voice_response, digit)
-    voice_response.url = request.POST['RecordingUrl']
-    voice_response.save()
+    if digit != SKIP_QUESTION_DIGIT:
+        voice_response.url = request.POST['RecordingUrl']
+        voice_response.save()
     request.session['index'] += 1
     return HttpResponse(response)
+
+
+@csrf_exempt
+@require_POST
+def ask_age(request):
+    response = VoiceResponse()
+    play_recording(response, Instructions.objects.get(key='personal-information-directions'))
+    response.pause(1)
+    play_recording(response, Instructions.objects.get(key='age-prompt'))
+    response.record(action=reverse('feature_phone:process-age'),
+                    finish_on_key=SKIP_QUESTION_DIGIT, max_length=30, play_beep=True,
+                    recording_status_callback=reverse('feature_phone:record-age'))
+    return HttpResponse(response)
+
+
+@csrf_exempt
+@require_POST
+def process_age(request):
+    respondent = Respondent.objects.get(pk=request.session['respondent-pk'])
+    respondent.age_url = request.POST['RecordingUrl']
+    respondent.save()
+
+    response = VoiceResponse()
+    response.redirect(reverse('feature_phone:ask-gender'))
+    return HttpResponse(response)
+
+
+@csrf_exempt
+@require_POST
+def ask_gender(request):
+    response = VoiceResponse()
+    response.pause(0.5)
+    play_recording(response, Instructions.objects.get(key='gender-prompt'))
+    response.record(action=reverse('feature_phone:process-gender'),
+                    finish_on_key=SKIP_QUESTION_DIGIT, max_length=30, play_beep=True,
+                    recording_status_callback=reverse('feature_phone:record-gender'))
+    return HttpResponse(response)
+
+
+@csrf_exempt
+@require_POST
+def process_gender(request):
+    respondent = Respondent.objects.get(pk=request.session['respondent-pk'])
+    respondent.gender_url = request.POST['RecordingUrl']
+    respondent.save()
+
+    response = VoiceResponse()
+    response.redirect(reverse('feature_phone:end'))
+    return HttpResponse(response)
+
+
+@csrf_exempt
+@require_POST
+def end(request):
+    del request.session['respondent-pk']
+    del request.session['index']
+    del request.session['obj-keys']
+    response = VoiceResponse()
+    play_recording(response, Instructions.objects.get(key='thanks'))
+    response.hangup()
+    return HttpResponse(response)
+
+
+@csrf_exempt
+@require_POST
+def record_age(request):
+    respondent = Respondent.objects.get(age_url=request.POST['RecordingUrl'])
+    fetch_recording(respondent.age, request.POST['RecordingUrl'])
+    return HttpResponse()
+
+
+@csrf_exempt
+@require_POST
+def record_gender(request):
+    respondent = Respondent.objects.get(gender_url=request.POST['RecordingUrl'])
+    fetch_recording(respondent.gender, request.POST['RecordingUrl'])
+    return HttpResponse()
 
 
 @csrf_exempt

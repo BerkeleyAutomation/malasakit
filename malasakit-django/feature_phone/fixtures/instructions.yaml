@@ -37,3 +37,31 @@
     language: en
     text:
       Now, please submit your own suggestion.
+- model: feature_phone.instructions
+  pk: 6
+  fields:
+    key: personal-information-directions
+    language: en
+    text:
+      Finally, we would like to learn a bit about you.
+      You may skip these questions if you prefer not to answer by pressing the pound sign.
+- model: feature_phone.instructions
+  pk: 7
+  fields:
+    key: age-prompt
+    language: en
+    text: What is your age?
+- model: feature_phone.instructions
+  pk: 8
+  fields:
+    key: gender-prompt
+    language: en
+    text: What is your gender?
+- model: feature_phone.instructions
+  pk: 9
+  fields:
+    key: thanks
+    language: en
+    text:
+      We appreciate your input.
+      Thank you for participating in Malasakit.

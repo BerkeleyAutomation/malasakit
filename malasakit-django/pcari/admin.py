@@ -323,12 +323,14 @@ def export_to_feature_phone(modeladmin, request, queryset):
         for language, _ in settings.LANGUAGES:
             components = [question._meta.label_lower.replace('.', '-'),
                           unicode(question.pk), language]
-            phone_models.Question.objects.create(
+            phone_models.Question.objects.get_or_create(
                 key= '-'.join(components),
-                text=translate(question.prompt, language),
-                language=language,
-                related_object_type=ContentType.objects.get_for_model(question),
-                related_object=question,
+                defaults={
+                  'text': translate(question.prompt, language),
+                  'language': language,
+                  'related_object_type': ContentType.objects.get_for_model(question),
+                  'related_object': question,
+                }
             )
 export_to_feature_phone.short_description = 'Export to feature phone application'
 

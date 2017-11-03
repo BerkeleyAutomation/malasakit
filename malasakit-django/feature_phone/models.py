@@ -194,10 +194,13 @@ class Respondent(models.Model):
         related_object: Ties the respondent with the corresponding database
             object from v1.25
     """
+    age_url = models.URLField(blank=True, default='')
     age = models.FileField(upload_to='respondent/age/', null=True, blank=True,
                            default=None)
+    gender_url = models.URLField(blank=True, default='')
     gender = models.FileField(upload_to='respondent/gender/', null=True,
                               blank=True, default=None)
+    location_url = models.URLField(blank=True, default='')
     location = models.FileField(upload_to='respondent/location/', null=True,
                                 blank=True, default=None)
     language = models.CharField(max_length=8, choices=settings.LANGUAGES,
