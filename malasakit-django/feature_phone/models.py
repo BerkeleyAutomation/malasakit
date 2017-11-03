@@ -153,7 +153,7 @@ class Response(Recording, RelatedObjectMixin):
     timestamp = models.DateTimeField(auto_now_add=True)
     respondent = models.ForeignKey('Respondent', on_delete=models.CASCADE,
                                    related_name='responses')
-    url = models.URLField(blank=True, default='')
+    url = models.URLField(blank=True, default='', verbose_name='URL')
     prompt_type = models.ForeignKey(
         ContentType,
         limit_choices_to=models.Q(app_label='feature_phone', model='question')
@@ -194,13 +194,14 @@ class Respondent(models.Model):
         related_object: Ties the respondent with the corresponding database
             object from v1.25
     """
-    age_url = models.URLField(blank=True, default='')
+    age_url = models.URLField(blank=True, default='', verbose_name='Age Recording URL')
     age = models.FileField(upload_to='respondent/age/', null=True, blank=True,
                            default=None)
-    gender_url = models.URLField(blank=True, default='')
+    gender_url = models.URLField(blank=True, default='', verbose_name='Gender Recording URL')
     gender = models.FileField(upload_to='respondent/gender/', null=True,
                               blank=True, default=None)
-    location_url = models.URLField(blank=True, default='')
+    location_url = models.URLField(blank=True, default='',
+                                   verbose_name='Location Recording URL')
     location = models.FileField(upload_to='respondent/location/', null=True,
                                 blank=True, default=None)
     language = models.CharField(max_length=8, choices=settings.LANGUAGES,

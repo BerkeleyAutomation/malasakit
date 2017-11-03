@@ -11,9 +11,9 @@ https://twilio.github.io/twilio-python/6.5.0/twiml/
 import os
 import random
 import requests
-import urllib
+from urllib2 import urlopen
 
-from django.core.files import File
+from django.core.files.base import ContentFile
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -81,9 +81,9 @@ def play_recording(response, recording):
 
 
 def fetch_recording(file_field, url):
-    filename, _ = urllib.urlretrieve(url)
-    with open(filename, 'wb+') as audio_file:
-        file_field.save(os.path.basename(url), File(audio_file))
+    response = urlopen(url)
+    buffer = ContentFile(response.read())
+    file_field.save(os.path.basename(url), buffer, save=True)
 
 
 def make_response(respondent, prompt, related_object):
@@ -130,7 +130,7 @@ def landing(request):
 @require_POST
 def quantitative_questions(request):
     question_type = ContentType.objects.get_for_model(web_models.QuantitativeQuestion)
-    request.session['index'] = 8
+    request.session['index'] = 0
     request.session['obj-keys'] = fetch_question_pks(question_type)
 
     response = VoiceResponse()
@@ -206,7 +206,7 @@ def download_recording(request):
 @require_POST
 def comments(request):
     response = VoiceResponse()
-    request.session['index'] = 8
+    request.session['index'] = 0
     request.session['obj-keys'] = [comment['pk'] for comment in select_comments()]
     play_recording(response, Instructions.objects.get(key='rate-comments-directions'))
     response.pause(1)
