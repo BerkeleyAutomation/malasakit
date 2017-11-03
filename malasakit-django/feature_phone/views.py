@@ -72,10 +72,34 @@ def play_recording(response, recording):
         response.say(recording.text)
 
 
-def save_recording(file_field, url):
+def download_recording(file_field, url):
     filename, _ = urllib.urlretrieve(url)
     with open(filename, 'wb+') as audio_file:
         file_field.save(os.path.basename(url), File(audio_file))
+
+
+def make_response(respondent, prompt, related_object):
+    return Response.objects.create(
+        respondent=respondent,
+        prompt_type=ContentType.objects.get_for_model(prompt.__class__),
+        prompt_id=prompt.pk,
+        related_object_type=ContentType.objects.get_for_model(related_object.__class__),
+        related_object_id=related_object.pk,
+    )
+
+
+def transcribe_rating(voice_response, text=''):
+    voice_response.text = text
+    voice_response.save()
+
+    rating = voice_response.related_object
+    if rating:
+        if voice_response.text.isdigit():
+            rating.score = int(voice_response.text)
+            rating.save()
+        elif voice_response.text == SKIP_QUESTION_DIGIT:
+            rating.score = rating.SKIPPED
+            rating.save()
 
 
 @csrf_exempt
@@ -144,24 +168,10 @@ def process_quantitative_response(request):
         question=question.related_object,
         respondent=respondent.related_object,
     )
-    voice_response = Response.objects.create(
-        respondent=respondent,
-        prompt_type=ContentType.objects.get_for_model(Question),
-        prompt_id=question_pk,
-        text=digit,
-        url=request.POST['RecordingUrl'],
-        related_object_type=ContentType.objects.get_for_model(
-            web_models.QuantitativeQuestion
-        ),
-        related_object=rating,
-    )
-
-    if voice_response.text.isdigit():
-        rating.score = int(voice_response.text)
-        rating.save()
-    elif voice_response.text == SKIP_QUESTION_DIGIT:
-        rating.score = rating.SKIPPED
-        rating.save()
+    voice_response = make_response(respondent, question, rating)
+    transcribe_rating(voice_response, digit)
+    voice_response.url = request.POST['RecordingUrl']
+    voice_response.save()
     return HttpResponse(response)
 
 
@@ -171,8 +181,8 @@ def process_quantitative_recording(request):
     if 'RecordingUrl' in request.POST:
         try:
             url = request.POST['RecordingUrl']
-            response = Response.objects.get(url=url)
-            save_recording(response.recording, url)
+            voice_response = Response.objects.get(url=url)
+            download_recording(voice_response.recording, url)
         except Response.DoesNotExist:
             pass
     return HttpResponse()
