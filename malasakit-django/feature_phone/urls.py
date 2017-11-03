@@ -24,6 +24,7 @@ urlpatterns = [
         name='process-quantitative-response'),
     url(r'process-quantitative-recording/$', views.process_quantitative_recording,
         name='process-quantitative-recording'),
+    url(r'comments/$', views.comments, name='comments'),
     url(r'error/$', views.error, name='error'),
 ]
 

@@ -28,7 +28,8 @@ from twilio.twiml.voice_response import VoiceResponse
 
 from feature_phone.models import Respondent, Question, Response, Instructions
 from pcari import models as web_models
-from pcari.views import DEFAULT_COMMENT_LIMIT
+from pcari.views import DEFAULT_STANDARD_ERROR
+from pcari.views import DEFAULT_LANGUAGE, DEFAULT_COMMENT_LIMIT
 from pcari.models import QuantitativeQuestion, QualitativeQuestion
 from pcari.models import Comment, CommentRating, QuantitativeQuestionRating
 from pcari.models import get_concrete_fields
@@ -37,16 +38,21 @@ REPLAY_QUESTION_DIGIT = '*'
 SKIP_QUESTION_DIGIT = '#'
 
 
-def select_comments():
-    comment_content_type = ContentType.objects.get(app_label='pcari', model='comment')
-    voice_responses = Response.objects.filter(related_object_type=comment_content_type)
-    comment_ids = list(voice_responses.values_list('related_object_id', flat=True))
-    comment_ids = random.sample(comment_ids, min(len(comment_ids), DEFAULT_COMMENT_LIMIT))
-    comments = list(Comment.objects.filter(id__in=comment_ids))
-    if comments:
-        standard_errors = np.array([comment.score_sem for comment in comments])
-        probabilities = standard_errors/np.sum(standard_errors)
-        return np.random.choice(comments, size=8, replace=False, p=probabilities)
+def select_comments(num_to_select=2):
+    # TODO: add comment selection for those without backreferences
+    comments = web_models.Comment.objects.filter(language=get_language() or DEFAULT_LANGUAGE)
+    comment_data = comments.values('pk', 'message', 'score_sem')
+    if not comment_data:
+        return []
+
+    standard_errors = [comment['score_sem'] for comment in comment_data]
+    standard_errors = np.array([
+        (error if error is not None else DEFAULT_STANDARD_ERROR)
+        for error in standard_errors
+    ])
+    probabilities = standard_errors/np.sum(standard_errors)
+    return np.random.choice(comment_data, size=num_to_select, replace=False,
+                            p=probabilities)
 
 
 def fetch_question_pks(question_type):
@@ -113,7 +119,7 @@ def landing(request):
 
     response = VoiceResponse()
     play_recording(response, Instructions.objects.get(key='welcome'))
-    response.pause(1)
+    response.pause(0.5)
     response.redirect(reverse('feature_phone:quantitative-questions'))
     return HttpResponse(response)
 
@@ -122,9 +128,12 @@ def landing(request):
 @require_POST
 def quantitative_questions(request):
     question_type = ContentType.objects.get(app_label='pcari', model='quantitativequestion')
-    request.session['quantitative-question-pks'] = fetch_question_pks(question_type)
+    request.session['index'] = 0
+    request.session['obj-keys'] = fetch_question_pks(question_type)
     response = VoiceResponse()
     play_recording(response, Instructions.objects.get(key='quantitative-question-directions'))
+    response.pause(0.5)
+    play_recording(response, Instructions.objects.get(key='rating-controls'))
     response.pause(1)
     response.redirect(reverse('feature_phone:ask-quantitative-question'))
     return HttpResponse(response)
@@ -134,12 +143,13 @@ def quantitative_questions(request):
 @require_POST
 def ask_quantitative_question(request):
     response = VoiceResponse()
-    if not request.session['quantitative-question-pks']:
-        del request.session['quantitative-question-pks']
-        response.say('Thank you for your time.')
+    index, question_pks = request.session['index'], request.session['obj-keys']
+    if index >= len(question_pks):
+        response.redirect(reverse('feature_phone:comments'))
         return HttpResponse(response)
 
-    question = Question.objects.get(pk=request.session['quantitative-question-pks'][0])
+    question = Question.objects.get(pk=question_pks[index])
+    response.say('Question {} of {}.'.format(index + 1, len(question_pks)))
     play_recording(response, question)
     response.record(action=reverse('feature_phone:process-quantitative-response'),
                     finish_on_key='0123456789*#', max_length=30, play_beep=True,
@@ -159,9 +169,8 @@ def process_quantitative_response(request):
     if digit == REPLAY_QUESTION_DIGIT:
         return HttpResponse(response)
 
-    question_pk = request.session['quantitative-question-pks'].pop(0)
-    question = Question.objects.get(pk=question_pk)
-    request.session.modified = True
+    index = request.session['index']
+    question = Question.objects.get(pk=request.session['obj-keys'][index])
 
     respondent = Respondent.objects.get(pk=request.session['respondent-pk'])
     rating = web_models.QuantitativeQuestionRating.objects.create(
@@ -172,6 +181,7 @@ def process_quantitative_response(request):
     transcribe_rating(voice_response, digit)
     voice_response.url = request.POST['RecordingUrl']
     voice_response.save()
+    request.session['index'] += 1
     return HttpResponse(response)
 
 
@@ -183,9 +193,43 @@ def process_quantitative_recording(request):
             url = request.POST['RecordingUrl']
             voice_response = Response.objects.get(url=url)
             download_recording(voice_response.recording, url)
+            voice_response.save()
         except Response.DoesNotExist:
             pass
     return HttpResponse()
+
+
+@csrf_exempt
+@require_POST
+def comments(request):
+    response = VoiceResponse()
+    request.session['index'] = 0
+    request.session['obj-keys'] = [comment['pk'] for comment in select_comments()]
+    play_recording(response, Instructions.objects.get(key='rate-comments-directions'))
+    response.pause(0.5)
+    play_recording(response, Instructions.objects.get(key='ratings-controls'))
+    response.pause(1)
+    # response.redirect(reverse('feature_phone'))
+    return HttpResponse(response)
+
+
+@csrf_exempt
+@require_POST
+def play_comment(request):
+    response = VoiceResponse()
+    comment_pks = request.session['obj-keys']
+    if index >= len(comment_pks):
+        # response.redirect(reverse('feature_phone:comments'))
+        response.say('Thank you for your time.')
+        return HttpResponse(response)
+
+    comment = web_models.Comment.objects.get(pk=comment_pks[index])
+    #question = Response.objects.get(pk=request.session['comment-pks'][0])
+    #play_recording(response, question)
+    #response.record(action=reverse('feature_phone:process-quantitative-response'),
+    #                finish_on_key='0123456789*#', max_length=30, play_beep=True,
+    #                recording_status_callback=reverse('feature_phone:process-quantitative-recording'))
+    return HttpResponse(response)
 
 
 @csrf_exempt

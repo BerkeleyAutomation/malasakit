@@ -13,4 +13,20 @@
     language: en
     text:
       In a few moments, we will ask you to rate several statements on a numerical scale.
-      You may either use your phone's keypad or speak your response.
+      You may either use your phone's keypad or speak your response after a tone plays.
+- model: feature_phone.instructions
+  pk: 3
+  fields:
+    key: rating-controls
+    language: en
+    text:
+      To listen to a question again, press the asterisk sign on your phone's keypad.
+      To skip any question, press the pound sign.
+- model: feature_phone.instructions
+  pk: 4
+  fields:
+    key: rate-comments-directions
+    language: en
+    text:
+      Now, we will play suggestions submitted made by others members of your community.
+      Please rate each statement as before.
