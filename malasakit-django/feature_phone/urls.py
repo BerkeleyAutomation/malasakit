@@ -22,9 +22,12 @@ urlpatterns = [
         name='ask-quantitative-question'),
     url(r'process-quantitative-response/$', views.process_quantitative_response,
         name='process-quantitative-response'),
-    url(r'process-quantitative-recording/$', views.process_quantitative_recording,
-        name='process-quantitative-recording'),
+    url(r'download-recording/$', views.download_recording,
+        name='download-recording'),
     url(r'comments/$', views.comments, name='comments'),
+    url(r'play-comment/$', views.play_comment, name='play-comment'),
+    url(r'process-comment-rating/$', views.process_comment_rating,
+        name='process-comment-rating'),
     url(r'error/$', views.error, name='error'),
 ]
 

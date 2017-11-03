@@ -39,8 +39,10 @@ SKIP_QUESTION_DIGIT = '#'
 
 
 def select_comments(num_to_select=2):
-    # TODO: add comment selection for those without backreferences
-    comments = web_models.Comment.objects.filter(language=get_language() or DEFAULT_LANGUAGE)
+    # TODO: add comment selection for those without backreferences, fix filter (strip whitespace)
+    comments = web_models.Comment.objects.filter(
+        language=get_language() or DEFAULT_LANGUAGE,
+    ).exclude(message='')
     comment_data = comments.values('pk', 'message', 'score_sem')
     if not comment_data:
         return []
@@ -51,8 +53,8 @@ def select_comments(num_to_select=2):
         for error in standard_errors
     ])
     probabilities = standard_errors/np.sum(standard_errors)
-    return np.random.choice(comment_data, size=num_to_select, replace=False,
-                            p=probabilities)
+    return list(np.random.choice(comment_data, size=num_to_select, replace=False,
+                                 p=probabilities))
 
 
 def fetch_question_pks(question_type):
@@ -78,7 +80,7 @@ def play_recording(response, recording):
         response.say(recording.text)
 
 
-def download_recording(file_field, url):
+def fetch_recording(file_field, url):
     filename, _ = urllib.urlretrieve(url)
     with open(filename, 'wb+') as audio_file:
         file_field.save(os.path.basename(url), File(audio_file))
@@ -187,12 +189,12 @@ def process_quantitative_response(request):
 
 @csrf_exempt
 @require_POST
-def process_quantitative_recording(request):
+def download_recording(request):
     if 'RecordingUrl' in request.POST:
         try:
             url = request.POST['RecordingUrl']
             voice_response = Response.objects.get(url=url)
-            download_recording(voice_response.recording, url)
+            fetch_recording(voice_response.recording, url)
             voice_response.save()
         except Response.DoesNotExist:
             pass
@@ -206,10 +208,8 @@ def comments(request):
     request.session['index'] = 0
     request.session['obj-keys'] = [comment['pk'] for comment in select_comments()]
     play_recording(response, Instructions.objects.get(key='rate-comments-directions'))
-    response.pause(0.5)
-    play_recording(response, Instructions.objects.get(key='ratings-controls'))
     response.pause(1)
-    # response.redirect(reverse('feature_phone'))
+    response.redirect(reverse('feature_phone:play-comment'))
     return HttpResponse(response)
 
 
@@ -217,18 +217,56 @@ def comments(request):
 @require_POST
 def play_comment(request):
     response = VoiceResponse()
-    comment_pks = request.session['obj-keys']
+    index, comment_pks = request.session['index'], request.session['obj-keys']
     if index >= len(comment_pks):
-        # response.redirect(reverse('feature_phone:comments'))
         response.say('Thank you for your time.')
+        # response.redirect(reverse('feature_phone:'))
         return HttpResponse(response)
 
-    comment = web_models.Comment.objects.get(pk=comment_pks[index])
-    #question = Response.objects.get(pk=request.session['comment-pks'][0])
-    #play_recording(response, question)
-    #response.record(action=reverse('feature_phone:process-quantitative-response'),
-    #                finish_on_key='0123456789*#', max_length=30, play_beep=True,
-    #                recording_status_callback=reverse('feature_phone:process-quantitative-recording'))
+    response.say('Comment {} of {}.'.format(index + 1, len(comment_pks)))
+    try:
+        comment = Response.objects.get(related_object_id=comment_pks[index])
+        play_recording(response, comment)
+    except Response.DoesNotExist:
+        comment = web_models.Comment.objects.get(pk=comment_pks[index])
+        response.say(comment.message)
+    response.record(action=reverse('feature_phone:process-comment-rating'),
+                    finish_on_key='0123456789*#', max_length=30, play_beep=True,
+                    recording_status_callback=reverse('feature_phone:download-recording'))
+    return HttpResponse(response)
+
+
+@csrf_exempt
+@require_POST
+def process_comment_rating(request):
+    response = VoiceResponse()
+    response.redirect(reverse('feature_phone:play-comment'))
+
+    digit = request.POST.get('Digits', '')
+    if digit == 'hangup':
+        return HttpResponse()
+    if digit == REPLAY_QUESTION_DIGIT:
+        return HttpResponse(response)
+
+    index = request.session['index']
+    respondent = Respondent.objects.get(pk=request.session['respondent-pk'])
+    comment = web_models.Comment.objects.get(pk=request.session['obj-keys'][index])
+    comment, _ = Response.objects.get_or_create(related_object_id=comment.pk, defaults={
+        'respondent': respondent,
+        'prompt_type': ContentType.objects.get_for_model(Question),
+        'related_object_type': ContentType.objects.get_for_model(web_models.Comment),
+    })
+
+    rating = web_models.CommentRating.objects.create(
+        comment=comment.related_object,
+        respondent=respondent.related_object,
+    )
+    voice_response = make_response(respondent, comment, rating)
+    transcribe_rating(voice_response, digit)
+    voice_response.url = request.POST['RecordingUrl']
+    voice_response.save()
+
+    request.session['index'] += 1
     return HttpResponse(response)
 
 
