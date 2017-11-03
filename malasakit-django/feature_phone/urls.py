@@ -28,6 +28,11 @@ urlpatterns = [
     url(r'play-comment/$', views.play_comment, name='play-comment'),
     url(r'process-comment-rating/$', views.process_comment_rating,
         name='process-comment-rating'),
+    url(r'qualitative-questions/$', views.qualitative_questions,
+        name='qualitative-questions'),
+    url(r'ask-qualitative-question/$', views.ask_qualitative_question,
+        name='ask-qualitative-question'),
+    url(r'process-comment/$', views.process_comment, name='process-comment'),
     url(r'error/$', views.error, name='error'),
 ]
 

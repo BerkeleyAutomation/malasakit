@@ -30,3 +30,10 @@
     text:
       Now, we will play suggestions submitted by others members of your community.
       Please rate each statement as before.
+- model: feature_phone.instructions
+  pk: 5
+  fields:
+    key: qualitative-question-directions
+    language: en
+    text:
+      Now, please submit your own suggestion.

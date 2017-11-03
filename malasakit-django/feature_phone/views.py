@@ -129,9 +129,10 @@ def landing(request):
 @csrf_exempt
 @require_POST
 def quantitative_questions(request):
-    question_type = ContentType.objects.get(app_label='pcari', model='quantitativequestion')
-    request.session['index'] = 0
+    question_type = ContentType.objects.get_for_model(web_models.QuantitativeQuestion)
+    request.session['index'] = 8
     request.session['obj-keys'] = fetch_question_pks(question_type)
+
     response = VoiceResponse()
     play_recording(response, Instructions.objects.get(key='quantitative-question-directions'))
     response.pause(0.5)
@@ -155,7 +156,7 @@ def ask_quantitative_question(request):
     play_recording(response, question)
     response.record(action=reverse('feature_phone:process-quantitative-response'),
                     finish_on_key='0123456789*#', max_length=30, play_beep=True,
-                    recording_status_callback=reverse('feature_phone:process-quantitative-recording'))
+                    recording_status_callback=reverse('feature_phone:download-recording'))
     return HttpResponse(response)
 
 
@@ -205,7 +206,7 @@ def download_recording(request):
 @require_POST
 def comments(request):
     response = VoiceResponse()
-    request.session['index'] = 0
+    request.session['index'] = 8
     request.session['obj-keys'] = [comment['pk'] for comment in select_comments()]
     play_recording(response, Instructions.objects.get(key='rate-comments-directions'))
     response.pause(1)
@@ -219,8 +220,7 @@ def play_comment(request):
     response = VoiceResponse()
     index, comment_pks = request.session['index'], request.session['obj-keys']
     if index >= len(comment_pks):
-        response.say('Thank you for your time.')
-        # response.redirect(reverse('feature_phone:'))
+        response.redirect(reverse('feature_phone:qualitative-questions'))
         return HttpResponse(response)
 
     response.say('Comment {} of {}.'.format(index + 1, len(comment_pks)))
@@ -266,6 +266,67 @@ def process_comment_rating(request):
     voice_response.url = request.POST['RecordingUrl']
     voice_response.save()
 
+    request.session['index'] += 1
+    return HttpResponse(response)
+
+
+@csrf_exempt
+@require_POST
+def qualitative_questions(request):
+    question_type = ContentType.objects.get_for_model(web_models.QualitativeQuestion)
+    request.session['index'] = 0
+    request.session['obj-keys'] = fetch_question_pks(question_type)
+
+    response = VoiceResponse()
+    play_recording(response, Instructions.objects.get(key='qualitative-question-directions'))
+    response.pause(0.5)
+    response.redirect(reverse('feature_phone:ask-qualitative-question'))
+    return HttpResponse(response)
+
+
+@csrf_exempt
+@require_POST
+def ask_qualitative_question(request):
+    response = VoiceResponse()
+    index, question_pks = request.session['index'], request.session['obj-keys']
+    if index >= len(question_pks):
+        response.say('Thank you for your time.')
+        # response.redirect(reverse('feature_phone:comments'))
+        return HttpResponse(response)
+
+    question = Question.objects.get(pk=question_pks[index])
+    play_recording(response, question)
+    response.record(action=reverse('feature_phone:process-comment'),
+                    finish_on_key='0123456789*#', max_length=60, play_beep=True,
+                    recording_status_callback=reverse('feature_phone:download-recording'))
+    return HttpResponse(response)
+
+
+@csrf_exempt
+@require_POST
+def process_comment(request):
+    response = VoiceResponse()
+    response.redirect(reverse('feature_phone:ask-qualitative-question'))
+
+    digit = request.POST.get('Digits', '')
+    if digit == 'hangup':
+        return HttpResponse()
+    if digit == REPLAY_QUESTION_DIGIT:
+        return HttpResponse(response)
+
+    index = request.session['index']
+    question = Question.objects.get(pk=request.session['obj-keys'][index])
+
+    respondent = Respondent.objects.get(pk=request.session['respondent-pk'])
+    comment = web_models.Comment.objects.create(
+        question=question.related_object,
+        respondent=respondent.related_object,
+        language=get_language() or '',
+    )
+    voice_response = make_response(respondent, question, comment)
+    transcribe_rating(voice_response, digit)
+    voice_response.url = request.POST['RecordingUrl']
+    voice_response.save()
     request.session['index'] += 1
     return HttpResponse(response)
 
