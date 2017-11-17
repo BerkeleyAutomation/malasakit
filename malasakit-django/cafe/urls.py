@@ -55,12 +55,12 @@ urlpatterns = [
 ]
 
 # Translate all `pcari` urls
+urlpatterns += i18n_patterns(url(r'^feature-phone/', include('feature_phone.urls')))
 urlpatterns += i18n_patterns(url(r'^', include('pcari.urls')))
 urlpatterns += [
     url(r'^$', RedirectView.as_view(url=reverse('pcari:landing')),
         name='to-landing'),
 ]
-urlpatterns += i18n_patterns(url(r'^feature-phone/', include('feature_phone.urls')))
 
 # Serve media files in development
 if settings.DEBUG:

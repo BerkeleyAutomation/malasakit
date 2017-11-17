@@ -154,7 +154,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-HTML_MINIFY = not DEBUG
+HTML_MINIFY = True or not DEBUG
 
 # Custom setting that should be `True` to enable service workers for offline functionality
 SERVICE_WORKERS = True
