@@ -65,3 +65,11 @@
     text:
       We appreciate your input.
       Thank you for participating in Malasakit.
+- model: feature_phone.instructions
+  pk: 10
+  fields:
+    key: select-language
+    language: en
+    text:
+      Welcome to Malasakit.
+      If you would like to proceed using English, press zero.

@@ -33,9 +33,13 @@ from pcari.views import DEFAULT_LANGUAGE, DEFAULT_COMMENT_LIMIT
 from pcari.models import QuantitativeQuestion, QualitativeQuestion
 from pcari.models import Comment, CommentRating, QuantitativeQuestionRating
 from pcari.models import get_concrete_fields
+from pcari.temmplatetags.localize_url import localize_url
 
 REPLAY_QUESTION_DIGIT = '*'
 SKIP_QUESTION_DIGIT = '#'
+KEY_TO_LANGUAGE = {
+    '0': 'en',
+}
 
 
 def select_comments(num_to_select=2):
@@ -112,6 +116,27 @@ def transcribe_rating(voice_response, text=''):
 
 @csrf_exempt
 @require_POST
+def select_language(request):
+    """ Prompts the user to select a language. """
+    response = VoiceResponse()
+    for prompt in Instructions.objects.filter(key='select-language'):
+        play_recording(response, prompt)
+    response.gather(action=reverse('feature_phone:redirect-to-landing'),
+                    finish_on_key='0123456789', num_digits=1)
+    return HttpResponse(response)
+
+
+@csrf_exempt
+@require_POST
+def redirect_to_landing(request):
+    response = VoiceResponse()
+    select_language = KEY_TO_LANGUAGE.get(request['Digit']) or settings.LANGUAGE_CODE
+    response.redirect(localize_url(request.get_full_path(), selected_language))
+    return HttpResponse(response)
+
+
+@csrf_exempt
+@require_POST
 def landing(request):
     """ The landing endpoint plays a welcome message and initializes the session. """
     if 'respondent-pk' not in request.session:
@@ -120,7 +145,7 @@ def landing(request):
         request.session['respondent-pk'] = respondent.pk
 
     response = VoiceResponse()
-    play_recording(response, Instructions.objects.get(key='welcome'))
+    play_recording(response, Instructions.objects.get(key='welcome', language=get_language()))
     response.pause(0.5)
     response.redirect(reverse('feature_phone:quantitative-questions'))
     return HttpResponse(response)
@@ -134,9 +159,11 @@ def quantitative_questions(request):
     request.session['obj-keys'] = fetch_question_pks(question_type)
 
     response = VoiceResponse()
-    play_recording(response, Instructions.objects.get(key='quantitative-question-directions'))
+    play_recording(response, Instructions.objects.get(key='quantitative-question-directions',
+                                                      language=get_language()))
     response.pause(0.5)
-    play_recording(response, Instructions.objects.get(key='rating-controls'))
+    play_recording(response, Instructions.objects.get(key='rating-controls',
+                                                      language=get_language()))
     response.pause(1)
     response.redirect(reverse('feature_phone:ask-quantitative-question'))
     return HttpResponse(response)
@@ -208,7 +235,8 @@ def comments(request):
     response = VoiceResponse()
     request.session['index'] = 0
     request.session['obj-keys'] = [comment['pk'] for comment in select_comments()]
-    play_recording(response, Instructions.objects.get(key='rate-comments-directions'))
+    play_recording(response, Instructions.objects.get(key='rate-comments-directions',
+                                                      language=get_language()))
     response.pause(1)
     response.redirect(reverse('feature_phone:play-comment'))
     return HttpResponse(response)
@@ -278,7 +306,8 @@ def qualitative_questions(request):
     request.session['obj-keys'] = fetch_question_pks(question_type)
 
     response = VoiceResponse()
-    play_recording(response, Instructions.objects.get(key='qualitative-question-directions'))
+    play_recording(response, Instructions.objects.get(key='qualitative-question-directions',
+                                                      language=get_language()))
     response.pause(0.5)
     response.redirect(reverse('feature_phone:ask-qualitative-question'))
     return HttpResponse(response)
@@ -334,9 +363,11 @@ def process_comment(request):
 @require_POST
 def ask_age(request):
     response = VoiceResponse()
-    play_recording(response, Instructions.objects.get(key='personal-information-directions'))
+    play_recording(response, Instructions.objects.get(key='personal-information-directions',
+                                                      language=get_language()))
     response.pause(1)
-    play_recording(response, Instructions.objects.get(key='age-prompt'))
+    play_recording(response, Instructions.objects.get(key='age-prompt',
+                                                      language=get_language()))
     response.record(action=reverse('feature_phone:process-age'),
                     finish_on_key=SKIP_QUESTION_DIGIT, max_length=30, play_beep=True,
                     recording_status_callback=reverse('feature_phone:record-age'))
@@ -360,7 +391,8 @@ def process_age(request):
 def ask_gender(request):
     response = VoiceResponse()
     response.pause(0.5)
-    play_recording(response, Instructions.objects.get(key='gender-prompt'))
+    play_recording(response, Instructions.objects.get(key='gender-prompt',
+                                                      language=get_language()))
     response.record(action=reverse('feature_phone:process-gender'),
                     finish_on_key=SKIP_QUESTION_DIGIT, max_length=30, play_beep=True,
                     recording_status_callback=reverse('feature_phone:record-gender'))
@@ -386,7 +418,8 @@ def end(request):
     del request.session['index']
     del request.session['obj-keys']
     response = VoiceResponse()
-    play_recording(response, Instructions.objects.get(key='thanks'))
+    play_recording(response, Instructions.objects.get(key='thanks',
+                                                      language=get_language()))
     response.hangup()
     return HttpResponse(response)
 

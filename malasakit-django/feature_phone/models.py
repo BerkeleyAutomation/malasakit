@@ -99,7 +99,7 @@ class Instructions(Recording):
     """
     MAX_TEXT_DISPLAY_LENGTH = 140
 
-    key = models.SlugField(unique=True)
+    key = models.SlugField()
     language = models.CharField(max_length=8, choices=settings.LANGUAGES,
                                 blank=True, default='',
                                 validators=[LANGUAGE_VALIDATOR])
@@ -112,6 +112,7 @@ class Instructions(Recording):
 
     class Meta:
         verbose_name_plural = 'instructions'
+        unique_together = ('key', 'language')
 
 
 class Question(Instructions, RelatedObjectMixin):

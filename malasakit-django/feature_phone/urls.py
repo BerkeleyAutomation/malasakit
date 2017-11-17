@@ -15,6 +15,8 @@ app_name = 'feature_phone'
 
 urlpatterns = [
     # User-facing views
+    url(r'select-language/$', views.select_language, name='select-language'),
+    url(r'redirect-to-landing/$', views.redirect_to_landing, name='redirect-to-landing'),
     url(r'landing/$', views.landing, name='landing'),
     url(r'quantitative-questions/$', views.quantitative_questions,
         name='quantitative-questions'),
