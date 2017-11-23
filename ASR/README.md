@@ -15,5 +15,10 @@ Usage of ASR:
 
 input: example.wav
 
-output: recognition/one-best-hypothesis.txt  (word)
-        recognition/recognized_digit.txt   (number equivalent of the word)
+output: recognition/output.txt
+
+output.txt is in this format: <recognized_digit> <confidence_value>
+
+confidence value ranges from 0 to 1
+
+issue: confidence value always outputs 1 so it needs to be calibrated
