@@ -122,7 +122,8 @@ def select_language(request):
     for prompt in Instructions.objects.filter(key='select-language'):
         play_recording(response, prompt)
     response.gather(action=reverse('feature_phone:redirect-to-landing'),
-                    finish_on_key='0123456789', num_digits=1)
+                    finish_on_key='0123456789', num_digits=1,
+                    timeout=settings.SPEECH_TIMEOUT)
     return HttpResponse(response)
 
 
@@ -183,7 +184,8 @@ def ask_quantitative_question(request):
     play_recording(response, question)
     response.record(action=reverse('feature_phone:process-quantitative-response'),
                     finish_on_key='0123456789*#', max_length=30, play_beep=True,
-                    recording_status_callback=reverse('feature_phone:download-recording'))
+                    recording_status_callback=reverse('feature_phone:download-recording'),
+                    timeout=settings.SPEECH_TIMEOUT)
     return HttpResponse(response)
 
 
@@ -260,7 +262,8 @@ def play_comment(request):
         response.say(comment.message)
     response.record(action=reverse('feature_phone:process-comment-rating'),
                     finish_on_key='0123456789*#', max_length=30, play_beep=True,
-                    recording_status_callback=reverse('feature_phone:download-recording'))
+                    recording_status_callback=reverse('feature_phone:download-recording'),
+                    timeout=settings.SPEECH_TIMEOUT)
     return HttpResponse(response)
 
 
@@ -326,7 +329,8 @@ def ask_qualitative_question(request):
     play_recording(response, question)
     response.record(action=reverse('feature_phone:process-comment'),
                     finish_on_key='0123456789*#', max_length=60, play_beep=True,
-                    recording_status_callback=reverse('feature_phone:download-recording'))
+                    recording_status_callback=reverse('feature_phone:download-recording'),
+                    timeout=settings.SPEECH_TIMEOUT)
     return HttpResponse(response)
 
 
@@ -370,7 +374,8 @@ def ask_age(request):
                                                       language=get_language()))
     response.record(action=reverse('feature_phone:process-age'),
                     finish_on_key=SKIP_QUESTION_DIGIT, max_length=30, play_beep=True,
-                    recording_status_callback=reverse('feature_phone:record-age'))
+                    recording_status_callback=reverse('feature_phone:record-age'),
+                    timeout=settings.SPEECH_TIMEOUT)
     return HttpResponse(response)
 
 
@@ -395,7 +400,8 @@ def ask_gender(request):
                                                       language=get_language()))
     response.record(action=reverse('feature_phone:process-gender'),
                     finish_on_key=SKIP_QUESTION_DIGIT, max_length=30, play_beep=True,
-                    recording_status_callback=reverse('feature_phone:record-gender'))
+                    recording_status_callback=reverse('feature_phone:record-gender'),
+                    timeout=settings.SPEECH_TIMEOUT)
     return HttpResponse(response)
 
 

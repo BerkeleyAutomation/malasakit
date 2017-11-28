@@ -158,6 +158,7 @@ HTML_MINIFY = True or not DEBUG
 
 # Custom setting that should be `True` to enable service workers for offline functionality
 SERVICE_WORKERS = True
+SPEECH_TIMEOUT = 3  # in seconds
 
 LANGUAGES = (
     ('en', _('English')),
