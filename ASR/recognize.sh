@@ -40,12 +40,12 @@ gmm-latgen-faster --beam=$beam --lattice-beam=$lattice_beam \
 --acoustic-scale=$acwt --allow-partial=true --word-symbol-table=models/GMM-HMM/graph/words.txt \
 models/GMM-HMM/final.mdl models/GMM-HMM/graph/HCLG.fst "$feats" "ark,t:recognition/lattices.ark"
 
-lattice-to-ctm-conf --decode-mbr=false ark:recognition/lattices.ark recognition/alignments.ctm 
-
 lattice-best-path \
 --word-symbol-table=models/GMM-HMM/graph/words.txt \
 ark:recognition/lattices.ark \
 ark,t:recognition/one-best.tra
+
+. ./est_confidence.sh
 
 perl -x utils/int2sym.pl -f 2- \
 models/GMM-HMM/graph/words.txt \
@@ -55,8 +55,6 @@ recognition/one-best.tra \
 cat recognition/one-best-hypothesis.txt | cut -d ' ' -f 2 > recognition/recognized_word.txt
 . ./num2digits.sh $(cat "recognition/recognized_word.txt")> recognition/recognized_digit.txt
 
-cut -d  " " -f 6 recognition/alignments.ctm > recognition/confidence_value.txt
-
-paste -d " " recognition/recognized_digit.txt recognition/confidence_value.txt > recognition/output.txt
+paste -d " " recognition/recognized_digit.txt recognition/confidence_score.txt > recognition/output.txt
 
 rm -rf mfcc/raw_mfcc.scp mfcc/raw_mfcc.ark recognition/wav.scp recognition/lattices.ark recognition/one-best.tra recognition/one-best-hypothesis.txt recognition/recognized_word.txt recognition/feats.scp

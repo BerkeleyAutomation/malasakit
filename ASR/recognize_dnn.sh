@@ -40,22 +40,26 @@ ark,scp:mfcc/raw_mfcc.ark,mfcc/raw_mfcc.scp
 cat mfcc/raw_mfcc.scp > recognition/feats.scp
 
 feats="ark,s,cs:copy-feats ark:mfcc/raw_mfcc.ark  ark:- | splice-feats --left-context=3 --right-context=3 ark:- ark:- | transform-feats $feature_transform_1 ark:- ark:- |"
+#feats="scp:recognition/feats.scp"
 
 nnet-forward \
 --no-softmax=true --prior-scale=1.0 --feature-transform=$feature_transform --class-frame-counts=$class_frame_counts --use-gpu=false \
 "$nnet" "$feats" "ark:recognition/nnet_forward.ark"
+
 #latgen-faster-mapped \
 #--min-active=$min_active --max-active=$max_active -max-mem=$max_mem --beam=$beam --lattice-beam=$lattice_beam \
 #--acoustic-scale=$acwt --allow-partial=true --word-symbol-table=$word_symbol_table \
-#"$model" "$fst_graph" "ark:recognition/nnet_forward.ark" "ark,t:recognition/lattices.ark"
+#"$model" "$fst_graph" "ark:recognition/nnet_forward.ark" "ark,t:recognition/lattices.lats"
 
-latgen-faster-mapped "$model" "$fst_graph" "ark:recognition/nnet_forward.ark" "ark,t:recognition/lattices.ark"
+latgen-faster-mapped "$model" "$fst_graph" "ark:recognition/nnet_forward.ark" "ark,t:recognition/lattices.lats"
 
-lattice-to-ctm-conf --decode-mbr=true ark:recognition/lattices.ark recognition/alignments.ctm
+#nnet-latgen-faster --word-symbol-table=$word_symbol_table "$model" "$fst_graph" "$feats" "ark,t:recognition/lattices.lats"
+
+lattice-to-ctm-conf --decode-mbr=true ark:recognition/lattices.lats recognition/alignments.ctm
 
 lattice-best-path \
 --word-symbol-table=$word_symbol_table \
-ark:recognition/lattices.ark \
+ark:recognition/lattices.lats \
 ark,t:recognition/one-best.tra
 
 perl -x utils/int2sym.pl -f 2- \
