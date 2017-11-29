@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.25\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-02 18:06+0000\n"
+"POT-Creation-Date: 2017-11-29 20:47+0000\n"
 "PO-Revision-Date: 2017-07-03 20:00+0800\n"
 "Last-Translator: JEFFREY ANCHETA <jrancheta@national-u.edu.ph>\n"
 "Language-Team: FILIPINO\n"
@@ -66,6 +66,54 @@ msgid "How many weeks has it been since you participated in a disaster drill?"
 msgstr ""
 "Ilang linggo na ang lumipas mula nang nakilahok ka sa isang disaster drill?"
 
+#: QuantitativeQuestion.left_anchor:1
+msgid "I have not suffered at all."
+msgstr ""
+
+#: QuantitativeQuestion.left_anchor:2
+msgid "Not at all prepared."
+msgstr ""
+
+#: QuantitativeQuestion.left_anchor:3
+msgid "Not at all helpful."
+msgstr ""
+
+#: QuantitativeQuestion.left_anchor:4
+msgid "We have not talked about it."
+msgstr ""
+
+#: QuantitativeQuestion.left_anchor:6
+msgid "I am not confident my neighbors will help me after a typhoon."
+msgstr ""
+
+#: QuantitativeQuestion.left_anchor:7
+msgid "I am not confident our barangay will help very much."
+msgstr ""
+
+#: QuantitativeQuestion.right_anchor:1
+msgid "I have lost a home or loved one to a typhoon or flood."
+msgstr ""
+
+#: QuantitativeQuestion.right_anchor:2
+msgid "Very prepared."
+msgstr ""
+
+#: QuantitativeQuestion.right_anchor:3
+msgid "Very helpful."
+msgstr ""
+
+#: QuantitativeQuestion.right_anchor:4
+msgid "We have a plan and review it regularly."
+msgstr ""
+
+#: QuantitativeQuestion.right_anchor:6
+msgid "I strongly believe my neighbors will help me after a typhoon."
+msgstr ""
+
+#: QuantitativeQuestion.right_anchor:7
+msgid "I am confident our barangay will help us recover."
+msgstr ""
+
 #: QualitativeQuestion.prompt:1
 msgid "How could your Barangay help you better prepare for a disaster?"
 msgstr ""
@@ -80,25 +128,25 @@ msgstr "Ingles"
 msgid "Filipino"
 msgstr "Filipino"
 
-#: pcari/models.py:281
+#: pcari/models.py:267
 msgid "Score not in min and max bounds"
 msgstr ""
 "Paano ka matutulungan ng iyong barangay upang higit kang makapaghanda sa "
 "isang kalamidad?"
 
-#: pcari/models.py:484
+#: pcari/models.py:474
 #, fuzzy
 #| msgid "\"%(option)s\" is not a valid option"
 msgid "\"_options_text\" is not a JSON list of strings"
 msgstr "\"%(option)s\" ay wala sa mga pagpipilian"
 
-#: pcari/models.py:487
+#: pcari/models.py:477
 #, fuzzy
 #| msgid "\"%(option)s\" is not a valid option"
 msgid "\"_options_text\" must contain at least one option"
 msgstr "\"%(option)s\" ay wala sa mga pagpipilian"
 
-#: pcari/models.py:513
+#: pcari/models.py:503
 #, python-format
 msgid "\"%(option)s\" is not a valid option"
 msgstr "\"%(option)s\" ay wala sa mga pagpipilian"
@@ -455,9 +503,6 @@ msgstr "Walang mga kuwalitatibong katanungan sa oras na ito."
 
 #: pcari/templates/quantitative-questions.html:6
 #: pcari/templates/quantitative-questions.html:7
-msgid "Survey Questions"
-msgstr "Mga Katanungan sa Sarbey"
-
 msgid "Profile Questions"
 msgstr ""
 
@@ -546,6 +591,9 @@ msgid ""
 msgstr ""
 "Kasalukuyang nakararanas ng ilang isyu ang server. Mangyaring ipagbigay-alam "
 "agad ito sa mga tagapamahala."
+
+#~ msgid "Survey Questions"
+#~ msgstr "Mga Katanungan sa Sarbey"
 
 #~ msgid "You previously chose to skip this question."
 #~ msgstr "Dati mong linaktawan ang katanungang ito."
