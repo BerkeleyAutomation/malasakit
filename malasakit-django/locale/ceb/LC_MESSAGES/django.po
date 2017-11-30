@@ -1,5 +1,5 @@
-# English-Spanish Translations for Malasakit
-# Copyright (C) 2017 PCARI
+# English-Cebuano Translations for Malasakit
+# Copyright (C) 2017
 # This file is distributed under the same license as the `malasakit-v1` package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
 #
@@ -11,12 +11,11 @@ msgstr ""
 "POT-Creation-Date: 2017-11-30 08:54+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: SPANISH\n"
+"Language-Team: CEBUANO\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: QuantitativeQuestion.prompt:1
 msgid "I have suffered the consequence of a typhoon or flood."

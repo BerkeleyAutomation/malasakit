@@ -30,7 +30,7 @@ EXCLUDED_MODULES=\
 	$(DJANGO_PROJECT_ROOT)/pcari/test*\
 	$(DJANGO_PROJECT_ROOT)/pcari/urls.py
 
-LOCALES=tl es
+GET_LOCALE_CMD=./manage.py shell -c 'from django.conf import settings; print(" ".join(code for code, _ in settings.LANGUAGES if not code.startswith("en")))'
 
 CLEANTEXT_TARGETS=\
 	Comment.message\
@@ -69,6 +69,7 @@ compiledocs:
 	mv $(DOCS_BUILD_PATH)/build/html $(DOCS_PATH)
 
 preparetrans:
+	$(eval LOCALES=$(shell cd $(DJANGO_PROJECT_ROOT) && $(GET_LOCALE_CMD)))
 	$(eval LOCALE_FLAGS=$(shell for locale in $(LOCALES); do echo -n "--locale $$locale "; done))
 	cd $(DJANGO_PROJECT_ROOT) && ./manage.py makedbtrans -o locale/db.pot $(DB_TRANS_TARGETS)
 	cd $(DJANGO_PROJECT_ROOT) && ./manage.py makemessages $(LOCALE_FLAGS)
