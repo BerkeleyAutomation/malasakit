@@ -30,7 +30,7 @@ EXCLUDED_MODULES=\
 	$(DJANGO_PROJECT_ROOT)/pcari/test*\
 	$(DJANGO_PROJECT_ROOT)/pcari/urls.py
 
-LOCALES=tl
+LOCALES=tl es
 
 CLEANTEXT_TARGETS=\
 	Comment.message\
@@ -69,8 +69,9 @@ compiledocs:
 	mv $(DOCS_BUILD_PATH)/build/html $(DOCS_PATH)
 
 preparetrans:
+	$(eval LOCALE_FLAGS=$(shell for locale in $(LOCALES); do echo -n "--locale $$locale "; done))
 	cd $(DJANGO_PROJECT_ROOT) && ./manage.py makedbtrans -o locale/db.pot $(DB_TRANS_TARGETS)
-	cd $(DJANGO_PROJECT_ROOT) && ./manage.py makemessages --locale=$(LOCALES)
+	cd $(DJANGO_PROJECT_ROOT) && ./manage.py makemessages $(LOCALE_FLAGS)
 	rm -f $(DJANGO_PROJECT_ROOT)/locale/db.pot
 
 compiletrans:

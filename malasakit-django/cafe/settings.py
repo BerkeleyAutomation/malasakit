@@ -161,6 +161,7 @@ SERVICE_WORKERS = True
 LANGUAGES = (
     ('en', _('English')),
     ('tl', _('Filipino')),
+    ('es', _('Spanish')),
 )
 
 LOCALE_PATHS = (
