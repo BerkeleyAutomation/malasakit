@@ -28,12 +28,10 @@ from twilio.twiml.voice_response import VoiceResponse
 
 from feature_phone.models import Respondent, Question, Response, Instructions
 from pcari import models as web_models
-from pcari.views import DEFAULT_STANDARD_ERROR
-from pcari.views import DEFAULT_LANGUAGE, DEFAULT_COMMENT_LIMIT
 from pcari.models import QuantitativeQuestion, QualitativeQuestion
 from pcari.models import Comment, CommentRating, QuantitativeQuestionRating
 from pcari.models import get_concrete_fields
-from pcari.temmplatetags.localize_url import localize_url
+from pcari.templatetags.localize_url import localize_url
 
 REPLAY_QUESTION_DIGIT = '*'
 SKIP_QUESTION_DIGIT = '#'
@@ -45,7 +43,7 @@ KEY_TO_LANGUAGE = {
 def select_comments(num_to_select=2):
     # TODO: add comment selection for those without backreferences, fix filter (strip whitespace)
     comments = web_models.Comment.objects.filter(
-        language=get_language() or DEFAULT_LANGUAGE,
+        language=get_language() or settings.LANGUAGE_CODE,
     ).exclude(message='')
     comment_data = comments.values('pk', 'message', 'score_sem')
     if not comment_data:
@@ -53,7 +51,7 @@ def select_comments(num_to_select=2):
 
     standard_errors = [comment['score_sem'] for comment in comment_data]
     standard_errors = np.array([
-        (error if error is not None else DEFAULT_STANDARD_ERROR)
+        (error if error is not None else settings.DEFAULT_STANDARD_ERROR)
         for error in standard_errors
     ])
     probabilities = standard_errors/np.sum(standard_errors)
