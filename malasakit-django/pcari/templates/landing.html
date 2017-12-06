@@ -19,11 +19,15 @@
 {% block content %}
   <div>
     <p class="center">
+      {% trans 'How prepared are you in times of disaster?' %}
+    </p>
+    <p class="center">
       {% blocktrans trimmed %}
-        How prepared are you in times of disaster?
         {{ num_responses }} barangay citizens have responded.
-        Join them!
       {% endblocktrans %}
+    </p>
+    <p class="center">
+      {% trans 'Join them!' %}
     </p>
     <img src="{% static 'img/landing' %}">
   </div>

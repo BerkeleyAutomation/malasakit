@@ -1,7 +1,7 @@
-# English-Tagalog Translations for Malasakit
-# Copyright (C) 2017 PCARI
+# English-Cebuano Translations for Malasakit
+# Copyright (C) 2017
 # This file is distributed under the same license as the `malasakit-v1` package.
-# JEFFREY ANCHETA <jrancheta@national-u.edu.ph>, 2017.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
 #
 #, fuzzy
 msgid ""
@@ -9,9 +9,9 @@ msgstr ""
 "Project-Id-Version: 1.25\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-11-30 08:54+0000\n"
-"PO-Revision-Date: 2017-07-03 20:00+0800\n"
-"Last-Translator: JEFFREY ANCHETA <jrancheta@national-u.edu.ph>\n"
-"Language-Team: FILIPINO\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: CEBUANO\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -19,52 +19,43 @@ msgstr ""
 
 #: QuantitativeQuestion.prompt:1
 msgid "I have suffered the consequence of a typhoon or flood."
-msgstr "Dumanas ako ng matinding epekto ng bagyo o pagbaha."
+msgstr ""
 
 #: QuantitativeQuestion.prompt:2
 msgid "I feel prepared to handle a major typhoon right now."
-msgstr "Nararamdaman kong handa na akong harapin ngayon ang malakas na bagyo."
+msgstr ""
 
 #: QuantitativeQuestion.prompt:3
 msgid "The barangay’s typhoon Early Warning System is effective."
-msgstr "Epektibo ang Early Warning System ng barangay tuwing may bagyo."
+msgstr ""
 
 #: QuantitativeQuestion.prompt:4
 msgid ""
 "My family has identified a place to meet and ways to communicate in a "
 "disaster."
 msgstr ""
-"Tuwing may sakuna, may lugar na napagkasunduan ang aking pamilya kung saan "
-"magkikita-kita at may tinukoy kaming paraan ng komunikasyon."
 
 #: QuantitativeQuestion.prompt:5
 msgid ""
 "How many days of disaster supplies (e.g., canned food, bottled water, "
 "medicine) are immediately available to you in your home?"
 msgstr ""
-"Hanggang ilang araw tatagal ang naitabing gamit (gaya ng delata, inuming "
-"tubig, gamot) sa inyong tahanan kung may kalamidad?"
 
 #: QuantitativeQuestion.prompt:6
 msgid ""
 "I feel like I could count on my nearest neighbors for support when "
 "recovering from a major typhoon."
 msgstr ""
-"Nararamdaman kong maaasahan ko ang tulong ng aking mga kapitbahay sa muling "
-"pagbangon matapos ang malakas na bagyo."
 
 #: QuantitativeQuestion.prompt:7
 msgid ""
 "I believe our barangay will help my community repair and rebuild after a "
 "major typhoon."
 msgstr ""
-"Naniniwala akong tutulong ang aming barangay na muling maisaayos at maitayo "
-"ang aming pamayanan matapos ang malakas na bagyo."
 
 #: QuantitativeQuestion.prompt:8
 msgid "How many weeks has it been since you participated in a disaster drill?"
 msgstr ""
-"Ilang linggo na ang lumipas mula nang nakilahok ka sa isang disaster drill?"
 
 #: QuantitativeQuestion.left_anchor:1
 msgid "I have not suffered at all."
@@ -120,11 +111,11 @@ msgstr ""
 
 #: cafe/settings.py:162
 msgid "English"
-msgstr "Ingles"
+msgstr ""
 
 #: cafe/settings.py:163
 msgid "Filipino"
-msgstr "Filipino"
+msgstr ""
 
 #: cafe/settings.py:164
 msgid "Spanish"
@@ -141,29 +132,23 @@ msgstr ""
 #: pcari/models.py:267
 msgid "Score not in min and max bounds"
 msgstr ""
-"Paano ka matutulungan ng iyong barangay upang higit kang makapaghanda sa "
-"isang kalamidad?"
 
 #: pcari/models.py:474
-#, fuzzy
-#| msgid "\"%(option)s\" is not a valid option"
 msgid "\"_options_text\" is not a JSON list of strings"
-msgstr "\"%(option)s\" ay wala sa mga pagpipilian"
+msgstr ""
 
 #: pcari/models.py:477
-#, fuzzy
-#| msgid "\"%(option)s\" is not a valid option"
 msgid "\"_options_text\" must contain at least one option"
-msgstr "\"%(option)s\" ay wala sa mga pagpipilian"
+msgstr ""
 
 #: pcari/models.py:503
 #, python-format
 msgid "\"%(option)s\" is not a valid option"
-msgstr "\"%(option)s\" ay wala sa mga pagpipilian"
+msgstr ""
 
 #: pcari/templates/about.html:5 pcari/templates/about.html:6
 msgid "About CAFÉ"
-msgstr "Tungkol sa CAFÉ"
+msgstr ""
 
 #: pcari/templates/about.html:11
 msgid ""
@@ -174,13 +159,6 @@ msgid ""
 "engineering innovations in humanitarian assistance, solar energy, democracy "
 "and governance, and global health."
 msgstr ""
-"Sa pamamagitan ng suporta mula sa USAID and the Development Impact Lab at UC "
-"Berkeley, ang CITRIS Data and Democracy Initiative ay bumbuo ng isang bagong "
-"social media platform na tuwirang humihimok sa mga mamamayan at komunidad "
-"mula sa mga umuunlad na rehiyon upang kolektibong mataya ang mga kondisyon, "
-"pangangailangan, at mga kahihinatnang nauugnay sa makabagong-likha ng "
-"inhenyeriya sa makataong tulong, inerhiyang solar, demokrasya at pamamahala, "
-"at pandaigdigang kalusugan."
 
 #: pcari/templates/about.html:21
 msgid ""
@@ -196,19 +174,6 @@ msgid ""
 "facilitate interactions, CAFÉ will incorporate techniques from deliberative "
 "polling, collaborative filtering, and multidimensional visualization."
 msgstr ""
-"Hindi tulad sa mga botohan at mga sarbey na lubhang mahalaga para sa mga "
-"analyst, <a href=\"http://cafesystem.org/\" target=\"_blank\">CAFÉ</a> ay "
-"isang user-facing: ang CAFÉ platform ay magbibigay ng tuwiran at agarang "
-"visual feedback sa mga kalahok, na nagbibigay-daan upang agad nilang "
-"maunawaan kung saan sila pumapanig sa mga pangunahing isyu nang may "
-"paggalang sa iba pang mga kalahok at humihimok ng mga kuwalitatibong tugon "
-"na maaaring magpahusay sa pakikipag-ugnayan ng mga gumagamit. Tulad ng isang "
-"coffeehouse, nakikinita namin ang CAFÉ bilang isang grassroot, user-friendly "
-"at self-organizing nakapaligiran na nagbibigay-daan sa karunungan na "
-"matukoy, ma-highlight at maipakita ang mga pattern, kalakaran, at pananaw. "
-"Upang mapangasiwaan ang pakikipag-ugnayan, pinagsama ng CAFÉ ang mga teknik "
-"mula sa deliberative polling, collaborative filtering at multidimensional "
-"visualization."
 
 #: pcari/templates/about.html:37
 msgid ""
@@ -217,11 +182,6 @@ msgid ""
 "from around the world use it to organize, visualize, and analyze "
 "constructive suggestions on foreign policy:"
 msgstr ""
-"Ang Opinion Space, ang pasimula ng CAFÉ na nakatuon sa pagbabagong "
-"panlipunan, ay ginamit mula noong 2010 ng Departamento ng Estado ng U.S. "
-"Libo-libong kalahok mula sa iba’t ibang panig ng mundo ang gumagamit nito "
-"upang maisaayos, mailarawan at masuri ang mga mungkahing makatutulong sa "
-"patakarang panlabas:"
 
 #: pcari/templates/about.html:46
 msgid ""
@@ -230,26 +190,22 @@ msgid ""
 "to extend our engagement beyond the halls of government directly to the "
 "people of the world.\""
 msgstr ""
-"Magagamit ng Open Space ang kapangyarihan ng koneksyon ng mga teknolohiya "
-"upang magbigay ng isang natatanging espasyo para sa pandaigdigang dayalog. "
-"Ito ay &#x2026; isang pagkakataon upang magtulay sa aming pakikipag-ugnayan "
-"sa mga tanggapan ng pamahalaan tungo sa mamamayan ng daigdig."
 
 #: pcari/templates/about.html:52
 msgid "U.S. Secretary of State Hillary Clinton (2010)"
-msgstr "U.S. Secretary of State Hillary Clinton (2010)"
+msgstr ""
 
 #: pcari/templates/about.html:57
 msgid "Recent Papers"
-msgstr "Mga Kamakailangang Papel"
+msgstr ""
 
 #: pcari/templates/about.html:80
 msgid "Available for download from:"
-msgstr "Maida-download mula sa:"
+msgstr ""
 
 #: pcari/templates/about.html:85
 msgid "Developer Resources"
-msgstr "Mga Mapagkukunan ng Developer"
+msgstr ""
 
 #: pcari/templates/about.html:87
 msgid ""
@@ -259,11 +215,6 @@ msgid ""
 "in the Phillipines through the Philippine-California Advanced Research "
 "Institutes (PCARI) Project."
 msgstr ""
-"Ang Malasakit ay isang variant ng CAFÉ na orihinal na nilikha para sa "
-"pagtatasa ng mga estratehiya sa pagbawas ng panganib sa kalamidad sa "
-"Pilipinas. Binuo ang Malasakit at napalawak sa pagtutulungan ng UC Berkeley "
-"at National University sa Pilipinas sa pamamagitan ng proyekto ng Philippine-"
-"California Advanced Research Institutes (PCARI)."
 
 #: pcari/templates/about.html:96
 msgid ""
@@ -271,62 +222,56 @@ msgid ""
 "designed with the open-source community in mind. The following resources are "
 "available to anyone who would like to contribute to the project:"
 msgstr ""
-"Gayunpaman, ang Malasakit ay maaaring mailapat sa iba't ibang mga domain, at "
-"dinisenyo para sa komunidad. Ang sumusunod na mga mapagkukunan ay magagamit "
-"ng sinumang gustong magbigay ng kontribusyon sa proyekto:"
 
 #: pcari/templates/about.html:104
 msgid "Malasakit web toolkit"
-msgstr "Web toolkit ng Malasakit"
+msgstr ""
 
 #: pcari/templates/about.html:106
 msgid "GitHub repository"
-msgstr "Repositoryo ng GitHub"
+msgstr ""
 
 #: pcari/templates/about.html:108
 msgid "Issue tracker"
-msgstr "Issue tracker"
+msgstr ""
 
 #: pcari/templates/about.html:110
 msgid "Wiki documentation"
-msgstr "Dokumentasyon ng Wiki"
+msgstr ""
 
 #: pcari/templates/about.html:111
 msgid "a high-level overview of the application architecture"
 msgstr ""
-"isang mataas na antas ng pangkalahatang-ideya ng aplikasyong pang-arkitetura"
 
 #: pcari/templates/about.html:114
 msgid "Docstring documentation"
-msgstr "Dokumentasyon ng Docstring"
+msgstr ""
 
 #: pcari/templates/about.html:115
 msgid "a GitHub pages site autogenerated from comments in the source code"
 msgstr ""
-"isang site ng mga pahina ng GitHub na awtomatikong nalilikha mula sa mga "
-"komento ng source code"
 
 #: pcari/templates/about.html:122
 msgid "Contact Information"
-msgstr "Impormasyon ng contact"
+msgstr ""
 
 #: pcari/templates/about.html:124
 msgid "For inquiries, please contact:"
-msgstr "Para sa mga katanungan, mangyaring makipag-ugnayan sa:"
+msgstr ""
 
 #: pcari/templates/admin/base.html:7
 msgid "Configuration"
-msgstr "Kompigurasiyon"
+msgstr ""
 
 #: pcari/templates/admin/base.html:9 pcari/templates/admin/statistics.html:6
 #: pcari/templates/admin/statistics.html:159
 msgid "Statistics"
-msgstr "Istatistika"
+msgstr ""
 
 #: pcari/templates/admin/configuration.html:5
 #: pcari/templates/admin/configuration.html:42
 msgid "Site configuration"
-msgstr "Kompigurasiyon ng site"
+msgstr ""
 
 #: pcari/templates/admin/configuration.html:44
 msgid "Change landing page image"
@@ -341,11 +286,11 @@ msgstr ""
 #: pcari/templates/quantitative-questions.html:194
 #: pcari/templates/rate-comments.html:51
 msgid "Submit"
-msgstr "Ipasa"
+msgstr ""
 
 #: pcari/templates/admin/configuration.html:59
 msgid "Change bloom icon"
-msgstr "Palitan ang imahe"
+msgstr ""
 
 #: pcari/templates/admin/configuration.html:62
 msgid ""
@@ -357,7 +302,7 @@ msgstr ""
 
 #: pcari/templates/admin/statistics.html:161
 msgid "Quantitative question rating distributions"
-msgstr "Resulta ng mga kuwantitatibong katanungan"
+msgstr ""
 
 #: pcari/templates/base.html:60
 #, python-format
@@ -366,17 +311,14 @@ msgid ""
 "and Feedback Engine (CAFÉ)</a>. Learn more about <a href=\"%(about_url)s"
 "\">CAFÉ</a>."
 msgstr ""
-"Ang site na ito ay gumagamit ng <a href=\"http://cafesystem.org/"
-"\">Collective Assessment and Feedback Engine (CAFÉ)</a>. Matuto nang higit "
-"pa tungkol sa <a href=\"%(about_url)s\">CAFÉ</a>."
 
 #: pcari/templates/end.html:5 pcari/templates/end.html:6
 msgid "Thank You"
-msgstr "Maraming Salamat"
+msgstr ""
 
 #: pcari/templates/end.html:21
 msgid "We appreciate your participation in the Malasakit program."
-msgstr "Pinahahalagahan namin ang iyong pagma MALASAKIT."
+msgstr ""
 
 #: pcari/templates/end.html:24
 msgid "Finish"
@@ -384,7 +326,7 @@ msgstr ""
 
 #: pcari/templates/landing.html:6
 msgid "Welcome"
-msgstr "Maligayang pagdating"
+msgstr ""
 
 #: pcari/templates/landing.html:22
 msgid "How prepared are you in times of disaster?"
@@ -401,42 +343,39 @@ msgstr ""
 
 #: pcari/templates/landing.html:35
 msgid "Begin"
-msgstr "Simulan"
+msgstr ""
 
 #: pcari/templates/nav-buttons.html:7
 #: pcari/templates/quantitative-questions.html:188
 msgid "Previous"
-msgstr "Bumalik"
+msgstr ""
 
 #: pcari/templates/nav-buttons.html:14
 msgid "Next"
-msgstr "Susunod"
+msgstr ""
 
 #: pcari/templates/peer-responses.html:5 pcari/templates/peer-responses.html:6
 msgid "Peer Responses"
-msgstr "Tugon ng iba"
+msgstr ""
 
 #: pcari/templates/peer-responses.html:32
 msgid ""
 "Below, you can see how the other respondents answered the survey questions."
 msgstr ""
-"Sa ibaba, makikita mo kung paano sumagot ang iba pang mga kalahok sa mga "
-"tanong sa sarbey."
 
 #: pcari/templates/peer-responses.html:41
 #, python-format
 msgid "<strong>%(num_ratings)s</strong> other people answered this question:"
 msgstr ""
-"<strong>%(num_ratings)s</strong> katao na ang sumagot sa tanong na ito:"
 
 #: pcari/templates/peer-responses.html:49
 #, python-format
 msgid "Average answer: <strong>%(mean)s</strong>"
-msgstr "Madalas na sagot ng iba: <strong>%(mean)s</strong>"
+msgstr ""
 
 #: pcari/templates/peer-responses.html:55
 msgid "Your answer:"
-msgstr "Ang iyong sagot:"
+msgstr ""
 
 #: pcari/templates/peer-responses.html:55
 msgid "Not rated"
@@ -447,62 +386,58 @@ msgid ""
 "There are not enough data to show how your responses compare to those of "
 "others."
 msgstr ""
-"Hindi sapat ang datos upang ipakita kung paano ikukumpara sa ibang mga tugon "
-"ang iyong mga sagot."
 
 #: pcari/templates/personal-information.html:81
 #: pcari/templates/personal-information.html:82
 msgid "Personal Information"
-msgstr "Personal na Impormasiyon"
+msgstr ""
 
 #: pcari/templates/personal-information.html:87
 msgid ""
 "All questions on this page are strictly optional. Your responses will be "
 "anonymous."
 msgstr ""
-"Lahat ng mga tanong sa pahinang ito ay hindi sapilitan. Ang iyong mga tugon "
-"ay hindi papangalanan."
 
 #: pcari/templates/personal-information.html:94
 msgid "Age"
-msgstr "Edad"
+msgstr ""
 
 #: pcari/templates/personal-information.html:98
 msgid "Gender"
-msgstr "Kasarian"
+msgstr ""
 
 #: pcari/templates/personal-information.html:101
 msgid "Select gender"
-msgstr "Piliian ang kasarian"
+msgstr ""
 
 #: pcari/templates/personal-information.html:102
 msgid "Male"
-msgstr "Lalaki"
+msgstr ""
 
 #: pcari/templates/personal-information.html:103
 msgid "Female"
-msgstr "Babae"
+msgstr ""
 
 #: pcari/templates/personal-information.html:108
 msgid "Province"
-msgstr "Probinsiya"
+msgstr ""
 
 #: pcari/templates/personal-information.html:115
 msgid "City / Municipality"
-msgstr "Lungsod / Munisipalidad"
+msgstr ""
 
 #: pcari/templates/personal-information.html:122
 msgid "Barangay"
-msgstr "Barangay"
+msgstr ""
 
 #: pcari/templates/qualitative-questions.html:6
 #: pcari/templates/qualitative-questions.html:7
 msgid "Your Ideas"
-msgstr "Ang iyong mga ideya"
+msgstr ""
 
 #: pcari/templates/qualitative-questions.html:53
 msgid "There are no qualitative questions at this time."
-msgstr "Walang mga kuwalitatibong katanungan sa oras na ito."
+msgstr ""
 
 #: pcari/templates/quantitative-questions.html:6
 #: pcari/templates/quantitative-questions.html:7
@@ -514,22 +449,19 @@ msgid ""
 "Below, you will see either a slider or a text box. Please answer each "
 "question by moving the slider knob or filling in the box with a number."
 msgstr ""
-"Sa ibaba, makikita ang isang slider o ang isang patlang. Paki sagutan ang "
-"bawat tanong sa pamamagitan ng paggalaw sa slider o sa paglagay ng numero sa "
-"patlang."
 
 #: pcari/templates/quantitative-questions.html:180
 msgid "Question"
-msgstr "Katanungan"
+msgstr ""
 
 #: pcari/templates/quantitative-questions.html:191
 #: pcari/templates/rate-comments.html:48
 msgid "Skip"
-msgstr "Laktawan"
+msgstr ""
 
 #: pcari/templates/rate-comments.html:6 pcari/templates/rate-comments.html:7
 msgid "Rate Comments by Other Users"
-msgstr "Puntusan ang mungkahi ng ibang kalahok"
+msgstr ""
 
 #: pcari/templates/rate-comments.html:17
 msgid ""
@@ -546,55 +478,38 @@ msgstr ""
 
 #: pcari/templates/rate-comments.html:31
 msgid "The question was:"
-msgstr "Ang tanong ay:"
+msgstr ""
 
 #: pcari/templates/rate-comments.html:33
 msgid "The comment was:"
-msgstr "Ang komento ay:"
+msgstr ""
 
 #: pcari/templates/rate-comments.html:39
 msgid "Not helpful"
-msgstr "Walang kapakinabangan"
+msgstr ""
 
 #: pcari/templates/rate-comments.html:40
 msgid "Helpful"
-msgstr "Kapaki-pakinabang"
+msgstr ""
 
 #: pcari/templates/rate-comments.html:43
 msgid "Your current answer is "
-msgstr "Ang iyong kasalukuyang sagot ay "
+msgstr ""
 
 #: pcari/views.py:719
 msgid "Page Not Found"
-msgstr "Hindi natagpuan ang pahina"
+msgstr ""
 
 #: pcari/views.py:720
 msgid "The requested page does not appear to exist."
-msgstr "Ang hiniling na pahina ay hindi lumabas."
+msgstr ""
 
 #: pcari/views.py:728
 msgid "Internal Error"
-msgstr "May kamalian"
+msgstr ""
 
 #: pcari/views.py:729
 msgid ""
 "The server is currently experiencing some issues. Please let the maintainers "
 "know immediately."
 msgstr ""
-"Kasalukuyang nakararanas ng ilang isyu ang server. Mangyaring ipagbigay-alam "
-"agad ito sa mga tagapamahala."
-
-#~ msgid "Survey Questions"
-#~ msgstr "Mga Katanungan sa Sarbey"
-
-#~ msgid "You previously chose to skip this question."
-#~ msgstr "Dati mong linaktawan ang katanungang ito."
-
-#~ msgid "There are no more comments to rate."
-#~ msgstr "Wala nang komentong mapupuntusan."
-
-#~ msgid "Quantitative Questions"
-#~ msgstr "Kuwantitatibong mga Katanungan"
-
-#~ msgid "Qualitative Questions"
-#~ msgstr "Kuwalitatibong mga Katanungan"

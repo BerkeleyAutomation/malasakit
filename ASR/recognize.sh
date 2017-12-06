@@ -57,4 +57,8 @@ cat recognition/one-best-hypothesis.txt | cut -d ' ' -f 2 > recognition/recogniz
 
 paste -d " " recognition/recognized_digit.txt recognition/confidence_score.txt > recognition/output.txt
 
+<<<<<<< HEAD
 rm -rf mfcc/raw_mfcc.scp mfcc/raw_mfcc.ark recognition/wav.scp recognition/lattices.ark recognition/one-best.tra recognition/one-best-hypothesis.txt recognition/recognized_word.txt recognition/feats.scp
+=======
+rm -rf mfcc/raw_mfcc.scp mfcc/raw_mfcc.ark recognition/wav.scp recognition/lattices.ark recognition/one-best.tra recognition/one-best-hypothesis.txt recognition/recognized_word.txt recognition/feats.scp
+>>>>>>> 52df5184e8e543fa33d5385e04700fe946dd1e42

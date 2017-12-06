@@ -8,5 +8,9 @@ export PATH=$PWD/utils/:$KALDI_ROOT/src/bin:$KALDI_ROOT/tools/openfst/bin:$KALDI
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/tools/mitlm-svn/lib
 
 # Variable needed for proper data sorting
+<<<<<<< HEAD
 export LC_ALL=C
 
+=======
+export LC_ALL=C
+>>>>>>> 52df5184e8e543fa33d5385e04700fe946dd1e42

@@ -158,7 +158,7 @@ class HistoryAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         if change and issubclass(obj.__class__, History):
             old_instance = obj.__class__.objects.get(id=obj.id)
-            if set(obj.diff(old_instance)) - {'active'}:
+            if set(obj.diff(old_instance)) - {'active', 'order'}:
                 obj = obj.make_copy()
                 obj.predecessor = old_instance
                 old_instance.active, obj.active = False, True
@@ -170,6 +170,7 @@ class HistoryAdmin(admin.ModelAdmin):
         if obj and issubclass(model, History) and not obj.active:
             field_names = [field.name for field in get_direct_fields(model)]
             field_names.remove('active')
+            field_names.remove('order')
             return field_names
         return self.readonly_fields + ('predecessor', )
 

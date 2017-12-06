@@ -21,4 +21,8 @@ output.txt is in this format: <recognized_digit> <confidence_value>
 
 confidence value ranges from 0 to 1
 
+<<<<<<< HEAD
 issue: confidence value always outputs 1 so it needs to be calibrated
+=======
+issue: confidence value always outputs 1 so it needs to be calibrated
+>>>>>>> 52df5184e8e543fa33d5385e04700fe946dd1e42
