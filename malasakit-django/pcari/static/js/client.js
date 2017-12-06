@@ -57,7 +57,7 @@ const EMPTY_RESPONSE = {
 const SKIPPED = null;
 
 function redirect(url) {
-    $(location).attr('href', url);
+    window.location.replace(url);
 }
 
 function getCurrentTimestamp() {
