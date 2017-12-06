@@ -114,7 +114,7 @@
       $('#previous').prop('disabled', questionIndex === 0);
       $('#answer').empty();
       $('#notice').empty();
-      $('#progression-numerator').text(questionIndex + 1);
+      $('#progression-numerator').text(Math.min(ALL_QUESTIONS.length, questionIndex + 1));
       $('#current-answer-notice').css('display', 'none');
       $('#skip-notice').css('display', 'none');
 
