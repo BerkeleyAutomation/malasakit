@@ -9,8 +9,12 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/tools/mitlm-svn/lib
 
 # Variable needed for proper data sorting
 <<<<<<< HEAD
+<<<<<<< HEAD
 export LC_ALL=C
 
 =======
 export LC_ALL=C
 >>>>>>> 52df5184e8e543fa33d5385e04700fe946dd1e42
+=======
+export LC_ALL=C
+>>>>>>> 5f0d58ac037fc2e50d9d0b695b20987861ef4ffb
