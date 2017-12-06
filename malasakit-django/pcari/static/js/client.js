@@ -77,9 +77,9 @@ function displayNoCurrentRespondentError() {
     var current = Resource.load('current');
     if (current === undefined || current.data === null || !isResponseName(current.data)) {
         var landingURL = APP_URL_ROOT + '/' + getCurrentLanguage() + '/landing/';
-        var landingLink = $('<a>').attr('href', landingURL).text('new response');
-        displayError('Your answers are not being saved. '
-                   + 'You should start a ' + landingLink[0].outerHTML + '.');
+        var landingLink = $('<a>').attr('href', landingURL).text(gettext('new response'));
+        displayError(gettext('Your answers are not being saved.') + ' '
+                     + interpolate('You should start a %s.', [landingLink[0].outerHTML]));
     }
 }
 
