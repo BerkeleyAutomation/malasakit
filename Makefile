@@ -74,10 +74,12 @@ preparetrans:
 	cd $(DJANGO_PROJECT_ROOT) && ./manage.py makedbtrans -o locale/db.pot $(DB_TRANS_TARGETS)
 	cd $(DJANGO_PROJECT_ROOT) && ./manage.py makemessages -d django $(LOCALE_FLAGS)
 	rm -f $(DJANGO_PROJECT_ROOT)/locale/db.pot
-	cd $(DJANGO_PROJECT_ROOT) && ./manage.py makemessages -d djangojs $(LOCALE_FLAGS)
+	cd $(DJANGO_PROJECT_ROOT) && django-admin makemessages -d djangojs $(LOCALE_FLAGS)
 
 compiletrans:
-	cd $(DJANGO_PROJECT_ROOT) && ./manage.py compilemessages --locale=$(LOCALES)
+	$(eval LOCALES=$(shell cd $(DJANGO_PROJECT_ROOT) && $(GET_LOCALE_CMD)))
+	$(eval LOCALE_FLAGS=$(shell for locale in $(LOCALES); do echo -n "--locale $$locale "; done))
+	cd $(DJANGO_PROJECT_ROOT) && django-admin compilemessages $(LOCALE_FLAGS)
 
 createproddb:
 	mysql -e '$(CREATE_PROD_DB_QUERY)' -u root --password="$(shell printenv mysql_pass)"
