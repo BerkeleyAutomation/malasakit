@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.25\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-06 12:19+0000\n"
+"POT-Creation-Date: 2017-12-08 09:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: CEBUANO\n"
@@ -118,14 +118,10 @@ msgid "Filipino"
 msgstr ""
 
 #: cafe/settings.py:164
-msgid "Spanish"
-msgstr ""
-
-#: cafe/settings.py:165
 msgid "Cebuano"
 msgstr ""
 
-#: cafe/settings.py:166
+#: cafe/settings.py:165
 msgid "Ilocano"
 msgstr ""
 

@@ -161,7 +161,6 @@ SERVICE_WORKERS = True
 LANGUAGES = (
     ('en', _('English')),
     ('tl', _('Filipino')),
-    ('es', _('Spanish')),
     ('ceb', _('Cebuano')),
     ('ilo', _('Ilocano')),
 )
