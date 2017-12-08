@@ -1,15 +1,16 @@
 #!/bin/sh
  
-# -q quiet
-# -c number of pings to perform
 FILE="/var/log/ping_server.log"
- 
-ping -q -c2 opinion.berkeley.edu > /dev/null
- 
-if [ $? -eq 0 ]
+URL="https://opinion.berkeley.edu/pcari/en/landing/"
+
+# Captures the status code of the request
+OUTPUT=$(curl --write-out %{http_code} --silent --output /dev/null "$URL")
+
+if [ $OUTPUT == 200 ]
 then
     echo "ok"
 else
     DATE=`date '+%Y-%m-%d %H:%M:%S'`
-    sudo echo "Server down at ${DATE}" > $FILE
+    sudo echo "Server down at ${DATE}" >> $FILE
 fi
+
