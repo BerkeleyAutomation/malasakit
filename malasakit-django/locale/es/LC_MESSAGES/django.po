@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.25\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-30 08:54+0000\n"
+"POT-Creation-Date: 2017-12-21 05:39+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: SPANISH\n"
@@ -19,95 +19,84 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: QuantitativeQuestion.prompt:1
-msgid "I have suffered the consequence of a typhoon or flood."
+msgid ""
+"In my experience, our barangay uses early warning devices and communication "
+"systems during times of disaster or emergency."
 msgstr ""
 
 #: QuantitativeQuestion.prompt:2
-msgid "I feel prepared to handle a major typhoon right now."
+msgid ""
+"Our barangay administration effectively informs us about disaster-prone "
+"areas in the barangay, evacuation center, and relocation site."
 msgstr ""
 
 #: QuantitativeQuestion.prompt:3
-msgid "The barangay’s typhoon Early Warning System is effective."
-msgstr ""
-
-#: QuantitativeQuestion.prompt:4
 msgid ""
-"My family has identified a place to meet and ways to communicate in a "
-"disaster."
+"Our barangay conducts disaster risk reduction-related seminars quarterly."
 msgstr ""
 
 #: QuantitativeQuestion.prompt:5
 msgid ""
-"How many days of disaster supplies (e.g., canned food, bottled water, "
-"medicine) are immediately available to you in your home?"
+"There are available facilities and services in our evacuation center(s) such "
+"as toilet and bath area, medical area, and children’s area."
 msgstr ""
 
 #: QuantitativeQuestion.prompt:6
 msgid ""
-"I feel like I could count on my nearest neighbors for support when "
-"recovering from a major typhoon."
+"Our barangay conducts a regular clean-up drive and fixes drainages in our "
+"area to ensure that no floods occur during the typhoon."
 msgstr ""
 
 #: QuantitativeQuestion.prompt:7
 msgid ""
-"I believe our barangay will help my community repair and rebuild after a "
-"major typhoon."
+"Our barangay always provides disaster relief goods to those who are affected "
+"by the typhoon or flood."
 msgstr ""
 
 #: QuantitativeQuestion.prompt:8
-msgid "How many weeks has it been since you participated in a disaster drill?"
+msgid ""
+"To my knowledge, the barangay administration extends special care or help to "
+"senior citizen, pregnant women and person with disability (PWD) during the "
+"typhoon."
 msgstr ""
 
-#: QuantitativeQuestion.left_anchor:1
-msgid "I have not suffered at all."
+#: QuantitativeQuestion.prompt:9
+msgid "I always prepare supplies needed by my family in times of disaster."
 msgstr ""
 
-#: QuantitativeQuestion.left_anchor:2
-msgid "Not at all prepared."
+#: QuantitativeQuestion.prompt:10
+msgid ""
+"I make sure our family is alert every time a typhoon hits our community to "
+"avoid any risk."
 msgstr ""
 
-#: QuantitativeQuestion.left_anchor:3
-msgid "Not at all effective."
+#: QuantitativeQuestion.prompt:11
+msgid ""
+"The barangay rescue team deploys the emergency equipment effectively during "
+"typhoon or flood emergency."
 msgstr ""
 
-#: QuantitativeQuestion.left_anchor:4
-msgid "We have not talked about it."
+#: QuantitativeQuestion.left_anchor:1 QuantitativeQuestion.left_anchor:2
+#: QuantitativeQuestion.left_anchor:3 QuantitativeQuestion.left_anchor:5
+#: QuantitativeQuestion.left_anchor:6 QuantitativeQuestion.left_anchor:7
+#: QuantitativeQuestion.left_anchor:8 QuantitativeQuestion.left_anchor:9
+#: QuantitativeQuestion.left_anchor:10 QuantitativeQuestion.left_anchor:11
+msgid "Strongly Disagree"
 msgstr ""
 
-#: QuantitativeQuestion.left_anchor:6
-msgid "I am not confident my neighbors will help me after a typhoon."
-msgstr ""
-
-#: QuantitativeQuestion.left_anchor:7
-msgid "I am not confident our barangay will help very much."
-msgstr ""
-
-#: QuantitativeQuestion.right_anchor:1
-msgid "I have lost a home or loved one to a typhoon or flood."
-msgstr ""
-
-#: QuantitativeQuestion.right_anchor:2
-msgid "Very prepared."
-msgstr ""
-
-#: QuantitativeQuestion.right_anchor:3
-msgid "Very effective."
-msgstr ""
-
-#: QuantitativeQuestion.right_anchor:4
-msgid "We have a plan and review it regularly."
-msgstr ""
-
-#: QuantitativeQuestion.right_anchor:6
-msgid "I strongly believe my neighbors will help me after a typhoon."
-msgstr ""
-
-#: QuantitativeQuestion.right_anchor:7
-msgid "I am confident our barangay will help us recover."
+#: QuantitativeQuestion.right_anchor:1 QuantitativeQuestion.right_anchor:2
+#: QuantitativeQuestion.right_anchor:3 QuantitativeQuestion.right_anchor:5
+#: QuantitativeQuestion.right_anchor:6 QuantitativeQuestion.right_anchor:7
+#: QuantitativeQuestion.right_anchor:8 QuantitativeQuestion.right_anchor:9
+#: QuantitativeQuestion.right_anchor:10 QuantitativeQuestion.right_anchor:11
+msgid "Strongly Agree"
 msgstr ""
 
 #: QualitativeQuestion.prompt:1
-msgid "How can your Barangay help you better prepare for a disaster?"
+msgid ""
+"How can your barangay better help the community respond during disasters, "
+"including special considerations for vulnerable groups such as senior "
+"citizen, women, children, and persons with disabilities?"
 msgstr ""
 
 #: cafe/settings.py:162
