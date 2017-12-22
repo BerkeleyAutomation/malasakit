@@ -1,5 +1,6 @@
 {
   "name": "malasakit-v1",
+  "version": "1.25.2",
   "private": true,
   "dependencies": {
     "less": "^2.7.2"
