@@ -22,6 +22,8 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import User, Group
 from django.contrib.contenttypes.models import ContentType
+from django.utils import translation
+from django.utils.translation import ugettext
 
 from pcari.models import QualitativeQuestion, Comment, CommentRating
 from pcari.models import OptionQuestion, OptionQuestionChoice
@@ -323,10 +325,16 @@ def export_to_feature_phone(modeladmin, request, queryset):
         for language, _ in settings.LANGUAGES:
             components = [question._meta.label_lower.replace('.', '-'),
                           unicode(question.pk), language]
+            text = translate(question.prompt, language)
+            if hasattr(question, 'left_anchor'):
+                translation.activate(language)
+                text = (text + u' ' + ugettext( 'Press 1 for ') +
+                        str(question.left_anchor) + ugettext(" or 9 for ") +
+                        question.right_anchor)
             phone_models.Question.objects.get_or_create(
                 key= '-'.join(components),
                 defaults={
-                  'text': translate(question.prompt, language),
+                  'text': text,
                   'language': language,
                   'related_object_type': ContentType.objects.get_for_model(question),
                   'related_object': question,
