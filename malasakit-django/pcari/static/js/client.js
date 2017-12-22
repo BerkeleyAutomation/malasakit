@@ -272,6 +272,16 @@ function csrfSetup() {
     console.log(gettext('AJAX with CSRF token usage initialized'));
 }
 
+function validatePositiveInteger(event) {
+    return event.ctrlKey || event.altKey || 0x30 <= event.keyCode <= 0x39;
+}
+
+function makeClipped(lower, upper) {
+    return function(n) {
+        return Math.max(lower, Math.min(upper, n));
+    }
+}
+
 function displayLocalStorageUsage(precision=3) {
     var total = 0;
     for (var index = 0; index < localStorage.length; index++) {
