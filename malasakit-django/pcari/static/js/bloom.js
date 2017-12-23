@@ -52,7 +52,7 @@ if (Resource.exists('bloom-icon')) {
     }
 }
 
-const NO_TAG_PLACEHOLDER = '(?)';
+const NO_TAG_PLACEHOLDER = '';
 const MIN_REQUIRED_COMMENT_RATINGS = 2;
 
 function calculateBounds(comments) {
