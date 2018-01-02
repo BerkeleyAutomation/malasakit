@@ -24,7 +24,7 @@ from django.views.decorators.http import require_POST
 from django.urls import reverse
 from django.utils.translation import get_language
 import numpy as np
-from twilio.twiml.voice_response import VoiceResponse
+from twilio.twiml.voice_response import VoiceResponse, Gather
 
 from feature_phone.models import Respondent, Question, Response, Instructions
 from pcari import models as web_models
@@ -116,21 +116,32 @@ def transcribe_rating(voice_response, text=''):
 @require_POST
 def select_language(request):
     """ Prompts the user to select a language. """
+    if 'respondent-pk' not in request.session:
+        related_object = web_models.Respondent.objects.create()
+        respondent = Respondent.objects.create(related_object=related_object)
+        request.session['respondent-pk'] = respondent.pk
+
     response = VoiceResponse()
-    for prompt in Instructions.objects.filter(key='select-language'):
-        play_recording(response, prompt)
-    response.gather(action=reverse('feature_phone:redirect-to-landing'),
+    gather = Gather(action=reverse('feature_phone:redirect-to-landing'),
                     finish_on_key='0123456789', num_digits=1,
                     timeout=settings.SPEECH_TIMEOUT)
+    for prompt in Instructions.objects.filter(key='select-language'):
+        play_recording(gather, prompt)
+    response.append(gather)
+    # TODO: add default response
     return HttpResponse(response)
 
 
 @csrf_exempt
 @require_POST
 def redirect_to_landing(request):
+    selected_language = KEY_TO_LANGUAGE.get(request.POST.get('Digits')) or settings.LANGUAGE_CODE
+    respondent = Respondent.objects.get(pk=request.session['respondent-pk'])
+    respondent.language = selected_language
+    respondent.save()
+
     response = VoiceResponse()
-    select_language = KEY_TO_LANGUAGE.get(request['Digit']) or settings.LANGUAGE_CODE
-    response.redirect(localize_url(request.get_full_path(), selected_language))
+    response.redirect(localize_url(reverse('feature_phone:landing'), selected_language))
     return HttpResponse(response)
 
 
@@ -138,11 +149,6 @@ def redirect_to_landing(request):
 @require_POST
 def landing(request):
     """ The landing endpoint plays a welcome message and initializes the session. """
-    if 'respondent-pk' not in request.session:
-        related_object = web_models.Respondent.objects.create()
-        respondent = Respondent.objects.create(related_object=related_object)
-        request.session['respondent-pk'] = respondent.pk
-
     response = VoiceResponse()
     play_recording(response, Instructions.objects.get(key='welcome', language=get_language()))
     response.pause(0.5)
