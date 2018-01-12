@@ -15,6 +15,7 @@
             deleteResponseValue(path);
           } else {
             setResponseValue(path, value);
+            inputElement.val(value);
           }
         });
 
@@ -24,7 +25,11 @@
         }
       }
 
-      initializeField($('#age'), ['respondent-data', 'age'], parseInt);
+      var clipAge = makeClipped(1, 120);
+      initializeField($('#age'), ['respondent-data', 'age'], function(rawValue) {
+        var age = parseInt(rawValue);
+        return isNaN(age) ? null : clipAge(age);
+      });
       initializeField($('#gender'), ['respondent-data', 'gender']);
       initializeField($('#province'), ['respondent-data', 'province']);
       initializeField($('#city-or-municipality'), ['respondent-data', 'city-or-municipality']);
@@ -92,7 +97,7 @@
   <table style="margin: 0 auto;">
     <tr>
       <td>{% trans 'Age' %}</td>
-      <td><input id="age" type="number" min="1" max="120"></td>
+      <td><input id="age" type="number" min="1" max="120" onkeypress="validatePositiveInteger(event)"></td>
     </tr>
     <tr>
       <td>{% trans 'Gender' %}</td>

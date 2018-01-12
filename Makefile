@@ -1,5 +1,3 @@
-# malasakit-v1/Makefile -- A collection of rules for testing and deploying the project
-
 DJANGO_PROJECT_ROOT=malasakit-django
 DOCS_BUILD_PATH=docs-build
 DOCS_PATH=docs
@@ -29,8 +27,6 @@ EXCLUDED_MODULES=\
 	$(DJANGO_PROJECT_ROOT)/pcari/migrations\
 	$(DJANGO_PROJECT_ROOT)/pcari/test*\
 	$(DJANGO_PROJECT_ROOT)/pcari/urls.py
-
-GET_LOCALE_CMD=./manage.py shell -c 'from django.conf import settings; print(" ".join(code for code, _ in settings.LANGUAGES if not code.startswith("en")))'
 
 CLEANTEXT_TARGETS=\
 	Comment.message\
@@ -69,14 +65,14 @@ compiledocs:
 	mv $(DOCS_BUILD_PATH)/build/html $(DOCS_PATH)
 
 preparetrans:
-	$(eval LOCALES=$(shell cd $(DJANGO_PROJECT_ROOT) && $(GET_LOCALE_CMD)))
-	$(eval LOCALE_FLAGS=$(shell for locale in $(LOCALES); do echo -n "--locale $$locale "; done))
+	mkdir -p $(DJANGO_PROJECT_ROOT)/locale
 	cd $(DJANGO_PROJECT_ROOT) && ./manage.py makedbtrans -o locale/db.pot $(DB_TRANS_TARGETS)
-	cd $(DJANGO_PROJECT_ROOT) && ./manage.py makemessages $(LOCALE_FLAGS)
+	cd $(DJANGO_PROJECT_ROOT) && ./manage.py makemessages -a -d django
 	rm -f $(DJANGO_PROJECT_ROOT)/locale/db.pot
+	cd $(DJANGO_PROJECT_ROOT) && ./manage.py makemessages -a -d djangojs
 
 compiletrans:
-	cd $(DJANGO_PROJECT_ROOT) && ./manage.py compilemessages --locale=$(LOCALES)
+	cd $(DJANGO_PROJECT_ROOT) && django-admin compilemessages
 
 createproddb:
 	mysql -e '$(CREATE_PROD_DB_QUERY)' -u root --password="$(shell printenv mysql_pass)"
