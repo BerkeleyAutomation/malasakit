@@ -33,6 +33,7 @@ ALLOWED_HOSTS = ['opinion.berkeley.edu'] if not DEBUG else ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'feature_phone.apps.FeaturePhoneConfig',
     'pcari.apps.PCARIConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -153,10 +154,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-HTML_MINIFY = not DEBUG
-
-# Custom setting that should be `True` to enable service workers for offline functionality
-SERVICE_WORKERS = True
+HTML_MINIFY = False  # TODO: `not DEBUG` disabled for now so that TwiML is not wrapped in HTML
 
 LANGUAGES = (
     ('en', _('English')),
@@ -190,3 +188,19 @@ STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
 if DEBUG:
     STATIC_ROOT = os.path.join(BASE_DIR, 'pcari', 'static')
 STATIC_URL = os.path.join(URL_ROOT, 'static/')
+
+# Media files
+MEDIA_ROOT = os.path.join(PROJECT_DIR, 'media')
+MEDIA_URL = '/media/'
+
+
+# Custom settings
+
+# Maximum number of comments to serve per request
+DEFAULT_COMMENT_LIMIT = 300
+# Default standard error of unrated comment (that is, fewer than two ratings)
+DEFAULT_STANDARD_ERROR = 4.5
+# Set to `True` to enable service workers for offline functionality
+SERVICE_WORKERS = True
+# How long after a word is spoken Twilio should end the recording early
+SPEECH_TIMEOUT = 3  # in seconds

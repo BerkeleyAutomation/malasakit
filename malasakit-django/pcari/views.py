@@ -64,10 +64,6 @@ __all__ = [
     'handle_internal_server_error',
 ]
 
-DEFAULT_LANGUAGE = settings.LANGUAGE_CODE
-DEFAULT_COMMENT_LIMIT = 300   # Default maximum number of comments to send
-DEFAULT_STANDARD_ERROR = 4.5  # For comments with fewer than two ratings
-
 LOGGER = logging.getLogger('pcari')
 
 
@@ -204,7 +200,7 @@ def fetch_comments(request):
         containing two numbers: the first and second projections, respectively.
     """
     try:
-        limit = int(request.GET.get('limit', unicode(DEFAULT_COMMENT_LIMIT)))
+        limit = int(request.GET.get('limit', unicode(settings.DEFAULT_COMMENT_LIMIT)))
     except ValueError as error:
         return HttpResponseBadRequest(unicode(error))
 
@@ -231,7 +227,7 @@ def fetch_comments(request):
         # Projects the ratings by this comment's author onto the first two
         # principal components to generate the position (`pos`).
         if standard_error is None:
-            standard_error = DEFAULT_STANDARD_ERROR
+            standard_error = settings.DEFAULT_STANDARD_ERROR
         data[unicode(comment.id)] = {
             'msg': escape_html(comment.message),
             'sem': round(standard_error, 3),
