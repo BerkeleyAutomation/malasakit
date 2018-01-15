@@ -328,16 +328,16 @@ def export_to_feature_phone(modeladmin, request, queryset):
             text = translate(question.prompt, language)
             if hasattr(question, 'left_anchor'):
                 translation.activate(language)
-                text = (text + u' ' + ugettext( 'Press 1 for ') +
+                text = (text + u' ' + ugettext('Press 1 for ') +
                         str(question.left_anchor) + ugettext(" or 9 for ") +
                         question.right_anchor)
             phone_models.Question.objects.get_or_create(
-                key= '-'.join(components),
+                key='-'.join(components),
                 defaults={
-                  'text': text,
-                  'language': language,
-                  'related_object_type': ContentType.objects.get_for_model(question),
-                  'related_object': question,
+                    'text': text,
+                    'language': language,
+                    'related_object_type': ContentType.objects.get_for_model(question),
+                    'related_object': question,
                 }
             )
 export_to_feature_phone.short_description = 'Export to feature phone application'
