@@ -20,7 +20,7 @@
     <p>
       {% blocktrans trimmed %}
         In contrast to polls and surveys that are extremely valuable for
-        analysts, <a href="http://cafesystem.org/">CAFÉ</a> is user-facing: the
+        analysts, <a href="http://cafesystem.org/" target="_blank">CAFÉ</a> is user-facing: the
         CAFÉ platform will provide direct, immediate visual feedback to
         participants, allowing them to instantly understand where they stand on
         key issues with respect to other participants, and encourage open-ended
@@ -156,4 +156,6 @@
       </li>
     </ul>
   </section>
+  {% url 'pcari:landing' as landing_url %}
+  {% include 'nav-buttons.html' with previous_link=landing_url previous_label='Back' %}
 {% endblock %}

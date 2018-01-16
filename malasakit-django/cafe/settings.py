@@ -159,6 +159,8 @@ HTML_MINIFY = False  # TODO: `not DEBUG` disabled for now so that TwiML is not w
 LANGUAGES = (
     ('en', _('English')),
     ('tl', _('Filipino')),
+    ('ceb', _('Cebuano')),
+    ('ilo', _('Ilocano')),
 )
 
 LOCALE_PATHS = (
