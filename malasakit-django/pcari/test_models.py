@@ -75,6 +75,13 @@ class StatisticsTestCase(TestCase):
             ) for _ in range(random.randrange(100))
         ])
 
+        # TODO: fix reload hack
+        cls.question = QuantitativeQuestion.objects.filter(pk=cls.question.pk).first()
+        cls.question_no_ratings = QuantitativeQuestion.objects.filter(
+            pk=cls.question_no_ratings.pk,
+        ).first()
+        cls.comment = Comment.objects.filter(pk=cls.comment.pk).first()
+
     def test_num_ratings(self):
         self.assertEqual(self.question.num_ratings, 4)
         QuantitativeQuestionRating.objects.create(
@@ -82,35 +89,33 @@ class StatisticsTestCase(TestCase):
             score=6,
             respondent=Respondent.objects.create(language='en')
         )
+        self.question = QuantitativeQuestion.objects.filter(
+            pk=self.question.pk,
+        ).first()
         self.assertEqual(self.question.num_ratings, 5)
         self.assertEqual(self.question_no_ratings.num_ratings, 0)
         self.assertEqual(self.comment.num_ratings, 2)
 
     def test_mean_score(self):
         self.assertAlmostEqual(self.question.mean_score, 19.0/4)
-        self.assertTrue(math.isnan(self.question_no_ratings.mean_score))
+        self.assertIsNone(self.question_no_ratings.mean_score)
         self.assertAlmostEqual(self.comment.mean_score, 1.5)
         CommentRating.objects.filter(score=3, active=True).delete()
+        self.comment = Comment.objects.filter(pk=self.comment.pk).first()
         self.assertAlmostEqual(self.comment.mean_score, 0)
 
-    def test_mode_score(self):
-        self.assertEqual(self.question.mode_score, 3)
-        QuantitativeQuestionRating.objects.filter(score=3).update(score=9)
-        self.assertEqual(self.question.mode_score, 9)
-        self.assertNotEqual(self.comment.mode_score,
-                            QuantitativeQuestionRating.SKIPPED)
-
-    def test_score_stdev(self):
+    def test_score_stddev(self):
         # Answers are calculated from `np.std` with `ddof=1` (one delta degree of freedom)
-        self.assertAlmostEqual(self.question.score_stdev, 2.87228132327)
-        self.assertAlmostEqual(self.comment.score_stdev, 2.1213203435596424)
+        self.assertAlmostEqual(self.question.score_stddev, 2.87228132327)
+        self.assertAlmostEqual(self.comment.score_stddev, 2.1213203435596424)
         CommentRating.objects.filter(score=3, active=True).delete()
-        self.assertTrue(math.isnan(self.comment.score_stdev))
+        self.comment = Comment.objects.filter(pk=self.comment.pk).first()
+        self.assertIsNone(self.comment.score_stddev)
 
     def test_score_sem(self):
         # Answers are calculated from `scipy.stats.sem`
         self.assertAlmostEqual(self.question.score_sem, 1.436140662)
-        self.assertTrue(math.isnan(self.question_no_ratings.score_sem))
+        self.assertIsNone(self.question_no_ratings.score_sem)
         self.assertAlmostEqual(self.comment.score_sem, 1.5)
 
 
@@ -155,7 +160,7 @@ class PropertyTestCase(TestCase):
             )
 
         self.assertEqual(respondent.num_questions_rated, num_questions_rated,
-                         'Failed with:' + ', '.join(map(str, scores)))
+                         'Failed with:' + ', '.join(map(unicode, scores)))
         QuantitativeQuestionRating.objects.all().delete()
         self.assertEqual(respondent.num_questions_rated, 0)
 
@@ -182,7 +187,7 @@ class PropertyTestCase(TestCase):
             )
 
         self.assertEqual(respondent.num_comments_rated, num_comments_rated,
-                         'Failed with:' + ', '.join(map(str, scores)))
+                         'Failed with:' + ', '.join(map(unicode, scores)))
         CommentRating.objects.all().delete()
         self.assertEqual(respondent.num_comments_rated, 0)
 

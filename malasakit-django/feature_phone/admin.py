@@ -1,5 +1,5 @@
-"""Django admin page for managing feature phone recordings, instructions,
-questions and responses."""
+""" Define how Django should present feature phone-specific models to administrators. """
+
 import os
 import StringIO
 import zipfile
@@ -17,35 +17,22 @@ from feature_phone.models import Response, Respondent
 
 
 class RecordingAdmin(admin.ModelAdmin):
-    """Superclass for admin functionality that involve recordings."""
     formfield_overrides = {
         models.FileField: {
             'widget': forms.FileInput(attrs={'accept': 'audio/*'}),
         },
     }
 
+    def download_list_action(self, request, queryset):
+        pass
 
+
+"""
     # pylint: disable=unused-argument, no-self-use
     def download_list_action(self, request, queryset):
-        """Function called when user attempts to download a list of
-        recordings.
-
-        Args:
-            request: unused
-            queryset: list of objects to be downloaded
-        """
 
 
         def zip_file(z_file, obj, file_field, folder=False):
-            """Write obj to a zip file if the obj has a file field.
-
-            Args:
-                z_file: zip file to write into
-                obj: object to put into the zip file
-                file_field: name of field of the obj that has a recording
-                folder: true/false on whether to put obj in sub folder
-
-            """
 
             if hasattr(obj, file_field) and hasattr(getattr(obj, file_field),
                                                     'url'):
@@ -85,7 +72,6 @@ class RecordingAdmin(admin.ModelAdmin):
 
 @admin.register(Instructions, site=site)
 class InstructionsAdmin(RecordingAdmin):
-    """Admin for instructions."""
     def display_text(self, instructions):
         return instructions.text or self.get_empty_value_display()
     display_text.short_description = 'Text'
@@ -107,20 +93,40 @@ class InstructionsAdmin(RecordingAdmin):
 class QuestionAdmin(InstructionsAdmin):
     list_display = ('download_button',)
     actions = ('download_list_action',)
+"""
+
+
+@admin.register(Instructions, Question, site=site)
+class InstructionsAdmin(RecordingAdmin):
+    """ Admin for feature phone instructions model, which includes questions. """
+    def display_text(self, instructions):
+        return instructions.text or self.get_empty_value_display()
+    display_text.short_description = 'Text'
+
+    def display_key(self, instructions):
+        return instructions.key or self.get_empty_value_display()
+    display_key.short_description = 'Tag'
+
+    list_display = ('display_text', 'display_key', 'language', 'recording')
+    list_filter = ('language', )
+    search_fields = ('text', 'tag')
+    empty_value_display = '(Empty)'
+    actions = ('download_list_action', )
 
 
 @admin.register(Response, site=site)
 class ResponseAdmin(RecordingAdmin):
-    """Admin for responses."""
-    # pylint: disable=no-self-use
-    def display_response(self, response):
-        return response
-
-
-    list_display = ('display_response', 'download_button')
-    actions = ('download_list_action',)
+    """ Admin for feature phone response model. """
+    list_display = ('__unicode__', 'timestamp', 'respondent', 'url')
+    list_filter = ('timestamp', )
+    empty_value_display = '(Empty)'
+    actions = ('download_list_action', )
 
 
 @admin.register(Respondent, site=site)
 class RespondentAdmin(RecordingAdmin):
-    actions = ('download_list_action',)
+    """ Admin for feature phone respondent model. """
+    list_display = ('id', 'call_sid', 'age', 'gender', 'location', 'language')
+    list_filter = ('language', )
+    empty_value_display = '(Empty)'
+    actions = ('download_list_action', )

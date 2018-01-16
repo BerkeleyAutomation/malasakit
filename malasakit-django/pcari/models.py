@@ -29,7 +29,8 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
-from django.db.models import F, Count, Avg, Sum
+from django.db.models import F, Func, Count, Avg, Sum, StdDev, Case, When
+from django.db.models.functions.base import Coalesce, Greatest, Least
 from django.utils.translation import ugettext_lazy as _
 
 __all__ = ['Comment', 'QuantitativeQuestionRating', 'CommentRating',
@@ -52,80 +53,70 @@ def get_direct_fields(model):
             if not field.auto_created or field.concrete]
 
 
-class StatisticsMixin:
+class Sqrt(Func):
+    function = 'SQRT'
+    arity = 1
+
+
+class RatingStatisticsManager(models.Manager):
     """
-    A ``StatisticsMixin`` adds descriptive statistics capabilities to a model
-    that accepts ratings.
-
-    To use this mixin on a model, have the model inherit from this class after
-    it inherits from :class:`django.db.models.Model` (or some subclass of
-    ``Model``). The model must have a related name ``ratings`` (that is, the
-    reverse relationship of a many-to-one) that accesses a ``QuerySet`` of
-    instances of a model that inherits from :class:`Rating`.
-
-    All properties exclude skipped ratings (see :attr:`Rating.SKIPPED`).
+    A ``RatingStatisticsManager`` annotates ``QuerySet``s of ratable models
+    with descriptive statistical attributes. All statistics exclude inactive
+    or skipped ratings.
 
     Attributes:
-        scores: A flat ``QuerySet`` of integer scores.
         num_ratings (int): The number of ratings the object has received.
-        mean_score (float): The mean score the object has received, or
-            ``float('nan')`` if the object has no ratings.
-        mode_score (float): The most common score this object received, or
-            ``float('nan')`` if the object has no ratings.
-        score_stdev (float): The corrected standard deviation of this object's
-            scores, or ``float('nan')`` if the object has fewer than two
-            ratings.
+        mean_score (float): The mean score the object has received, or ``None``
+            with fewer than one rating.
+        score_stddev (float): The corrected standard deviation of this object's
+            scores, or ``None`` if the object has fewer than two ratings.
         score_sem (float): The standard error of the mean of this object's
-            scores, or ``float('nan')`` if the object has fewer than two
+            scores, or ``None`` if the object has fewer than two ratings.
+        score_95ci_lower (float): The lowerbound of the confidence interval
+            about the mean score with confidence level C = 95%. With fewer than
+            two ratings, this bound defaults to the minimum possible, a rating
+            of zero.
+        score_95ci_upper (float): The upperbound of the confidence interval,
+            which defaults to nine, the maximum possible, with fewer than two
             ratings.
     """
-    @property
-    def scores(self):
-        active_ratings = self.ratings.filter(active=True)
-        active_ratings = active_ratings.exclude(
-            score=Rating.SKIPPED
+    z_crit = 1.96
+    def get_queryset(self):
+        queryset = super(RatingStatisticsManager, self).get_queryset()
+        queryset = queryset.annotate(
+            num_ratings=Coalesce(Sum(
+                Case(
+                    When(ratings__score__isnull=False, ratings__active=True, then=1),
+                    output_field=models.PositiveIntegerField(),
+                ),
+            ), 0),
+            mean_score=Avg(Case(
+                When(ratings__active=True, then='ratings__score'),
+            )),
+            score_stddev=StdDev(Case(
+                When(ratings__active=True, then='ratings__score'),
+            ), sample=True),
+        ).annotate(
+            score_sem=F('score_stddev')/Sqrt(F('num_ratings'),
+                                             output_field=models.FloatField()),
+        ).annotate(
+            score_95ci_lower=Greatest(Coalesce(
+                F('mean_score') - self.z_crit*F('score_sem'),
+            0), 0),
+            score_95ci_upper=Least(Coalesce(
+                F('mean_score') + self.z_crit*F('score_sem'),
+            9), 9),
         )
-        return active_ratings.values_list('score', flat=True)
+        return queryset
 
-    def num_ratings(self):
-        return self.scores.count()
-    num_ratings.short_description = 'Number of ratings'
-    num_ratings = property(num_ratings)
 
-    @property
-    def mean_score(self):
-        mean = self.scores.aggregate(Avg('score'))['score__avg']
-        return mean if mean is not None else float('nan')
-
-    @property
-    def mode_score(self):
-        aggregation = self.scores.annotate(count=Count('score'))
-        most_common = aggregation.order_by('-count').first()
-        return most_common if most_common is not None else float('nan')
-
-    @property
-    def _score_aggregates(self):
-        query = self.scores.annotate(score_squared=F('score')*F('score'))
-        values = query.aggregate(
-            Sum('score'), Sum('score_squared'), Count('score')
-        )
-        return values['score__sum'], values['score_squared__sum'], values['score__count']
-
-    @property
-    def score_stdev(self):
-        score_sum, score_squared_sum, num_scores = self._score_aggregates
-        if num_scores < 2:
-            return float('nan')
-        stdev2 = (score_squared_sum - pow(score_sum, 2)/num_scores)/(num_scores - 1)
-        return pow(stdev2, 0.5)
-
-    @property
-    def score_sem(self):
-        score_sum, score_squared_sum, num_scores = self._score_aggregates
-        if num_scores < 2:
-            return float('nan')
-        stdev2 = (score_squared_sum - pow(score_sum, 2)/num_scores)/(num_scores - 1)
-        return pow(stdev2, 0.5)/num_scores**0.5
+class ActiveObjectManager(models.Manager):
+    """
+    The ``ActiveObjectManager`` provides a shortcut for filtering for active
+    instances by default.
+    """
+    def get_queryset(self):
+        return super(ActiveObjectManager, self).get_queryset().filter(active=True)
 
 
 class History(models.Model):
@@ -153,6 +144,8 @@ class History(models.Model):
         predecessors: A generator of predecessors, from the most recent to the
             original. Analogous to crawling up the revision tree.
     """
+    objects = models.Manager()
+    active_objects = ActiveObjectManager()
     predecessor = models.ForeignKey('self', on_delete=models.SET_NULL,
                                     null=True, blank=True, default=None,
                                     related_name='successors')
@@ -171,7 +164,6 @@ class History(models.Model):
             if field.editable and not field.unique:
                 value = getattr(self, field.name)
                 setattr(copy, field.name, value)
-
         return copy
 
     def diff(self, other):
@@ -235,7 +227,7 @@ class Rating(Response):
     """
     SKIPPED = None
 
-    score = models.PositiveSmallIntegerField(default=SKIPPED, null=True, blank=True)
+    score = models.PositiveIntegerField(default=SKIPPED, null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -299,7 +291,7 @@ class CommentRating(Rating):
         unique_together = ('respondent', 'comment')
 
 
-class Comment(Response, StatisticsMixin):
+class Comment(Response):
     """
     A ``Comment`` is an open-ended text response to a
     :class:`QualitativeQuestion`.
@@ -318,7 +310,7 @@ class Comment(Response, StatisticsMixin):
             delimited with contiguous whitespace.)
     """
     MAX_MESSAGE_DISPLAY_LENGTH = 140
-
+    objects = RatingStatisticsManager()
     question = models.ForeignKey('QualitativeQuestion',
                                  on_delete=models.CASCADE,
                                  related_name='comments')
@@ -350,9 +342,17 @@ class Question(History):
         prompt (str): The prompt in English. (Translations can be specified
             with Django's localization system.)
         tag (str): A short string in English that summarizes the prompt.
+        order (int): A key used for sorting questions in ascending order before
+            being displayed. This value need not be unique--ties are broken
+            arbitrarily. Questions without an ``order`` are displayed last.
     """
     prompt = models.TextField(blank=True, default='')
     tag = models.CharField(max_length=256, blank=True, default='')
+    order = models.IntegerField(null=True, blank=True, default=None,
+                                help_text='Questions are displayed using this '
+                                          'value sorted in ascending order. '
+                                          'Questions without a given <tt>order</tt> '
+                                          'are displayed last.')
 
     class Meta:
         abstract = True
@@ -372,9 +372,9 @@ class QualitativeQuestion(Question):
         return 'Qualitative question {0}: "{1}"'.format(self.pk, self.prompt)
 
 
-class QuantitativeQuestion(Question, StatisticsMixin):
+class QuantitativeQuestion(Question):
     """
-    A ``QuantitativeQuestion`` is a question that asks for a numeric rating.
+    A ``QuantitativeQuestion`` is a question that asks for a number.
 
     Attributes:
         INPUT_TYPE_CHOICES (tuple): Input type choices, each of which is a
@@ -393,12 +393,16 @@ class QuantitativeQuestion(Question, StatisticsMixin):
         max_score (int): The largest possible score for this question. A value
             of `None` is treated as positive infinity (that is, no upper bound).
         input_type (str): How the input should be rendered.
+        show_statistics (bool): Show statistics for this question on the peer
+            responses page.
     """
     INPUT_TYPE_CHOICES = (
         ('range', 'Range'),
         ('number', 'Number'),
+        # Possibly allow for a row of buttons as well
     )
 
+    objects = RatingStatisticsManager()
     left_anchor = models.TextField(blank=True, default='')
     right_anchor = models.TextField(blank=True, default='')
     min_score = models.PositiveSmallIntegerField(default=0, null=True,
@@ -407,6 +411,7 @@ class QuantitativeQuestion(Question, StatisticsMixin):
                                                  verbose_name=_('Minimum score'))
     input_type = models.CharField(max_length=16, choices=INPUT_TYPE_CHOICES,
                                   default='range')
+    show_statistics = models.BooleanField(default=True)
 
     def __unicode__(self):
         return 'Quantitative question {0}: "{1}"'.format(self.pk, self.prompt)
@@ -469,6 +474,9 @@ class OptionQuestion(Question):
             except (ValueError, AssertionError):
                 raise ValidationError(_('"_options_text" is not a JSON list of strings'))
 
+            if not len(options):
+                raise ValidationError(_('"_options_text" must contain at least one option'))
+
 
 class OptionQuestionChoice(Response):
     """
@@ -495,7 +503,7 @@ class OptionQuestionChoice(Response):
         if self.option and self.option not in self.question.options:
             raise ValidationError(_('"%(option)s" is not a valid option'),
                                   code='invalid-selection',
-                                  params={'option': str(self.option)})
+                                  params={'option': unicode(self.option)})
 
     def __unicode__(self):
         template = 'Option question choice {0}: "{1}"'

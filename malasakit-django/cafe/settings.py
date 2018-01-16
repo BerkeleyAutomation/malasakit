@@ -156,12 +156,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 HTML_MINIFY = not DEBUG
 
-# Custom setting that should be `True` to enable service workers for offline functionality
-SERVICE_WORKERS = True
-
 LANGUAGES = (
     ('en', _('English')),
     ('tl', _('Filipino')),
+    ('ceb', _('Cebuano')),
+    ('ilo', _('Ilocano')),
 )
 
 LOCALE_PATHS = (
@@ -193,3 +192,13 @@ STATIC_URL = os.path.join(URL_ROOT, 'static/')
 # Media files
 MEDIA_ROOT = os.path.join(PROJECT_DIR, 'media')
 MEDIA_URL = '/media/'
+
+
+# Custom settings
+
+# Maximum number of comments to serve per request
+DEFAULT_COMMENT_LIMIT = 300
+# Default standard error of unrated comment (that is, fewer than two ratings)
+DEFAULT_STANDARD_ERROR = 4.5
+# Set to `True` to enable service workers for offline functionality
+SERVICE_WORKERS = True

@@ -1,7 +1,8 @@
 /** bloom.js
  */
 
-// The Base64 representation of a PNG of `fa-comment` from Font Awesome
+// The Base64 representation of an SVG of `fa-comment` from Font Awesome
+// colored using `goldenrod`
 var ICON_IMAGE = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/"
                + "PjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4x"
                + "Ly9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEv"
@@ -51,7 +52,7 @@ if (Resource.exists('bloom-icon')) {
     }
 }
 
-const NO_TAG_PLACEHOLDER = '(?)';
+const NO_TAG_PLACEHOLDER = '';
 const MIN_REQUIRED_COMMENT_RATINGS = 2;
 
 function calculateBounds(comments) {
@@ -128,8 +129,8 @@ function startCommentRating(commentID) {
     var inputElement = $('input#quantitative-input');
 
     $('.modal').css('display', 'block');
-    $('#question-prompt').text(translatedPrompt);
-    $('#comment-message').text(comments[commentID].msg);
+    $('#question-prompt').html(translatedPrompt.replace(/\n/g, '<br>'));
+    $('#comment-message').html(comments[commentID].msg.replace(/\n/g, '<br>'));
 
     inputElement.val(0);
     var path = ['comment-ratings', commentID];
@@ -166,7 +167,7 @@ function renderComments() {
     bloom.attr('height', height);
 
     console.log('Rendering ' + width + 'x' + height + ' bloom');
-    simulation = d3.forceSimulation().force('charge', d3.forceManyBody().strength(-60));
+    simulation = d3.forceSimulation().force('charge', d3.forceManyBody().strength(-120));
     bloom.selectAll('*').remove();
 
     var selectedComments = Resource.load('selected-comments').data || {};
@@ -189,18 +190,19 @@ function renderComments() {
     nodes.call(drag).on('click', function(node) {
         startCommentRating(node.commentID);
     });
-    var iconWidth = Math.max(0.1*width, 32);
+    var iconSize = Math.max(0.1*width, 32);
     nodes.append('image')
          .attr('xlink:href', 'data:' + CONTENT_TYPE + ';base64,' + ICON_IMAGE)
-         .attr('width', iconWidth);
-    nodes.append('text').text(node => node.tag).attr('x', iconWidth + 3).attr('y', 15)
+         .attr('width', iconSize)
+         .attr('height', iconSize);
+    nodes.append('text').text(node => node.tag).attr('x', iconSize + 3).attr('y', 15)
          .attr('fill', '#1371ad');
 
     function tick() {
         var iconHeight = nodes.node().getBoundingClientRect().height;
         nodes.attr('transform', function(node) {
-            var x = Math.max(0, Math.min(node.x, width - 1.5*iconWidth));
-            var y = Math.max(0, Math.min(node.y, height - iconHeight));
+            var x = Math.max(0, Math.min(node.x, width - 2*iconSize));
+            var y = Math.max(0.05*iconHeight, Math.min(node.y, height - iconHeight));
             return 'translate(' + x + ', ' + y + ')';
         });
     }
