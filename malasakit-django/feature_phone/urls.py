@@ -26,7 +26,7 @@ urlpatterns = [
     url(r'^age/download/$', views.download_age_recording, name='download-age'),
     url(r'^barangay/prompt/$', views.PromptBarangayView.as_view(), name='prompt-barangay'),
     url(r'^barangay/download/$', views.download_barangay_recording, name='download-barangay'),
-    url(r'^quantiative-questions/instructions/$', views.QuantiativeQuestionInstructionsView.as_view(),
+    url(r'^quantitative-questions/instructions/$', views.QuantiativeQuestionInstructionsView.as_view(),
         name='quantitative-question-instructions'),
     url(r'^quantitative-questions/prompt/$', views.PromptQuantitativeQuestionView.as_view(),
         name='prompt-quantitative-question'),

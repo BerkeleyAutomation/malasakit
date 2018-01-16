@@ -58,7 +58,7 @@ def play_recording(action, recording):
         action.say(recording.text)
 
 
-def speak(action, instruction_keys, pause_duration=0.3):
+def speak(action, instruction_keys, pause_duration=0):
     """
     Play a list of instructions.
 
@@ -316,6 +316,7 @@ class QuantiativeQuestionInstructionsView(PromptView):
     submit_view = 'feature-phone:prompt-quantitative-question'
     accept_keypress = True
     accept_speech = False
+    timeout = 0
     prompts = ['quantitative-question-instructions', 'quantitative-question-reminder']
 
     def ask(self, request, action):
@@ -383,6 +384,7 @@ class CommentRatingInstructions(PromptView):
     submit_view = 'feature-phone:prompt-comment'
     accept_keypress = True
     accept_speech = False
+    timeout = 0
     prompts = ['comment-rating-instructions']
 
     def ask(self, request, action):
@@ -455,6 +457,7 @@ class QualitativeQuestionInstructionsView(PromptView):
     submit_view = 'feature-phone:prompt-qualitative-question'
     accept_keypress = True
     accept_speech = False
+    timeout = 0
     prompts = ['qualitative-question-instructions']
 
     def ask(self, request, action):
@@ -617,7 +620,7 @@ def download_recording(request):
         try:
             url = request.POST['RecordingUrl']
             if url:
-                time.sleep(3)  # Ensure
+                time.sleep(3)  # Ensure the response's URL attribute has been set
                 voice_response = Response.objects.get(url=url)
                 fetch_recording(voice_response.recording, url)
                 voice_response.save()
