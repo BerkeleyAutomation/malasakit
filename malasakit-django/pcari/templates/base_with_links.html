@@ -1,5 +1,12 @@
 {% extends 'base.html' %}
-{% blocktrans trimmed %}
-  This site uses the <a href="http://cafesystem.org/">Collective Assessment and Feedback Engine (CAFÉ)</a>.
-  Learn more about <a href="{{ about_url }}">CAFÉ</a>.
-{% endblocktrans %}
+
+{% load i18n %}
+
+{% block footnote %}
+  {% url 'pcari:about' as about_url %}
+  {% blocktrans trimmed %}
+    This site uses the <a href="http://cafesystem.org/">Collective Assessment 
+      and Feedback Engine (CAFÉ)</a>.
+    Learn more about <a href="{{ about_url }}">CAFÉ</a>.
+  {% endblocktrans %}
+{% endblock %}
