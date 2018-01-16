@@ -154,7 +154,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-HTML_MINIFY = False  # TODO: `not DEBUG` disabled for now so that TwiML is not wrapped in HTML
+HTML_MINIFY = not DEBUG
 
 LANGUAGES = (
     ('en', _('English')),
