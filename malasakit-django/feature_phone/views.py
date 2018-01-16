@@ -146,7 +146,7 @@ class PromptView(View):
                                   finish_on_key=end_keys)
         self.fallback(voice_response)
         voice_response.redirect(reverse(self.submit_view))
-        return HttpResponse(voice_response)
+        return HttpResponse(voice_response, content_type='application/xml')
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -164,7 +164,7 @@ class SaveView(View):
         voice_response = VoiceResponse()
         self.save(request, voice_response)
         voice_response.redirect(reverse(self.next_view))
-        return HttpResponse(voice_response)
+        return HttpResponse(voice_response, content_type='application/xml')
 
 
 def get_respondent(session, pk_key='respondent-pk'):
@@ -215,7 +215,7 @@ class SaveLanguageView(SaveView):
         voice_response = VoiceResponse()
         language = self.save(request, voice_response)
         voice_response.redirect(localize_url(reverse(self.next_view), language))
-        return HttpResponse(voice_response)
+        return HttpResponse(voice_response, content_type='application/xml')
 
 
 class PromptIRBNoticeView(PromptView):
@@ -237,7 +237,7 @@ class VerifyIRBNoticeView(SaveView):
             speak(voice_response, ['irb-notice-exit'])
             voice_response.hangup()
             LOGGER.debug('Respondent %d declined IRB notice', respondent.pk)
-            return HttpResponse(voice_response)
+            return HttpResponse(voice_response, content_type='application/xml')
         LOGGER.debug('Respondent %d accepted IRB notice', respondent.pk)
         return super(VerifyIRBNoticeView, self).post(request)
 
@@ -285,7 +285,7 @@ def download_age_recording(request):
         LOGGER.debug('Downloaded age recording for respondent %d', respondent.pk)
     else:
         LOGGER.warn('Callback missing "RecordingUrl" parameter for age')
-    return HttpResponse()
+    return HttpResponse(content_type='application/xml')
 
 
 class PromptBarangayView(PromptView):
@@ -306,7 +306,7 @@ def download_barangay_recording(request):
         LOGGER.debug('Downloaded barangay recording for respondent %d', respondent.pk)
     else:
         LOGGER.warn('Callback missing "RecordingUrl" parameter for barangay')
-    return HttpResponse()
+    return HttpResponse(content_type='application/xml')
 
 
 class QuantiativeQuestionInstructionsView(PromptView):
@@ -338,7 +338,7 @@ class PromptQuantitativeQuestionView(PromptView):
         if request.session['index'] >= len(request.session['obj-keys']):
             voice_response = VoiceResponse()
             voice_response.redirect(reverse('feature-phone:comment-rating-instructions'))
-            return HttpResponse(voice_response)
+            return HttpResponse(voice_response, content_type='application/xml')
         return super(PromptQuantitativeQuestionView, self).post(request)
 
 
@@ -374,7 +374,7 @@ class SaveQuantitativeRatingView(SaveView):
     def post(self, request):
         if request.POST.get('Digits') == 'hangup':
             LOGGER.debug('Respondent %d hung up', get_respondent(request.session).pk)
-            return HttpResponse()
+            return HttpResponse(content_type='application/xml')
         return super(SaveQuantitativeRatingView, self).post(request)
 
 
@@ -411,7 +411,7 @@ class PromptCommentView(PromptView):
         if request.session['index'] >= len(request.session['obj-keys']):
             voice_response = VoiceResponse()
             voice_response.redirect(reverse('feature-phone:qualitative-question-instructions'))
-            return HttpResponse(voice_response)
+            return HttpResponse(voice_response, content_type='application/xml')
         return super(PromptCommentView, self).post(request)
 
 
@@ -448,7 +448,7 @@ class SaveCommentRatingView(SaveView):
     def post(self, request):
         if request.POST.get('Digits') == 'hangup':
             LOGGER.debug('Respondent %d hung up', get_respondent(request.session).pk)
-            return HttpResponse()
+            return HttpResponse(content_type='application/xml')
         return super(SaveCommentRatingView, self).post(request)
 
 
@@ -481,7 +481,7 @@ class PromptQualitativeQuestionView(PromptView):
         if request.session['index'] >= len(request.session['obj-keys']):
             voice_response = VoiceResponse()
             voice_response.redirect(reverse('feature-phone:end'))
-            return HttpResponse(voice_response)
+            return HttpResponse(voice_response, content_type='application/xml')
         return super(PromptQualitativeQuestionView, self).post(request)
 
 
@@ -497,7 +497,7 @@ class ConfirmCommentView(PromptView):
         respondent = get_respondent(request.session)
 
         if request.POST.get('Digits') == 'hangup':
-            return HttpResponse()
+            return HttpResponse(content_type='application/xml')
         elif request.POST.get('Digits') == SKIP_DIGIT or request.session.get('repeat'):
             if request.session.get('repeat'):
                 response = Response.objects.get(
@@ -511,7 +511,7 @@ class ConfirmCommentView(PromptView):
             request.session['repeat'] = False
             voice_response = VoiceResponse()
             voice_response.redirect(reverse('feature-phone:prompt-qualitative-question'))
-            return HttpResponse(voice_response)
+            return HttpResponse(voice_response, content_type='application/xml')
         else:
             comment = web_models.Comment.objects.create(
                 question=question.related_object,
@@ -546,7 +546,7 @@ def end(request):
     voice_response = VoiceResponse()
     speak(voice_response, ['end'])
     voice_response.hangup()
-    return HttpResponse(voice_response)
+    return HttpResponse(voice_response, content_type='application/xml')
 
 
 def select_comment_pks(num_to_select=2):
@@ -629,14 +629,14 @@ def download_recording(request):
             LOGGER.warn('Response with recording URL %s does not exist', url)
     else:
         LOGGER.warn('Parameter "RecordingUrl" not passed to recording download callback')
-    return HttpResponse()
+    return HttpResponse(content_type='application/xml')
 
 
 @csrf_exempt
 @require_POST
 def error(request):
     # pylint: disable=unused-argument
-    response = VoiceResponse()
-    response.say('Our apologies: Malasakit is experiencing issues at this time. '
-                 'Please try again momentarily.')
-    return HttpResponse(response)
+    voice_response = VoiceResponse()
+    voice_response.say('Our apologies: Malasakit is experiencing issues at this time. '
+                       'Please try again momentarily.')
+    return HttpResponse(voice_response, content_type='application/xml')
