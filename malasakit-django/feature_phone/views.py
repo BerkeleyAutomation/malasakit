@@ -127,6 +127,7 @@ class PromptView(View):
         pass
 
     def post(self, request):
+        """ Serve the Twilio client directions for collecting input. """
         voice_response = VoiceResponse()
         if self.accept_keypress:
             keypress_timeout = 0 if self.accept_speech else self.timeout
@@ -161,6 +162,7 @@ class SaveView(View):
         pass
 
     def post(self, request):
+        """ Handle incoming input. """
         voice_response = VoiceResponse()
         self.save(request, voice_response)
         voice_response.redirect(reverse(self.next_view))
@@ -172,6 +174,7 @@ def get_respondent(session, pk_key='respondent-pk'):
 
 
 class PromptLanguageView(PromptView):
+    """ Ask the listener for their preferred language. """
     submit_view = 'feature-phone:save-language'
     accept_keypress = True
     accept_speech = False
@@ -187,6 +190,7 @@ class PromptLanguageView(PromptView):
 
 
 class SaveLanguageView(SaveView):
+    """ Save listener language selections, and redirect them accordingly. """
     next_view = 'feature-phone:qualitative-question-instructions'
     key_to_language = {
         '1': 'en',
@@ -219,6 +223,7 @@ class SaveLanguageView(SaveView):
 
 
 class PromptIRBNoticeView(PromptView):
+    """ Present an IRB notice to listeners, and allow them to opt-out. """
     submit_view = 'feature-phone:verify-irb-notice'
     prompts = ['introduction', 'irb-notice', 'irb-notice-prompt']
     accept_keypress = True
@@ -226,6 +231,7 @@ class PromptIRBNoticeView(PromptView):
 
 
 class VerifyIRBNoticeView(SaveView):
+    """ Hang up if the listener does not accept the IRB, or continue otherwise. """
     next_view = 'feature-phone:prompt-gender'
     accept_irb_key = '1'
 
@@ -243,6 +249,7 @@ class VerifyIRBNoticeView(SaveView):
 
 
 class PromptGenderView(PromptView):
+    """ Ask listeners for their gender. """
     submit_view = 'feature-phone:save-gender'
     prompts = ['gender-prompt']
     accept_keypress = True
@@ -250,6 +257,7 @@ class PromptGenderView(PromptView):
 
 
 class SaveGenderView(SaveView):
+    """ Save responses to the gender question. """
     next_view = 'feature-phone:prompt-age'
     key_to_gender = {
         '1': 'M',
@@ -268,6 +276,7 @@ class SaveGenderView(SaveView):
 
 
 class PromptAgeView(PromptView):
+    """ Ask listeners for their age. """
     submit_view = 'feature-phone:prompt-barangay'
     prompts = ['age-prompt']
     accept_keypress = False
@@ -278,6 +287,7 @@ class PromptAgeView(PromptView):
 @csrf_exempt
 @require_POST
 def download_age_recording(request):
+    """ Download recordings of listeners stating their ages. """
     url = request.POST.get('RecordingUrl')
     respondent = Respondent.objects.get(call_sid=request.POST['CallSid'])
     if url:
@@ -289,6 +299,7 @@ def download_age_recording(request):
 
 
 class PromptBarangayView(PromptView):
+    """ Ask listeners for their barangay. """
     submit_view = 'feature-phone:quantitative-question-instructions'
     prompts = ['barangay-prompt']
     accept_keypress = False
@@ -299,6 +310,7 @@ class PromptBarangayView(PromptView):
 @csrf_exempt
 @require_POST
 def download_barangay_recording(request):
+    """ Download recordings of listeners stating their barangays. """
     url = request.POST.get('RecordingUrl')
     respondent = Respondent.objects.get(call_sid=request.POST['CallSid'])
     if url:
@@ -310,6 +322,7 @@ def download_barangay_recording(request):
 
 
 class QuantiativeQuestionInstructionsView(PromptView):
+    """ Explain the quantitative question section, and initialize session data. """
     submit_view = 'feature-phone:prompt-quantitative-question'
     accept_keypress = True
     accept_speech = False
@@ -324,6 +337,7 @@ class QuantiativeQuestionInstructionsView(PromptView):
 
 
 class PromptQuantitativeQuestionView(PromptView):
+    """ Ask a quantitative question. """
     submit_view = 'feature-phone:save-quantitative-rating'
     accept_keypress = True
     accept_speech = True
@@ -343,6 +357,7 @@ class PromptQuantitativeQuestionView(PromptView):
 
 
 class SaveQuantitativeRatingView(SaveView):
+    """ Record a rating to a quantitative question. """
     next_view = 'feature-phone:prompt-quantitative-question'
 
     def save(self, request, voice_response):
@@ -379,6 +394,7 @@ class SaveQuantitativeRatingView(SaveView):
 
 
 class CommentRatingInstructions(PromptView):
+    """ Explain the peer evaluation section, and select the suggestions to be presented. """
     submit_view = 'feature-phone:prompt-comment'
     accept_keypress = True
     accept_speech = False
@@ -392,6 +408,7 @@ class CommentRatingInstructions(PromptView):
 
 
 class PromptCommentView(PromptView):
+    """ Play back a suggestion to the listener. """
     submit_view = 'feature-phone:save-comment-rating'
     accept_keypress = True
     accept_speech = True
@@ -416,6 +433,7 @@ class PromptCommentView(PromptView):
 
 
 class SaveCommentRatingView(SaveView):
+    """ Recording a rating of a suggestion. """
     next_view = 'feature-phone:prompt-comment'
 
     def save(self, request, voice_response):
@@ -453,6 +471,7 @@ class SaveCommentRatingView(SaveView):
 
 
 class QualitativeQuestionInstructionsView(PromptView):
+    """ Expalin the qualitative question section, and initialize session data. """
     submit_view = 'feature-phone:prompt-qualitative-question'
     accept_keypress = True
     accept_speech = False
@@ -467,6 +486,7 @@ class QualitativeQuestionInstructionsView(PromptView):
 
 
 class PromptQualitativeQuestionView(PromptView):
+    """ Ask the listener for a suggestion. """
     submit_view = 'feature-phone:confirm-comment'
     accept_keypress = True
     accept_speech = True
@@ -486,6 +506,15 @@ class PromptQualitativeQuestionView(PromptView):
 
 
 class ConfirmCommentView(PromptView):
+    """
+    Ask the listener to confirm they are satisfied with their suggestion.
+
+    Note:
+        Since the raw suggestions are played back to other listeners, it is
+        important to ensure listeners can re-record their suggestions. However,
+        this only happens once (otherwise, listeners may feel compelled to
+        unnecessarily polish their suggestions).
+    """
     submit_view = 'feature-phone:save-comment'
     prompts = ['qualitative-question-confirm']
     accept_keypress = True
@@ -525,6 +554,7 @@ class ConfirmCommentView(PromptView):
 
 
 class SaveCommentView(SaveView):
+    """ Handle responses to the suggestion confirmation prompt. """
     next_view = 'feature-phone:prompt-qualitative-question'
     rerecord_key = '1'
 
@@ -539,6 +569,7 @@ class SaveCommentView(SaveView):
 @csrf_exempt
 @require_POST
 def end(request):
+    """ Clean up local session data, thank the listener, and hang up. """
     for key in ['respondent-pk', 'index', 'obj-keys', 'repeat']:
         if key in request.session:
             del request.session[key]
@@ -550,6 +581,7 @@ def end(request):
 
 
 def select_comment_pks(num_to_select=2):
+    """ Select comments to play to a listener. """
     comments = web_models.Comment.objects.filter(
         language=get_language() or settings.LANGUAGE_CODE,
     ).exclude(message='')
@@ -567,13 +599,22 @@ def select_comment_pks(num_to_select=2):
                                  p=probabilities))
 
 
-def fetch_question_pks(question_type):
+def fetch_question_pks(question_type, include_orphans=False):
+    """
+    Fetch all primary keys (in order) of a given question type.
+
+    Arguments:
+        question_type: A `ContentType` instance of the question model.
+        include_orphans (bool): A flag that indicates whether the query should
+            return feature phone-only questions.
+    """
     questions = Question.objects.filter(related_object_type=question_type,
                                         language=get_language())
     # Need to use a list because the filter needs to access a field of `related_object`
-    questions = [question for question in questions if question.related_object is None or
-                 question.related_object.active]
+    questions = [question for question in questions if question.related_object is None
+                 and include_orphans or question.related_object.active]
     def key(question):
+        """ Sort questions such that orphaned questions or those with no order given are last. """
         if question.related_object and question.related_object.order is not None:
             return question.related_object.order
         return float('inf')
@@ -582,12 +623,14 @@ def fetch_question_pks(question_type):
 
 
 def fetch_recording(file_field, url):
+    """ Download a recording from the given URL as a file field value. """
     response = urlopen(url)
     response_buffer = ContentFile(response.read())
     file_field.save(os.path.basename(url), response_buffer, save=True)
 
 
 def make_response(respondent, prompt, related_object):
+    """ Make a feature phone response. """
     return Response.objects.create(
         respondent=respondent,
         prompt_type=ContentType.objects.get_for_model(prompt.__class__),
@@ -598,6 +641,7 @@ def make_response(respondent, prompt, related_object):
 
 
 def transcribe_rating(response, text=''):
+    """ Transcribe a keypress to its related web-facing model. """
     response.text = text
     response.save()
 
@@ -617,6 +661,7 @@ def transcribe_rating(response, text=''):
 @csrf_exempt
 @require_POST
 def download_recording(request):
+    """ Download a recording for a `Response` instance, which must have had its URL set.  """
     if 'RecordingUrl' in request.POST:
         try:
             url = request.POST['RecordingUrl']
@@ -635,8 +680,15 @@ def download_recording(request):
 @csrf_exempt
 @require_POST
 def error(request):
+    """
+    Read an error message to a listener, and gracefully exit.
+
+    This should never happen. Uses a minimal `Say` verb to avoid points of failure.
+    """
     # pylint: disable=unused-argument
     voice_response = VoiceResponse()
     voice_response.say('Our apologies: Malasakit is experiencing issues at this time. '
                        'Please try again momentarily.')
+    voice_response.hangup()
+    LOGGER.error('Critical error')
     return HttpResponse(voice_response, content_type='application/xml')
