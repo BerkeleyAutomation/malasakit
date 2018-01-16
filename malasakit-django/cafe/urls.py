@@ -60,6 +60,10 @@ urlpatterns += i18n_patterns(
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
+# Serve media files in development
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
 # Error handlers
 handler404 = 'pcari.views.handle_page_not_found'
 handler500 = 'pcari.views.handle_internal_server_error'
