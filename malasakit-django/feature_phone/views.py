@@ -10,17 +10,13 @@ https://twilio.github.io/twilio-python/6.5.0/twiml/
 
 import logging
 import os
-import random
-import requests
 from string import digits
 import time
 from urllib2 import urlopen
 
 from django.core.files.base import ContentFile
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Q
 from django.http import HttpResponse
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
@@ -33,9 +29,6 @@ from twilio.twiml.voice_response import VoiceResponse, Gather
 
 from feature_phone.models import Respondent, Question, Response, Instructions
 from pcari import models as web_models
-from pcari.models import QuantitativeQuestion, QualitativeQuestion
-from pcari.models import Comment, CommentRating, QuantitativeQuestionRating
-from pcari.models import get_concrete_fields
 from pcari.templatetags.localize_url import localize_url
 
 REPEAT_DIGIT = '*'
@@ -75,7 +68,7 @@ def speak(action, instruction_keys, pause_duration=0):
         instructions = [Instructions.objects.get(key=key, language=get_language())
                         for key in instruction_keys]
     except Instructions.DoesNotExist:
-        LOGGER.warn('Could not play all instructions: {}'.format(instruction_keys))
+        LOGGER.warn('Could not play all instructions: %s', repr(instruction_keys))
         return
 
     for index, instruction in enumerate(instructions):
@@ -213,7 +206,7 @@ class SaveLanguageView(SaveView):
         )
         request.session['respondent-pk'] = respondent.pk
 
-        LOGGER.info("Respondent {} selected language '{}'".format(respondent.pk, language))
+        LOGGER.info("Respondent %d selected language '%s'", respondent.pk, language)
         return language
 
     def post(self, request):
@@ -579,16 +572,15 @@ def fetch_question_pks(question_type):
     def key(question):
         if question.related_object and question.related_object.order is not None:
             return question.related_object.order
-        else:
-            return float('inf')
+        return float('inf')
     questions.sort(key=key)
     return [question.pk for question in questions]
 
 
 def fetch_recording(file_field, url):
     response = urlopen(url)
-    buffer = ContentFile(response.read())
-    file_field.save(os.path.basename(url), buffer, save=True)
+    response_buffer = ContentFile(response.read())
+    file_field.save(os.path.basename(url), response_buffer, save=True)
 
 
 def make_response(respondent, prompt, related_object):
@@ -629,15 +621,16 @@ def download_recording(request):
                 fetch_recording(voice_response.recording, url)
                 voice_response.save()
         except Response.DoesNotExist:
-            LOGGER.warn('Response with "RecordingUrl" {} does not exist'.format(url))
+            LOGGER.warn('Response with recording URL %s does not exist', url)
     else:
-        LOGGER.warn('"RecordingUrl" not passed to recording download callback')
+        LOGGER.warn('Parameter "RecordingUrl" not passed to recording download callback')
     return HttpResponse()
 
 
 @csrf_exempt
 @require_POST
 def error(request):
+    # pylint: disable=unused-argument
     response = VoiceResponse()
     response.say('Our apologies: Malasakit is experiencing issues at this time. '
                  'Please try again momentarily.')

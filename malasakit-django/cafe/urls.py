@@ -20,7 +20,7 @@ from django.conf.urls import include, url
 from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy
 from django.views.generic.base import TemplateView, RedirectView
 from django.views.i18n import JavaScriptCatalog
 
@@ -47,7 +47,8 @@ urlpatterns = [
         name='password_reset_complete'),
 
     url(r'^api/', include(api_urlpatterns)),  # AJAX endpoints
-    url(r'^jsi18n/$', JavaScriptCatalog.as_view(), name='javascript-catalog'),  # Translations for JavaScript code
+    # Translations for JavaScript code
+    url(r'^jsi18n/$', JavaScriptCatalog.as_view(), name='javascript-catalog'),
 ]
 
 urlpatterns += i18n_patterns(
