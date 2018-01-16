@@ -117,6 +117,7 @@ class PromptView(View):
     http_method_names = ['post']
 
     def ask(self, request, action):
+        # pylint: disable=unused-argument
         if self.prompts:
             speak(action, self.prompts)
         else:
@@ -194,10 +195,11 @@ class SaveLanguageView(SaveView):
         '4': 'ilo',
     }
 
-    def save(self, request):
+    def save(self, request, voice_response):
         digit = request.POST.get('Digits')
         language = self.key_to_language.get(digit, settings.LANGUAGE_CODE)
 
+        # pylint: disable=no-member
         related_object = web_models.Respondent.objects.create()
         respondent = Respondent.objects.create(
             related_object_id=related_object.id,
@@ -210,8 +212,8 @@ class SaveLanguageView(SaveView):
         return language
 
     def post(self, request):
-        language = self.save(request)
         voice_response = VoiceResponse()
+        language = self.save(request, voice_response)
         voice_response.redirect(localize_url(reverse(self.next_view), language))
         return HttpResponse(voice_response)
 
@@ -234,9 +236,9 @@ class VerifyIRBNoticeView(SaveView):
             voice_response = VoiceResponse()
             speak(voice_response, ['irb-notice-exit'])
             voice_response.hangup()
-            LOGGER.debug('Respondent {} declined IRB notice'.format(respondent.pk))
+            LOGGER.debug('Respondent %d declined IRB notice', respondent.pk)
             return HttpResponse(voice_response)
-        LOGGER.debug('Respondent {} accepted IRB notice'.format(respondent.pk))
+        LOGGER.debug('Respondent %d accepted IRB notice', respondent.pk)
         return super(VerifyIRBNoticeView, self).post(request)
 
 
@@ -260,9 +262,9 @@ class SaveGenderView(SaveView):
         if respondent.related_object and gender:
             respondent.related_object.gender = gender
             respondent.related_object.save()
-            LOGGER.debug('Respondent {} selected "{}" to gender question'.format(respondent.pk, gender))
+            LOGGER.debug('Respondent %d selected "%s" to gender question', respondent.pk, gender)
         else:
-            LOGGER.debug('Respondent {} skipped gender question'.format(respondent.pk))
+            LOGGER.debug('Respondent %d skipped gender question', respondent.pk)
 
 
 class PromptAgeView(PromptView):
@@ -280,7 +282,7 @@ def download_age_recording(request):
     respondent = Respondent.objects.get(call_sid=request.POST['CallSid'])
     if url:
         fetch_recording(respondent.age, url)
-        LOGGER.debug('Downloaded age recording for respondent {}'.format(respondent.pk))
+        LOGGER.debug('Downloaded age recording for respondent %d', respondent.pk)
     else:
         LOGGER.warn('Callback missing "RecordingUrl" parameter for age')
     return HttpResponse()
@@ -301,7 +303,7 @@ def download_barangay_recording(request):
     respondent = Respondent.objects.get(call_sid=request.POST['CallSid'])
     if url:
         fetch_recording(respondent.location, url)
-        LOGGER.debug('Downloaded barangay recording for respondent {}'.format(respondent.pk))
+        LOGGER.debug('Downloaded barangay recording for respondent %d', respondent.pk)
     else:
         LOGGER.warn('Callback missing "RecordingUrl" parameter for barangay')
     return HttpResponse()
@@ -352,10 +354,11 @@ class SaveQuantitativeRatingView(SaveView):
         try:
             question = Question.objects.get(pk=question_pk)
         except Question.DoesNotExist:
-            LOGGER.warn('Question {} does not exist'.format(question_pk))
+            LOGGER.warn('Question %d does not exist', question_pk)
             return
 
         respondent = get_respondent(request.session)
+        # pylint: disable=no-member
         rating = web_models.QuantitativeQuestionRating.objects.create(
             question=question.related_object,
             respondent=respondent.related_object,
@@ -365,12 +368,12 @@ class SaveQuantitativeRatingView(SaveView):
         response.url = request.POST.get('RecordingUrl', '')
         response.save()
 
-        LOGGER.debug('Respondent {} answered quantitative question {}'.format(respondent.pk, question.pk))
+        LOGGER.debug('Respondent %d answered quantitative question %d', respondent.pk, question.pk)
         request.session['index'] += 1
 
     def post(self, request):
         if request.POST.get('Digits') == 'hangup':
-            LOGGER.debug('Respondent {} hung up'.format(get_respondent(request.session).pk))
+            LOGGER.debug('Respondent %d hung up', get_respondent(request.session).pk)
             return HttpResponse()
         return super(SaveQuantitativeRatingView, self).post(request)
 
@@ -429,6 +432,7 @@ class SaveCommentRatingView(SaveView):
             'related_object_type': ContentType.objects.get_for_model(web_models.Comment),
         })
 
+        # pylint: disable=no-member
         rating = web_models.CommentRating.objects.create(
             comment=comment.related_object,
             respondent=respondent.related_object,
@@ -438,12 +442,12 @@ class SaveCommentRatingView(SaveView):
         response.url = request.POST['RecordingUrl']
         response.save()
 
-        LOGGER.debug('Respondent {} rated comment {}'.format(respondent.pk, comment.pk))
+        LOGGER.debug('Respondent %d rated comment %d', respondent.pk, comment.pk)
         request.session['index'] += 1
 
     def post(self, request):
         if request.POST.get('Digits') == 'hangup':
-            LOGGER.debug('Respondent {} hung up'.format(get_respondent(request.session).pk))
+            LOGGER.debug('Respondent %d hung up', get_respondent(request.session).pk)
             return HttpResponse()
         return super(SaveCommentRatingView, self).post(request)
 
@@ -546,7 +550,6 @@ def end(request):
 
 
 def select_comment_pks(num_to_select=2):
-    # TODO: add comment selection for those without backreferences, fix filter (strip whitespace)
     comments = web_models.Comment.objects.filter(
         language=get_language() or settings.LANGUAGE_CODE,
     ).exclude(message='')
@@ -555,10 +558,11 @@ def select_comment_pks(num_to_select=2):
         return []
 
     standard_errors = np.array([
-        (error if error is not None else settings.DEFAULT_STANDARD_ERROR)
-        for error in standard_errors
+        (std_error if std_error is not None else settings.DEFAULT_STANDARD_ERROR)
+        for std_error in standard_errors
     ])
     probabilities = standard_errors/np.sum(standard_errors)
+    # pylint: disable=no-member
     return list(np.random.choice(comment_pks, size=num_to_select, replace=False,
                                  p=probabilities))
 
@@ -568,7 +572,7 @@ def fetch_question_pks(question_type):
                                         language=get_language())
     # Need to use a list because the filter needs to access a field of `related_object`
     questions = [question for question in questions if question.related_object is None or
-                                                       question.related_object.active]
+                 question.related_object.active]
     def key(question):
         if question.related_object and question.related_object.order is not None:
             return question.related_object.order
@@ -601,7 +605,8 @@ def transcribe_rating(response, text=''):
     if rating:
         if response.text.isdigit():
             score = int(response.text)
-            if not hasattr(rating, 'question') or rating.question.min_score <= score <= rating.question.max_score:
+            if (not hasattr(rating, 'question') or
+                    rating.question.min_score <= score <= rating.question.max_score):
                 rating.score = score
                 rating.save()
         elif response.text == SKIP_DIGIT:

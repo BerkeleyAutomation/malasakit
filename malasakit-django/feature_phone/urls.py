@@ -6,8 +6,6 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.conf.urls import url
-from django.shortcuts import reverse
-from django.views.generic.base import RedirectView
 from django.views.static import serve
 
 from feature_phone import views
@@ -26,7 +24,8 @@ urlpatterns = [
     url(r'^age/download/$', views.download_age_recording, name='download-age'),
     url(r'^barangay/prompt/$', views.PromptBarangayView.as_view(), name='prompt-barangay'),
     url(r'^barangay/download/$', views.download_barangay_recording, name='download-barangay'),
-    url(r'^quantitative-questions/instructions/$', views.QuantiativeQuestionInstructionsView.as_view(),
+    url(r'^quantitative-questions/instructions/$',
+        views.QuantiativeQuestionInstructionsView.as_view(),
         name='quantitative-question-instructions'),
     url(r'^quantitative-questions/prompt/$', views.PromptQuantitativeQuestionView.as_view(),
         name='prompt-quantitative-question'),
@@ -36,7 +35,8 @@ urlpatterns = [
         name='comment-rating-instructions'),
     url(r'^comments/prompt/$', views.PromptCommentView.as_view(), name='prompt-comment'),
     url(r'^comments/save/$', views.SaveCommentRatingView.as_view(), name='save-comment-rating'),
-    url(r'^qualitative-question/instructions/$', views.QualitativeQuestionInstructionsView.as_view(),
+    url(r'^qualitative-question/instructions/$',
+        views.QualitativeQuestionInstructionsView.as_view(),
         name='qualitative-question-instructions'),
     url(r'^qualitative-questions/prompt/$', views.PromptQualitativeQuestionView.as_view(),
         name='prompt-qualitative-question'),
