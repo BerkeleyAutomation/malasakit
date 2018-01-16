@@ -185,13 +185,15 @@ class PromptLanguageView(PromptView):
     def ask(self, request, action):
         play_recording(action, Instructions.objects.get(key='welcome', language='en'))
         play_recording(action, Instructions.objects.get(key='language-selection', language='en'))
-        for instruction in Instructions.objects.filter(key='language-selection'):
-            if instruction.language != 'en':
+        for key in sorted(SaveLanguageView.key_to_language.keys()):
+            language = SaveLanguageView.key_to_language[key]
+            if language != 'en':
+                instruction = Instructions.objects.get(key='language-selection', language=language)
                 play_recording(action, instruction)
 
 
 class SaveLanguageView(SaveView):
-    next_view = 'feature-phone:prompt-irb-notice'
+    next_view = 'feature-phone:qualitative-question-instructions'
     key_to_language = {
         '1': 'en',
         '2': 'tl',
@@ -374,7 +376,7 @@ class SaveQuantitativeRatingView(SaveView):
         request.session['index'] += 1
 
     def post(self, request):
-        if request.POST.get('Digit') == 'hangup':
+        if request.POST.get('Digits') == 'hangup':
             LOGGER.debug('Respondent {} hung up'.format(get_respondent(request.session).pk))
             return HttpResponse()
         return super(SaveQuantitativeRatingView, self).post(request)
@@ -447,7 +449,7 @@ class SaveCommentRatingView(SaveView):
         request.session['index'] += 1
 
     def post(self, request):
-        if request.POST.get('Digit') == 'hangup':
+        if request.POST.get('Digits') == 'hangup':
             LOGGER.debug('Respondent {} hung up'.format(get_respondent(request.session).pk))
             return HttpResponse()
         return super(SaveCommentRatingView, self).post(request)
@@ -497,7 +499,9 @@ class ConfirmCommentView(PromptView):
         question = Question.objects.get(pk=question_pk)
         respondent = get_respondent(request.session)
 
-        if request.session.get('Digit', '') in (SKIP_DIGIT, 'hangup') or request.session.get('repeat'):
+        if request.POST.get('Digits') == 'hangup':
+            return HttpResponse()
+        elif request.POST.get('Digits') == SKIP_DIGIT or request.session.get('repeat'):
             if request.session.get('repeat'):
                 response = Response.objects.get(
                     respondent=respondent,
@@ -528,7 +532,7 @@ class SaveCommentView(SaveView):
     rerecord_key = '1'
 
     def save(self, request, voice_response):
-        if request.session.get('Digit', '') != self.rerecord_key:
+        if request.POST.get('Digits', '') != self.rerecord_key:
             request.session['index'] += 1
             request.session['repeat'] = False
         else:
