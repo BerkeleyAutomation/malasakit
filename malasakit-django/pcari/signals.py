@@ -8,8 +8,6 @@ References:
 from __future__ import unicode_literals
 from math import sqrt
 
-from math import sqrt
-
 from django.db.models.signals import pre_delete, post_delete
 from django.db.backends.signals import connection_created
 from django.dispatch import receiver
