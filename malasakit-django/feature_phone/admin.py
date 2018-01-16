@@ -3,7 +3,6 @@
 from django import forms
 from django.db import models
 from django.contrib import admin
-from django.contrib.contenttypes.admin import GenericTabularInline
 
 from pcari.admin import site
 from feature_phone.models import Instructions, Question
