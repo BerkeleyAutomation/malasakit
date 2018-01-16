@@ -13,6 +13,7 @@ import os
 import random
 import requests
 from string import digits
+import time
 from urllib2 import urlopen
 
 from django.core.files.base import ContentFile
@@ -108,19 +109,9 @@ class PromptView(View):
             made after Twilio finalizes the recording.
 
     Notes:
-        There are essentially four configurations for a prompt:
-          * Accepts neither a keypress nor speech. In this case, the view has
-            no interaction, automatically redirecting afterwards.
-          * Accepts a keypress, but no speech. In this case, a keypress made
-            while the prompt plays will interrupt the playback, moving to the
-            next view immediately. Speech made during the timeout period during
-            or after the prompt will be ignored.
-          * Accepts speech, but no keypresses. In this case, keypresses have no
-            effect on either the prompt (i.e. no interrupt) or the recording
-            period. Only speech made after the prompt will be recorded.
-          * Accepts both a keypress and speech. In this case, keypresses will
-            interrupt both the prompt and the recording period, and a recording
-            starting from after the prompt will be made simulateously.
+        Keypresses made while a prompt plays will interrupt the playback, while
+        speech will not. Only speech made after the prompt plays will be
+        recorded.
     """
     submit_view = None
     prompts = []
@@ -338,6 +329,7 @@ class PromptQuantitativeQuestionView(PromptView):
     submit_view = 'feature-phone:save-quantitative-rating'
     accept_keypress = True
     accept_speech = True
+    recording_max_duration = 15
     recording_callback = 'feature-phone:download-recording'
 
     def ask(self, request, action):
@@ -403,6 +395,7 @@ class PromptCommentView(PromptView):
     submit_view = 'feature-phone:save-comment-rating'
     accept_keypress = True
     accept_speech = True
+    recording_max_duration = 15
     recording_callback = 'feature-phone:download-recording'
 
     def ask(self, request, action):
@@ -542,10 +535,9 @@ class SaveCommentView(SaveView):
 @csrf_exempt
 @require_POST
 def end(request):
-    del request.session['respondent-pk']
-    del request.session['index']
-    del request.session['obj-keys']
-    del request.session['repeat']
+    for key in ['respondent-pk', 'index', 'obj-keys', 'repeat']:
+        if key in request.session:
+            del request.session[key]
 
     voice_response = VoiceResponse()
     speak(voice_response, ['end'])
@@ -623,15 +615,16 @@ def transcribe_rating(response, text=''):
 def download_recording(request):
     if 'RecordingUrl' in request.POST:
         try:
-            url = request.POST.get('RecordingUrl')
+            url = request.POST['RecordingUrl']
             if url:
+                time.sleep(3)  # Ensure
                 voice_response = Response.objects.get(url=url)
                 fetch_recording(voice_response.recording, url)
                 voice_response.save()
-            else:
-                LOGGER.warn('"RecordingUrl" not passed to recording download callback')
         except Response.DoesNotExist:
             LOGGER.warn('Response with "RecordingUrl" {} does not exist'.format(url))
+    else:
+        LOGGER.warn('"RecordingUrl" not passed to recording download callback')
     return HttpResponse()
 
 
