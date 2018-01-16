@@ -6,11 +6,9 @@ import StringIO
 import zipfile
 
 from django import forms
-from django.conf import settings
 from django.contrib import admin
 from django.db import models
 from django.http import HttpResponse
-from django.utils.html import format_html
 
 from pcari.admin import site
 from feature_phone.models import Instructions, Question
@@ -18,6 +16,7 @@ from feature_phone.models import Response, Respondent
 
 
 class RecordingAdmin(admin.ModelAdmin):
+    """ Model admin that supports the storage of audio recordings. """
     formfield_overrides = {
         models.FileField: {
             'widget': forms.FileInput(attrs={'accept': 'audio/*'}),
@@ -25,16 +24,20 @@ class RecordingAdmin(admin.ModelAdmin):
     }
 
     def get_file_fields(self, model):
+        # pylint: disable=no-self-use
         return [field.name for field in model._meta.fields
                 if isinstance(field, models.FileField)]
 
     def add_to_zip(self, zip_file, obj, fields):
+        # pylint: disable=no-self-use
         for field_name in fields:
             field = getattr(obj, field_name)
             destination = os.path.join(field_name, os.path.basename(field.path))
             zip_file.write(field.path, destination)
 
-    def download_list_action(self, request, queryset):
+    def download_files(self, request, queryset):
+        """ Prepare a ZIP file of all file fields for selected instances. """
+        # pylint: disable=unused-argument
         file_fields = self.get_file_fields(queryset.model)
         zip_buffer = StringIO.StringIO()
         with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
@@ -49,7 +52,7 @@ class RecordingAdmin(admin.ModelAdmin):
         response['Content-Disposition'] = 'attachment; filename={}'.format(zip_filename)
         return response
 
-    download_list_action.short_description = 'Download ZIP file of recordings'
+    download_files.short_description = 'Download a ZIP file of all recordings'
 
 
 @admin.register(Instructions, Question, site=site)
