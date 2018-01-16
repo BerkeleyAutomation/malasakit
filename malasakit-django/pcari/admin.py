@@ -321,11 +321,12 @@ class OptionQuestionChoiceAdmin(HistoryAdmin):
 def export_to_feature_phone(modeladmin, request, queryset):
     """ Export the selected questions to the feature phone application. """
     # pylint: disable=unused-argument
+    new_model_count = 0
     for question in queryset:
         for language, _ in settings.LANGUAGES:
             components = [question._meta.label_lower.replace('.', '-'),
                           unicode(question.pk), language]
-            phone_models.Question.objects.get_or_create(
+            _, created = phone_models.Question.objects.get_or_create(
                 key='-'.join(components),
                 defaults={
                     'text': translate(question.prompt, language),
@@ -334,6 +335,9 @@ def export_to_feature_phone(modeladmin, request, queryset):
                     'related_object': question,
                 }
             )
+            new_model_count += created
+    message = 'Successfully exported {} questions out of {}.'
+    modeladmin.message_user(request, message.format(new_model_count, queryset.count()))
 export_to_feature_phone.short_description = 'Export to feature phone application'
 
 
