@@ -1,3 +1,5 @@
+""" Define how Django should present feature phone-specific models to administrators. """
+
 from django import forms
 from django.db import models
 from django.contrib import admin
@@ -16,34 +18,34 @@ class RecordingAdmin(admin.ModelAdmin):
     }
 
 
-@admin.register(Instructions, site=site)
+@admin.register(Instructions, Question, site=site)
 class InstructionsAdmin(RecordingAdmin):
+    """ Admin for feature phone instructions model, which includes questions. """
     def display_text(self, instructions):
         return instructions.text or self.get_empty_value_display()
     display_text.short_description = 'Text'
+
     def display_key(self, instructions):
         return instructions.key or self.get_empty_value_display()
     display_key.short_description = 'Tag'
+
     list_display = ('display_text', 'display_key', 'language', 'recording')
     list_filter = ('language', )
     search_fields = ('text', 'tag')
     empty_value_display = '(Empty)'
 
 
-# class QuestionInline(GenericTabularInline):
-#     model = Question
-
-
-@admin.register(Question, site=site)
-class QuestionAdmin(InstructionsAdmin):
-    pass  # inlines = [QuestionInline]
-
-
 @admin.register(Response, site=site)
 class ResponseAdmin(RecordingAdmin):
-    pass
+    """ Admin for feature phone response model. """
+    list_display = ('__unicode__', 'timestamp', 'respondent', 'url')
+    list_filter = ('timestamp', )
+    empty_value_display = '(Empty)'
 
 
 @admin.register(Respondent, site=site)
 class RespondentAdmin(RecordingAdmin):
-    pass
+    """ Admin for feature phone respondent model. """
+    list_display = ('id', 'call_sid', 'age', 'gender', 'location', 'language')
+    list_filter = ('language', )
+    empty_value_display = '(Empty)'
