@@ -25,11 +25,12 @@ import time
 import decorator
 from django.conf import settings
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
-from django.urls import reverse
+from django.views.generic.base import TemplateView
 from django.utils import translation
+from django.utils.decorators import method_decorator
 from django.utils.html import escape as escape_html
 from django.utils.translation import ugettext_lazy as _, ugettext
 import numpy as np
@@ -52,14 +53,10 @@ __all__ = [
     'fetch_question_ratings',
     'save_response',
     'export_data',
-    'index',
     'landing',
     'qualitative_questions',
     'peer_responses',
-    'rate_comments',
     'qualitative_questions',
-    'personal_information',
-    'end',
     'handle_page_not_found',
     'handle_internal_server_error',
 ]
@@ -647,11 +644,10 @@ def export_data(queryset, data_format='csv'):
     return response
 
 
-@profile
-def index(request):
-    """ Redirect the user to the `landing` page. """
-    # pylint: disable=unused-argument
-    return redirect(reverse('pcari:landing'))
+@method_decorator(profile, name='dispatch')
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+class CSRFTemplateView(TemplateView):
+    pass
 
 
 @profile
@@ -660,13 +656,6 @@ def landing(request):
     """ Render a landing page. """
     context = {'num_responses': Respondent.active_objects.count()}
     return render(request, 'landing.html', context)
-
-
-@profile
-@ensure_csrf_cookie
-def quantitative_questions(request):
-    """ Render a page asking respondents to rate statements. """
-    return render(request, 'quantitative-questions.html')
 
 
 @profile
@@ -681,31 +670,10 @@ def peer_responses(request):
 
 @profile
 @ensure_csrf_cookie
-def rate_comments(request):
-    """ Render a bloom page where respondents can rate comments by others. """
-    return render(request, 'rate-comments.html')
-
-
-@profile
-@ensure_csrf_cookie
 def qualitative_questions(request):
     """ Render a page asking respondents for comments (i.e. suggestions). """
     context = {'questions': QualitativeQuestion.active_objects.all()}
     return render(request, 'qualitative-questions.html', context)
-
-
-@profile
-@ensure_csrf_cookie
-def personal_information(request):
-    """ Render a page asking respondents for personal information. """
-    return render(request, 'personal-information.html')
-
-
-@profile
-@ensure_csrf_cookie
-def end(request):
-    """ Render an end-of-survey page. """
-    return render(request, 'end.html')
 
 
 @profile
