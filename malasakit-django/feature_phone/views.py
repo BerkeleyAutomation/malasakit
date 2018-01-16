@@ -195,8 +195,8 @@ class SaveLanguageView(SaveView):
     key_to_language = {
         '1': 'en',
         '2': 'tl',
-        '3': 'ilo',
-        '4': 'ceb',
+        '3': 'ceb',
+        '4': 'ilo',
     }
 
     def save(self, request):
