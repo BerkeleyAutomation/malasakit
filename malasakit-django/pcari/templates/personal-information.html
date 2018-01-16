@@ -15,6 +15,7 @@
             deleteResponseValue(path);
           } else {
             setResponseValue(path, value);
+            inputElement.val(value);
           }
         });
 
@@ -24,7 +25,11 @@
         }
       }
 
-      initializeField($('#age'), ['respondent-data', 'age'], parseInt);
+      var clipAge = makeClipped(1, 120);
+      initializeField($('#age'), ['respondent-data', 'age'], function(rawValue) {
+        var age = parseInt(rawValue);
+        return isNaN(age) ? null : clipAge(age);
+      });
       initializeField($('#gender'), ['respondent-data', 'gender']);
       initializeField($('#province'), ['respondent-data', 'province']);
       initializeField($('#city-or-municipality'), ['respondent-data', 'city-or-municipality']);
@@ -72,18 +77,7 @@
       setBarangays();
 
       $('#next > a').on('click', function(event) {
-        event.preventDefault();
-        $('.modal').css('display', 'block');
-      });
-
-      $('#return').on('click', function() {
-        $('.modal').css('display', 'none');
-      });
-
-      $('#submit').on('click', function() {
         setResponseValue(['respondent-data', 'completed-survey'], true);
-        var language = $('html').attr('lang') || DEFAULT_LANGUAGE;
-        redirect($('#next > a').attr('href'));
       });
     });
   </script>
@@ -103,7 +97,7 @@
   <table style="margin: 0 auto;">
     <tr>
       <td>{% trans 'Age' %}</td>
-      <td><input id="age" type="number" min="1" max="120"></td>
+      <td><input id="age" type="number" min="1" max="120" onkeypress="validatePositiveInteger(event)"></td>
     </tr>
     <tr>
       <td>{% trans 'Gender' %}</td>
@@ -137,25 +131,7 @@
       </td>
     </tr>
   </table>
-  <div class="modal">
-    <div class="modal-container">
-      <p>
-        {% blocktrans trimmed %}
-          You are about to submit your response, and will no longer be able to edit your answers.
-          Do you wish to continue?
-        {% endblocktrans %}
-      </p>
-      <ul class="button-group">
-        <li>
-          <button id="return" class="red">{% trans 'No' %}</button>
-        </li>
-        <li>
-          <button id="submit" class="blue">{% trans 'Yes' %}</button>
-        </li>
-      </ul>
-    </div>
-  </div>
-  {% url 'pcari:landing' as previous_link %}
-  {% url 'pcari:quantitative-questions' as next_link %}
+  {% url 'pcari:qualitative-questions' as previous_link %}
+  {% url 'pcari:peer-responses' as next_link %}
   {% include 'nav-buttons.html' %}
 {% endblock %}

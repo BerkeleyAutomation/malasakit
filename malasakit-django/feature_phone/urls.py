@@ -6,46 +6,47 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.conf.urls import url
-from django.conf.urls.i18n import i18n_patterns
-from django.shortcuts import reverse
-from django.views.generic.base import RedirectView
 from django.views.static import serve
 
 from feature_phone import views
 
 # pylint: disable=invalid-name
-app_name = 'feature_phone'
+app_name = 'feature-phone'
 
 urlpatterns = [
-    url(r'^$', RedirectView.as_view(url=reverse('feature_phone:select-language'))),
-    url(r'^select-language/$', views.select_language, name='select-language'),
-    url(r'^redirect-to-landing/$', views.redirect_to_landing, name='redirect-to-landing'),
-    url(r'^landing/$', views.landing, name='landing'),
-    url(r'^quantitative-questions/$', views.quantitative_questions,
-        name='quantitative-questions'),
-    url(r'^ask-quantitative-question/$', views.ask_quantitative_question,
-        name='ask-quantitative-question'),
-    url(r'^process-quantitative-response/$', views.process_quantitative_response,
-        name='process-quantitative-response'),
-    url(r'^download-recording/$', views.download_recording,
-        name='download-recording'),
-    url(r'^comments/$', views.comments, name='comments'),
-    url(r'^play-comment/$', views.play_comment, name='play-comment'),
-    url(r'^process-comment-rating/$', views.process_comment_rating,
-        name='process-comment-rating'),
-    url(r'^qualitative-questions/$', views.qualitative_questions,
-        name='qualitative-questions'),
-    url(r'^ask-qualitative-question/$', views.ask_qualitative_question,
-        name='ask-qualitative-question'),
-    url(r'^process-comment/$', views.process_comment, name='process-comment'),
-    url(r'^ask-age/$', views.ask_age, name='ask-age'),
-    url(r'^process-age/$', views.process_age, name='process-age'),
-    url(r'^ask-gender/$', views.ask_gender, name='ask-gender'),
-    url(r'^process-gender/$', views.process_gender, name='process-gender'),
-    url(r'^record-age/$', views.record_age, name='record-age'),
-    url(r'^record-gender/$', views.record_gender, name='record-gender'),
-    url(r'^end/$', views.end, name='end'),
+    url(r'^language/prompt/$', views.PromptLanguageView.as_view(), name='prompt-language'),
+    url(r'^language/save/$', views.SaveLanguageView.as_view(), name='save-language'),
+    url(r'^irb-notice/prompt/$', views.PromptIRBNoticeView.as_view(), name='prompt-irb-notice'),
+    url(r'^irb-notice/save/$', views.VerifyIRBNoticeView.as_view(), name='verify-irb-notice'),
+    url(r'^gender/prompt/$', views.PromptGenderView.as_view(), name='prompt-gender'),
+    url(r'^gender/save/$', views.SaveGenderView.as_view(), name='save-gender'),
+    url(r'^age/prompt/$', views.PromptAgeView.as_view(), name='prompt-age'),
+    url(r'^age/download/$', views.download_age_recording, name='download-age'),
+    url(r'^barangay/prompt/$', views.PromptBarangayView.as_view(), name='prompt-barangay'),
+    url(r'^barangay/download/$', views.download_barangay_recording, name='download-barangay'),
+    url(r'^quantitative-questions/instructions/$',
+        views.QuantiativeQuestionInstructionsView.as_view(),
+        name='quantitative-question-instructions'),
+    url(r'^quantitative-questions/prompt/$', views.PromptQuantitativeQuestionView.as_view(),
+        name='prompt-quantitative-question'),
+    url(r'^quantitative-questions/save/$', views.SaveQuantitativeRatingView.as_view(),
+        name='save-quantitative-rating'),
+    url(r'^comments/instructions/$', views.CommentRatingInstructions.as_view(),
+        name='comment-rating-instructions'),
+    url(r'^comments/prompt/$', views.PromptCommentView.as_view(), name='prompt-comment'),
+    url(r'^comments/save/$', views.SaveCommentRatingView.as_view(), name='save-comment-rating'),
+    url(r'^qualitative-question/instructions/$',
+        views.QualitativeQuestionInstructionsView.as_view(),
+        name='qualitative-question-instructions'),
+    url(r'^qualitative-questions/prompt/$', views.PromptQualitativeQuestionView.as_view(),
+        name='prompt-qualitative-question'),
+    url(r'^qualitative-questions/confirm/$', views.ConfirmCommentView.as_view(),
+        name='confirm-comment'),
+    url(r'^qualitative-questions/save/$', views.SaveCommentView.as_view(),
+        name='save-comment'),
+    url(r'end/$', views.end, name='end'),
     url(r'^error/$', views.error, name='error'),
+    url(r'^download-recording/$', views.download_recording, name='download-recording'),
 ]
 
 if settings.DEBUG:

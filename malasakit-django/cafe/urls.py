@@ -20,7 +20,7 @@ from django.conf.urls import include, url
 from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
-from django.shortcuts import reverse
+from django.urls import reverse_lazy
 from django.views.generic.base import TemplateView, RedirectView
 from django.views.i18n import JavaScriptCatalog
 
@@ -29,6 +29,7 @@ from pcari.urls import api_urlpatterns
 
 # pylint: disable=invalid-name
 urlpatterns = [
+    url(r'^$', RedirectView.as_view(url=reverse_lazy('pcari:landing')), name='to-landing'),
     # Service worker script must be served from the `URL_ROOT` for security reasons
     url(r'^sw.js$',
         TemplateView.as_view(template_name='sw.js', content_type='application/javascript'),
@@ -46,15 +47,14 @@ urlpatterns = [
         name='password_reset_complete'),
 
     url(r'^api/', include(api_urlpatterns)),  # AJAX endpoints
-    url(r'^jsi18n/$', JavaScriptCatalog.as_view(), name='javascript-catalog'),  # Translations for JavaScript code
+    # Translations for JavaScript code
+    url(r'^jsi18n/$', JavaScriptCatalog.as_view(), name='javascript-catalog'),
 ]
 
-urlpatterns += i18n_patterns(url(r'^', include('pcari.urls')))
-urlpatterns += i18n_patterns(url(r'^feature-phone/', include('feature_phone.urls')))
-urlpatterns += [
-    url(r'^$', RedirectView.as_view(url=reverse('pcari:landing')),
-        name='to-landing'),
-]
+urlpatterns += i18n_patterns(
+    url(r'', include('pcari.urls')),
+    url(r'^feature-phone/', include('feature_phone.urls')),
+)
 
 # Serve media files in development
 if settings.DEBUG:

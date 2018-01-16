@@ -1,3 +1,5 @@
+""" This module defines the feature phone application configuration. """
+
 from __future__ import unicode_literals
 
 from django.apps import AppConfig

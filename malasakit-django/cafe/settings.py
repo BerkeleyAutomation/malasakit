@@ -159,6 +159,8 @@ HTML_MINIFY = False  # TODO: `not DEBUG` disabled for now so that TwiML is not w
 LANGUAGES = (
     ('en', _('English')),
     ('tl', _('Filipino')),
+    ('ceb', _('Cebuano')),
+    ('ilo', _('Ilocano')),
 )
 
 LOCALE_PATHS = (
@@ -200,5 +202,3 @@ DEFAULT_COMMENT_LIMIT = 300
 DEFAULT_STANDARD_ERROR = 4.5
 # Set to `True` to enable service workers for offline functionality
 SERVICE_WORKERS = True
-# How long after a word is spoken Twilio should end the recording early
-SPEECH_TIMEOUT = 3  # in seconds
