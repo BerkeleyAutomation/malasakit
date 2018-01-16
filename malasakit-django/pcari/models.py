@@ -16,17 +16,16 @@ References:
     * `The contenttypes framework <https://docs.djangoproject.com/en/dev/ref/contrib/contenttypes/>`_
 
 Attributes:
-    LANGUAGES (tuple): Available languages. Each language is represented as a
-        tuple of two elements: a code and a translated full name. For instance,
-        the language code for "English" would be "en". This attribute is pulled
-        from the project ``settings`` lazily.
+    LANGUAGE_VALIDATOR: A compiled regular expression that matches language
+        codes specified in ``settings`` (for instance, "en"). This regular
+        expression also matches a blank string, which indicates no language.
 """
 
 from __future__ import division, unicode_literals
 import json
 
-from django.core.exceptions import ValidationError
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
@@ -38,8 +37,7 @@ __all__ = ['Comment', 'QuantitativeQuestionRating', 'CommentRating',
            'QualitativeQuestion', 'QuantitativeQuestion', 'Respondent',
            'OptionQuestion', 'OptionQuestionChoice']
 
-LANGUAGES = settings.LANGUAGES
-_LANGUAGE_CODES = [''] + [code for code, name in LANGUAGES]
+_LANGUAGE_CODES = [''] + [code for code, name in settings.LANGUAGES]
 LANGUAGE_VALIDATOR = RegexValidator(r'^({0})$'.format('|'.join(_LANGUAGE_CODES)))
 
 
@@ -299,7 +297,7 @@ class Comment(Response):
     :class:`QualitativeQuestion`.
 
     Attributes:
-        MAX_COMMENT_DISPLAY_LEN (int): The maximum number of characters in the
+        MAX_MESSAGE_DISPLAY_LENGTH (int): The maximum number of characters in the
             :attr:`message` to display in this comment's string representation.
         question: The question this comment answers.
         language (str): A language code.
@@ -311,13 +309,14 @@ class Comment(Response):
         word_count (int): The number of words in the `message`. (Words are
             delimited with contiguous whitespace.)
     """
-    MAX_COMMENT_DISPLAY_LEN = 140
+    MAX_MESSAGE_DISPLAY_LENGTH = 140
     objects = RatingStatisticsManager()
     question = models.ForeignKey('QualitativeQuestion',
                                  on_delete=models.CASCADE,
                                  related_name='comments')
-    language = models.CharField(max_length=8, choices=LANGUAGES, blank=True,
-                                default='', validators=[LANGUAGE_VALIDATOR])
+    language = models.CharField(max_length=8, choices=settings.LANGUAGES,
+                                blank=True, default='',
+                                validators=[LANGUAGE_VALIDATOR])
     message = models.TextField(blank=True, default='')
     flagged = models.BooleanField(default=False)
     tag = models.CharField(max_length=256, blank=True, default='')
@@ -325,9 +324,9 @@ class Comment(Response):
     def __unicode__(self):
         if self.message is not None and self.message.strip():
             message = self.message
-            if len(message) > self.MAX_COMMENT_DISPLAY_LEN:
-                message = message[:self.MAX_COMMENT_DISPLAY_LEN] + ' ...'
-            return 'Comment {1}: "{0}"'.format(message, self.id)
+            if len(message) > self.MAX_MESSAGE_DISPLAY_LENGTH:
+                message = message[:self.MAX_MESSAGE_DISPLAY_LENGTH] + ' ...'
+            return 'Comment {1}: "{0}"'.format(message, self.pk)
         return '-- Empty response --'
 
     @property
@@ -370,7 +369,7 @@ class QualitativeQuestion(Question):
     input_type = 'textarea'
 
     def __unicode__(self):
-        return 'Qualitative question {0}: "{1}"'.format(self.id, self.prompt)
+        return 'Qualitative question {0}: "{1}"'.format(self.pk, self.prompt)
 
 
 class QuantitativeQuestion(Question):
@@ -406,14 +405,16 @@ class QuantitativeQuestion(Question):
     objects = RatingStatisticsManager()
     left_anchor = models.TextField(blank=True, default='')
     right_anchor = models.TextField(blank=True, default='')
-    min_score = models.PositiveSmallIntegerField(default=0, null=True)
-    max_score = models.PositiveSmallIntegerField(default=9, null=True)
+    min_score = models.PositiveSmallIntegerField(default=0, null=True,
+                                                 verbose_name=_('Maximum score'))
+    max_score = models.PositiveSmallIntegerField(default=9, null=True,
+                                                 verbose_name=_('Minimum score'))
     input_type = models.CharField(max_length=16, choices=INPUT_TYPE_CHOICES,
                                   default='range')
     show_statistics = models.BooleanField(default=True)
 
     def __unicode__(self):
-        return 'Quantitative question {0}: "{1}"'.format(self.id, self.prompt)
+        return 'Quantitative question {0}: "{1}"'.format(self.pk, self.prompt)
 
 
 class OptionQuestion(Question):
@@ -459,7 +460,7 @@ class OptionQuestion(Question):
         self._options_text = json.dumps(list(options_list))
 
     def __unicode__(self):
-        return 'Option question {0}: "{1}"'.format(self.id, self.prompt)
+        return 'Option question {0}: "{1}"'.format(self.pk, self.prompt)
 
     def clean_fields(self, exclude=None):
         super(OptionQuestion, self).clean_fields(exclude=exclude)
@@ -557,15 +558,16 @@ class Respondent(History):
     gender = models.CharField(max_length=1, choices=GENDERS, blank=True,
                               default='', validators=[RegexValidator(r'^(|M|F)$')])
     location = models.CharField(max_length=512, blank=True, default='')
-    language = models.CharField(max_length=8, choices=LANGUAGES, blank=True,
-                                default='', validators=[LANGUAGE_VALIDATOR])
+    language = models.CharField(max_length=8, choices=settings.LANGUAGES,
+                                blank=True, default='',
+                                validators=[LANGUAGE_VALIDATOR])
     submitted_personal_data = models.BooleanField(default=False)
     completed_survey = models.BooleanField(default=False)
     uuid = models.UUIDField(unique=True, default=None, editable=False,
                             null=True, blank=True)
 
     def __unicode__(self):
-        return 'Respondent {0}'.format(self.id)
+        return 'Respondent {0}'.format(self.pk)
 
     def num_questions_rated(self):
         ratings = QuantitativeQuestionRating.objects.filter(respondent=self)
