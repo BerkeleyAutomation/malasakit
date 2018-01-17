@@ -4,7 +4,7 @@ This module defines how URLs should route to views.
 
 from __future__ import unicode_literals
 
-from django.shortcuts import reverse
+from django.urls import reverse_lazy
 from django.conf.urls import url
 from django.views.generic.base import RedirectView
 
@@ -15,7 +15,7 @@ app_name = 'pcari'
 
 urlpatterns = [
     # User-facing views
-    url(r'^$', RedirectView.as_view(url=reverse('pcari:landing')), name='index'),
+    url(r'^$', RedirectView.as_view(url=reverse_lazy('pcari:landing')), name='index'),
     url(r'^landing/$', views.landing, name='landing'),
     url(r'^personal-information/$',
         views.CSRFTemplateView.as_view(template_name='personal-information.html'),

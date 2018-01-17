@@ -56,7 +56,6 @@ __all__ = [
     'landing',
     'qualitative_questions',
     'peer_responses',
-    'qualitative_questions',
     'handle_page_not_found',
     'handle_internal_server_error',
 ]
