@@ -418,12 +418,14 @@ class LocationAdmin(admin.ModelAdmin):
     display_division.short_description = 'Country'
 
     def enable_as_input(self, request, queryset):
+        """ Enable locations as valid inputs in bulk. """
         num_enabled = queryset.update(enabled=True)
         message = '{0} location{1} successfully enabled as input.'
         message = message.format(num_enabled, 's' if num_enabled != 1 else '')
         self.message_user(request, message)
 
     def disable_as_input(self, request, queryset):
+        """ Disable locations as valid inputs in bulk. """
         num_disabled = queryset.update(enabled=False)
         message = '{0} location{1} successfully disabled as input.'
         message = message.format(num_disabled, 's' if num_disabled != 1 else '')
