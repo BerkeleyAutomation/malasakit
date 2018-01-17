@@ -20,6 +20,7 @@ from pcari.models import (
     CommentRating,
     OptionQuestionChoice,
     Rating,
+    Location,
 )
 
 RATING_CHOICES = list(range(0, 9)) + [Rating.SKIPPED]
@@ -209,7 +210,8 @@ class HistoryTestCase(TestCase):
     serialized_rollback = True
 
     def test_make_copy(self):
-        respondent = Respondent.objects.create(age=1, gender='M', location='?')
+        location = Location.objects.create(division='?')
+        respondent = Respondent.objects.create(age=1, gender='M', location=location)
         copy = respondent.make_copy()
         copy.save()
         self.assertNotEqual(respondent, copy)
@@ -218,8 +220,9 @@ class HistoryTestCase(TestCase):
         self.assertEqual(respondent.location, copy.location)
 
     def test_diff(self):
-        respondent1 = Respondent.objects.create(age=12, gender='M', location='?')
-        respondent2 = Respondent.objects.create(age=12, gender='F', location='?')
+        location = Location.objects.create(division='?')
+        respondent1 = Respondent.objects.create(age=12, gender='M', location=location)
+        respondent2 = Respondent.objects.create(age=12, gender='F', location=location)
         self.assertEqual(set(respondent1.diff(respondent2)), {'id', 'gender'})
 
         respondent2.gender = 'M'
