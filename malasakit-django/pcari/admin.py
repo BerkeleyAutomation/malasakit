@@ -417,7 +417,20 @@ class LocationAdmin(admin.ModelAdmin):
         return location.division or self.empty_value_display
     display_division.short_description = 'Country'
 
+    def enable_as_input(self, request, queryset):
+        num_enabled = queryset.update(enabled=True)
+        message = '{0} location{1} successfully enabled as input.'
+        message = message.format(num_enabled, 's' if num_enabled != 1 else '')
+        self.message_user(request, message)
+
+    def disable_as_input(self, request, queryset):
+        num_disabled = queryset.update(enabled=False)
+        message = '{0} location{1} successfully disabled as input.'
+        message = message.format(num_disabled, 's' if num_disabled != 1 else '')
+        self.message_user(request, message)
+
     empty_value_display = '(Empty)'
+    actions = ('enable_as_input', 'disable_as_input')
     list_display = ('id', 'display_country', 'display_province',
                     'display_municipality', 'display_division', 'enabled')
     list_filter = ('country', 'province')
