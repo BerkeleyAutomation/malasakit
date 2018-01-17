@@ -513,6 +513,34 @@ class OptionQuestionChoice(Response):
         unique_together = ('respondent', 'question')
 
 
+class Location(models.Model):
+    """
+    A ``Location`` represents a named government-designated area in the world.
+
+    Attributes:
+        country (str): The name of the country of the location.
+        province (str): The name of the province (in the United States, this
+            would be analogous to a state).
+        municipality (str): The name of a municipality (can vary from a county
+            to a city or town).
+        division (str): The name of the smallest possible government unit
+            (roughly analogous to a precinct, ward, etc).
+        enabled (bool): Indicates whether this location should be presented to
+            users as a possible input.
+    """
+    country = models.CharField(max_length=64, blank=True, default='')
+    province = models.CharField(max_length=64, blank=True, default='')
+    municipality = models.CharField(max_length=64, blank=True, default='')
+    division = models.CharField(max_length=64)
+    enabled = models.BooleanField(default=False)
+
+    def __unicode__(self):
+        return ', '.join([self.country, self.province, self.municipality, self.division])
+
+    class Meta:
+        unique_together = ('country', 'province', 'municipality', 'division')
+
+
 class Respondent(History):
     """
     A ``Respondent`` represents a one-time participant in a survey.
@@ -557,7 +585,8 @@ class Respondent(History):
                                                        MaxValueValidator(120)])
     gender = models.CharField(max_length=1, choices=GENDERS, blank=True,
                               default='', validators=[RegexValidator(r'^(|M|F)$')])
-    location = models.CharField(max_length=512, blank=True, default='')
+    location = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True,
+                                 blank=True, default=None, related_name='residents')
     language = models.CharField(max_length=8, choices=settings.LANGUAGES,
                                 blank=True, default='',
                                 validators=[LANGUAGE_VALIDATOR])
@@ -584,22 +613,3 @@ class Respondent(History):
     @property
     def comments(self):
         return Comment.objects.filter(respondent=self).all()
-
-
-class Location(models.Model):
-    """
-    A ``Location`` represents a named government-designated area in the world.
-
-    Attributes:
-        country (str): The name of the country of the location.
-        province (str): The name of the province (in the United States, this
-            would be analogous to a state).
-        municipality (str): The name of a municipality (can vary from a county
-            to a city or town).
-        division (str): The name of the smallest possible government unit
-            (roughly analogous to a precinct, ward, etc).
-    """
-    country = models.CharField(max_length=64)
-    province = models.CharField(max_length=64)
-    municipality = models.CharField(max_length=64)
-    division = models.CharField(max_length=64)
