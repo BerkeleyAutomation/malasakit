@@ -584,3 +584,22 @@ class Respondent(History):
     @property
     def comments(self):
         return Comment.objects.filter(respondent=self).all()
+
+
+class Location(models.Model):
+    """
+    A ``Location`` represents a named government-designated area in the world.
+
+    Attributes:
+        country (str): The name of the country of the location.
+        province (str): The name of the province (in the United States, this
+            would be analogous to a state).
+        municipality (str): The name of a municipality (can vary from a county
+            to a city or town).
+        division (str): The name of the smallest possible government unit
+            (roughly analogous to a precinct, ward, etc).
+    """
+    country = models.CharField(max_length=64)
+    province = models.CharField(max_length=64)
+    municipality = models.CharField(max_length=64)
+    division = models.CharField(max_length=64)
