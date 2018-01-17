@@ -26,7 +26,7 @@ from django.contrib.contenttypes.models import ContentType
 from pcari.models import QualitativeQuestion, Comment, CommentRating
 from pcari.models import OptionQuestion, OptionQuestionChoice
 from pcari.models import QuantitativeQuestionRating, QuantitativeQuestion
-from pcari.models import Respondent
+from pcari.models import Location, Respondent
 from pcari.models import History
 from pcari.models import get_direct_fields
 from pcari.views import export_data, translate
@@ -41,6 +41,7 @@ __all__ = [
     'CommentRatingAdmin',
     'OptionQuestionAdmin',
     'OptionQuestionChoiceAdmin',
+    'LocationAdmin',
     'RespondentAdmin',
 ]
 
@@ -395,6 +396,32 @@ class OptionQuestionAdmin(HistoryAdmin):
     list_display = ('get_prompt', 'options', 'get_tag', 'active')
     list_filter = ('tag', 'active')
     search_fields = ('prompt', 'options', 'tag')
+
+
+@admin.register(Location, site=site)
+class LocationAdmin(admin.ModelAdmin):
+    """ Admin behavior for :class:`pcari.models.Location`. """
+    def display_country(self, location):
+        return location.country or self.empty_value_display
+    display_country.short_description = 'Country'
+
+    def display_province(self, location):
+        return location.province or self.empty_value_display
+    display_province.short_description = 'Country'
+
+    def display_municipality(self, location):
+        return location.municipality or self.empty_value_display
+    display_municipality.short_description = 'Country'
+
+    def display_division(self, location):
+        return location.division or self.empty_value_display
+    display_division.short_description = 'Country'
+
+    empty_value_display = '(Empty)'
+    list_display = ('id', 'display_country', 'display_province',
+                    'display_municipality', 'display_division', 'enabled')
+    list_filter = ('country', 'province')
+    search_fields = ('id', 'country', 'province', 'municipality', 'division')
 
 
 @admin.register(Respondent, site=site)
