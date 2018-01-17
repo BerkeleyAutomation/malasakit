@@ -10,6 +10,7 @@
 #
 # Usage: . ./recognize.sh audiofilename
 #
+export PATH=$(find /Users/justinmi/GDrive/Cal/Work/Autolab/malasakit-v1/kaldi/src -name *bin | tr '\n' ':')$PATH:/Users/justinmi/GDrive/Cal/Work/Autolab/malasakit-v1/kaldi/tools/openfst-1.6.5/bin
 
 audiofile=$1
 
@@ -25,7 +26,7 @@ feature_transform=models/DNN-HMM/final.feature_transform
 class_frame_counts=models/DNN-HMM/ali_train_pdf.counts
 nnet=models/DNN-HMM/final.nnet
 
-paste -d " " <(echo "$audiofile" | cut -d "." -f 1) <(echo "$audiofile") > recognition/wav.scp
+paste -d " " <(echo "$audiofile" | cut -d "." -f 1) <(echo "./test_files/$audiofile") > recognition/wav.scp
 
 compute-mfcc-feats --verbose=2 --config=conf/mfcc.conf \
 scp:recognition/wav.scp ark:- | \
@@ -47,6 +48,7 @@ ark,t:recognition/one-best.tra
 
 . ./est_confidence.sh
 
+
 perl -x utils/int2sym.pl -f 2- \
 models/GMM-HMM/graph/words.txt \
 recognition/one-best.tra \
@@ -56,5 +58,7 @@ cat recognition/one-best-hypothesis.txt | cut -d ' ' -f 2 > recognition/recogniz
 . ./num2digits.sh $(cat "recognition/recognized_word.txt")> recognition/recognized_digit.txt
 
 paste -d " " recognition/recognized_digit.txt recognition/confidence_score.txt > recognition/output.txt
+
+echo "success"
 
 rm -rf mfcc/raw_mfcc.scp mfcc/raw_mfcc.ark recognition/wav.scp recognition/lattices.ark recognition/one-best.tra recognition/one-best-hypothesis.txt recognition/recognized_word.txt recognition/feats.scp
