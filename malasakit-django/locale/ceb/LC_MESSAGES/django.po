@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.25\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-30 08:54+0000\n"
+"POT-Creation-Date: 2017-12-22 19:28+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: CEBUANO\n"
@@ -118,14 +118,10 @@ msgid "Filipino"
 msgstr ""
 
 #: cafe/settings.py:164
-msgid "Spanish"
-msgstr ""
-
-#: cafe/settings.py:165
 msgid "Cebuano"
 msgstr ""
 
-#: cafe/settings.py:166
+#: cafe/settings.py:165
 msgid "Ilocano"
 msgstr ""
 
@@ -283,7 +279,7 @@ msgstr ""
 
 #: pcari/templates/admin/configuration.html:54
 #: pcari/templates/admin/configuration.html:71
-#: pcari/templates/quantitative-questions.html:194
+#: pcari/templates/quantitative-questions.html:195
 #: pcari/templates/rate-comments.html:51
 msgid "Submit"
 msgstr ""
@@ -346,7 +342,7 @@ msgid "Begin"
 msgstr ""
 
 #: pcari/templates/nav-buttons.html:7
-#: pcari/templates/quantitative-questions.html:188
+#: pcari/templates/quantitative-questions.html:189
 msgid "Previous"
 msgstr ""
 
@@ -444,17 +440,17 @@ msgstr ""
 msgid "Profile Questions"
 msgstr ""
 
-#: pcari/templates/quantitative-questions.html:172
+#: pcari/templates/quantitative-questions.html:173
 msgid ""
 "Below, you will see either a slider or a text box. Please answer each "
 "question by moving the slider knob or filling in the box with a number."
 msgstr ""
 
-#: pcari/templates/quantitative-questions.html:180
+#: pcari/templates/quantitative-questions.html:181
 msgid "Question"
 msgstr ""
 
-#: pcari/templates/quantitative-questions.html:191
+#: pcari/templates/quantitative-questions.html:192
 #: pcari/templates/rate-comments.html:48
 msgid "Skip"
 msgstr ""

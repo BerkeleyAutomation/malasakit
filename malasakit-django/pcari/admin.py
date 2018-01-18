@@ -21,6 +21,7 @@ from django.conf.urls import url
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import User, Group
+from django.contrib.contenttypes.models import ContentType
 
 from pcari.models import QualitativeQuestion, Comment, CommentRating
 from pcari.models import OptionQuestion, OptionQuestionChoice
@@ -28,7 +29,8 @@ from pcari.models import QuantitativeQuestionRating, QuantitativeQuestion
 from pcari.models import Respondent
 from pcari.models import History
 from pcari.models import get_direct_fields
-from pcari.views import export_data
+from pcari.views import export_data, translate
+from feature_phone import models as phone_models
 
 __all__ = [
     'MalasakitAdminSite',
@@ -140,9 +142,11 @@ class MalasakitAdminSite(admin.AdminSite):
 # pylint: disable=invalid-name
 site = MalasakitAdminSite()
 site.register(User, UserAdmin)
-site.register(Group, GroupAdmin)
 site.filter_actions(User, ['delete_selected'])
+site.register(Group, GroupAdmin)
 site.filter_actions(Group, ['delete_selected'])
+site.register(ContentType)
+site.filter_actions(ContentType, ['delete_selected'])
 
 
 class HistoryAdmin(admin.ModelAdmin):
@@ -314,11 +318,36 @@ class OptionQuestionChoiceAdmin(HistoryAdmin):
     search_fields = ('question_prompt', 'option')
 
 
+def export_to_feature_phone(modeladmin, request, queryset):
+    """ Export the selected questions to the feature phone application. """
+    # pylint: disable=unused-argument
+    new_model_count = 0
+    for question in queryset:
+        for language, _ in settings.LANGUAGES:
+            components = [question._meta.label_lower.replace('.', '-'),
+                          unicode(question.pk), language]
+            _, created = phone_models.Question.objects.get_or_create(
+                key='-'.join(components),
+                defaults={
+                    'text': translate(question.prompt, language),
+                    'language': language,
+                    'related_object_type': ContentType.objects.get_for_model(question),
+                    'related_object': question,
+                }
+            )
+            new_model_count += created
+    message = 'Successfully exported {} questions out of {}.'
+    modeladmin.message_user(request, message.format(new_model_count, queryset.count()))
+export_to_feature_phone.short_description = 'Export to feature phone application'
+
+
 @admin.register(QualitativeQuestion, site=site)
 class QualitativeQuestionAdmin(HistoryAdmin):
     """
     Admin behavior for :class:`pcari.models.QualitativeQuestion`.
     """
+    actions = [export_to_feature_phone]
+
     def display_question_num_comments(self, question):
         # pylint: disable=no-self-use
         return question.comments.count()
@@ -334,6 +363,8 @@ class QuantitativeQuestionAdmin(HistoryAdmin):
     """
     Admin behavior for :class:`pcari.models.QuantitativeQuestion`.
     """
+    actions = [export_to_feature_phone]
+
     def num_ratings(self, comment):
         # pylint: disable=no-self-use
         return comment.num_ratings

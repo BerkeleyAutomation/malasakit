@@ -57,7 +57,7 @@ const EMPTY_RESPONSE = {
 const SKIPPED = null;
 
 function redirect(url) {
-    $(location).attr('href', url);
+    window.location.replace(url);
 }
 
 function getCurrentTimestamp() {
@@ -77,9 +77,9 @@ function displayNoCurrentRespondentError() {
     var current = Resource.load('current');
     if (current === undefined || current.data === null || !isResponseName(current.data)) {
         var landingURL = APP_URL_ROOT + '/' + getCurrentLanguage() + '/landing/';
-        var landingLink = $('<a>').attr('href', landingURL).text('new response');
-        displayError('Your answers are not being saved. '
-                   + 'You should start a ' + landingLink[0].outerHTML + '.');
+        var landingLink = $('<a>').attr('href', landingURL).text(gettext('new response'));
+        displayError(gettext('Your answers are not being saved.') + ' '
+                     + interpolate('You should start a %s.', [landingLink[0].outerHTML]));
     }
 }
 
@@ -270,6 +270,16 @@ function csrfSetup() {
         }
     });
     console.log(gettext('AJAX with CSRF token usage initialized'));
+}
+
+function validatePositiveInteger(event) {
+    return event.ctrlKey || event.altKey || 0x30 <= event.keyCode <= 0x39;
+}
+
+function makeClipped(lower, upper) {
+    return function(n) {
+        return Math.max(lower, Math.min(upper, n));
+    }
 }
 
 function displayLocalStorageUsage(precision=3) {

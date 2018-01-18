@@ -1,0 +1,117 @@
+- model: feature_phone.instructions
+  pk: 65
+  fields:
+    key: language-selection
+    language: ceb
+    text:
+      To use Cebuano, press three.
+- model: feature_phone.instructions
+  pk: 66
+  fields:
+    key: introduction
+    language: ceb
+    text:
+      We look forward to listening to your suggestions on how your barangay can
+      better prepare you for natural disasters like typhoons and floods.
+- model: feature_phone.instructions
+  pk: 67
+  fields:
+    key: irb-notice
+    language: ceb
+    text:
+      "By answering this, you agree that you are voluntarily taking part in
+      this PCARI Project titled \"E-Participation 2.0: Connecting Diverse
+      Philippine Populations for Disaster Risk Management with a Toolkit
+      Integrating Text and Speech Analytics.\" All of your information and
+      responses gathered through this toolkit will be used as inputs for the
+      Barangay Disaster Preparedness Planning."
+- model: feature_phone.instructions
+  pk: 68
+  fields:
+    key: irb-notice-prompt
+    language: ceb
+    text:
+      If you wish to continue, press one; otherwise, press two.
+- model: feature_phone.instructions
+  pk: 69
+  fields:
+    key: irb-notice-exit
+    language: ceb
+    text:
+      Thank you for your time and have a nice day.
+- model: feature_phone.instructions
+  pk: 70
+  fields:
+    key: gender-prompt
+    language: ceb
+    text:
+      If you are male, press one; if you are female, press two. To skip this
+      question, press the pound sign on your phone's keypad.
+- model: feature_phone.instructions
+  pk: 71
+  fields:
+    key: age-prompt
+    language: ceb
+    text:
+      Say your age after the tone.
+- model: feature_phone.instructions
+  pk: 72
+  fields:
+    key: barangay-prompt
+    language: ceb
+    text:
+      Which barangay are you from?
+- model: feature_phone.instructions
+  pk: 73
+  fields:
+    key: quantitative-question-instructions
+    language: ceb
+    text:
+      Thank you for giving some of your personal information.
+      In a few moments, we will ask you to rate ten statements that are answerable on a scale from one to six.
+      For each statement, record your response after the tone.
+      You may either use your phone's keypad or speak your response.
+      After stating or entering your response from 1 to 6, where 1 represents strongly disagree and 6 represents strongly agree, please wait and you will hear the next statement.
+      To listen to a question again, press the asterisk sign on your phone's keypad.
+      To skip any question, press the pound sign.
+- model: feature_phone.instructions
+  pk: 74
+  fields:
+    key: quantitative-question-reminder
+    language: ceb
+    text:
+      Please be ready.
+      You are about to hear the quantitative statements.
+      Remember that each statement is asking you to provide your level of agreement on a scale of 1 to 6  where 1 represents strongly disagree and 6 represents strongly agree.
+- model: feature_phone.instructions
+  pk: 75
+  fields:
+    key: comment-rating-instructions
+    language: ceb
+    text:
+      Now, we will play two suggestions submitted by other members of your community on how the barangay can help you better prepare for a major disaster.
+      As before, rate each statement on a scale from 1 to 6, where 1 represents strongly disagree and 6 represents strongly agree.
+- model: feature_phone.instructions
+  pk: 76
+  fields:
+    key: qualitative-question-instructions
+    language: ceb
+    text:
+      Now, please record your own suggestion.
+      The suggestion should be one sentence.
+      You can begin recording your response after the tone.
+      To confirm your suggestion, press 0.
+- model: feature_phone.instructions
+  pk: 77
+  fields:
+    key: qualitative-question-confirm
+    language: ceb
+    text: If you would like to re-record your suggestion, press one. Otherwise, press two.
+- model: feature_phone.instructions
+  pk: 78
+  fields:
+    key: end
+    language: ceb
+    text:
+      We appreciate and value your contribution.
+      Thank you very much for participating in Malasakit.

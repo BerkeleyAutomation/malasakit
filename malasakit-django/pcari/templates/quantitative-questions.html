@@ -71,8 +71,16 @@
         updateOutputReading();
         $('#current-answer-notice').css('display', 'block');
       } else if (question['input-type'] === 'number') {
+        var clipRating = makeClipped(min, max);
         var number = $('<input>').attr('id', 'quantitative-input').attr('type', 'number');
+        number = number.attr('onkeypress', 'validatePositiveInteger(event)');
         number = number.attr('min', min).attr('max', max).attr('step', step);
+        number.on('input', function() {
+          var rawValue = $(this).val();
+          if (!isNaN(rawValue)) {
+            $(this).val(clipRating(rawValue));
+          }
+        });
         if (value !== SKIPPED) {
           number.attr('value', value);
         }
@@ -114,7 +122,7 @@
       $('#previous').prop('disabled', questionIndex === 0);
       $('#answer').empty();
       $('#notice').empty();
-      $('#progression-numerator').text(questionIndex + 1);
+      $('#progression-numerator').text(Math.min(ALL_QUESTIONS.length, questionIndex + 1));
       $('#current-answer-notice').css('display', 'none');
       $('#skip-notice').css('display', 'none');
 
