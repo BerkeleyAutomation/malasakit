@@ -36,7 +36,7 @@ import numpy as np
 from openpyxl import Workbook
 import unicodecsv as csv
 
-from pcari.models import Respondent
+from pcari.models import Respondent, Location
 from pcari.models import QuantitativeQuestion, OptionQuestion, QualitativeQuestion
 from pcari.models import Comment, CommentRating, QuantitativeQuestionRating, OptionQuestionChoice
 from pcari.models import get_concrete_fields
@@ -417,7 +417,7 @@ def fetch_question_ratings(request):
 def fetch_locations(request):
     """ Fetch locations as JSON. """
     locations = Location.objects
-    if request.GET.get('enabled_only', True):
+    if request.GET.get('enabled-only', True):
         locations = locations.filter(enabled=True)
     fields = ['country', 'province', 'municipality', 'division']
     return JsonResponse({

@@ -34,9 +34,9 @@ const STATIC_RESOURCES = [
         lifetime: 12*60*60*1000
     },
     {
-        name: 'location-data',
-        endpoint: STATIC_URL_ROOT + '/data/location-data.json',
-        lifetime: 12*60*60*1000
+        name: 'locations',
+        endpoint: API_URL_ROOT + '/fetch/locations/',
+        lifetime: 0
     },
     {
         name: 'bloom-icon',
