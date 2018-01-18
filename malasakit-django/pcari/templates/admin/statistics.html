@@ -22,148 +22,16 @@
 {% endblock %}
 
 {% block extrahead %}
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
-  <script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
-  <script>
-    var colorQueue = [
-        'rgba(17, 141, 255, 0.6)',  // blue
-        'rgba(47, 194, 70, 0.6)',  // green
-        'rgba(238, 65, 27, 0.6)',  // red
-        'rgba(119, 31, 218, 0.6)',  // purple
-        'rgba(218, 222, 50, 0.6)',  // yellow
-        'rgba(240, 158, 19, 0.6)',  // orange
-        'rgba(102, 201, 163, 0.6)',  // cyan
-        'rgba(184, 184, 184, 0.6)'  // silver
-    ];
-
-    function bindListener(checkbox, chart, ratingDistributions) {
-      checkbox.on('change', function() {
-        var questionID = $(this).attr('id');
-        if (questionID in ratingDistributions) {
-          if (checkbox.prop('checked')) {
-            var distribution = ratingDistributions[questionID];
-
-            var data = [distribution[-2] || 0, distribution[-1] || 0];
-            var choices = chart.data.labels.slice(2);
-            for (var index in choices) {
-              data.push(distribution[choices[index]]);
-            }
-
-            chart.data.datasets.push({
-              label: 'Question ' + questionID,
-              data: data,
-              backgroundColor: colorQueue.shift()
-            });
-          } else {
-            var datasets = chart.data.datasets;
-            for (var index in datasets) {
-              var dataset = datasets[index];
-              if (dataset.label === 'Question ' + questionID) {
-                colorQueue.push(dataset.backgroundColor);
-                datasets.splice(index, 1);
-                break;
-              }
-            }
-          }
-
-          chart.update();
-        }
-      });
-    }
-
-    $(document).ready(function() {
-      var canvas = $('#question-rating-distribution');
-      var language = $('html').attr('lang') || 'en';
-
-      var chart = new Chart(canvas, {
-        type: 'bar',
-        options: {
-          legend: {
-            position: 'bottom'
-          },
-          scales: {
-            xAxes: [{
-              scaleLabel: {
-                display: true,
-                labelString: 'Rating'
-              }
-            }],
-            yAxes: [{
-              scaleLabel: {
-                display: true,
-                labelString: 'Number of respondents'
-              },
-              ticks: {
-                beginAtZero:true
-              }
-            }]
-          }
-        }
-      });
-
-      var quantitativeQuestions, ratingDistributions = {};
-
-      $.getJSON("{% url 'fetch-quantitative-questions' %}", function(data) {
-        quantitativeQuestions = data;
-        for (var questionID in quantitativeQuestions) {
-          var translations = quantitativeQuestions[questionID].prompts;
-          if (language in translations) {
-            var prompt = translations[language];
-
-            var container = $('<div class="checkbox-container"></div>');
-            var checkbox = $('<input type="checkbox">')
-            var label = $('<label></label>')
-
-            checkbox.attr('id', questionID);
-            label.attr('for', questionID);
-            label.text('Question ' + questionID + ': "' + prompt + '"');
-            bindListener(checkbox, chart, ratingDistributions);
-
-            container.append(checkbox);
-            container.append(label);
-            $('#question-select').append(container);
-          }
-        }
-      });
-
-      $.getJSON("{% url 'fetch-question-ratings' %}", function(data) {
-        var max = -Infinity;
-        for (var ratingID in data) {
-          var rating = data[ratingID];
-          if (!(rating.qid in ratingDistributions)) {
-            ratingDistributions[rating.qid] = {};
-          }
-
-          var distribution = ratingDistributions[rating.qid];
-          if (!(rating.score in distribution)) {
-            distribution[rating.score] = 0
-          }
-          distribution[rating.score] += 1;
-
-          max = Math.max(max, rating.score);
-        }
-
-        var labels = ['(No answer)', '(Skipped)'];
-        for (var score = 0; score <= max; score++) {
-          labels.push(score.toString());
-        }
-        chart.data.labels = labels;
-        chart.update();
-      });
-    });
-  </script>
+  <link href="http://cdn.pydata.org/bokeh/release/bokeh-0.12.13.min.css" rel="stylesheet">
+  <link href="http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.13.min.css" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
   <div id="content-main">
     <h1>{% trans 'Statistics' %}</h1>
-    <div class="card-container">
-      <h2>{% trans 'Quantitative question rating distributions' %}</h2>
-      <canvas id="question-rating-distribution"></canvas>
-      <br>
-      <fieldset id="question-select">
-        <legend>Compare rating distributions</legend>
-      </fieldset>
-    </div>
+    {{ div|safe }}
+    <script src="http://cdn.pydata.org/bokeh/release/bokeh-0.12.13.min.js"></script>
+    <script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.13.min.js"></script>
+    {{ script|safe }}
   </div>
 {% endblock %}

@@ -13,3 +13,4 @@ selenium==3.4.3
 decorator
 sphinx
 sphinxcontrib-napoleon
+bokeh

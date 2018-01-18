@@ -12,6 +12,9 @@ from collections import OrderedDict
 import json
 import os
 
+from bokeh.models import Panel, Tabs
+from bokeh.plotting import figure
+from bokeh.embed import components
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
@@ -22,6 +25,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import User, Group
 from django.contrib.contenttypes.models import ContentType
+import numpy as np
 
 from pcari.models import QualitativeQuestion, Comment, CommentRating
 from pcari.models import OptionQuestion, OptionQuestionChoice
@@ -77,7 +81,23 @@ class MalasakitAdminSite(admin.AdminSite):
 
     def statistics(self, request):
         """ Render a statistics page. """
-        return render(request, 'admin/statistics.html', self.each_context(request))
+        plot = figure(title='Quantitative Rating Distribution',
+            x_axis_label='Rating',
+            y_axis_label='Frequency (number of participants)',
+            plot_width=900,
+            plot_height=700)
+
+        # plot.line(x, y, legend= 'f(x)', line_width = 2)
+        scores = QuantitativeQuestionRating.active_objects.exclude(score=None).values_list('score', flat=True)
+        hist, _ = np.histogram(scores)
+        plot.quad(top=hist, bottom=0, left=np.arange(10) - 0.5, right=np.arange(10) + 0.5)
+        plot.xaxis.ticker = np.arange(10)
+        plot.x_range.update(start=-0.5, end=9.5, bounds='auto')
+        plot.y_range.update(start=0, end=None, bounds=(0, None))
+
+        script, div = components(plot)
+        return render(request, 'admin/statistics.html',
+                      {'script': script, 'div': div})
 
     def change_landing_image(self, request):
         """ Save an image file as the landing page image. """
