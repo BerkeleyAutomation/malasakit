@@ -413,6 +413,20 @@ def fetch_question_ratings(request):
 
 
 @profile
+@require_GET
+def fetch_locations(request):
+    """ Fetch locations as JSON. """
+    locations = Location.objects
+    if request.GET.get('enabled_only', True):
+        locations = locations.filter(enabled=True)
+    fields = ['country', 'province', 'municipality', 'division']
+    return JsonResponse({
+        unicode(location.pk): {field: getattr(location, field) for field in fields}
+        for location in locations.iterator()
+    })
+
+
+@profile
 def make_question_ratings(respondent, response):
     """ Generate new quantitative question model instances. """
     # pylint: disable=no-member
@@ -470,7 +484,6 @@ def make_respondent_data(respondent, response):
         'age',
         'gender',
         'language',
-        'location',
         'submitted_personal_data',
         'completed_survey',
     ]

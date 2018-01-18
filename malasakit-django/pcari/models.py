@@ -35,7 +35,7 @@ from django.utils.translation import ugettext_lazy as _
 
 __all__ = ['Comment', 'QuantitativeQuestionRating', 'CommentRating',
            'QualitativeQuestion', 'QuantitativeQuestion', 'Respondent',
-           'OptionQuestion', 'OptionQuestionChoice']
+           'OptionQuestion', 'OptionQuestionChoice', 'Location']
 
 _LANGUAGE_CODES = [''] + [code for code, name in settings.LANGUAGES]
 LANGUAGE_VALIDATOR = RegexValidator(r'^({0})$'.format('|'.join(_LANGUAGE_CODES)))
