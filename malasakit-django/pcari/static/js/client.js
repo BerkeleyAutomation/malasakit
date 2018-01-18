@@ -204,15 +204,7 @@ function refreshResources() {
     }
 }
 
-function postprocess(responseData) {
-    var province = responseData['respondent-data']['province'] || '(No province)';
-    var cityOrMunicipality = responseData['respondent-data']['city-or-municipality'] || '(No city or municipality)';
-    var barangay = responseData['respondent-data']['barangay'] || '(No barangay)';
-    responseData['respondent-data'].location = province + ', ' + cityOrMunicipality + ', ' + barangay;
-}
-
 function pushResponse(response, deleteOnSuccess=true) {
-    postprocess(response.data);
     $.ajax(RESPONSE_SAVE_ENDPOINT, {
         method: 'POST',
         data: JSON.stringify(response.data),

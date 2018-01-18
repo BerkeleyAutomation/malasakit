@@ -445,7 +445,9 @@ class RespondentAdmin(HistoryAdmin):
     Admin behavior for :class:`pcari.models.Respondent`.
     """
     def display_location(self, respondent):
-        return respondent.location.strip() or self.empty_value_display
+        if not respondent.location:
+            return self.empty_value_display
+        return respondent.location.division.strip() or self.empty_value_display
     display_location.short_description = 'Location'
 
     def comments(self, respondent):

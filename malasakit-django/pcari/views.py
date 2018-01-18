@@ -491,6 +491,13 @@ def make_respondent_data(respondent, response):
         serialized_name = attribute.replace('_', '-')
         if serialized_name in respondent_data:
             setattr(respondent, attribute, respondent_data[serialized_name])
+
+    division = respondent_data.get('division')
+    if division:
+        if respondent_data['division'] == 'other':
+            respondent.location = Location.objects.create(division=respondent_data['new-division'])
+        else:
+            respondent.location = Location.objects.get(pk=int(division))
     respondent.save()
 
 
