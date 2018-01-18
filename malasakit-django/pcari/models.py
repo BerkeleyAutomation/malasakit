@@ -382,6 +382,8 @@ class QuantitativeQuestion(Question):
             input type. Current options are:
             * `range`: Render the question as a "slider".
             * `number`: Render the question as a number-only text field.
+            * `buttons`: Render the question as a row of buttons (only works
+                well for a small range of scores).
         left_anchor (str): The text that describes the minimum score. For a
             range :attr:`input_type`, this text is rendered on the left end of
             the slider.
@@ -399,7 +401,7 @@ class QuantitativeQuestion(Question):
     INPUT_TYPE_CHOICES = (
         ('range', 'Range'),
         ('number', 'Number'),
-        # Possibly allow for a row of buttons as well
+        ('buttons', 'Buttons'),
     )
 
     objects = RatingStatisticsManager()
