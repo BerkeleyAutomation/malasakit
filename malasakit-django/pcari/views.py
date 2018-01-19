@@ -169,6 +169,26 @@ def calculate_principal_components(normalized_ratings, num_components=2):
 
 
 @profile
+def make_2d_projection():
+    """
+    Return a higher-order function that will project a respondent's profile onto
+    the plane formed by the first two principal components of the ratings matrix.
+    """
+    respondent_id_map, _, ratings = generate_ratings_matrix()
+    data_in_every_column = all(np.count_nonzero(~np.isnan(ratings[:, i]))
+                               for i in range(ratings.shape[1])) and ratings.size
+    if not data_in_every_column:
+        return
+
+    normalized_ratings = normalize_ratings_matrix(ratings)
+    components = calculate_principal_components(normalized_ratings, 2)
+    def project(respondent):
+        row_index = respondent_id_map[respondent.id]
+        return components.dot(normalized_ratings[row_index])
+    return project
+
+
+@profile
 @require_GET
 def fetch_comments(request):
     """
@@ -208,24 +228,16 @@ def fetch_comments(request):
                 .exclude(message='').all())
     if len(comments) > limit:
         comments = random.sample(comments, limit)
-
-    respondent_id_map, _, ratings = generate_ratings_matrix()
-    data_in_every_column = all(np.count_nonzero(~np.isnan(ratings[:, i]))
-                               for i in range(ratings.shape[1])) and ratings.size
-    if data_in_every_column:
-        normalized_ratings = normalize_ratings_matrix(ratings)
-        components = calculate_principal_components(normalized_ratings, 2)
+    project = make_2d_projection()
 
     data = {}
     for comment in comments:
         standard_error = comment.score_sem
-        row_index = respondent_id_map[comment.respondent.id]
-        position = [0, 0]
-        if data_in_every_column:
-            position = list(np.round(components.dot(normalized_ratings[row_index, :]), 3))
-
         # Projects the ratings by this comment's author onto the first two
         # principal components to generate the position (`pos`).
+        position = [0, 0]
+        if project:
+            position = list(np.round(project(comment.respondent), 3))
         if standard_error is None:
             standard_error = settings.DEFAULT_STANDARD_ERROR
         data[unicode(comment.id)] = {

@@ -82,7 +82,7 @@ class MalasakitAdminSite(admin.AdminSite):
 
     def statistics(self, request):
         """ Render a statistics page. """
-        plot = figure(title='Quantitative Rating Distribution',
+        plot = figure(title='Quantitative Rating PCA Projection',
             x_axis_label='Rating',
             y_axis_label='Frequency (number of participants)',
             plot_width=900,
