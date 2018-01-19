@@ -407,27 +407,27 @@ class LocationAdmin(admin.ModelAdmin):
 
     def display_province(self, location):
         return location.province or self.empty_value_display
-    display_province.short_description = 'Country'
+    display_province.short_description = 'Province'
 
     def display_municipality(self, location):
         return location.municipality or self.empty_value_display
-    display_municipality.short_description = 'Country'
+    display_municipality.short_description = 'Municipality'
 
     def display_division(self, location):
         return location.division or self.empty_value_display
-    display_division.short_description = 'Country'
+    display_division.short_description = 'Division'
 
-    def enable_as_input(self, request, queryset):
+    def enable_as_input_option(self, request, queryset):
         """ Enable locations as valid inputs in bulk. """
         num_enabled = queryset.update(enabled=True)
-        message = '{0} location{1} successfully enabled as input.'
+        message = '{0} location{1} successfully enabled as available options.'
         message = message.format(num_enabled, 's' if num_enabled != 1 else '')
         self.message_user(request, message)
 
-    def disable_as_input(self, request, queryset):
+    def disable_as_input_option(self, request, queryset):
         """ Disable locations as valid inputs in bulk. """
         num_disabled = queryset.update(enabled=False)
-        message = '{0} location{1} successfully disabled as input.'
+        message = '{0} location{1} successfully disabled as available options.'
         message = message.format(num_disabled, 's' if num_disabled != 1 else '')
         self.message_user(request, message)
 

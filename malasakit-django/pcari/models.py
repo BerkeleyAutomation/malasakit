@@ -523,7 +523,7 @@ class Location(models.Model):
             would be analogous to a state).
         municipality (str): The name of a municipality (can vary from a county
             to a city or town).
-        division (str): The name of the smallest possible government unit
+        division (str): The name of the smallest possible administrative unit
             (roughly analogous to a precinct, ward, etc).
         enabled (bool): Indicates whether this location should be presented to
             users as a possible input.
@@ -531,8 +531,12 @@ class Location(models.Model):
     country = models.CharField(max_length=64, blank=True, default='')
     province = models.CharField(max_length=64, blank=True, default='')
     municipality = models.CharField(max_length=64, blank=True, default='')
-    division = models.CharField(max_length=64)
-    enabled = models.BooleanField(default=False)
+    division = models.CharField(max_length=64,
+                                help_text=_('A basic administrative unit within a municipality.'))
+    enabled = models.BooleanField(default=False,
+                                  help_text=_('Indicates whether data collection is occuring'
+                                              'at this location, and should be presented to '
+                                              'participants as an answer to residence questions.'))
 
     def __unicode__(self):
         return ', '.join([self.country, self.province, self.municipality, self.division])
