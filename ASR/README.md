@@ -7,6 +7,8 @@ Instructions for install:
 3. Put all the files from ASR folder in this github into the malasakit-digits folder.
 
 
+Run path.sh to export paths needed by the decoder. (Once per server restart)
+
 Usage of ASR:
 
 Usage: . ./recognize_gmm.sh <audio_file_name> <language> [ <model_version> <confidence_eqn_no> ]
