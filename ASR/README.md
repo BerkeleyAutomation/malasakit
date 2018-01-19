@@ -6,7 +6,6 @@ Instructions for install:
 2. Create a folder "malasakit-digits" in the egs directory under kaldi-master
 3. Put all the files from ASR folder in this github into the malasakit-digits folder.
 
-
 Run path.sh to export paths needed by the decoder. (Once per server restart)
 
 Usage of ASR:
