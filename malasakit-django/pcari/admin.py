@@ -30,7 +30,7 @@ import numpy as np
 from pcari.models import QualitativeQuestion, Comment, CommentRating
 from pcari.models import OptionQuestion, OptionQuestionChoice
 from pcari.models import QuantitativeQuestionRating, QuantitativeQuestion
-from pcari.models import Respondent
+from pcari.models import Location, Respondent
 from pcari.models import History
 from pcari.models import get_direct_fields
 from pcari.views import export_data, translate
@@ -45,6 +45,7 @@ __all__ = [
     'CommentRatingAdmin',
     'OptionQuestionAdmin',
     'OptionQuestionChoiceAdmin',
+    'LocationAdmin',
     'RespondentAdmin',
 ]
 
@@ -417,13 +418,57 @@ class OptionQuestionAdmin(HistoryAdmin):
     search_fields = ('prompt', 'options', 'tag')
 
 
+@admin.register(Location, site=site)
+class LocationAdmin(admin.ModelAdmin):
+    """ Admin behavior for :class:`pcari.models.Location`. """
+    def display_country(self, location):
+        return location.country or self.empty_value_display
+    display_country.short_description = 'Country'
+
+    def display_province(self, location):
+        return location.province or self.empty_value_display
+    display_province.short_description = 'Province'
+
+    def display_municipality(self, location):
+        return location.municipality or self.empty_value_display
+    display_municipality.short_description = 'Municipality'
+
+    def display_division(self, location):
+        return location.division or self.empty_value_display
+    display_division.short_description = 'Division'
+
+    def enable_as_input_option(self, request, queryset):
+        """ Enable locations as valid inputs in bulk. """
+        num_enabled = queryset.update(enabled=True)
+        message = '{0} location{1} successfully enabled as available options.'
+        message = message.format(num_enabled, 's' if num_enabled != 1 else '')
+        self.message_user(request, message)
+
+    def disable_as_input_option(self, request, queryset):
+        """ Disable locations as valid inputs in bulk. """
+        num_disabled = queryset.update(enabled=False)
+        message = '{0} location{1} successfully disabled as available options.'
+        message = message.format(num_disabled, 's' if num_disabled != 1 else '')
+        self.message_user(request, message)
+
+    empty_value_display = '(Empty)'
+    actions = ('enable_as_input', 'disable_as_input')
+    list_display = ('id', 'display_country', 'display_province',
+                    'display_municipality', 'display_division', 'enabled')
+    list_filter = ('country', 'province')
+    search_fields = ('id', 'country', 'province', 'municipality', 'division')
+
+
 @admin.register(Respondent, site=site)
 class RespondentAdmin(HistoryAdmin):
     """
     Admin behavior for :class:`pcari.models.Respondent`.
     """
     def display_location(self, respondent):
-        return respondent.location.strip() or self.empty_value_display
+        """ Yield a placeholder if the respondent has no known location. """
+        if not respondent.location:
+            return self.empty_value_display
+        return respondent.location.division.strip() or self.empty_value_display
     display_location.short_description = 'Location'
 
     def comments(self, respondent):
