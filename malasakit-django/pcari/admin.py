@@ -12,12 +12,17 @@ from collections import OrderedDict
 import json
 import os
 
-from bokeh.models import Panel, Tabs
-from bokeh.plotting import figure
+from bokeh.client import push_session
+from bokeh.embed import server_session
+from bokeh.io import show
+from bokeh.layouts import layout, row
+from bokeh.models import Panel, Tabs, RangeSlider, CheckboxGroup
+from bokeh.plotting import figure, curdoc
 from bokeh.embed import components
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
+from django.db.models import Min, Max
 from django.shortcuts import redirect, reverse, render
 from django.views.decorators.http import require_POST
 from django.conf.urls import url
@@ -33,7 +38,7 @@ from pcari.models import QuantitativeQuestionRating, QuantitativeQuestion
 from pcari.models import Location, Respondent
 from pcari.models import History
 from pcari.models import get_direct_fields
-from pcari.views import export_data, translate
+from pcari.views import export_data, translate, make_2d_projection
 from feature_phone import models as phone_models
 
 __all__ = [
@@ -83,22 +88,40 @@ class MalasakitAdminSite(admin.AdminSite):
     def statistics(self, request):
         """ Render a statistics page. """
         plot = figure(title='Quantitative Rating PCA Projection',
-            x_axis_label='Rating',
-            y_axis_label='Frequency (number of participants)',
-            plot_width=900,
-            plot_height=700)
+                      x_axis_label='First Component',
+                      y_axis_label='Second Component',
+                      plot_width=900,
+                      plot_height=700)
 
-        # plot.line(x, y, legend= 'f(x)', line_width = 2)
-        scores = QuantitativeQuestionRating.active_objects.exclude(score=None).values_list('score', flat=True)
-        hist, _ = np.histogram(scores)
-        plot.quad(top=hist, bottom=0, left=np.arange(10) - 0.5, right=np.arange(10) + 0.5)
-        plot.xaxis.ticker = np.arange(10)
-        plot.x_range.update(start=-0.5, end=9.5, bounds='auto')
-        plot.y_range.update(start=0, end=None, bounds=(0, None))
+        project = make_2d_projection()
+        x, y = np.array([project(respondent) for respondent in Respondent.active_objects.all()]).T
+        renderer = plot.scatter(x, y, fill_alpha=0.5)
 
-        script, div = components(plot)
-        return render(request, 'admin/statistics.html',
-                      {'script': script, 'div': div})
+        age_bounds = Respondent.active_objects.all().aggregate(Min('age'), Max('age'))
+        min_age, max_age = age_bounds.get('age__min', 1), age_bounds.get('age__max', 100)
+        age = RangeSlider(start=min_age, end=max_age, value=(min_age, max_age), step=1, title='Age')
+        selectors = Tabs(tabs=[
+            Panel(child=layout([[age]]), title='Age'),
+            Panel(child=CheckboxGroup(labels=['Male', 'Female', 'Unknown'],
+                                      active=[0, 1, 2]), title='Gender'),
+        ])
+
+        def regenerate(attr, old, new):
+            print 'OK'
+            query = Respondent.active_objects.filter(
+                age__gte=min_age_select.value,
+                age__lte=max_age_select.value,
+            )
+            x, y = np.array([project(respondent) for respondent in query]).T
+            renderer.data_source.data.update(x=x, y=y)
+
+        # age.on_change('value', regenerate)
+
+        doc = layout([[plot, selectors]])
+        curdoc().add_root(doc)
+        session = push_session(curdoc())
+        script = server_session(doc, session_id=session.id)
+        return render(request, 'admin/statistics.html', {'script': script})
 
     def change_landing_image(self, request):
         """ Save an image file as the landing page image. """
