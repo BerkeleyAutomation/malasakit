@@ -1,5 +1,5 @@
 - model: feature_phone.instructions
-  pk: 0
+  pk: 15
   fields:
     key: welcome
     language: en
