@@ -1,0 +1,18 @@
+!SIL !SIL sil_S
+<UNK> <UNK> spn_S
+<eps> <eps> spn
+eight eight ey_B t_E
+five five f_B ay_I b_E
+five five f_B ay_I v_E
+four four f_B ow_I r_E
+nine nine n_B ay_I n_E
+one one wa_B n_E
+seven seven s_B e_I b_I e_I n_E
+seven seven s_B e_I v_I e_I n_E
+six six s_B i_I k_I s_E
+three three th_B r_I iy_E
+two two t_B uw_E
+zero zero s_B i_I r_I o_E
+zero zero s_B iy_I r_I ow_E
+zero zero z_B i_I r_I ow_E
+zero zero z_B iy_I r_I ow_E

@@ -1,1 +1,1 @@
-Directory for output recognition
+Directory for recognition output
