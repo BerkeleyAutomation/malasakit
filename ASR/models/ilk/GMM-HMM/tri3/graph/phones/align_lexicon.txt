@@ -1,0 +1,44 @@
+!SIL !SIL sil_S
+<UNK> <UNK> spn_S
+<eps> <eps> spn
+anim anim a_B n_I i_I m_E
+apat apat a_B p_I a_I t_E
+dalawa dalawa d_B a_I l_I aw_I wa_E
+dos dos d_B o_I s_E
+eight eight ey_B t_E
+five five f_B ay_I b_E
+five five f_B ay_I v_E
+four four f_B ow_I r_E
+isa isa i_B s_I a_E
+isa isa iy_B s_I a_E
+kwatro kwatro k_B wa_I t_I r_I o_E
+lima lima l_B i_I m_I a_E
+nine nine n_B ay_I n_E
+nuwebe nuwebe n_B uw_I we_I b_I e_E
+nuwebe nuwebe n_B we_I b_I e_E
+one one wa_B n_E
+otso otso o_B t_I s_I o_E
+pito pito p_B i_I t_I o_E
+pito pito p_B i_I t_I u_E
+sais sais s_B a_I gs_I i_I s_E
+sais sais s_B a_I i_I s_E
+seven seven s_B e_I b_I e_I n_E
+seven seven s_B e_I v_I e_I n_E
+singko singko s_B i_I ng_I k_I o_E
+six six s_B i_I k_I s_E
+siyam siyam s_B iy_I ya_I m_E
+siyam siyam sh_B a_I m_E
+siyete siyete s_B iy_I ye_I t_I e_E
+siyete siyete sh_B e_I t_I e_E
+tatlo tatlo t_B a_I t_I l_I o_E
+three three t_B r_I i_E
+three three th_B r_I iy_E
+tres tres t_B r_I e_I s_E
+two two t_B uw_E
+uno uno u_B n_I o_E
+walo walo wa_B l_I o_E
+walo walo wa_B l_I ow_E
+zero zero s_B i_I r_I o_E
+zero zero s_B iy_I r_I ow_E
+zero zero z_B i_I r_I ow_E
+zero zero z_B iy_I r_I ow_E
