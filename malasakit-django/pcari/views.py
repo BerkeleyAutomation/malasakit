@@ -37,7 +37,7 @@ import numpy as np
 from openpyxl import Workbook
 import unicodecsv as csv
 
-from pcari.models import Respondent
+from pcari.models import Respondent, Location
 from pcari.models import QuantitativeQuestion, OptionQuestion, QualitativeQuestion
 from pcari.models import Comment, CommentRating, QuantitativeQuestionRating, OptionQuestionChoice
 from pcari.models import get_concrete_fields
@@ -409,6 +409,20 @@ def fetch_question_ratings(request):
 
 
 @profile
+@require_GET
+def fetch_locations(request):
+    """ Fetch locations as JSON. """
+    locations = Location.objects
+    if request.GET.get('enabled-only', True):
+        locations = locations.filter(enabled=True)
+    fields = ['country', 'province', 'municipality', 'division']
+    return JsonResponse({
+        unicode(location.pk): {field: getattr(location, field) for field in fields}
+        for location in locations.iterator()
+    })
+
+
+@profile
 def make_question_ratings(respondent, response):
     """ Generate new quantitative question model instances. """
     # pylint: disable=no-member
@@ -466,7 +480,6 @@ def make_respondent_data(respondent, response):
         'age',
         'gender',
         'language',
-        'location',
         'submitted_personal_data',
         'completed_survey',
     ]
@@ -474,6 +487,15 @@ def make_respondent_data(respondent, response):
         serialized_name = attribute.replace('_', '-')
         if serialized_name in respondent_data:
             setattr(respondent, attribute, respondent_data[serialized_name])
+
+    division = respondent_data.get('division')
+    if division:
+        if respondent_data['division'] == 'other':
+            new_division = respondent_data.get('new_division')
+            if new_division:
+                respondent.location = Location.objects.create(division=new_division)
+        else:
+            respondent.location = Location.objects.get(pk=int(division))
     respondent.save()
 
 
