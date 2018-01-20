@@ -121,7 +121,7 @@ if DEBUG:
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'pcari',
+        'NAME': 'pcariv2',
         'USER': 'root',
         'PASSWORD': os.environ.get('mysql_pass'),
         'OPTIONS': {
@@ -180,7 +180,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-URL_ROOT = '/' if DEBUG else '/pcari/'
+URL_ROOT = '/' if DEBUG else '/pcariv2/'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
