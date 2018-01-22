@@ -495,7 +495,9 @@ def make_respondent_data(respondent, response):
     division = respondent_data.get('division')
     if division:
         if respondent_data['division'] == 'other':
-            respondent.location = Location.objects.create(division=respondent_data['new-division'])
+            new_division = respondent_data.get('new_division')
+            if new_division:
+                respondent.location = Location.objects.create(division=new_division)
         else:
             respondent.location = Location.objects.get(pk=int(division))
     respondent.save()
