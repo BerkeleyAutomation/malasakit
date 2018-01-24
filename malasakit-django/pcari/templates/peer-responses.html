@@ -19,9 +19,9 @@
         var score = ratings[id];
         if (score !== SKIPPED) {
           $('#answer-' + id).text(score);
-          if (score >= 4) {
+          if (score >= 4.333) {
             newImg = "{% static 'img/green-smiley.png' %}"
-          } else if (score >= 2) {
+          } else if (score >= 2.666) {
             newImg = "{% static 'img/neutral-smiley.png' %}"
           } else {
             newImg = "{% static 'img/red-smiley.png' %}"
@@ -58,10 +58,10 @@
               {% blocktrans trimmed %}
                 Average answer: <strong>{{ mean }}</strong>
               {% endblocktrans %}
-              {% if mean >= '4' %}
+              {% if mean >= '4.333' %}
               <img src="{% static 'img/green-smiley.png' %}"
                    style='width:50px;height:50px;'>
-              {% elif mean >= '2' %}
+              {% elif mean >= '2.666' %}
               <img src="{% static 'img/neutral-smiley.png' %}"
                    style='width:50px;height:50px;'>
               {% else %}
