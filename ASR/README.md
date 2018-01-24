@@ -8,6 +8,7 @@ Instructions for install:
 4. Put all the files from ASR folder in this github into the malasakit-digits folder.
 5. Install sox via sudo apt-get install sox or from here: http://sox.sourceforge.net/
 
+
 Run path.sh and cmd.sh to export paths needed by the decoder. (Once per server restart)
 
 Usage of ASR:
