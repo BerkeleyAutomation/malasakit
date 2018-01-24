@@ -19,6 +19,14 @@
         var score = ratings[id];
         if (score !== SKIPPED) {
           $('#answer-' + id).text(score);
+          if (score >= 4) {
+            newImg = "{% static 'img/green-smiley.png' %}"
+          } else if (score >= 2) {
+            newImg = "{% static 'img/neutral-smiley.png' %}"
+          } else {
+            newImg = "{% static 'img/red-smiley.png' %}"
+          }
+          document.getElementById("emoji-" + id).src=newImg;
         } else {
           $('#answer-' + id).text(gettext('Skipped'));
         }
@@ -64,6 +72,8 @@
             <div class='bubbled'>
               {% with id=question.id %}
                 {% trans 'Your answer:'%} <strong id='answer-{{ id }}'>{% trans 'Not rated' %}</strong>
+                <img id='emoji-{{ id }}'
+                style='width:50px;height:50px;'>
               {% endwith %}
             </div>
           </div>
