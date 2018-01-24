@@ -43,3 +43,4 @@ P.S. if you do not want real time factor, use recognize_gmm.sh instead
 
 
 ASR models can be found in this link: https://drive.google.com/open?id=1dw_3mb2DayqznzUDHbwFsUv9v6ekm1FR
+Replace malasakit-digits/models with the extracted models folder from the link
