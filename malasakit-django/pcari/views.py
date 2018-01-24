@@ -24,6 +24,7 @@ import time
 
 import decorator
 from django.conf import settings
+from django.db.models import OneToOneRel
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -589,7 +590,8 @@ def export_csv(stream, queryset):
         `None`. Has a side effect of writing to the ``stream``.
     """
     concrete_fields = get_concrete_fields(queryset.model)
-    field_names = [unicode(field.get_attname()) for field in concrete_fields]
+    field_names = [unicode(field.name) for field in concrete_fields if field
+                   if not isinstance(field, OneToOneRel)]
 
     writer = csv.writer(stream, encoding='utf-8')
     writer.writerow(field_names)
