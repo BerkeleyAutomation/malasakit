@@ -4,7 +4,7 @@
 
 {% block userlinks %}
   {% if user.is_superuser %}
-    <a href="{% url 'admin:configuration' %}">{% trans 'Configuration' %}</a> /
+    <a href="{% url 'admin:configuration' %}">{% trans 'Site configuration' %}</a> /
   {% endif %}
   <a href="{% url 'admin:statistics' %}">{% trans 'Statistics' %}</a> /
   {{ block.super }}
