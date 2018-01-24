@@ -21,6 +21,7 @@ import json
 import mimetypes
 import random
 import time
+from uuid import UUID
 
 import decorator
 from django.conf import settings
@@ -577,6 +578,12 @@ def save_response(request):
     return HttpResponse()
 
 
+def select_fields_for_export(model):
+    concrete_fields = get_concrete_fields(model)
+    return [unicode(field.name) for field in concrete_fields if field
+            if not isinstance(field, OneToOneRel)]
+
+
 @profile
 def export_csv(stream, queryset):
     """
@@ -589,9 +596,7 @@ def export_csv(stream, queryset):
     Returns:
         `None`. Has a side effect of writing to the ``stream``.
     """
-    concrete_fields = get_concrete_fields(queryset.model)
-    field_names = [unicode(field.name) for field in concrete_fields if field
-                   if not isinstance(field, OneToOneRel)]
+    field_names = select_fields_for_export(queryset.model)
 
     writer = csv.writer(stream, encoding='utf-8')
     writer.writerow(field_names)
@@ -614,8 +619,7 @@ def export_excel(stream, queryset):
     Returns:
         `None`. Has a side effect of writing to the ``stream``.
     """
-    concrete_fields = get_concrete_fields(queryset.model)
-    field_names = [unicode(field.get_attname()) for field in concrete_fields]
+    field_names = select_fields_for_export(queryset.model)
 
     workbook = Workbook(write_only=True)
     worksheet = workbook.create_sheet(queryset.model.__name__)
@@ -623,7 +627,8 @@ def export_excel(stream, queryset):
 
     for instance in queryset.iterator():
         row = [getattr(instance, field_name) for field_name in field_names]
-        worksheet.append(row)
+        row.append([(unicode(value) if isinstance(value, UUID) else value)
+                    for value in row])
 
     workbook.save(stream)
 
