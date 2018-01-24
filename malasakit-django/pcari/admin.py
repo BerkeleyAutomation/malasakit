@@ -215,6 +215,7 @@ class CommentRatingAdmin(ResponseAdmin):
         # pylint: disable=no-self-use
         return rating.score if rating.score is not None else '(Skipped)'
     get_score.short_description = 'Score'
+    get_score.admin_order_field = 'score'
 
     list_display = ('respondent', 'get_comment_message', 'get_score',
                     'timestamp', 'active')
@@ -291,6 +292,7 @@ class QuantitativeQuestionRatingAdmin(ResponseAdmin):
         # pylint: disable=no-self-use
         return rating.score if rating.score is not None else '(Skipped)'
     get_score.short_description = 'Score'
+    get_score.admin_order_field = 'score'
 
     list_display = ('respondent', 'question_prompt', 'timestamp', 'get_score',
                     'active')
@@ -403,27 +405,31 @@ class LocationAdmin(admin.ModelAdmin):
     def display_country(self, location):
         return location.country or self.empty_value_display
     display_country.short_description = 'Country'
+    display_country.admin_order_field = 'country'
 
     def display_province(self, location):
         return location.province or self.empty_value_display
     display_province.short_description = 'Province'
+    display_province.admin_order_field = 'province'
 
     def display_municipality(self, location):
         return location.municipality or self.empty_value_display
     display_municipality.short_description = 'Municipality'
+    display_municipality.admin_order_field = 'municipality'
 
     def display_division(self, location):
         return location.division or self.empty_value_display
     display_division.short_description = 'Division'
+    display_division.admin_order_field = 'division'
 
-    def enable_as_input_option(self, request, queryset):
+    def enable_as_input_options(self, request, queryset):
         """ Enable locations as valid inputs in bulk. """
         num_enabled = queryset.update(enabled=True)
         message = '{0} location{1} successfully enabled as available options.'
         message = message.format(num_enabled, 's' if num_enabled != 1 else '')
         self.message_user(request, message)
 
-    def disable_as_input_option(self, request, queryset):
+    def disable_as_input_options(self, request, queryset):
         """ Disable locations as valid inputs in bulk. """
         num_disabled = queryset.update(enabled=False)
         message = '{0} location{1} successfully disabled as available options.'
@@ -431,7 +437,7 @@ class LocationAdmin(admin.ModelAdmin):
         self.message_user(request, message)
 
     empty_value_display = '(Empty)'
-    actions = ('enable_as_input', 'disable_as_input')
+    actions = ('enable_as_input_options', 'disable_as_input_options')
     list_display = ('id', 'display_country', 'display_province',
                     'display_municipality', 'display_division', 'enabled')
     list_filter = ('country', 'province')
