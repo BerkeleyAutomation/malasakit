@@ -5,6 +5,7 @@ Instructions for install:
 1. Install kaldi from here: https://github.com/kaldi-asr/kaldi
 2. Create a folder "malasakit-digits" in the egs directory under kaldi-master
 3. Put all the files from ASR folder in this github into the malasakit-digits folder.
+4. Install sox via sudo apt-get install sox or from here: http://sox.sourceforge.net/
 
 Run path.sh to export paths needed by the decoder. (Once per server restart)
 
