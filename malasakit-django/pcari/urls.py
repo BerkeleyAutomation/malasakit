@@ -39,5 +39,6 @@ api_urlpatterns = [
         name='fetch-qualitative-questions'),
     url(r'^fetch/question-ratings/$', views.fetch_question_ratings,
         name='fetch-question-ratings'),
+    url(r'^fetch/locations/$', views.fetch_locations, name='fetch-locations'),
     url(r'^save-response/$', views.save_response, name='save-response'),
 ]

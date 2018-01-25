@@ -53,6 +53,6 @@
     <p class="error banner">{% trans 'There are no qualitative questions at this time.' %}</p>
   {% endif %}
   {% url 'pcari:rate-comments' as previous_link %}
-  {% url 'pcari:personal-information' as next_link %}
+  {% url 'pcari:peer-responses' as next_link %}
   {% include 'nav-buttons.html' %}
 {% endblock %}

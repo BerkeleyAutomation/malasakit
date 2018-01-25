@@ -1,0 +1,38 @@
+!SIL !SIL sil_S
+<UNK> <UNK> spn_S
+<eps> <eps> spn
+anim anim a_B n_I i_I m_E
+apat apat a_B p_I a_I t_E
+dalawa dalawa d_B a_I l_I aw_I wa_E
+dua dua d_B u_I h_I a_I h_E
+dua dua d_B u_I wa_E
+eight eight ey_B t_E
+five five f_B ay_I b_E
+five five f_B ay_I v_E
+four four f_B ow_I r_E
+isa isa i_B s_I a_E
+isa isa iy_B s_I a_E
+lima lima l_B i_I m_I a_E
+nine nine n_B ay_I n_E
+one one wa_B n_E
+pito pito p_B i_I t_I o_E
+pito pito p_B i_I t_I u_E
+seven seven s_B e_I b_I e_I n_E
+seven seven s_B e_I v_I e_I n_E
+six six s_B i_I k_I s_E
+siyam siyam s_B i_I ya_I m_E
+tatlo tatlo t_B a_I t_I l_I o_E
+three three th_B r_I iy_E
+tulo tulo t_B u_I l_I o_E
+two two t_B uw_E
+unum unum u_B n_I gs_I n_I u_I m_E
+unum unum u_B n_I u_I m_E
+upat upat u_B p_I a_I t_E
+upat upat u_B p_I gs_I p_I a_I t_E
+usa usa u_B s_I a_E
+walo walo wa_B l_I o_E
+walo walo wa_B l_I ow_E
+zero zero s_B i_I r_I o_E
+zero zero s_B iy_I r_I ow_E
+zero zero z_B i_I r_I ow_E
+zero zero z_B iy_I r_I ow_E

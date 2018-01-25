@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Converts wav files to digits
+# Converts wav files to digits and computes the realtime factor
 #
 # txt file that contains the recognized digit is in 
 # recognition/recognized_digit.txt
@@ -8,53 +8,39 @@
 # txt file that contains the recognized word is in
 # recognition/one-best-hypothesis.txt
 #
-# Usage: . ./recognize.sh audiofilename
+# Usage: . ./recognize.sh audio_file_name language [ model_version confidence_eqn_no ] 
+#
+# audio_file_name: 	full path of the audio file to be recognized
+# language: 		[ eng, fil, ceb, ilk ] (default is fil) eng for English, fil for Filipino, ceb for Cebuano, ilk for Ilokano
+# model_version:	(optional, default is tri2) [ tri1, tri2, tri3 ] tri1 for Double delta, tri2 for Double delta with LDA and MLLT, tri3 for Double delta with LDA, MLLT, and SAT
+# confidence_eqn_no:    (optional, default is 2) [ 1, 2 ] 1 is logarithmic, 2 is linear
 #
 
-audiofile=$1
+start_time=$(date +%s.%N)
 
-use_gpu=false
-min_active=200
-max_active=7000
-max_mem=50000000
-beam=13.0
-lattice_beam=8.0
-acwt=0.10
-nnet_forward_opts="--no-softmax=true --prior-scale=1.0"
-feature_transform=models/DNN-HMM/final.feature_transform
-class_frame_counts=models/DNN-HMM/ali_train_pdf.counts
-nnet=models/DNN-HMM/final.nnet
+audio_file_name=$1
+language=fil
+model_version=tri2
+confidence_eqn_no=2
 
-paste -d " " <(echo "$audiofile" | cut -d "." -f 1) <(echo "$audiofile") > recognition/wav.scp
+if [ $# -ge 2 ]; then
+	language=$2
+fi
 
-compute-mfcc-feats --verbose=2 --config=conf/mfcc.conf \
-scp:recognition/wav.scp ark:- | \
-copy-feats --compress=true ark:- \
-ark,scp:mfcc/raw_mfcc.ark,mfcc/raw_mfcc.scp
+if [ $# -ge 3 ]; then
+	model_version=$3
+fi
 
-cat mfcc/raw_mfcc.scp > recognition/feats.scp
+if [ $# -ge 4 ]; then
+	confidence_eqn_no=$4
+fi
 
-feats='ark,s,cs:copy-feats scp:recognition/feats.scp ark:- | add-deltas ark:- ark:- |'
+. ./recognize_gmm.sh $audio_file_name $language $model_version $confidence_eqn_no 
 
-gmm-latgen-faster --beam=$beam --lattice-beam=$lattice_beam \
---acoustic-scale=$acwt --allow-partial=true --word-symbol-table=models/GMM-HMM/graph/words.txt \
-models/GMM-HMM/final.mdl models/GMM-HMM/graph/HCLG.fst "$feats" "ark,t:recognition/lattices.ark"
+end_time=$(date +%s.%N)
 
-lattice-best-path \
---word-symbol-table=models/GMM-HMM/graph/words.txt \
-ark:recognition/lattices.ark \
-ark,t:recognition/one-best.tra
-
-. ./est_confidence.sh
-
-perl -x utils/int2sym.pl -f 2- \
-models/GMM-HMM/graph/words.txt \
-recognition/one-best.tra \
-> recognition/one-best-hypothesis.txt
-
-cat recognition/one-best-hypothesis.txt | cut -d ' ' -f 2 > recognition/recognized_word.txt
-. ./num2digits.sh $(cat "recognition/recognized_word.txt")> recognition/recognized_digit.txt
-
-paste -d " " recognition/recognized_digit.txt recognition/confidence_score.txt > recognition/output.txt
-
-rm -rf mfcc/raw_mfcc.scp mfcc/raw_mfcc.ark recognition/wav.scp recognition/lattices.ark recognition/one-best.tra recognition/one-best-hypothesis.txt recognition/recognized_word.txt recognition/feats.scp
+asr_runtime=$( echo "$end_time - $start_time" | bc -l )
+audio_time=$(soxi -D $audio_file_name)
+real_time_factor=$( echo "$asr_runtime/$audio_time" | bc -l)
+echo $real_time_factor > recognition/real_time_factor_${audio_basename}
+echo "real time factor = $real_time_factor"
