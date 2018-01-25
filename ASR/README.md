@@ -7,9 +7,9 @@ Instructions for install:
 3. Create a folder "malasakit-digits" in the egs directory under kaldi-master
 4. Put all the files from ASR folder in this github into the malasakit-digits folder.
 5. Install sox via sudo apt-get install sox or from here: http://sox.sourceforge.net/
+6. Download ASR models from here: https://drive.google.com/open?id=1dw_3mb2DayqznzUDHbwFsUv9v6ekm1FR 
+7. Replace malasakit-digits/models with the extracted models folder from the link
 
-
-Run path.sh and cmd.sh to export paths needed by the decoder. (Once per server restart)
 
 Usage of ASR:
 
@@ -40,8 +40,3 @@ recognition/realt_time_factor_(audio base name here).txt	real time factor (proce
 
 
 P.S. if you do not want real time factor, use recognize_gmm.sh instead
-
-
-
-ASR models can be found in this link: https://drive.google.com/open?id=1dw_3mb2DayqznzUDHbwFsUv9v6ekm1FR
-Replace malasakit-digits/models with the extracted models folder from the link
