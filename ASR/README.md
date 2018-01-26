@@ -13,14 +13,18 @@ Instructions for install:
 
 Usage of ASR:
 
-Usage: . ./recognize.sh <audio_file_name> <language> [ <model_version> <confidence_eqn_no> ]
+Usage: 
+
+First run `. ./path.sh`
+
+Then run `. ./recognize.sh <audio_file_name> <language_choice> [ <model_version> <confidence_eqn_no> ]`
 
 inputs:
 
 
 audio_file_name: 	full path of the audio file to be recognized
 
-language: 		[ eng, fil, ceb, ilk ] (default is fil) eng for English, fil for Filipino, ceb for Cebuano, ilk for Ilokano
+language_choice: 		[ eng, fil, ceb, ilk ] (default is fil) eng for English, fil for Filipino, ceb for Cebuano, ilk for Ilokano
 
 model_version:		(optional, default is tri2) [ tri1, tri2, tri3 ] tri1 for the model trained utilizing double delta features, tri2 for double delta with LDA and MLLT, tri3 for double delta with LDA, MLLT, and SAT
 
