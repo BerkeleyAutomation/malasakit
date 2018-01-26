@@ -2,13 +2,13 @@
 #
 # Converts wav files to digits
 #
-# txt file that contains the recognized digit is in 
+# txt file that contains the recognized digit is in
 # recognition/recognized_digit.txt
 #
 # txt file that contains the recognized word is in
 # recognition/one-best-hypothesis.txt
 #
-# Usage: . ./recognize_gmm.sh audio_file_name language [ model_version confidence_eqn_no ] 
+# Usage: . ./recognize_gmm.sh audio_file_name language [ model_version confidence_eqn_no ]
 #
 # audio_file_name: 	full path of the audio file to be recognized
 # language: 		[ eng, fil, ceb, ilk ] (default is fil) eng for English, fil for Filipino, ceb for Cebuano, ilk for Ilokano
@@ -84,7 +84,7 @@ audio_basename=$( basename $audiofile | cut -d "." -f 1 )
 paste -d " " <(echo "$audiofile" | cut -d "." -f 1 | tr "/" "_") <(echo "$audiofile") > recognition/wav_${audio_basename}.scp
 
 #$cmd "recognition/logs/raw_mfcc.log" \
-  compute-mfcc-feats --subtract-mean=true --config=conf/mfcc.conf \
+  compute-mfcc-feats --allow_downsample=true --subtract-mean=true --config=conf/mfcc.conf \
   scp:recognition/wav_${audio_basename}.scp ark:- | \
   copy-feats --compress=true ark:- \
   ark,scp:mfcc/raw_mfcc_${audio_basename}.ark,mfcc/raw_mfcc_${audio_basename}.scp
@@ -102,7 +102,7 @@ fi
 $cmd "recognition/logs/gmm_latgen_${audio_basename}.log" \
   gmm-latgen-faster --beam=$beam --lattice-beam=$lattice_beam \
   --acoustic-scale=$acwt --allow-partial=true --word-symbol-table="$word_symbol_table" \
-  "$model" "$graph" "$feats" "ark,t:recognition/lattices_${audio_basename}.ark" 
+  "$model" "$graph" "$feats" "ark,t:recognition/lattices_${audio_basename}.ark"
 
 $cmd "recognition/logs/lattice_best_path_${audio_basename}.log" \
   lattice-best-path \
