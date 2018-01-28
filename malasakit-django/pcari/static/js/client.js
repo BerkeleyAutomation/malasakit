@@ -42,6 +42,11 @@ const STATIC_RESOURCES = [
         name: 'bloom-icon',
         endpoint: STATIC_URL_ROOT + '/data/bloom-icon.json',
         lifetime: 0
+    },
+    {
+        name: 'images',
+        endpoint: STATIC_URL_ROOT + '/img/',
+        lifetime: 0
     }
 ];
 
