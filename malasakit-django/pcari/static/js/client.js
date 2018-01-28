@@ -5,7 +5,7 @@ const APP_NAME = 'malasakit';
 const DEFAULT_LANGUAGE = 'tl';
 const DEFAULT_TIMEOUT = 5000;
 
-const APP_URL_ROOT = '';  // TODO: Change to `/pcari` in production
+const APP_URL_ROOT = '';  // TODO: Change to `/pcariv2` in production
 const API_URL_ROOT = APP_URL_ROOT + '/api';
 const STATIC_URL_ROOT = APP_URL_ROOT + '/static';
 const RESPONSE_SAVE_ENDPOINT = API_URL_ROOT + '/save-response/';

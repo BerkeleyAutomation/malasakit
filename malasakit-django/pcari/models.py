@@ -35,7 +35,8 @@ from django.utils.translation import ugettext_lazy as _
 
 __all__ = ['Comment', 'QuantitativeQuestionRating', 'CommentRating',
            'QualitativeQuestion', 'QuantitativeQuestion', 'Respondent',
-           'OptionQuestion', 'OptionQuestionChoice', 'Location']
+           'OptionQuestion', 'OptionQuestionChoice', 'Location',
+           'get_concrete_fields', 'get_direct_fields']
 
 _LANGUAGE_CODES = [''] + [code for code, name in settings.LANGUAGES]
 LANGUAGE_VALIDATOR = RegexValidator(r'^({0})$'.format('|'.join(_LANGUAGE_CODES)))
@@ -534,7 +535,7 @@ class Location(models.Model):
     division = models.CharField(max_length=64,
                                 help_text=_('A basic administrative unit within a municipality.'))
     enabled = models.BooleanField(default=False,
-                                  help_text=_('Indicates whether data collection is occuring'
+                                  help_text=_('Indicates whether data collection is occuring '
                                               'at this location, and should be presented to '
                                               'participants as an answer to residence questions.'))
 

@@ -62,7 +62,7 @@ ROOT_URLCONF = 'cafe.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['pcari/static/js'],
+        'DIRS': [os.path.join(BASE_DIR, 'pcari/static/js')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -121,7 +121,7 @@ if DEBUG:
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'pcari',
+        'NAME': 'pcariv2',
         'USER': 'root',
         'PASSWORD': os.environ.get('mysql_pass'),
         'OPTIONS': {
@@ -172,7 +172,7 @@ LOCALE_PATHS = (
 
 LANGUAGE_CODE = 'en'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'US/Pacific'
 
 USE_I18N = True
 
@@ -180,7 +180,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-URL_ROOT = '/' if DEBUG else '/pcari/'
+URL_ROOT = '/' if DEBUG else '/pcariv2/'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
