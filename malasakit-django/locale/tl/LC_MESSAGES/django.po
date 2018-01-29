@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.25\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-28 22:34-0800\n"
+"POT-Creation-Date: 2018-01-29 01:38-0800\n"
 "PO-Revision-Date: 2017-07-03 20:00+0800\n"
 "Last-Translator: JEFFREY ANCHETA <jrancheta@national-u.edu.ph>\n"
 "Language-Team: FILIPINO\n"
@@ -45,8 +45,6 @@ msgstr ""
 "ang mga kanal nang mabawasan ang panganib ng pagbaha."
 
 #: QuantitativeQuestion.prompt:6
-#, fuzzy
-#| msgid "The barangay’s typhoon Early Warning System is effective."
 msgid "Our barangay doesn’t have an early-warning system for disasters."
 msgstr "Walang early warning system ang aming barangay para sa mga kalamidad."
 
@@ -61,10 +59,6 @@ msgstr ""
 "(PWD) sa panahon ng kalamidad."
 
 #: QuantitativeQuestion.prompt:8
-#, fuzzy
-#| msgid ""
-#| "My family has identified a place to meet and ways to communicate in a "
-#| "disaster."
 msgid ""
 "My family has plenty of  food and water supplies ready  to survive in times "
 "of disaster."
@@ -102,14 +96,6 @@ msgstr "Ingles"
 #: cafe/settings.py:161
 msgid "Filipino"
 msgstr "Filipino"
-
-#: cafe/settings.py:162
-msgid "Cebuano"
-msgstr ""
-
-#: cafe/settings.py:163
-msgid "Ilocano"
-msgstr ""
 
 #: feature_phone/models.py:53
 msgid "Related object ID"
@@ -360,11 +346,6 @@ msgid "Quantitative question rating distributions"
 msgstr "Resulta ng mga kuwantitatibong katanungan"
 
 #: pcari/templates/base.html:59
-#, fuzzy
-#| msgid ""
-#| "This site uses the <a href=\"http://cafesystem.org/\">Collective "
-#| "Assessment and Feedback Engine (CAFÉ)</a>. Learn more about <a href="
-#| "\"%(about_url)s\">CAFÉ</a>."
 msgid "This site uses the Collective Assessment and Feedback Engine (CAFÉ)."
 msgstr ""
 "Ang site na ito ay gumagamit ng <a href=\"http://cafesystem.org/"
@@ -372,11 +353,7 @@ msgstr ""
 "pa tungkol sa <a href=\"%(about_url)s\">CAFÉ</a>."
 
 #: pcari/templates/base_with_links.html:7
-#, fuzzy, python-format
-#| msgid ""
-#| "This site uses the <a href=\"http://cafesystem.org/\">Collective "
-#| "Assessment and Feedback Engine (CAFÉ)</a>. Learn more about <a href="
-#| "\"%(about_url)s\">CAFÉ</a>."
+#, python-format
 msgid ""
 "This site uses the <a href=\"http://cafesystem.org/\" target=\"_blank"
 "\">Collective Assessment and Feedback Engine (CAFÉ)</a>. Learn more about <a "
@@ -392,7 +369,9 @@ msgstr "Maraming Salamat"
 
 #: pcari/templates/end.html:21
 msgid "We appreciate your participation in the Malasakit program."
-msgstr "Pinahahalagahan namin ang iyong pagma MALASAKIT."
+msgstr ""
+"Labis naming pinahahalagahan ang iyong kontribusyon. Maraming salamat sa "
+"iyong pagma-MALASAKIT."
 
 #: pcari/templates/end.html:24
 msgid "Finish"
@@ -448,11 +427,11 @@ msgstr ""
 #: pcari/templates/peer-responses.html:49
 #, python-format
 msgid "Average answer: <strong>%(mean)s</strong>"
-msgstr "Madalas na sagot ng iba: <strong>%(mean)s</strong>"
+msgstr "Karaniwang tugon: <strong>%(mean)s</strong>"
 
 #: pcari/templates/peer-responses.html:55
 msgid "Your answer:"
-msgstr "Ang iyong sagot:"
+msgstr "Ang iyong tugon:"
 
 #: pcari/templates/peer-responses.html:55
 msgid "Not rated"
@@ -472,10 +451,6 @@ msgid "Personal Information"
 msgstr "Personal na Impormasiyon"
 
 #: pcari/templates/personal-information.html:71
-#, fuzzy
-#| msgid ""
-#| "All items on this page are strictly optional. Your responses will be "
-#| "anonymous."
 msgid ""
 "All questions on this page are strictly optional. Your responses will be "
 "anonymous."
@@ -532,16 +507,17 @@ msgid ""
 "Below, you will see either a slider or a text box. Please answer each "
 "question by moving the slider knob or filling in the box with a number."
 msgstr ""
-"Sa ibaba, makikita ang isang slider o ang isang patlang. Paki sagutan ang "
-"bawat tanong sa pamamagitan ng paggalaw sa slider o sa paglagay ng numero sa "
-"patlang."
+"I-rate ang pahayag sa ibaba mula isa hanggang anim, kung saan ang isa ay "
+"kumakatawan sa lubos na di sumasang-ayon at ang anim ay kumakatawan sa lubos "
+"na sumasang-ayon. Hinihingi ng bawat pahayag ang antas ng inyong pagsang-"
+"ayon mula isa hanggang anim sa pamamagitan ng pag-click ng numero ng iyong "
+"sagot."
 
 #: pcari/templates/quantitative-questions.html:188
 msgid "Question"
-msgstr "Katanungan"
+msgstr "Pahayag"
 
 #: pcari/templates/quantitative-questions.html:199
-#: pcari/templates/rate-comments.html:48
 msgid "Skip"
 msgstr "Laktawan"
 
@@ -555,9 +531,9 @@ msgid ""
 "closer together were authored by participants who answered the previous "
 "questions similarly."
 msgstr ""
-"Bawat icon sa ibaba ay mga suhestiyong ibinigay ng ibang mga kalahok. Ang "
-"mga suhestiyon na mas malapit sa isa't isa ay nilikha ng mga kalahok na "
-"sumagot sa mga tanong na katulad nito."
+"Bawat icon sa ibaba ay mga mungkahing ibinigay ng ibang mga kalahok. Ang mga "
+"mungkahi na mas malapit sa isa't isa ay ibinigay ng mga kalahok na unang "
+"sumagot nito."
 
 #: pcari/templates/rate-comments.html:22
 msgid ""
@@ -587,8 +563,12 @@ msgid "Helpful"
 msgstr "Kapaki-pakinabang"
 
 #: pcari/templates/rate-comments.html:43
-msgid "Your current answer is "
+msgid "Your current answer is"
 msgstr "Ang iyong kasalukuyang sagot ay "
+
+#: pcari/templates/rate-comments.html:48
+msgid "skip"
+msgstr "Laktawan"
 
 #: pcari/views.py:711
 msgid "Page Not Found"
@@ -609,6 +589,12 @@ msgid ""
 msgstr ""
 "Kasalukuyang nakararanas ng ilang isyu ang server. Mangyaring ipagbigay-alam "
 "agad ito sa mga tagapamahala."
+
+#~ msgid "Your current answer isx"
+#~ msgstr "Ang iyong kasalukuyang sagot ay "
+
+#~ msgid "XXX "
+#~ msgstr "This is a translation"
 
 #~ msgid "I have suffered the consequence of a typhoon or flood."
 #~ msgstr "Dumanas ako ng matinding epekto ng bagyo o pagbaha."

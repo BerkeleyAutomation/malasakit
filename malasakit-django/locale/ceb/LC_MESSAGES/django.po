@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.25\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-28 22:34-0800\n"
+"POT-Creation-Date: 2018-01-29 01:38-0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: CEBUANO\n"
@@ -80,14 +80,6 @@ msgstr ""
 
 #: cafe/settings.py:161
 msgid "Filipino"
-msgstr ""
-
-#: cafe/settings.py:162
-msgid "Cebuano"
-msgstr ""
-
-#: cafe/settings.py:163
-msgid "Ilocano"
 msgstr ""
 
 #: feature_phone/models.py:53
@@ -443,7 +435,6 @@ msgid "Question"
 msgstr ""
 
 #: pcari/templates/quantitative-questions.html:199
-#: pcari/templates/rate-comments.html:48
 msgid "Skip"
 msgstr ""
 
@@ -481,7 +472,11 @@ msgid "Helpful"
 msgstr ""
 
 #: pcari/templates/rate-comments.html:43
-msgid "Your current answer is "
+msgid "Your current answer is"
+msgstr ""
+
+#: pcari/templates/rate-comments.html:48
+msgid "skip"
 msgstr ""
 
 #: pcari/views.py:711
