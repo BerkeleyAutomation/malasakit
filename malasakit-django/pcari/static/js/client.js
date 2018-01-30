@@ -1,51 +1,65 @@
 /** client.js */
 
-const APP_NAME = 'malasakit';
+var storage = new Storage('malasakit');
+var DEFAULT_TIMEOUT = 5000;
+var DEFAULT_LANGUAGE = 'tl';
 
-const DEFAULT_LANGUAGE = 'tl';
-const DEFAULT_TIMEOUT = 5000;
+function redirect(url) {
+    window.location.replace(url);
+}
 
-const APP_URL_ROOT = '';  // TODO: Change to `/pcari` in production
-const API_URL_ROOT = APP_URL_ROOT + '/api';
-const STATIC_URL_ROOT = APP_URL_ROOT + '/static';
-const RESPONSE_SAVE_ENDPOINT = API_URL_ROOT + '/save-response/';
+function getCurrentLanguage() {
+    return $('html').attr('lang') || DEFAULT_LANGUAGE;
+}
 
-const RESPONSE_LIFETIME = 12*60*60*1000;
-const DEFAULT_COMMENT_SAMPLE_SIZE = 8;
-const STATIC_RESOURCES = [
-    {
-        name: 'quantitative-questions',
-        endpoint: API_URL_ROOT + '/fetch/quantitative-questions/',
-        lifetime: 0
-    },
-    {
-        name: 'option-questions',
-        endpoint: API_URL_ROOT + '/fetch/option-questions/',
-        lifetime: 0
-    },
-    {
-        name: 'qualitative-questions',
-        endpoint: API_URL_ROOT + '/fetch/qualitative-questions/',
-        lifetime: 0
-    },
-    {
-        name: 'comments',
-        endpoint: API_URL_ROOT + '/fetch/comments/',
-        lifetime: 12*60*60*1000
-    },
-    {
-        name: 'locations',
-        endpoint: API_URL_ROOT + '/fetch/locations/',
-        lifetime: 0
-    },
-    {
-        name: 'bloom-icon',
-        endpoint: STATIC_URL_ROOT + '/data/bloom-icon.json',
-        lifetime: 0
+function urljoin(components) {
+    var url = '/';
+    for (var index = 0; index < components.length; index++) {
+        url += components[index] + '/';
     }
-];
+    return url.replace(/\/+/g, '/');
+}
 
-const RESPONSE_KEY_PREFIX = 'response-';
+var URL_ROOT = '';
+var API_URL_ROOT = urljoin([URL_ROOT, '/api/']);
+var STATIC_URL_ROOT = urljoin([URL_ROOT, '/static/']);
+var SAVE_ENDPOINT = urljoin([API_URL_ROOT, '/save-response/']);
+
+function fetch(url, properties) {
+    $.ajax(url, {
+        timeout: DEFAULT_TIMEOUT,
+        success: function(data) {
+            storage.set(properties, data);
+            // console.log();
+        }
+    });
+}
+
+function fetchAPIData() {
+    fetch(urljoin([API_URL_ROOT, '/fetch/quantitative-questions/']),
+          ['questions', 'quantitative']);
+    fetch(urljoin([API_URL_ROOT, '/fetch/qualitative-questions/']),
+          ['questions', 'qualitative']);
+    fetch(urljoin([API_URL_ROOT, '/fetch/option-questions/']),
+          ['questions', 'options']);
+    fetch(urljoin([API_URL_ROOT, '/fetch/locations/']), ['locations']);
+    fetch(urljoin([STATIC_URL_ROOT, '/data/bloom-icon.json']), ['bloom-icon']);
+    if (Date.now() - storage.lastModified('comments') > 12*60*60*1000) {
+        fetch(urljoin(API_URL_ROOT, '/fetch/comments/'), ['comments']);
+    }
+}
+
+function setResponseState() {
+    /*if (storage.get(['current']))
+    storage.set(['current'], null);
+    storage.set(['']);*/
+}
+
+
+
+/*
+const DEFAULT_COMMENT_SAMPLE_SIZE = 8;
+
 const EMPTY_RESPONSE = {
     'question-ratings': {},
     'question-choices': {},
@@ -55,18 +69,6 @@ const EMPTY_RESPONSE = {
 };
 
 const SKIPPED = null;
-
-function redirect(url) {
-    window.location.replace(url);
-}
-
-function getCurrentTimestamp() {
-    return new Date().getTime();
-}
-
-function getCurrentLanguage() {
-    return $('html').attr('lang') || DEFAULT_LANGUAGE;
-}
 
 function displayError(message) {
     var banner = $('<p>').addClass('error banner').html(message);
@@ -323,45 +325,6 @@ function selectComments(method) {
     }
 }
 
-function getNestedValue(obj, path) {
-    if (path.length === 0) {
-        return obj;
-    }
-    var first = path[0], rest = path.slice(1);
-    return first in obj ? getNestedValue(obj[first], rest) : undefined;
-}
-
-function setNestedValue(obj, path, value) {
-    if (path.length === 0) {
-        return value;
-    }
-    var first = path[0], rest = path.slice(1);
-    obj[first] = setNestedValue(obj[first] || {}, rest, value);
-    return obj;
-}
-
-function getResponseValue(path) {
-    var currentResponseName = Resource.load('current').data;
-    var response = Resource.load(currentResponseName);
-    return getNestedValue(response.data, path);
-}
-
-function setResponseValue(path, value) {
-    var currentResponseName = Resource.load('current').data;
-    var response = Resource.load(currentResponseName);
-    setNestedValue(response.data, path, value);
-    response.put();
-}
-
-function deleteResponseValue(path) {
-    if (path.length > 0) {
-        var rest = path.slice(0, -1);
-        var obj = getResponseValue(rest);
-        delete obj[path[path.length - 1]];
-        setResponseValue(rest, obj);
-    }
-}
-
 function main() {
     csrfSetup();
     refreshResources();
@@ -370,3 +333,4 @@ function main() {
 }
 
 $(document).ready(main);
+*/

@@ -155,4 +155,10 @@ Storage.prototype.delete = function(properties) {
     }
 };
 
+Storage.prototype.lastModified = function(name) {
+    'use strict';
+    var obj = this.loadObject(name);
+    return obj.timestamp;
+};
+
 var storage = new Storage('malasakit');
