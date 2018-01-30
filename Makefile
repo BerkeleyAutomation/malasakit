@@ -2,7 +2,7 @@ DJANGO_PROJECT_ROOT=malasakit-django
 DOCS_BUILD_PATH=docs-build
 DOCS_PATH=docs
 
-LINT_TARGETS=\
+PY_LINT_TARGETS=\
 	cafe/settings.py\
 	cafe/urls.py\
 	cafe/wsgi.py\
@@ -22,12 +22,17 @@ LINT_TARGETS=\
 	feature_phone/urls.py\
 	feature_phone/views.py
 
+JS_LINT_TARGETS=\
+	pcari/static/js/storage.js\
+	pcari/static/js/client.js
+
 DB_TRANS_TARGETS=\
 	QuantitativeQuestion.prompt\
 	QuantitativeQuestion.left_anchor\
 	QuantitativeQuestion.right_anchor\
 	QualitativeQuestion.prompt
 
+# Source files excluded from documentation generation
 EXCLUDED_MODULES=\
 	$(DJANGO_PROJECT_ROOT)/pcari/migrations\
 	$(DJANGO_PROJECT_ROOT)/pcari/test*\
@@ -51,8 +56,13 @@ install:
 
 all: deploy lint test
 
-lint: $(LINT_TARGETS:%.py=$(DJANGO_PROJECT_ROOT)/%.py)
+pylint: $(PY_LINT_TARGETS:%.py=$(DJANGO_PROJECT_ROOT)/%.py)
 	pylint --output-format=colorized --rcfile=.pylintrc $^
+
+jslint: $(JS_LINT_TARGETS:%.js=$(DJANGO_PROJECT_ROOT)/%.js)
+	jshint $^
+
+lint: pylint jslint
 
 test:
 	cd $(DJANGO_PROJECT_ROOT) && ./manage.py test --exclude-tag=slow
