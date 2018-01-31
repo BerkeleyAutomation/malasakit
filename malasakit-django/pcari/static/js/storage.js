@@ -9,12 +9,17 @@ function hasAttr(obj, name) {
     return obj[name] !== undefined;
 }
 
-function walk(obj, properties) {
+function walk(obj, properties, create) {
     'use strict';
-    for (var property in properties) {
+    for (var index in properties) {
+        var property = properties[index];
         if (!(property in obj)) {
-            throw 'Could not find property "' + property + '" in: '
-                  + JSON.stringify(obj);
+            if (create) {
+                obj[property] = {};
+            } else {
+                throw 'Could not find property "' + property + '" in: '
+                      + JSON.stringify(obj);
+            }
         }
         obj = obj[property];
     }
@@ -42,9 +47,9 @@ function Storage(name) {
             if (obj === null) {
                 throw 'No object with name "' + name + '"';
             }
-            cache[name] = obj;
+            cache[name] = JSON.parse(obj);
         } else {
-            obj = JSON.parse(cache[name]);
+            obj = cache[name];
         }
         this.validateObject(obj);
         return obj;
@@ -100,7 +105,7 @@ Storage.prototype.get = function(properties) {
         throw 'List of properties must be non-empty';
     }
     var obj = this.loadObject(properties[0]);
-    return walk(obj.data, properties.slice(1));
+    return walk(obj.data, properties.slice(1), false);
 };
 
 Storage.prototype.set = function(properties, value) {
@@ -112,7 +117,7 @@ Storage.prototype.set = function(properties, value) {
     if (properties.length === 1) {
         obj.data = value;
     } else {
-        var data = walk(obj, properties.slice(1, -1));
+        var data = walk(obj.data, properties.slice(1, -1), true);
         var last = properties[properties.length - 1];
         data[last] = value;
     }
@@ -129,7 +134,7 @@ Storage.prototype.delete = function(properties) {
         this.deleteObject(properties[0]);
     } else {
         var obj = this.loadObject(properties[0]);
-        var data = walk(obj, properties.slice(1, -1));
+        var data = walk(obj.data, properties.slice(1, -1), true);
         var last = properties[properties.length - 1];
         delete data[last];
         this.storeObject(obj.name, obj);
