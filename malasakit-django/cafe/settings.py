@@ -194,6 +194,9 @@ MEDIA_URL = '/media/'
 
 # Custom settings
 
+DEFAULT_MIN_SCORE = 1
+DEFAULT_MAX_SCORE = 6
+
 # Maximum number of comments to serve per request
 DEFAULT_COMMENT_LIMIT = 300
 # Default standard error of unrated comment (that is, fewer than two ratings)

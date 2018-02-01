@@ -107,8 +107,8 @@ def generate_ratings_matrix():
         Only active respondents, active questions, and active ratings are used
         (see :attr:`pcari.models.History.active`).
     """
-    respondent_ids = Respondent.active_objects.values_list('id', flat=True)
-    question_ids = QuantitativeQuestion.active_objects.values_list('id', flat=True)
+    respondent_ids = Respondent.objects.values_list('id', flat=True)
+    question_ids = QuantitativeQuestion.objects.values_list('id', flat=True)
 
     respondent_id_map = {key: index for index, key in enumerate(respondent_ids)}
     question_id_map = {key: index for index, key in enumerate(question_ids)}
@@ -116,8 +116,7 @@ def generate_ratings_matrix():
     shape = len(respondent_id_map), len(question_id_map)
     ratings_matrix = np.full(shape, np.nan)
 
-    values = QuantitativeQuestionRating.active_objects.filter(respondent__active=True,
-                                                              question__active=True)
+    values = QuantitativeQuestionRating.objects.filter(question__enabled=True)
     features = 'respondent_id', 'question_id', 'score'
     values = values.exclude(score=QuantitativeQuestionRating.SKIPPED).values_list(*features)
 
@@ -202,7 +201,7 @@ def fetch_comments(request):
     except ValueError as error:
         return HttpResponseBadRequest(unicode(error))
 
-    comments = (Comment.objects.filter(active=True, question__active=True, flagged=False)
+    comments = (Comment.objects.filter(original=None, question__enabled=True, flagged=False)
                 .exclude(message='').all())
     if len(comments) > limit:
         comments = random.sample(comments, limit)
@@ -269,7 +268,7 @@ def fetch_qualitative_questions(request):
         unicode(question.id): {
             code: escape_html(translate(question.prompt, code))
             for code, _ in settings.LANGUAGES
-        } for question in QualitativeQuestion.active_objects.iterator()
+        } for question in QualitativeQuestion.objects.iterator()
     })
 
 
@@ -331,8 +330,8 @@ def fetch_quantitative_questions(request):
             'max-score': question.max_score,
             'input-type': question.input_type,
             'order': question.order,
-            "show-statistics": question.show_statistics,
-        } for question in QuantitativeQuestion.active_objects.iterator()
+            'enabled': question.enabled,
+        } for question in QuantitativeQuestion.objects.iterator()
     ], safe=False)
 
 
@@ -376,7 +375,7 @@ def fetch_option_questions(request):
             },
             'input-type': question.input_type,
             'order': question.order,
-        } for question in OptionQuestion.active_objects.iterator()
+        } for question in OptionQuestion.objects.iterator()
     ], safe=False)
 
 
@@ -401,7 +400,7 @@ def fetch_question_ratings(request):
             }
     """
     # pylint: disable=unused-argument
-    ratings = QuantitativeQuestionRating.active_objects.filter(question__active=True)
+    ratings = QuantitativeQuestionRating.objects.filter(question__enabled=True)
     return JsonResponse({
         unicode(rating.id): {
             'qid': rating.question_id,
@@ -682,7 +681,7 @@ class CSRFTemplateView(TemplateView):
 @ensure_csrf_cookie
 def landing(request):
     """ Render a landing page. """
-    context = {'num_responses': Respondent.active_objects.count()}
+    context = {'num_responses': Respondent.objects.count()}
     return render(request, 'landing.html', context)
 
 
@@ -690,7 +689,7 @@ def landing(request):
 @ensure_csrf_cookie
 def peer_responses(request):
     """ Render a page showing respondents how others rated the quantitative questions. """
-    questions = QuantitativeQuestion.objects.filter(active=True, show_statistics=True)
+    questions = QuantitativeQuestion.objects.filter(enabled=True)
     questions = [question for question in questions if question.num_ratings]
     context = {'questions': questions}
     return render(request, 'peer-responses.html', context)
@@ -700,7 +699,7 @@ def peer_responses(request):
 @ensure_csrf_cookie
 def qualitative_questions(request):
     """ Render a page asking respondents for comments (i.e. suggestions). """
-    context = {'questions': QualitativeQuestion.active_objects.all()}
+    context = {'questions': QualitativeQuestion.objects.all()}
     return render(request, 'qualitative-questions.html', context)
 
 
