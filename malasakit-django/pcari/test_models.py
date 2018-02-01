@@ -41,14 +41,6 @@ class StatisticsTestCase(TestCase):
                 respondent=Respondent.objects.create(language='en')
             ) for score in [QuantitativeQuestionRating.SKIPPED, 9, 3, 3, 4,
                             QuantitativeQuestionRating.SKIPPED]
-        ] + [
-            # A bunch of inactive ratings that should be filtered out
-            QuantitativeQuestionRating(
-                question=cls.question,
-                score=random.choice(RATING_CHOICES),
-                respondent=Respondent.objects.create(language='en'),
-                active=False
-            ) for _ in range(random.randrange(100))
         ])
 
         cls.question_no_ratings = QuantitativeQuestion.objects.create()
@@ -67,13 +59,7 @@ class StatisticsTestCase(TestCase):
                 respondent=Respondent.objects.create(language='en')
             ) for score in [CommentRating.SKIPPED, 0, 3]
         ] + [
-            # A bunch of inactive ratings that should be filtered out
-            CommentRating(
-                comment=cls.comment,
-                score=random.randint(0, 9),
-                respondent=Respondent.objects.create(language='en'),
-                active=False
-            ) for _ in range(random.randrange(100))
+            # TODO: group translated ratings
         ])
 
         # TODO: fix reload hack
@@ -101,7 +87,7 @@ class StatisticsTestCase(TestCase):
         self.assertAlmostEqual(self.question.mean_score, 19.0/4)
         self.assertIsNone(self.question_no_ratings.mean_score)
         self.assertAlmostEqual(self.comment.mean_score, 1.5)
-        CommentRating.objects.filter(score=3, active=True).delete()
+        CommentRating.objects.filter(score=3).delete()
         self.comment = Comment.objects.filter(pk=self.comment.pk).first()
         self.assertAlmostEqual(self.comment.mean_score, 0)
 
@@ -109,7 +95,7 @@ class StatisticsTestCase(TestCase):
         # Answers are calculated from `np.std` with `ddof=1` (one delta degree of freedom)
         self.assertAlmostEqual(self.question.score_stddev, 2.87228132327)
         self.assertAlmostEqual(self.comment.score_stddev, 2.1213203435596424)
-        CommentRating.objects.filter(score=3, active=True).delete()
+        CommentRating.objects.filter(score=3).delete()
         self.comment = Comment.objects.filter(pk=self.comment.pk).first()
         self.assertIsNone(self.comment.score_stddev)
 
@@ -203,84 +189,6 @@ class PropertyTestCase(TestCase):
         ]
         for first, second in zip(questions[:-1], questions[1:]):
             self.assertLess(first.timestamp, second.timestamp)
-
-
-class HistoryTestCase(TestCase):
-    """ Ensure history is tracked correctly. """
-    serialized_rollback = True
-
-    def test_make_copy(self):
-        location = Location.objects.create(division='?')
-        respondent = Respondent.objects.create(age=1, gender='M', location=location)
-        copy = respondent.make_copy()
-        copy.save()
-        self.assertNotEqual(respondent, copy)
-        self.assertEqual(respondent.age, copy.age)
-        self.assertEqual(respondent.gender, copy.gender)
-        self.assertEqual(respondent.location, copy.location)
-
-    def test_diff(self):
-        location = Location.objects.create(division='?')
-        respondent1 = Respondent.objects.create(age=12, gender='M', location=location)
-        respondent2 = Respondent.objects.create(age=12, gender='F', location=location)
-        self.assertEqual(set(respondent1.diff(respondent2)), {'id', 'gender'})
-
-        respondent2.gender = 'M'
-        respondent2.save()
-        self.assertEqual(set(respondent1.diff(respondent2)), {'id'})
-
-    def test_simple_parent_deletion(self):
-        parent = QuantitativeQuestion.objects.create(prompt='Hello world',
-                                                     active=True)
-        child = QuantitativeQuestion.objects.create(prompt='Hello World',
-                                                    predecessor=parent,
-                                                    active=False)
-        parent.delete()
-        child.refresh_from_db()
-        self.assertEqual(child.predecessor, None)
-        self.assertFalse(child.active)
-
-    def test_grandparent_deletion(self):
-        grandparent = QuantitativeQuestion.objects.create(prompt='hello world',
-                                                          active=False)
-        parent = QuantitativeQuestion.objects.create(prompt='Hello world',
-                                                     predecessor=grandparent,
-                                                     active=True)
-        child = QuantitativeQuestion.objects.create(prompt='Hello World',
-                                                    predecessor=parent,
-                                                    active=False)
-        parent.delete()
-        child.refresh_from_db()
-        self.assertEqual(child.predecessor, grandparent)
-        self.assertTrue(grandparent.active)
-        self.assertFalse(child.active)
-
-    def test_nonlinear_deletion(self):
-        grandparent = QuantitativeQuestion.objects.create(prompt='Hello world')
-        parent = QuantitativeQuestion.objects.create(prompt='Hello world.',
-                                                     predecessor=grandparent)
-        child1 = QuantitativeQuestion.objects.create(prompt='Hello world ...',
-                                                     predecessor=parent)
-        child2 = QuantitativeQuestion.objects.create(prompt='Hello world?',
-                                                     predecessor=parent)
-        parent.delete()
-        child1.refresh_from_db()
-        child2.refresh_from_db()
-        self.assertEqual(child1.predecessor, grandparent)
-        self.assertEqual(child2.predecessor, grandparent)
-
-    def test_predecessors(self):
-        chain_length = random.randrange(1, 100)
-        current = None
-        primary_keys = []
-        for _ in range(chain_length):
-            current = QualitativeQuestion.objects.create(predecessor=current)
-            primary_keys.append(current.pk)
-
-        self.assertEqual(current.pk, primary_keys.pop())
-        for predecessor in current.predecessors:
-            self.assertEqual(predecessor.pk, primary_keys.pop())
-        self.assertEqual(primary_keys, [])
 
 
 class IntegrityTestCase(TransactionTestCase):
