@@ -152,6 +152,7 @@ class ResponseAdmin(admin.ModelAdmin):
     """
     Base admin behavior for :class:`pcari.models.Response` models.
     """
+    empty_value_display = '(Empty)'
     ordering = ('-timestamp',)
 
 
@@ -395,6 +396,8 @@ class RespondentAdmin(admin.ModelAdmin):
     """
     Admin behavior for :class:`pcari.models.Respondent`.
     """
+    empty_value_display = '(Empty)'
+
     def display_location(self, respondent):
         """ Yield a placeholder if the respondent has no known location. """
         if not respondent.location:

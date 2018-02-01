@@ -445,14 +445,16 @@ class Location(models.Model):
     province = models.CharField(max_length=64, blank=True, default='')
     municipality = models.CharField(max_length=64, blank=True, default='')
     division = models.CharField(max_length=64,
-                                help_text=_('A basic administrative unit within a municipality.'))
+        help_text=_('A basic administrative unit within a municipality.'))
     enabled = models.BooleanField(default=False,
-                                  help_text=_('Indicates whether data collection is occuring'
-                                              'at this location, and should be presented to '
-                                              'participants as an answer to residence questions.'))
+        verbose_name=_('Enabled as input'),
+        help_text=_('Indicates whether data collection is occuring '
+                    'at this location, and should be presented to '
+                    'participants as an answer to residence questions.'))
 
     def __unicode__(self):
-        return ', '.join([self.country, self.province, self.municipality, self.division])
+        fields = [self.country, self.province, self.municipality, self.division]
+        return ', '.join([field for field in fields if field])
 
     class Meta:
         unique_together = ('country', 'province', 'municipality', 'division')
@@ -486,9 +488,9 @@ class Respondent(models.Model):
             respondent.
     """
     GENDERS = (
-        ('', '(Empty)'),
-        ('M', 'Male'),
-        ('F', 'Female'),
+        ('', _('(Empty)')),
+        ('M', _('Male')),
+        ('F', _('Female')),
     )
 
     age = models.PositiveSmallIntegerField(default=None, null=True, blank=True,
