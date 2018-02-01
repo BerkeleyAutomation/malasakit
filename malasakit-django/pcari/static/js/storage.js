@@ -17,8 +17,8 @@ function walk(obj, properties, create) {
             if (create) {
                 obj[property] = {};
             } else {
-                throw 'Could not find property "' + property + '" in: '
-                      + JSON.stringify(obj);
+                throw 'Could not find property "' + property + '" in: ' +
+                      JSON.stringify(obj);
             }
         }
         obj = obj[property];
@@ -116,7 +116,7 @@ Storage.prototype.set = function(properties, value) {
 
     var obj;
     if (!this.hasObject(properties[0])) {
-        obj = this.createObject(properties[0])''
+        obj = this.createObject(properties[0]);
     } else {
         obj = this.loadObject(properties[0]);
     }
@@ -154,4 +154,9 @@ Storage.prototype.delete = function(properties) {
 Storage.prototype.lastModified = function(name) {
     'use strict';
     return this.loadObject(name).timestamp;
+};
+
+Storage.prototype.isStale = function(name, lifetime) {
+    'use strict';
+    return Date.now() - this.lastModified(name) > lifetime;
 };
