@@ -27,7 +27,6 @@ from pcari.models import QualitativeQuestion, Comment, CommentRating
 from pcari.models import OptionQuestion, OptionQuestionChoice
 from pcari.models import QuantitativeQuestionRating, QuantitativeQuestion
 from pcari.models import Location, Respondent
-from pcari.models import get_direct_fields
 from pcari.views import export_data, translate
 from feature_phone import models as phone_models
 
@@ -409,10 +408,8 @@ class RespondentAdmin(admin.ModelAdmin):
         return '(No comments)' if not comments else ''.join(map(unicode, comments))
 
     list_display = ('id', 'comments', 'age', 'gender', 'display_location',
-                    'language', 'submitted_personal_data', 'completed_survey',
-                    'num_questions_rated', 'num_comments_rated')
-    list_filter = ('gender', 'language', 'submitted_personal_data',
-                   'completed_survey')
+                    'language', 'num_questions_rated', 'num_comments_rated')
+    list_filter = ('gender', 'language')
     search_fields = ('gender', 'location', 'language',
                      'submitted_personal_data', 'completed_survey')
 

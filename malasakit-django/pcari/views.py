@@ -118,8 +118,7 @@ def generate_ratings_matrix():
     shape = len(respondent_id_map), len(question_id_map)
     ratings_matrix = np.full(shape, np.nan)
 
-    values = QuantitativeQuestionRating.objects.filter(respondent__active=True,
-                                                              question__active=True)
+    values = QuantitativeQuestionRating.objects.filter(question__enabled=True)
     features = 'respondent_id', 'question_id', 'score'
     values = values.exclude(score=QuantitativeQuestionRating.SKIPPED).values_list(*features)
 
@@ -204,7 +203,7 @@ def fetch_comments(request):
     except ValueError as error:
         return HttpResponseBadRequest(unicode(error))
 
-    comments = (Comment.objects.filter(active=True, question__active=True, flagged=False)
+    comments = (Comment.objects.filter(original=None, question__enabled=True, flagged=False)
                 .exclude(message='').all())
     if len(comments) > limit:
         comments = random.sample(comments, limit)
@@ -333,7 +332,7 @@ def fetch_quantitative_questions(request):
             'max-score': question.max_score,
             'input-type': question.input_type,
             'order': question.order,
-            "show-statistics": question.show_statistics,
+            'enabled': question.enabled,
         } for question in QuantitativeQuestion.objects.iterator()
     ], safe=False)
 
@@ -403,7 +402,7 @@ def fetch_question_ratings(request):
             }
     """
     # pylint: disable=unused-argument
-    ratings = QuantitativeQuestionRating.objects.filter(question__active=True)
+    ratings = QuantitativeQuestionRating.objects.filter(question__enabled=True)
     return JsonResponse({
         unicode(rating.id): {
             'qid': rating.question_id,
@@ -695,7 +694,7 @@ def quantitative_questions(request):
 @ensure_csrf_cookie
 def peer_responses(request):
     """ Render a page showing respondents how others rated the quantitative questions. """
-    questions = QuantitativeQuestion.objects.filter(active=True, show_statistics=True)
+    questions = QuantitativeQuestion.objects.filter(enabled=True)
     questions = [question for question in questions if question.num_ratings]
     context = {'questions': questions}
     return render(request, 'peer-responses.html', context)
