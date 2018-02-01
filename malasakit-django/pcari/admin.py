@@ -256,7 +256,7 @@ class QuantitativeQuestionRatingAdmin(ResponseAdmin):
 
 
 @admin.register(OptionQuestionChoice, site=site)
-class OptionQuestionChoiceAdmin(admin.ModelAdmin):
+class OptionQuestionChoiceAdmin(ResponseAdmin):
     """
     Admin behavior for :class:`pcari.models.OptionQuestionChoice`.
     """
@@ -300,16 +300,16 @@ class QualitativeQuestionAdmin(admin.ModelAdmin):
     """
     Admin behavior for :class:`pcari.models.QualitativeQuestion`.
     """
-    actions = [export_to_feature_phone]
-
     def display_question_num_comments(self, question):
         # pylint: disable=no-self-use
         return question.comments.count()
     display_question_num_comments.short_description = 'Number of comments'
 
+    empty_value_display = '(Empty)'
     list_display = ('prompt', 'tag', 'display_question_num_comments')
     list_filter = ('tag', )
     search_fields = ('prompt', 'tag')
+    actions = [export_to_feature_phone]
 
 
 @admin.register(QuantitativeQuestion, site=site)
@@ -317,17 +317,17 @@ class QuantitativeQuestionAdmin(admin.ModelAdmin):
     """
     Admin behavior for :class:`pcari.models.QuantitativeQuestion`.
     """
-    actions = [export_to_feature_phone]
-
     def num_ratings(self, comment):
         # pylint: disable=no-self-use
         return comment.num_ratings
     num_ratings.short_description = 'Number of ratings'
     num_ratings.admin_order_field = 'num_ratings'
 
+    empty_value_display = '(Empty)'
     list_display = ('prompt', 'tag', 'num_ratings')
     list_filter = ('tag', )
     search_fields = ('prompt', 'tag')
+    actions = [export_to_feature_phone]
 
 
 @admin.register(OptionQuestion, site=site)
@@ -346,6 +346,7 @@ class OptionQuestionAdmin(admin.ModelAdmin):
     def options(self, option_question):
         return ', '.join(option_question.options) or self.empty_value_display
 
+    empty_value_display = '(Empty)'
     list_display = ('get_prompt', 'options', 'get_tag')
     list_filter = ('tag', )
     search_fields = ('prompt', 'options', 'tag')
@@ -401,8 +402,6 @@ class RespondentAdmin(admin.ModelAdmin):
     """
     Admin behavior for :class:`pcari.models.Respondent`.
     """
-    empty_value_display = '(Empty)'
-
     def display_location(self, respondent):
         """ Yield a placeholder if the respondent has no known location. """
         if not respondent.location:
@@ -415,6 +414,7 @@ class RespondentAdmin(admin.ModelAdmin):
         comments = list(respondent.comments)
         return '(No comments)' if not comments else ''.join(map(unicode, comments))
 
+    empty_value_display = '(Empty)'
     list_display = ('id', 'comments', 'age', 'gender', 'display_location',
                     'language', 'num_questions_rated', 'num_comments_rated')
     list_filter = ('gender', 'language')
