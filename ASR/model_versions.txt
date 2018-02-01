@@ -1,0 +1,3 @@
+tri1
+tri2
+tri3

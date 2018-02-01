@@ -35,6 +35,16 @@ if [ $# -ge 4 ]; then
 	confidence_eqn_no=$4
 fi
 
+if [ ! -f $audio_file_name ]; then
+	echo "Error: The audio file does not exist."
+	return
+fi
+
+if [ ! -f $(pwd)/../../src/featbin/compute-mfcc-feats ]; then
+	echo "Error: Kaldi is not compiled pls follow instructions in kaldi/tools/INSTALL and kaldi/src/INSTALL"
+	return
+fi
+
 . ./recognize_gmm.sh $audio_file_name $language $model_version $confidence_eqn_no 
 
 end_time=$(date +%s.%N)

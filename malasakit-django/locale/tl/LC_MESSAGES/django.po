@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.25\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-22 19:28+0000\n"
+"POT-Creation-Date: 2018-01-29 01:38-0800\n"
 "PO-Revision-Date: 2017-07-03 20:00+0800\n"
 "Last-Translator: JEFFREY ANCHETA <jrancheta@national-u.edu.ph>\n"
 "Language-Team: FILIPINO\n"
@@ -17,145 +17,139 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: QuantitativeQuestion.prompt:1
-msgid "I have suffered the consequence of a typhoon or flood."
-msgstr "Dumanas ako ng matinding epekto ng bagyo o pagbaha."
-
 #: QuantitativeQuestion.prompt:2
-msgid "I feel prepared to handle a major typhoon right now."
-msgstr "Nararamdaman kong handa na akong harapin ngayon ang malakas na bagyo."
+msgid "We have an effective early warning system for disasters."
+msgstr ""
+"Mayroon kaming isang epektibong early warning system para sa mga sakuna."
 
 #: QuantitativeQuestion.prompt:3
-msgid "The barangay’s typhoon Early Warning System is effective."
-msgstr "Epektibo ang Early Warning System ng barangay tuwing may bagyo."
+msgid "We conduct disaster drills regularly, at least twice a year."
+msgstr ""
+"Nagsasagawa kami ng mga regular na pagsasanay sa kalamidad nang hindi bababa "
+"sa dalawang beses sa isang taon."
 
 #: QuantitativeQuestion.prompt:4
 msgid ""
-"My family has identified a place to meet and ways to communicate in a "
-"disaster."
+"We have an excellent  disaster evacuation center with facilities such as "
+"comfort room, kitchen, clinic and playground during typhoon or flood."
 msgstr ""
-"Tuwing may sakuna, may lugar na napagkasunduan ang aking pamilya kung saan "
-"magkikita-kita at may tinukoy kaming paraan ng komunikasyon."
+"Mayroon kaming isang mahusay na evacuation center na may mga pasilidad tulad "
+"ng banyo, kusina, klinika at palaruan sa panahon ng bagyo o baha."
 
 #: QuantitativeQuestion.prompt:5
 msgid ""
-"How many days of disaster supplies (e.g., canned food, bottled water, "
-"medicine) are immediately available to you in your home?"
+"I regularly  participate in our barangay’s clean-up drives to fix drainages "
+"to reduce the risk of flooding."
 msgstr ""
-"Hanggang ilang araw tatagal ang naitabing gamit (gaya ng delata, inuming "
-"tubig, gamot) sa inyong tahanan kung may kalamidad?"
+"Regular akong nakikilahok sa paglilinis ng aming barangay upang maisaayos "
+"ang mga kanal nang mabawasan ang panganib ng pagbaha."
 
 #: QuantitativeQuestion.prompt:6
-msgid ""
-"I feel like I could count on my nearest neighbors for support when "
-"recovering from a major typhoon."
-msgstr ""
-"Nararamdaman kong maaasahan ko ang tulong ng aking mga kapitbahay sa muling "
-"pagbangon matapos ang malakas na bagyo."
+msgid "Our barangay doesn’t have an early-warning system for disasters."
+msgstr "Walang early warning system ang aming barangay para sa mga kalamidad."
 
 #: QuantitativeQuestion.prompt:7
 msgid ""
-"I believe our barangay will help my community repair and rebuild after a "
-"major typhoon."
+"To my knowledge, the barangay administration does not extend special care or "
+"help to senior citizen/elderly, pregnant women and person with disability "
+"(PWD) during disasters."
 msgstr ""
-"Naniniwala akong tutulong ang aming barangay na muling maisaayos at maitayo "
-"ang aming pamayanan matapos ang malakas na bagyo."
+"Sa pagkakaalam ko, hindi pinahahalagahan o tinutulungan ng pamunuan ng aming "
+"barangay ang mga senior citizen/matatanda, buntis at taong may kapansanan "
+"(PWD) sa panahon ng kalamidad."
 
 #: QuantitativeQuestion.prompt:8
-msgid "How many weeks has it been since you participated in a disaster drill?"
+msgid ""
+"My family has plenty of  food and water supplies ready  to survive in times "
+"of disaster."
 msgstr ""
-"Ilang linggo na ang lumipas mula nang nakilahok ka sa isang disaster drill?"
+"Maraming pagkain at supply ng tubig ang inihahanda ng aking pamilya upang "
+"mabuhay sa panahon ng kalamidad."
 
-#: QuantitativeQuestion.left_anchor:1
-msgid "I have not suffered at all."
-msgstr ""
+#: QuantitativeQuestion.left_anchor:2 QuantitativeQuestion.left_anchor:3
+#: QuantitativeQuestion.left_anchor:4 QuantitativeQuestion.left_anchor:5
+#: QuantitativeQuestion.left_anchor:6 QuantitativeQuestion.left_anchor:7
+#: QuantitativeQuestion.left_anchor:8
+msgid "Strongly Disagree"
+msgstr "Lubos na Di Sumasang-ayon"
 
-#: QuantitativeQuestion.left_anchor:2
-msgid "Not at all prepared."
-msgstr ""
-
-#: QuantitativeQuestion.left_anchor:3
-msgid "Not at all effective."
-msgstr ""
-
-#: QuantitativeQuestion.left_anchor:4
-msgid "We have not talked about it."
-msgstr ""
-
-#: QuantitativeQuestion.left_anchor:6
-msgid "I am not confident my neighbors will help me after a typhoon."
-msgstr ""
-
-#: QuantitativeQuestion.left_anchor:7
-msgid "I am not confident our barangay will help very much."
-msgstr ""
-
-#: QuantitativeQuestion.right_anchor:1
-msgid "I have lost a home or loved one to a typhoon or flood."
-msgstr ""
-
-#: QuantitativeQuestion.right_anchor:2
-msgid "Very prepared."
-msgstr ""
-
-#: QuantitativeQuestion.right_anchor:3
-msgid "Very effective."
-msgstr ""
-
-#: QuantitativeQuestion.right_anchor:4
-msgid "We have a plan and review it regularly."
-msgstr ""
-
-#: QuantitativeQuestion.right_anchor:6
-msgid "I strongly believe my neighbors will help me after a typhoon."
-msgstr ""
-
-#: QuantitativeQuestion.right_anchor:7
-msgid "I am confident our barangay will help us recover."
-msgstr ""
+#: QuantitativeQuestion.right_anchor:2 QuantitativeQuestion.right_anchor:3
+#: QuantitativeQuestion.right_anchor:4 QuantitativeQuestion.right_anchor:5
+#: QuantitativeQuestion.right_anchor:6 QuantitativeQuestion.right_anchor:7
+#: QuantitativeQuestion.right_anchor:8
+msgid "Strongly Agree"
+msgstr "Lubos na Sumasang-ayon"
 
 #: QualitativeQuestion.prompt:1
-msgid "How can your Barangay help you better prepare for a disaster?"
+msgid ""
+"How can your barangay better help vulnerable groups such as elderly, women, "
+"children, and persons with disabilities during typhoon or flood?"
 msgstr ""
+"Sa paanong paraan mas makatutulong ang iyong barangay sa mga mahihinang "
+"grupo ng tao tulad ng mga matatanda, babae, bata, at taong may kapansanan sa "
+"panahon ng bagyo o baha?"
 
-#: cafe/settings.py:162
+#: cafe/settings.py:160
 msgid "English"
 msgstr "Ingles"
 
-#: cafe/settings.py:163
+#: cafe/settings.py:161
 msgid "Filipino"
 msgstr "Filipino"
 
-#: cafe/settings.py:164
-msgid "Cebuano"
+#: feature_phone/models.py:53
+msgid "Related object ID"
 msgstr ""
 
-#: cafe/settings.py:165
-msgid "Ilocano"
+#: feature_phone/models.py:138
+#, python-format
+msgid "question fails uniqueness constraint on combined files: %(fields)s"
 msgstr ""
 
-#: pcari/models.py:267
+#: feature_phone/models.py:167
+msgid "Prompt ID"
+msgstr ""
+
+#: pcari/models.py:266
 msgid "Score not in min and max bounds"
 msgstr ""
 "Paano ka matutulungan ng iyong barangay upang higit kang makapaghanda sa "
 "isang kalamidad?"
 
-#: pcari/models.py:474
+#: pcari/models.py:410
+msgid "Maximum score"
+msgstr ""
+
+#: pcari/models.py:412
+msgid "Minimum score"
+msgstr ""
+
+#: pcari/models.py:476
 #, fuzzy
 #| msgid "\"%(option)s\" is not a valid option"
 msgid "\"_options_text\" is not a JSON list of strings"
 msgstr "\"%(option)s\" ay wala sa mga pagpipilian"
 
-#: pcari/models.py:477
+#: pcari/models.py:479
 #, fuzzy
 #| msgid "\"%(option)s\" is not a valid option"
 msgid "\"_options_text\" must contain at least one option"
 msgstr "\"%(option)s\" ay wala sa mga pagpipilian"
 
-#: pcari/models.py:503
+#: pcari/models.py:505
 #, python-format
 msgid "\"%(option)s\" is not a valid option"
 msgstr "\"%(option)s\" ay wala sa mga pagpipilian"
+
+#: pcari/models.py:536
+msgid "A basic administrative unit within a municipality."
+msgstr ""
+
+#: pcari/models.py:538
+msgid ""
+"Indicates whether data collection is occuring at this location, and should "
+"be presented to participants as an answer to residence questions."
+msgstr ""
 
 #: pcari/templates/about.html:5 pcari/templates/about.html:6
 msgid "About CAFÉ"
@@ -310,19 +304,15 @@ msgstr "Impormasyon ng contact"
 msgid "For inquiries, please contact:"
 msgstr "Para sa mga katanungan, mangyaring makipag-ugnayan sa:"
 
-#: pcari/templates/admin/base.html:7
-msgid "Configuration"
-msgstr "Kompigurasiyon"
+#: pcari/templates/admin/base.html:7 pcari/templates/admin/configuration.html:5
+#: pcari/templates/admin/configuration.html:42
+msgid "Site configuration"
+msgstr "Kompigurasiyon ng site"
 
 #: pcari/templates/admin/base.html:9 pcari/templates/admin/statistics.html:6
 #: pcari/templates/admin/statistics.html:159
 msgid "Statistics"
 msgstr "Istatistika"
-
-#: pcari/templates/admin/configuration.html:5
-#: pcari/templates/admin/configuration.html:42
-msgid "Site configuration"
-msgstr "Kompigurasiyon ng site"
 
 #: pcari/templates/admin/configuration.html:44
 msgid "Change landing page image"
@@ -334,7 +324,7 @@ msgstr ""
 
 #: pcari/templates/admin/configuration.html:54
 #: pcari/templates/admin/configuration.html:71
-#: pcari/templates/quantitative-questions.html:195
+#: pcari/templates/quantitative-questions.html:202
 #: pcari/templates/rate-comments.html:51
 msgid "Submit"
 msgstr "Ipasa"
@@ -355,12 +345,19 @@ msgstr ""
 msgid "Quantitative question rating distributions"
 msgstr "Resulta ng mga kuwantitatibong katanungan"
 
-#: pcari/templates/base.html:60
+#: pcari/templates/base.html:59
+msgid "This site uses the Collective Assessment and Feedback Engine (CAFÉ)."
+msgstr ""
+"Ang site na ito ay gumagamit ng <a href=\"http://cafesystem.org/"
+"\">Collective Assessment and Feedback Engine (CAFÉ)</a>. Matuto nang higit "
+"pa tungkol sa <a href=\"%(about_url)s\">CAFÉ</a>."
+
+#: pcari/templates/base_with_links.html:7
 #, python-format
 msgid ""
-"This site uses the <a href=\"http://cafesystem.org/\">Collective Assessment "
-"and Feedback Engine (CAFÉ)</a>. Learn more about <a href=\"%(about_url)s"
-"\">CAFÉ</a>."
+"This site uses the <a href=\"http://cafesystem.org/\" target=\"_blank"
+"\">Collective Assessment and Feedback Engine (CAFÉ)</a>. Learn more about <a "
+"href=\"%(about_url)s\">CAFÉ</a>."
 msgstr ""
 "Ang site na ito ay gumagamit ng <a href=\"http://cafesystem.org/"
 "\">Collective Assessment and Feedback Engine (CAFÉ)</a>. Matuto nang higit "
@@ -372,11 +369,13 @@ msgstr "Maraming Salamat"
 
 #: pcari/templates/end.html:21
 msgid "We appreciate your participation in the Malasakit program."
-msgstr "Pinahahalagahan namin ang iyong pagma MALASAKIT."
+msgstr ""
+"Labis naming pinahahalagahan ang iyong kontribusyon. Maraming salamat sa "
+"iyong pagma-MALASAKIT."
 
 #: pcari/templates/end.html:24
 msgid "Finish"
-msgstr ""
+msgstr "Tapos"
 
 #: pcari/templates/landing.html:6
 msgid "Welcome"
@@ -384,23 +383,23 @@ msgstr "Maligayang pagdating"
 
 #: pcari/templates/landing.html:22
 msgid "How prepared are you in times of disaster?"
-msgstr ""
+msgstr "Gaano ka kahanda sa panahon ng kalamidad?"
 
 #: pcari/templates/landing.html:25
 #, python-format
 msgid "%(num_responses)s barangay citizens have responded."
-msgstr ""
+msgstr "%(num_responses)s na ka-barangay na ang nag-MALASAKIT."
 
 #: pcari/templates/landing.html:30
 msgid "Join them!"
-msgstr ""
+msgstr "Makiisa na sa kanila!"
 
 #: pcari/templates/landing.html:35
 msgid "Begin"
 msgstr "Simulan"
 
 #: pcari/templates/nav-buttons.html:7
-#: pcari/templates/quantitative-questions.html:189
+#: pcari/templates/quantitative-questions.html:196
 msgid "Previous"
 msgstr "Bumalik"
 
@@ -428,15 +427,15 @@ msgstr ""
 #: pcari/templates/peer-responses.html:49
 #, python-format
 msgid "Average answer: <strong>%(mean)s</strong>"
-msgstr "Madalas na sagot ng iba: <strong>%(mean)s</strong>"
+msgstr "Karaniwang tugon: <strong>%(mean)s</strong>"
 
 #: pcari/templates/peer-responses.html:55
 msgid "Your answer:"
-msgstr "Ang iyong sagot:"
+msgstr "Ang iyong tugon:"
 
 #: pcari/templates/peer-responses.html:55
 msgid "Not rated"
-msgstr ""
+msgstr "Hindi pinuntusan"
 
 #: pcari/templates/peer-responses.html:63
 msgid ""
@@ -446,50 +445,48 @@ msgstr ""
 "Hindi sapat ang datos upang ipakita kung paano ikukumpara sa ibang mga tugon "
 "ang iyong mga sagot."
 
-#: pcari/templates/personal-information.html:81
-#: pcari/templates/personal-information.html:82
+#: pcari/templates/personal-information.html:65
+#: pcari/templates/personal-information.html:66
 msgid "Personal Information"
 msgstr "Personal na Impormasiyon"
 
-#: pcari/templates/personal-information.html:87
+#: pcari/templates/personal-information.html:71
 msgid ""
 "All questions on this page are strictly optional. Your responses will be "
 "anonymous."
 msgstr ""
-"Lahat ng mga tanong sa pahinang ito ay hindi sapilitan. Ang iyong mga tugon "
-"ay hindi papangalanan."
+"Hindi sapilitan ang pagsagot sa lahat ng item sa pahinang ito. Hindi rin "
+"papangalanan ang iyong mga tugon."
 
-#: pcari/templates/personal-information.html:94
+#: pcari/templates/personal-information.html:79
 msgid "Age"
 msgstr "Edad"
 
-#: pcari/templates/personal-information.html:98
+#: pcari/templates/personal-information.html:83
 msgid "Gender"
 msgstr "Kasarian"
 
-#: pcari/templates/personal-information.html:101
+#: pcari/templates/personal-information.html:86
 msgid "Select gender"
-msgstr "Piliian ang kasarian"
+msgstr "Piliin ang kasarian"
 
-#: pcari/templates/personal-information.html:102
+#: pcari/templates/personal-information.html:87
 msgid "Male"
 msgstr "Lalaki"
 
-#: pcari/templates/personal-information.html:103
+#: pcari/templates/personal-information.html:88
 msgid "Female"
 msgstr "Babae"
 
-#: pcari/templates/personal-information.html:108
-msgid "Province"
-msgstr "Probinsiya"
-
-#: pcari/templates/personal-information.html:115
-msgid "City / Municipality"
-msgstr "Lungsod / Munisipalidad"
-
-#: pcari/templates/personal-information.html:122
+#: pcari/templates/personal-information.html:93
 msgid "Barangay"
 msgstr "Barangay"
+
+#: pcari/templates/personal-information.html:96
+#, fuzzy
+#| msgid "Barangay"
+msgid "Select barangay"
+msgstr "Piliin ang barangay"
 
 #: pcari/templates/qualitative-questions.html:6
 #: pcari/templates/qualitative-questions.html:7
@@ -503,23 +500,24 @@ msgstr "Walang mga kuwalitatibong katanungan sa oras na ito."
 #: pcari/templates/quantitative-questions.html:6
 #: pcari/templates/quantitative-questions.html:7
 msgid "Profile Questions"
-msgstr ""
+msgstr "Mga Kuwantitatibong Tanong"
 
-#: pcari/templates/quantitative-questions.html:173
+#: pcari/templates/quantitative-questions.html:180
 msgid ""
 "Below, you will see either a slider or a text box. Please answer each "
 "question by moving the slider knob or filling in the box with a number."
 msgstr ""
-"Sa ibaba, makikita ang isang slider o ang isang patlang. Paki sagutan ang "
-"bawat tanong sa pamamagitan ng paggalaw sa slider o sa paglagay ng numero sa "
-"patlang."
+"I-rate ang pahayag sa ibaba mula isa hanggang anim, kung saan ang isa ay "
+"kumakatawan sa lubos na di sumasang-ayon at ang anim ay kumakatawan sa lubos "
+"na sumasang-ayon. Hinihingi ng bawat pahayag ang antas ng inyong pagsang-"
+"ayon mula isa hanggang anim sa pamamagitan ng pag-click ng numero ng iyong "
+"sagot."
 
-#: pcari/templates/quantitative-questions.html:181
+#: pcari/templates/quantitative-questions.html:188
 msgid "Question"
-msgstr "Katanungan"
+msgstr "Pahayag"
 
-#: pcari/templates/quantitative-questions.html:192
-#: pcari/templates/rate-comments.html:48
+#: pcari/templates/quantitative-questions.html:199
 msgid "Skip"
 msgstr "Laktawan"
 
@@ -533,12 +531,20 @@ msgid ""
 "closer together were authored by participants who answered the previous "
 "questions similarly."
 msgstr ""
+"Bawat icon sa ibaba ay mga mungkahing ibinigay ng ibang mga kalahok. Ang mga "
+"mungkahi na mas malapit sa isa't isa ay ibinigay ng mga kalahok na unang "
+"sumagot nito."
 
 #: pcari/templates/rate-comments.html:22
 msgid ""
 "Click on an icon to rate a comment on its helpfulness. <strong>You must rate "
 "at least two comments to proceed by clicking \"Next\" below.</strong>"
 msgstr ""
+"Mag-click ng isang icon upang makita ang suhestiyon ng ipang kalahok. Tulad "
+"ng una niyong ginawa, i-rate ang bawat pahayag mula isa hanggang anim, kung "
+"saan ang isa ay kumakatawan sa lubos na di sumasang-ayon at ang anim ay "
+"kumakatawan sa lubos na sumasang-ayon. Upang makapagpatuloy, i-click ang "
+"“Susunod” sa ibaba."
 
 #: pcari/templates/rate-comments.html:31
 msgid "The question was:"
@@ -557,28 +563,81 @@ msgid "Helpful"
 msgstr "Kapaki-pakinabang"
 
 #: pcari/templates/rate-comments.html:43
-msgid "Your current answer is "
+msgid "Your current answer is"
 msgstr "Ang iyong kasalukuyang sagot ay "
 
-#: pcari/views.py:719
+#: pcari/templates/rate-comments.html:48
+msgid "skip"
+msgstr "Laktawan"
+
+#: pcari/views.py:711
 msgid "Page Not Found"
 msgstr "Hindi natagpuan ang pahina"
 
-#: pcari/views.py:720
+#: pcari/views.py:712
 msgid "The requested page does not appear to exist."
 msgstr "Ang hiniling na pahina ay hindi lumabas."
 
-#: pcari/views.py:728
+#: pcari/views.py:720
 msgid "Internal Error"
 msgstr "May kamalian"
 
-#: pcari/views.py:729
+#: pcari/views.py:721
 msgid ""
 "The server is currently experiencing some issues. Please let the maintainers "
 "know immediately."
 msgstr ""
 "Kasalukuyang nakararanas ng ilang isyu ang server. Mangyaring ipagbigay-alam "
 "agad ito sa mga tagapamahala."
+
+#~ msgid "Your current answer isx"
+#~ msgstr "Ang iyong kasalukuyang sagot ay "
+
+#~ msgid "XXX "
+#~ msgstr "This is a translation"
+
+#~ msgid "I have suffered the consequence of a typhoon or flood."
+#~ msgstr "Dumanas ako ng matinding epekto ng bagyo o pagbaha."
+
+#~ msgid "I feel prepared to handle a major typhoon right now."
+#~ msgstr ""
+#~ "Nararamdaman kong handa na akong harapin ngayon ang malakas na bagyo."
+
+#~ msgid ""
+#~ "How many days of disaster supplies (e.g., canned food, bottled water, "
+#~ "medicine) are immediately available to you in your home?"
+#~ msgstr ""
+#~ "Hanggang ilang araw tatagal ang naitabing gamit (gaya ng delata, inuming "
+#~ "tubig, gamot) sa inyong tahanan kung may kalamidad?"
+
+#~ msgid ""
+#~ "I feel like I could count on my nearest neighbors for support when "
+#~ "recovering from a major typhoon."
+#~ msgstr ""
+#~ "Nararamdaman kong maaasahan ko ang tulong ng aking mga kapitbahay sa "
+#~ "muling pagbangon matapos ang malakas na bagyo."
+
+#~ msgid ""
+#~ "I believe our barangay will help my community repair and rebuild after a "
+#~ "major typhoon."
+#~ msgstr ""
+#~ "Naniniwala akong tutulong ang aming barangay na muling maisaayos at "
+#~ "maitayo ang aming pamayanan matapos ang malakas na bagyo."
+
+#~ msgid ""
+#~ "How many weeks has it been since you participated in a disaster drill?"
+#~ msgstr ""
+#~ "Ilang linggo na ang lumipas mula nang nakilahok ka sa isang disaster "
+#~ "drill?"
+
+#~ msgid "Configuration"
+#~ msgstr "Kompigurasiyon"
+
+#~ msgid "Province"
+#~ msgstr "Probinsiya"
+
+#~ msgid "City / Municipality"
+#~ msgstr "Lungsod / Munisipalidad"
 
 #~ msgid "Survey Questions"
 #~ msgstr "Mga Katanungan sa Sarbey"
