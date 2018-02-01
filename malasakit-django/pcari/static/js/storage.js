@@ -76,7 +76,7 @@ Storage.prototype.createObject = function(name) {
     'use strict';
     var obj = {
         name: name,
-        timestamp: Date.now(),
+        timestamp: null,
         data: {}
     };
     this.storeObject(name, obj);
@@ -113,7 +113,14 @@ Storage.prototype.set = function(properties, value) {
     if (properties.length < 1) {
         throw 'List of properties must be non-empty';
     }
-    var obj = this.loadObject(properties[0]);
+
+    var obj;
+    if (!this.hasObject(properties[0])) {
+        obj = this.createObject(properties[0])''
+    } else {
+        obj = this.loadObject(properties[0]);
+    }
+
     if (properties.length === 1) {
         obj.data = value;
     } else {
@@ -132,7 +139,7 @@ Storage.prototype.delete = function(properties) {
 
     if (properties.length === 1) {
         this.deleteObject(properties[0]);
-    } else {
+    } else if (this.hasObject(properties[0])) {
         var obj = this.loadObject(properties[0]);
         var data = walk(obj.data, properties.slice(1, -1), true);
         var last = properties[properties.length - 1];
