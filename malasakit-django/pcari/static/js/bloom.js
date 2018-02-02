@@ -139,7 +139,7 @@ function startCommentRating(commentID) {
     }
 
     function updateOutputReading() {
-        $('output#quantitative-output').text(inputElement.val().toString() + '/9');
+        $('output#quantitative-output').text(inputElement.val().toString() + '/6');
     };
 
     inputElement.unbind('input');
