@@ -142,7 +142,7 @@ function startResponse() {
         'question-choices': {},
         'comments': {},
         'comment-ratings': {},
-        'personal-data': {
+        'respondent-data': {
             'uuid': uuidv4(),
         },
     });

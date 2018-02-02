@@ -110,12 +110,13 @@ function isOptionQuestion(question) {
 function findFirstUnansweredQuestion(questions) {
     var currentResponse = storage.get(['current']);
     var ratings = storage.get([currentResponse, 'question-ratings']);
+    var choices = storage.get([currentResponse, 'question-choices']);
     for (var index in questions) {
         var question = questions[index];
-        if (isQuantitativeQuestion(question)) {
+        var qid = question.id.toString();
+        if (isQuantitativeQuestion(question) && !(qid in ratings)
+                || isOptionQuestion(question) && !(qid in choices)) {
             return index;
-        } else {
-            //
         }
     }
     return questions.length - 1;  /* Default to last question. */
@@ -135,7 +136,7 @@ function ProfileQuestionRenderer(previousURL, nextURL) {
         }
     });
     $('#num-questions').text(questions.length);
-    var index = 0;  // TODO: set to last question
+    var index = findFirstUnansweredQuestion(questions);  // FIXME
 
     this.next = function() {
         if (index >= questions.length) {
@@ -170,6 +171,7 @@ function ProfileQuestionRenderer(previousURL, nextURL) {
 
         function ratingSaveCallback(rating) {
             var currentResponse = storage.get(['current']);
+            console.log(question.id);
             storage.set([currentResponse, 'question-ratings', question.id.toString()], rating);
         }
 
@@ -180,9 +182,7 @@ function ProfileQuestionRenderer(previousURL, nextURL) {
             //    break;
             case 'buttons':
                 $('#answer').append(
-                    renderButtonGroup(this, minScore, maxScore, function(value) {
-                        console.log(value);
-                    })
+                    renderButtonGroup(this, minScore, maxScore, ratingSaveCallback)
                 );
                 break;
             case 'select':
