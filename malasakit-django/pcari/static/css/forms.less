@@ -1,15 +1,28 @@
 @breakpoint: 568px;
 
-.range-container {
+.range-container, .scale-container {
   display: flex;
   flex-flow: row wrap;
 }
 
-input[type="range"] {
+.scale-center {
   flex-basis: 50%;
   order: 2;
-  margin: 1rem 0;
   box-sizing: border-box;
+}
+
+.button-group.scale-center {
+  margin: 0.3rem 0;
+}
+
+.scale-container img {
+  max-width: 4rem;
+  display: inline;
+}
+
+input[type="range"] {
+  .scale-center();
+  margin: 1rem 0;
   padding: 0.5rem 2rem;
 }
 
@@ -53,7 +66,7 @@ button {
 }
 
 @media all and (max-width: @breakpoint) {
-  input[type="range"] {
+  input[type="range"], .scale-center {
     flex-basis: 100%;
   }
 
@@ -61,7 +74,7 @@ button {
     flex-basis: 50%;
   }
 
-  input[type="range"], .left-anchor, .right-anchor {
+  input[type="range"], .scale-center, .left-anchor, .right-anchor {
     order: 0;
   }
 }

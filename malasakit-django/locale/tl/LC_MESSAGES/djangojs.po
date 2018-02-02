@@ -19,7 +19,7 @@ msgstr ""
 
 #: pcari/static/js/bloom.js:183
 msgid "There are no more comments to rate."
-msgstr ""
+msgstr "Wala nang komentong mapupuntusan."
 
 #: pcari/static/js/client.js:80
 msgid "new response"

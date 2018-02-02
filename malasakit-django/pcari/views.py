@@ -237,8 +237,8 @@ def fetch_comments(request):
 
 
 def translate(text, language_code):
-    translation.activate(language_code)
-    return ugettext(text)
+    with translation.override(language_code):
+        return ugettext(text)
 
 
 @profile
@@ -483,6 +483,7 @@ def make_respondent_data(respondent, response):
         'language',
         'submitted_personal_data',
         'completed_survey',
+        'sector',
     ]
     for attribute in attributes:
         serialized_name = attribute.replace('_', '-')

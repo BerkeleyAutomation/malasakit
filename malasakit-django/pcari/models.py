@@ -312,7 +312,7 @@ class QuantitativeQuestion(Question):
     INPUT_TYPE_CHOICES = (
         ('range', _('Slider')),
         ('number', _('Numeric text')),
-        # Possibly allow for a row of buttons as well
+        ('buttons', _('Buttons')),
     )
 
     objects = RatingStatisticsManager()
@@ -502,6 +502,7 @@ class Respondent(models.Model):
         blank=True, default=None, related_name='residents')
     language = models.CharField(max_length=8, choices=settings.LANGUAGES,
         blank=True, default='', validators=[LANGUAGE_VALIDATOR])
+    sector = models.CharField(max_length=64, blank=True, default='')
     uuid = models.UUIDField(unique=True, default=None, editable=False,
         null=True, blank=True, help_text=_('Unique identifier generated client-side.'))
 

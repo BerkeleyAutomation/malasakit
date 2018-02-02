@@ -44,12 +44,13 @@
       return Math.floor((b - a + 1)*Math.random()) + a;
     }
 
-    function renderQuantitativeQuestion(question) {
+    function renderQuantitativeQuestion(question, nextQuestion) {
       var language = getCurrentLanguage();
       var container = $('<div>').addClass('range-container');
       var min = question['min-score'] || 0, max = question['max-score'] || 9, step = question['step'] || 1;
       var value = getResponseValue(['question-ratings', question.id]);
       $('#prompt').html(question.prompts[language].replace(/\n/g, '<br>') || '');
+      $('#submit').show();
 
       if (question['input-type'] === 'range') {
         var range = $('<input>').attr('id', 'quantitative-input').attr('type', 'range');
@@ -85,6 +86,28 @@
           number.attr('value', value);
         }
         $('#answer').append(number);
+      } else if (question['input-type'] === 'buttons') {
+        var buttonContainer = $('<div>').addClass('scale-container');
+        var buttonGroup = $('<ul>').addClass('button-group scale-center');
+
+        for (var score = min; score <= max; score++) {
+          buttonGroup.append($('<li>').append($('<div>')
+            .addClass('nav-button')
+            .text(score)
+            .on('click', function() {
+              setResponseValue(['question-ratings', question.id.toString()], parseInt($(this).text()));
+              nextQuestion();
+            }))
+          );
+        }
+
+        buttonContainer.append(buttonGroup);
+        buttonContainer.append($('<span>').addClass('left-anchor').append($('<img>')
+          .attr('src', STATIC_URL_ROOT + '/img/red-emoticon.png')));
+        buttonContainer.append($('<span>').addClass('right-anchor').append($('<img>')
+          .attr('src', STATIC_URL_ROOT + '/img/green-emoticon.png')));
+        $('#answer').append(buttonContainer);
+        $('#submit').hide();
       }
 
       if (value === SKIPPED) {
@@ -114,7 +137,7 @@
       }
     }
 
-    function renderQuestion(questionIndex) {
+    function renderQuestion(questionIndex, nextQuestion) {
       if (questionIndex >= ALL_QUESTIONS.length) {
         redirect(APP_URL_ROOT + '/' + getCurrentLanguage() + '/rate-comments/');
       }
@@ -128,7 +151,7 @@
 
       var question = ALL_QUESTIONS[questionIndex];
       if (question.type === 'quantitativequestion') {
-        renderQuantitativeQuestion(question);
+        renderQuantitativeQuestion(question, nextQuestion);
       } else if (question.type === 'optionquestion') {
         renderOptionQuestion(question);
       }
@@ -139,10 +162,14 @@
       $('#progression-denominator').text(ALL_QUESTIONS.length);
 
       var questionIndex = currentQuestionIndex();
-      renderQuestion(questionIndex);
+      function nextQuestion() {  // HACK
+        questionIndex++;
+        renderQuestion(questionIndex, nextQuestion);
+      }
+      renderQuestion(questionIndex, nextQuestion);
       $('#previous').on('click', function() {
         questionIndex--;
-        renderQuestion(questionIndex);
+        renderQuestion(questionIndex, nextQuestion);
       });
       $('#skip').on('click', function() {
         var question = ALL_QUESTIONS[questionIndex];
@@ -152,7 +179,7 @@
           setResponseValue(['question-choices', question.id], "");
         }
         questionIndex++;
-        renderQuestion(questionIndex);
+        renderQuestion(questionIndex, nextQuestion);
       });
       $('#submit').on('click', function() {
         var question = ALL_QUESTIONS[questionIndex];
@@ -168,7 +195,7 @@
           setResponseValue(['question-choices', question.id], $('#option-input').val());
         }
         questionIndex++;
-        renderQuestion(questionIndex);
+        renderQuestion(questionIndex, nextQuestion);
       });
     });
   </script>
@@ -178,8 +205,8 @@
   <p class="instructions">
     <strong>
       {% blocktrans trimmed %}
-        Below, you will see either a slider or a text box.
-        Please answer each question by moving the slider knob or filling in the box with a number.
+        Rate the statement below from one to six, where one represents totally
+        disagree and the six represents totally agreeable.
       {% endblocktrans %}
     </strong>
   </p>
