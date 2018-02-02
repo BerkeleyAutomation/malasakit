@@ -426,9 +426,7 @@ msgstr "Resulta ng mga kuwantitatibong katanungan"
 #: pcari/templates/base.html:59
 msgid "This site uses the Collective Assessment and Feedback Engine (CAFÉ)."
 msgstr ""
-"Ang site na ito ay gumagamit ng <a href=\"http://cafesystem.org/"
-"\">Collective Assessment and Feedback Engine (CAFÉ)</a>. Matuto nang higit "
-"pa tungkol sa <a href=\"%(about_url)s\">CAFÉ</a>."
+"Ang site na ito ay gumagamit ng Collective Assessment and Feedback Engine (CAFÉ)."
 
 #: pcari/templates/base_with_links.html:7
 #, python-format
@@ -438,7 +436,7 @@ msgid ""
 "href=\"%(about_url)s\">CAFÉ</a>."
 msgstr ""
 "Ang site na ito ay gumagamit ng <a href=\"http://cafesystem.org/"
-"\">Collective Assessment and Feedback Engine (CAFÉ)</a>. Matuto nang higit "
+"\" target=\"_blank\">Collective Assessment and Feedback Engine (CAFÉ)</a>. Matuto nang higit "
 "pa tungkol sa <a href=\"%(about_url)s\">CAFÉ</a>."
 
 #: pcari/templates/end.html:5 pcari/templates/end.html:6
@@ -562,7 +560,7 @@ msgstr "Sektor"
 
 #: pcari/templates/personal-information.html:106
 msgid "Select sector"
-msgstr ""
+msgstr "Piliin ang sektor"
 
 #: pcari/templates/personal-information.html:107
 msgid "LGBT"
@@ -604,13 +602,12 @@ msgstr "Mga Kuwantitatibong Tanong"
 
 #: pcari/templates/quantitative-questions.html:207
 msgid ""
-"Below, you will see either a slider or a text box. Please answer each "
-"question by moving the slider knob or filling in the box with a number."
+"Rate the statement below from one to six, where one represents totally "
+"disagree and the six represents totally agreeable."
 msgstr ""
 "I-rate ang pahayag sa ibaba mula isa hanggang anim, kung saan ang isa ay "
 "kumakatawan sa lubos na di sumasang-ayon at ang anim ay kumakatawan sa lubos "
-"na sumasang-ayon. Hinihingi ng bawat pahayag ang antas ng inyong pagsang-"
-"ayon mula isa hanggang anim sa pamamagitan ng paggalaw ng slider."
+"na sumasang-ayon."
 
 #: pcari/templates/quantitative-questions.html:215
 msgid "Question"

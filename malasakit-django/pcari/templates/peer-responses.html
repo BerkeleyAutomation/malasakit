@@ -55,18 +55,20 @@
             <blockquote>
               {% trans question.prompt %}
             </blockquote>
-            <div class="bubbled">
-              {% if mean <= 2 %}
-                <img src="{% static 'img/red-emoticon.png' %}">
-              {% elif mean <= 4 %}
-                <img src="{% static 'img/yellow-emoticon.png' %}">
-              {% else %}
-                <img src="{% static 'img/green-emoticon.png' %}">
-              {% endif %}
-              {% blocktrans trimmed %}
-                Average answer: <strong>{{ mean }}</strong>
-              {% endblocktrans %}
-            </div>
+            {% if num_ratings %}
+              <div class="bubbled">
+                {% if question.mean_score <= 2 %}
+                  <img src="{% static 'img/red-emoticon.png' %}">
+                {% elif question.mean_score <= 4 %}
+                  <img src="{% static 'img/yellow-emoticon.jpg' %}">
+                {% else %}
+                  <img src="{% static 'img/green-emoticon.png' %}">
+                {% endif %}
+                {% blocktrans trimmed %}
+                  Average answer: <strong>{{ mean }}</strong>
+                {% endblocktrans %}
+              </div>
+            {% endif %}
             <div class="bubbled">
               {% with id=question.id %}
                 {% trans 'Your answer:'%} <strong id="answer-{{ id }}">{% trans 'Not rated' %}</strong>
