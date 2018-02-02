@@ -483,8 +483,6 @@ msgid "Barangay"
 msgstr "Barangay"
 
 #: pcari/templates/personal-information.html:96
-#, fuzzy
-#| msgid "Barangay"
 msgid "Select barangay"
 msgstr "Piliin ang barangay"
 
@@ -510,8 +508,7 @@ msgstr ""
 "I-rate ang pahayag sa ibaba mula isa hanggang anim, kung saan ang isa ay "
 "kumakatawan sa lubos na di sumasang-ayon at ang anim ay kumakatawan sa lubos "
 "na sumasang-ayon. Hinihingi ng bawat pahayag ang antas ng inyong pagsang-"
-"ayon mula isa hanggang anim sa pamamagitan ng pag-click ng numero ng iyong "
-"sagot."
+"ayon mula isa hanggang anim sa pamamagitan ng paggalaw ng slider."
 
 #: pcari/templates/quantitative-questions.html:188
 msgid "Question"
