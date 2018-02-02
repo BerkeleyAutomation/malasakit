@@ -47,18 +47,14 @@ urlpatterns = [
         name='password_reset_complete'),
 
     url(r'^api/', include(api_urlpatterns)),  # AJAX endpoints
-    # Translations for JavaScript code
-    url(r'^jsi18n/$', JavaScriptCatalog.as_view(), name='javascript-catalog'),
 ]
 
 urlpatterns += i18n_patterns(
     url(r'', include('pcari.urls')),
     url(r'^feature-phone/', include('feature_phone.urls')),
+    # Translations for JavaScript code
+    url(r'^jsi18n/$', JavaScriptCatalog.as_view(), name='javascript-catalog'),
 )
-
-# Serve media files in development
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # Serve media files in development
 if settings.DEBUG:

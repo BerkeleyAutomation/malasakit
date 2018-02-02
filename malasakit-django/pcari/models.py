@@ -312,7 +312,7 @@ class QuantitativeQuestion(Question):
     INPUT_TYPE_CHOICES = (
         ('range', _('Slider')),
         ('number', _('Numeric text')),
-        # Possibly allow for a row of buttons as well
+        ('buttons', _('Buttons')),
     )
 
     objects = RatingStatisticsManager()
