@@ -146,8 +146,6 @@ site.register(User, UserAdmin)
 site.filter_actions(User, ['delete_selected'])
 site.register(Group, GroupAdmin)
 site.filter_actions(Group, ['delete_selected'])
-site.register(ContentType)
-site.filter_actions(ContentType, ['delete_selected'])
 
 
 class HistoryAdmin(admin.ModelAdmin):
