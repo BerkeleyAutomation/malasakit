@@ -42,3 +42,6 @@ msgstr ""
 #: pcari/static/js/client.js:272
 msgid "AJAX with CSRF token usage initialized"
 msgstr ""
+
+msgid "You previously chose to skip this question."
+msgstr "Dati mong linaktawan ang katanungang ito."

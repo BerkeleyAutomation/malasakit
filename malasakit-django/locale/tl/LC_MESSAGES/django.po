@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.25\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-02 10:37-0800\n"
+"POT-Creation-Date: 2018-02-02 12:23-0800\n"
 "PO-Revision-Date: 2017-07-03 20:00+0800\n"
 "Last-Translator: JEFFREY ANCHETA <jrancheta@national-u.edu.ph>\n"
 "Language-Team: FILIPINO\n"
@@ -33,7 +33,7 @@ msgstr ""
 
 #: QuantitativeQuestion.prompt:4
 msgid ""
-"We have an excellent  disaster evacuation center with facilities such as "
+"We have an excellent disaster evacuation center with facilities such as "
 "comfort room, kitchen, clinic and playground during typhoon or flood."
 msgstr ""
 "Mayroon kaming isang mahusay na evacuation center na may mga pasilidad tulad "
@@ -426,7 +426,8 @@ msgstr "Resulta ng mga kuwantitatibong katanungan"
 #: pcari/templates/base.html:59
 msgid "This site uses the Collective Assessment and Feedback Engine (CAFÉ)."
 msgstr ""
-"Ang site na ito ay gumagamit ng Collective Assessment and Feedback Engine (CAFÉ)."
+"Ang site na ito ay gumagamit ng Collective Assessment and Feedback Engine "
+"(CAFÉ)."
 
 #: pcari/templates/base_with_links.html:7
 #, python-format
@@ -435,9 +436,9 @@ msgid ""
 "\">Collective Assessment and Feedback Engine (CAFÉ)</a>. Learn more about <a "
 "href=\"%(about_url)s\">CAFÉ</a>."
 msgstr ""
-"Ang site na ito ay gumagamit ng <a href=\"http://cafesystem.org/"
-"\" target=\"_blank\">Collective Assessment and Feedback Engine (CAFÉ)</a>. Matuto nang higit "
-"pa tungkol sa <a href=\"%(about_url)s\">CAFÉ</a>."
+"Ang site na ito ay gumagamit ng <a href=\"http://cafesystem.org/\" target="
+"\"_blank\">Collective Assessment and Feedback Engine (CAFÉ)</a>. Matuto nang "
+"higit pa tungkol sa <a href=\"%(about_url)s\">CAFÉ</a>."
 
 #: pcari/templates/end.html:5 pcari/templates/end.html:6
 msgid "Thank You"
@@ -500,20 +501,20 @@ msgid "<strong>%(num_ratings)s</strong> other people answered this question:"
 msgstr ""
 "<strong>%(num_ratings)s</strong> katao na ang sumagot sa tanong na ito:"
 
-#: pcari/templates/peer-responses.html:66
+#: pcari/templates/peer-responses.html:67
 #, python-format
 msgid "Average answer: <strong>%(mean)s</strong>"
 msgstr "Karaniwang tugon: <strong>%(mean)s</strong>"
 
-#: pcari/templates/peer-responses.html:72
+#: pcari/templates/peer-responses.html:74
 msgid "Your answer:"
 msgstr "Ang iyong tugon:"
 
-#: pcari/templates/peer-responses.html:72
+#: pcari/templates/peer-responses.html:74
 msgid "Not rated"
 msgstr "Hindi pinuntusan"
 
-#: pcari/templates/peer-responses.html:80
+#: pcari/templates/peer-responses.html:82
 msgid ""
 "There are not enough data to show how your responses compare to those of "
 "others."
