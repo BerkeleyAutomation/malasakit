@@ -55,6 +55,8 @@
       $('#barangay').on('input', barangayExpand);
       barangayExpand();
 
+      initializeField($('#sector'), ['respondent-data', 'sector']);
+
       $('#next > a').on('click', function(event) {
         setResponseValue(['respondent-data', 'completed-survey'], true);
       });
@@ -94,6 +96,20 @@
         <td>
           <select id="barangay">
             <option value="" selected>{% trans 'Select barangay' %}</option>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td>{% trans 'Sector' %}</td>
+        <td>
+          <select id="sector">
+            <option value="" selected>{% trans 'Select sector' %}</option>
+            <option value="LGBT">{% trans 'LGTB' %}</option>
+            <option value="Senior Citizen">{% trans 'Senior Citizen' %}</option>
+            <option value="Youth">{% trans 'Youth' %}</option>
+            <option value="Women">{% trans 'Women' %}</option>
+            <option value="PWD">{% trans 'PWD' %}</option>
+            <option value="Religious Organization">{% trans 'Religious Organization' %}</option>
           </select>
         </td>
       </tr>
