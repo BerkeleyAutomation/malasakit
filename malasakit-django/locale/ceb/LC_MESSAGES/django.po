@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.25\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-02 10:37-0800\n"
+"POT-Creation-Date: 2018-02-02 12:23-0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: CEBUANO\n"
@@ -432,20 +432,20 @@ msgstr ""
 msgid "<strong>%(num_ratings)s</strong> other people answered this question:"
 msgstr ""
 
-#: pcari/templates/peer-responses.html:66
+#: pcari/templates/peer-responses.html:67
 #, python-format
 msgid "Average answer: <strong>%(mean)s</strong>"
 msgstr ""
 
-#: pcari/templates/peer-responses.html:72
+#: pcari/templates/peer-responses.html:74
 msgid "Your answer:"
 msgstr ""
 
-#: pcari/templates/peer-responses.html:72
+#: pcari/templates/peer-responses.html:74
 msgid "Not rated"
 msgstr ""
 
-#: pcari/templates/peer-responses.html:80
+#: pcari/templates/peer-responses.html:82
 msgid ""
 "There are not enough data to show how your responses compare to those of "
 "others."
@@ -491,7 +491,7 @@ msgid "Select sector"
 msgstr ""
 
 #: pcari/templates/personal-information.html:107
-msgid "LGTB"
+msgid "LGBT"
 msgstr ""
 
 #: pcari/templates/personal-information.html:108
@@ -530,8 +530,8 @@ msgstr ""
 
 #: pcari/templates/quantitative-questions.html:207
 msgid ""
-"Below, you will see either a slider or a text box. Please answer each "
-"question by moving the slider knob or filling in the box with a number."
+"Rate the statement below from one to six, where one represents totally "
+"disagree and the six represents totally agreeable."
 msgstr ""
 
 #: pcari/templates/quantitative-questions.html:215
