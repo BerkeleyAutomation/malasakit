@@ -101,10 +101,10 @@ function initializeStorageState() {
 }
 
 function fetchAPIData() {
-    /*
     fetch(urljoin([API_URL_ROOT, '/fetch/quantitative-questions/']), ['quantitative-questions']);
-    fetch(urljoin([API_URL_ROOT, '/fetch/qualitative-questions/']), ['qualitative-questions']);
     fetch(urljoin([API_URL_ROOT, '/fetch/option-questions/']), ['option-questions']);
+    /*
+    fetch(urljoin([API_URL_ROOT, '/fetch/qualitative-questions/']), ['qualitative-questions']);
     fetch(urljoin([API_URL_ROOT, '/fetch/locations/']), ['locations']);
     fetch(urljoin([STATIC_URL_ROOT, '/data/bloom-icon.json']), ['bloom-icon']);
     if (storage.isStale('comments', 12*60*60*1000)) {
@@ -129,6 +129,15 @@ function pushCompletedResponses() {
 }
 
 function startResponse() {
+    if (storage.hasObject('current')) {
+        var currentResponse = storage.get(['current']);
+        if (currentResponse !== null) {
+            var completedResponses = storage.get(['completed-responses']);
+            completedResponses.push(currentResponse);
+            storage.set(['completed-responses'], completedResponses)
+        }
+    }
+
     var responseName = 'response-' + Date.now();
     storage.set([responseName], {
         'question-ratings': {},

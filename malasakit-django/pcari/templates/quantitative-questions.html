@@ -8,24 +8,15 @@
 
 {% block scripts %}
   <script>
-    /*
-    const QUANTITATIVE_QUESTIONS = (Resource.load('quantitative-questions') || {data: []}).data;
-    const OPTION_QUESTIONS = (Resource.load('option-questions') || {data: []}).data;
-    const ALL_QUESTIONS = QUANTITATIVE_QUESTIONS.map(
-      question => Object.assign(question, {type: 'quantitativequestion'})
-    ).concat(OPTION_QUESTIONS.map(
-      question => Object.assign(question, {type: 'optionquestion'})
-    ));
-    ALL_QUESTIONS.sort(function(question1, question2) {
-      if (question1.order === null) {
-        return 1;
-      } else if (question2.order === null) {
-        return -1;
-      } else {
-        return question1.order - question2.order;
-      }
+    $(document).ready(function() {
+      var language = getCurrentLanguage();
+      var renderer = new ProfileQuestionRenderer(
+        urljoin([URL_ROOT, language, '/personal-information/']),
+        urljoin([URL_ROOT, language, '/rate-comments/'])
+      );
+      renderer.render();
     });
-
+    /*
     function currentQuestionIndex() {
       var ratings = getResponseValue(['question-ratings']) || [];
       var choices = getResponseValue(['question-choices']) || [];
@@ -39,10 +30,6 @@
       }
 
       return Math.max(0, ALL_QUESTIONS.length - 1);
-    }
-
-    function randint(a, b) {
-      return Math.floor((b - a + 1)*Math.random()) + a;
     }
 
     function renderQuantitativeQuestion(question) {
@@ -120,10 +107,6 @@
         redirect(APP_URL_ROOT + '/' + getCurrentLanguage() + '/rate-comments/');
       }
 
-      $('#previous').prop('disabled', questionIndex === 0);
-      $('#answer').empty();
-      $('#notice').empty();
-      $('#progression-numerator').text(Math.min(ALL_QUESTIONS.length, questionIndex + 1));
       $('#current-answer-notice').css('display', 'none');
       $('#skip-notice').css('display', 'none');
 

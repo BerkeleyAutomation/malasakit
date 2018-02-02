@@ -10,7 +10,9 @@
     $(document).ready(function() {
       $('#next').on('click', function() {
         startResponse();
-        Resource.delete('selected-comments');
+        if (storage.hasObject('selected-comments')) {
+          storage.delete(['selected-comments']);
+        }
       });
     });
   </script>
