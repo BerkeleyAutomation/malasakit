@@ -13,7 +13,11 @@ function urljoin(components) {
     for (var index = 0; index < components.length; index++) {
         url += components[index] + '/';
     }
-    return url.replace(/\/+/g, '/');
+    return url.replace(/\/+/g, '/');  // Remove duplicate forward slashes
+}
+
+function randomInt(a, b) {
+    return Math.floor((b - a + 1)*Math.random()) + a;
 }
 
 function getCurrentLanguage() {
@@ -29,7 +33,7 @@ function recordCurrentLanguage() {
     }
 }
 
-var URL_ROOT = '';
+var URL_ROOT = '';  // TODO: change to `/pcariv2` on `opinion.berkeley.edu`
 var API_URL_ROOT = urljoin([URL_ROOT, '/api/']);
 var STATIC_URL_ROOT = urljoin([URL_ROOT, '/static/']);
 var SAVE_ENDPOINT = urljoin([API_URL_ROOT, '/save-response/']);
@@ -98,12 +102,9 @@ function initializeStorageState() {
 
 function fetchAPIData() {
     /*
-    fetch(urljoin([API_URL_ROOT, '/fetch/quantitative-questions/']),
-          ['questions', 'quantitative']);
-    fetch(urljoin([API_URL_ROOT, '/fetch/qualitative-questions/']),
-          ['questions', 'qualitative']);
-    fetch(urljoin([API_URL_ROOT, '/fetch/option-questions/']),
-          ['questions', 'options']);
+    fetch(urljoin([API_URL_ROOT, '/fetch/quantitative-questions/']), ['quantitative-questions']);
+    fetch(urljoin([API_URL_ROOT, '/fetch/qualitative-questions/']), ['qualitative-questions']);
+    fetch(urljoin([API_URL_ROOT, '/fetch/option-questions/']), ['option-questions']);
     fetch(urljoin([API_URL_ROOT, '/fetch/locations/']), ['locations']);
     fetch(urljoin([STATIC_URL_ROOT, '/data/bloom-icon.json']), ['bloom-icon']);
     if (storage.isStale('comments', 12*60*60*1000)) {

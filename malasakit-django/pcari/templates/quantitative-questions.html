@@ -8,6 +8,7 @@
 
 {% block scripts %}
   <script>
+    /*
     const QUANTITATIVE_QUESTIONS = (Resource.load('quantitative-questions') || {data: []}).data;
     const OPTION_QUESTIONS = (Resource.load('option-questions') || {data: []}).data;
     const ALL_QUESTIONS = QUANTITATIVE_QUESTIONS.map(
@@ -171,6 +172,7 @@
         renderQuestion(questionIndex);
       });
     });
+    */
   </script>
 {% endblock %}
 
@@ -185,21 +187,12 @@
   </p>
   <p id="progression">
     <strong>
-      {% trans 'Question' %} <span id="progression-numerator"></span>/<span id="progression-denominator"></span>:
+      {% trans 'Question' %}
+      <span id="question-num"></span>/<span id="num-questions"></span>:
     </strong>
   </p>
   <p id="prompt"></p>
   <div id="answer"></div>
   <div id="notice" class="center"></div>
-  <ul class="button-group">
-    <li>
-      <button id="previous" class="blue">{% trans 'Previous' %}</button>
-    </li>
-    <li>
-      <button id="skip" class="red">{% trans 'Skip' %}</button>
-    </li>
-    <li>
-      <button id="submit" class="blue">{% trans 'Submit' %}</button>
-    </li>
-  </ul>
+  <ul class="button-group"></ul>
 {% endblock %}

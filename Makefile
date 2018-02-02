@@ -24,7 +24,8 @@ PY_LINT_TARGETS=\
 
 JS_LINT_TARGETS=\
 	pcari/static/js/storage.js\
-	pcari/static/js/client.js
+	pcari/static/js/client.js\
+	pcari/static/js/forms.js
 
 DB_TRANS_TARGETS=\
 	QuantitativeQuestion.prompt\
