@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.25\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-02 12:23-0800\n"
+"POT-Creation-Date: 2018-02-02 15:06-0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: ILOCANO\n"
@@ -29,7 +29,7 @@ msgstr ""
 
 #: QuantitativeQuestion.prompt:4
 msgid ""
-"We have an excellent  disaster evacuation center with facilities such as "
+"We have an excellent disaster evacuation center with facilities such as "
 "comfort room, kitchen, clinic and playground during typhoon or flood."
 msgstr ""
 
@@ -48,6 +48,10 @@ msgstr ""
 msgid ""
 "My family has plenty of food and water supplies ready to survive in times of "
 "disaster."
+msgstr ""
+
+#: QuantitativeQuestion.prompt:8
+msgid "Our barangay doesn’t have an early-warning system for disasters."
 msgstr ""
 
 #: QuantitativeQuestion.left_anchor:5
