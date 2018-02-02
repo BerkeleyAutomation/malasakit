@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% load i18n %}
+{% load static %}
 
 {% block title %}{% trans 'Peer Responses' %}{% endblock %}
 {% block main-heading %}{% trans 'Peer Responses' %}{% endblock %}
@@ -18,6 +19,14 @@
         var score = ratings[id];
         if (score !== SKIPPED) {
           $('#answer-' + id).text(score);
+          if (score >= 4.333) {
+            newImg = "{% static 'img/green-smiley.png' %}"
+          } else if (score >= 2.666) {
+            newImg = "{% static 'img/neutral-smiley.png' %}"
+          } else {
+            newImg = "{% static 'img/red-smiley.png' %}"
+          }
+          document.getElementById("emoji-" + id).src=newImg;
         } else {
           $('#answer-' + id).text(gettext('Skipped'));
         }
@@ -33,10 +42,10 @@
         Below, you can see how the other respondents answered the survey questions.
       {% endblocktrans %}
     </p>
-    <div id="peer-responses">
+    <div id='peer-responses'>
       {% for question in questions %}
         {% with num_ratings=question.num_ratings mean=question.mean_score|floatformat %}
-          <div class="boxed">
+          <div class='boxed'>
             <p>
               {% blocktrans trimmed %}
                 <strong>{{ num_ratings }}</strong> other people answered this question:
@@ -45,14 +54,26 @@
             <blockquote>
               {% trans question.prompt %}
             </blockquote>
-            <div class="bubbled">
+            <div class='bubbled'>
               {% blocktrans trimmed %}
                 Average answer: <strong>{{ mean }}</strong>
               {% endblocktrans %}
+              {% if mean >= '4.333' %}
+              <img src="{% static 'img/green-smiley.png' %}"
+                   style='width:50px;height:50px;'>
+              {% elif mean >= '2.666' %}
+              <img src="{% static 'img/neutral-smiley.png' %}"
+                   style='width:50px;height:50px;'>
+              {% else %}
+              <img src="{% static 'img/red-smiley.png' %}"
+                   style='width:50px;height:50px;'>
+              {% endif %}
             </div>
-            <div class="bubbled">
+            <div class='bubbled'>
               {% with id=question.id %}
-                {% trans 'Your answer:'%} <strong id="answer-{{ id }}">{% trans 'Not rated' %}</strong>
+                {% trans 'Your answer:'%} <strong id='answer-{{ id }}'>{% trans 'Not rated' %}</strong>
+                <img id='emoji-{{ id }}'
+                style='width:50px;height:50px;'>
               {% endwith %}
             </div>
           </div>
@@ -60,7 +81,7 @@
       {% endfor %}
     </div>
   {% else %}
-    <p class="error banner">{% trans 'There are not enough data to show how your responses compare to those of others.' %}</p>
+    <p class='error banner'>{% trans 'There are not enough data to show how your responses compare to those of others.' %}</p>
   {% endif %}
   {% url 'pcari:end' as next_link %}
   {% include 'nav-buttons.html' %}
