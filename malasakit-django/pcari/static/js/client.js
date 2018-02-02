@@ -141,6 +141,18 @@ function startResponse() {
     storage.set(['current'], responseName);
 }
 
+function displayLocalStorageUsage() {
+    var total = 0;
+    for (var index = 0; index < localStorage.length; index++) {
+        var key = localStorage.key(index);
+        var data = localStorage.getItem(key);
+        var usage = (2*key.length + 2*data.length)/1024;  // In KiB = 2^10 B
+        total += usage;
+        console.log(key + ': ' + usage.toFixed(3) + ' KiB');
+    }
+    console.log('Total: ' + total.toFixed(3) + ' KiB');
+}
+
 $(document).ready(function() {
     csrfSetup();
     initializeStorageState();
@@ -171,15 +183,7 @@ function validatePositiveInteger(event) {
 }
 
 function displayLocalStorageUsage(precision=3) {
-    var total = 0;
-    for (var index = 0; index < localStorage.length; index++) {
-        var key = localStorage.key(index);
-        var data = localStorage.getItem(key);
-        var usage = 2 * data.length / 1000;  // 2 bytes per char, in kB
-        total += usage;
-        console.log(key + ': ' + usage.toFixed(precision) + ' kB');
-    }
-    console.log('Total: ' + total.toFixed(precision) + ' kB');
+
 }
 
 function selectCommentFromStandardError(comments) {
