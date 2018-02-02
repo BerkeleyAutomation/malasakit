@@ -4,8 +4,9 @@ This module defines how URLs should route to views.
 
 from __future__ import unicode_literals
 
+from django.urls import reverse_lazy
 from django.conf.urls import url
-from django.views.generic.base import TemplateView
+from django.views.generic.base import RedirectView
 
 from pcari import views
 
@@ -14,18 +15,22 @@ app_name = 'pcari'
 
 urlpatterns = [
     # User-facing views
-    url(r'^$', views.index, name='index'),
+    url(r'^$', RedirectView.as_view(url=reverse_lazy('pcari:landing')), name='index'),
     url(r'^landing/$', views.landing, name='landing'),
-    url(r'^quantitative-questions/$', views.quantitative_questions,
+    url(r'^personal-information/$',
+        views.CSRFTemplateView.as_view(template_name='personal-information.html'),
+        name='personal-information'),
+    url(r'^quantitative-questions/$',
+        views.CSRFTemplateView.as_view(template_name='quantitative-questions.html'),
         name='quantitative-questions'),
-    url(r'^peer-responses/$', views.peer_responses, name='peer-responses'),
-    url(r'^rate-comments/$', views.rate_comments, name='rate-comments'),
+    url(r'^rate-comments/$',
+        views.CSRFTemplateView.as_view(template_name='rate-comments.html'),
+        name='rate-comments'),
     url(r'^qualitative-questions/$', views.qualitative_questions,
         name='qualitative-questions'),
-    url(r'^personal-information/$', views.personal_information,
-        name='personal-information'),
-    url(r'^end/$', views.end, name='end'),
-    url(r'^about/$', TemplateView.as_view(template_name='about.html'),
+    url(r'^peer-responses/$', views.peer_responses, name='peer-responses'),
+    url(r'^end/$', views.CSRFTemplateView.as_view(template_name='end.html'), name='end'),
+    url(r'^about/$', views.CSRFTemplateView.as_view(template_name='about.html'),
         name='about'),
 ]
 

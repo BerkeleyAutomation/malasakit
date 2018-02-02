@@ -9,7 +9,7 @@ const CACHE_NAME = 'malasakit-cache';
 const APP_ROOT = '/';  // TODO: change to `/pcari/` in production
 const STATIC_ROOT = APP_ROOT + 'static/';
 
-const LANGUAGE_CODES = ['en', 'tl'];
+const LANGUAGE_CODES = ['en', 'tl', 'ceb', 'ilo'];
 const VIEWS = [
     'landing/',
     'quantitative-questions/',

@@ -21,15 +21,18 @@ import json
 import mimetypes
 import random
 import time
+from uuid import UUID
 
 import decorator
 from django.conf import settings
+from django.db.models import OneToOneRel
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
-from django.urls import reverse
+from django.views.generic.base import TemplateView
 from django.utils import translation
+from django.utils.decorators import method_decorator
 from django.utils.html import escape as escape_html
 from django.utils.translation import ugettext_lazy as _, ugettext
 import numpy as np
@@ -52,14 +55,9 @@ __all__ = [
     'fetch_question_ratings',
     'save_response',
     'export_data',
-    'index',
     'landing',
     'qualitative_questions',
     'peer_responses',
-    'rate_comments',
-    'qualitative_questions',
-    'personal_information',
-    'end',
     'handle_page_not_found',
     'handle_internal_server_error',
 ]
@@ -109,8 +107,8 @@ def generate_ratings_matrix():
         Only active respondents, active questions, and active ratings are used
         (see :attr:`pcari.models.History.active`).
     """
-    respondent_ids = Respondent.active_objects.values_list('id', flat=True)
-    question_ids = QuantitativeQuestion.active_objects.values_list('id', flat=True)
+    respondent_ids = Respondent.objects.values_list('id', flat=True)
+    question_ids = QuantitativeQuestion.objects.values_list('id', flat=True)
 
     respondent_id_map = {key: index for index, key in enumerate(respondent_ids)}
     question_id_map = {key: index for index, key in enumerate(question_ids)}
@@ -118,8 +116,7 @@ def generate_ratings_matrix():
     shape = len(respondent_id_map), len(question_id_map)
     ratings_matrix = np.full(shape, np.nan)
 
-    values = QuantitativeQuestionRating.active_objects.filter(respondent__active=True,
-                                                              question__active=True)
+    values = QuantitativeQuestionRating.objects.filter(question__enabled=True)
     features = 'respondent_id', 'question_id', 'score'
     values = values.exclude(score=QuantitativeQuestionRating.SKIPPED).values_list(*features)
 
@@ -204,7 +201,7 @@ def fetch_comments(request):
     except ValueError as error:
         return HttpResponseBadRequest(unicode(error))
 
-    comments = (Comment.objects.filter(active=True, question__active=True, flagged=False)
+    comments = (Comment.objects.filter(original=None, question__enabled=True, flagged=False)
                 .exclude(message='').all())
     if len(comments) > limit:
         comments = random.sample(comments, limit)
@@ -271,7 +268,7 @@ def fetch_qualitative_questions(request):
         unicode(question.id): {
             code: escape_html(translate(question.prompt, code))
             for code, _ in settings.LANGUAGES
-        } for question in QualitativeQuestion.active_objects.iterator()
+        } for question in QualitativeQuestion.objects.iterator()
     })
 
 
@@ -333,8 +330,8 @@ def fetch_quantitative_questions(request):
             'max-score': question.max_score,
             'input-type': question.input_type,
             'order': question.order,
-            "show-statistics": question.show_statistics,
-        } for question in QuantitativeQuestion.active_objects.iterator()
+            'enabled': question.enabled,
+        } for question in QuantitativeQuestion.objects.iterator()
     ], safe=False)
 
 
@@ -378,7 +375,7 @@ def fetch_option_questions(request):
             },
             'input-type': question.input_type,
             'order': question.order,
-        } for question in OptionQuestion.active_objects.iterator()
+        } for question in OptionQuestion.objects.iterator()
     ], safe=False)
 
 
@@ -403,7 +400,7 @@ def fetch_question_ratings(request):
             }
     """
     # pylint: disable=unused-argument
-    ratings = QuantitativeQuestionRating.active_objects.filter(question__active=True)
+    ratings = QuantitativeQuestionRating.objects.filter(question__enabled=True)
     return JsonResponse({
         unicode(rating.id): {
             'qid': rating.question_id,
@@ -580,6 +577,12 @@ def save_response(request):
     return HttpResponse()
 
 
+def select_fields_for_export(model):
+    concrete_fields = get_concrete_fields(model)
+    return [unicode(field.name) for field in concrete_fields if field
+            if not isinstance(field, OneToOneRel)]
+
+
 @profile
 def export_csv(stream, queryset):
     """
@@ -592,8 +595,7 @@ def export_csv(stream, queryset):
     Returns:
         `None`. Has a side effect of writing to the ``stream``.
     """
-    concrete_fields = get_concrete_fields(queryset.model)
-    field_names = [unicode(field.get_attname()) for field in concrete_fields]
+    field_names = select_fields_for_export(queryset.model)
 
     writer = csv.writer(stream, encoding='utf-8')
     writer.writerow(field_names)
@@ -616,8 +618,7 @@ def export_excel(stream, queryset):
     Returns:
         `None`. Has a side effect of writing to the ``stream``.
     """
-    concrete_fields = get_concrete_fields(queryset.model)
-    field_names = [unicode(field.get_attname()) for field in concrete_fields]
+    field_names = select_fields_for_export(queryset.model)
 
     workbook = Workbook(write_only=True)
     worksheet = workbook.create_sheet(queryset.model.__name__)
@@ -625,7 +626,8 @@ def export_excel(stream, queryset):
 
     for instance in queryset.iterator():
         row = [getattr(instance, field_name) for field_name in field_names]
-        worksheet.append(row)
+        row.append([(unicode(value) if isinstance(value, UUID) else value)
+                    for value in row])
 
     workbook.save(stream)
 
@@ -669,33 +671,25 @@ def export_data(queryset, data_format='csv'):
     return response
 
 
-@profile
-def index(request):
-    """ Redirect the user to the `landing` page. """
-    # pylint: disable=unused-argument
-    return redirect(reverse('pcari:landing'))
+@method_decorator(profile, name='dispatch')
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+class CSRFTemplateView(TemplateView):
+    pass
 
 
 @profile
 @ensure_csrf_cookie
 def landing(request):
     """ Render a landing page. """
-    context = {'num_responses': Respondent.active_objects.count()}
+    context = {'num_responses': Respondent.objects.count()}
     return render(request, 'landing.html', context)
-
-
-@profile
-@ensure_csrf_cookie
-def quantitative_questions(request):
-    """ Render a page asking respondents to rate statements. """
-    return render(request, 'quantitative-questions.html')
 
 
 @profile
 @ensure_csrf_cookie
 def peer_responses(request):
     """ Render a page showing respondents how others rated the quantitative questions. """
-    questions = QuantitativeQuestion.objects.filter(active=True, show_statistics=True)
+    questions = QuantitativeQuestion.objects.filter(enabled=True)
     questions = [question for question in questions if question.num_ratings]
     context = {'questions': questions}
     return render(request, 'peer-responses.html', context)
@@ -703,31 +697,10 @@ def peer_responses(request):
 
 @profile
 @ensure_csrf_cookie
-def rate_comments(request):
-    """ Render a bloom page where respondents can rate comments by others. """
-    return render(request, 'rate-comments.html')
-
-
-@profile
-@ensure_csrf_cookie
 def qualitative_questions(request):
     """ Render a page asking respondents for comments (i.e. suggestions). """
-    context = {'questions': QualitativeQuestion.active_objects.all()}
+    context = {'questions': QualitativeQuestion.objects.all()}
     return render(request, 'qualitative-questions.html', context)
-
-
-@profile
-@ensure_csrf_cookie
-def personal_information(request):
-    """ Render a page asking respondents for personal information. """
-    return render(request, 'personal-information.html')
-
-
-@profile
-@ensure_csrf_cookie
-def end(request):
-    """ Render an end-of-survey page. """
-    return render(request, 'end.html')
 
 
 @profile

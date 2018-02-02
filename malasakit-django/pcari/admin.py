@@ -27,8 +27,6 @@ from pcari.models import QualitativeQuestion, Comment, CommentRating
 from pcari.models import OptionQuestion, OptionQuestionChoice
 from pcari.models import QuantitativeQuestionRating, QuantitativeQuestion
 from pcari.models import Location, Respondent
-from pcari.models import History
-from pcari.models import get_direct_fields
 from pcari.views import export_data, translate
 from feature_phone import models as phone_models
 
@@ -148,54 +146,11 @@ site.register(Group, GroupAdmin)
 site.filter_actions(Group, ['delete_selected'])
 
 
-class HistoryAdmin(admin.ModelAdmin):
-    """
-    Base admin behavior that defines special functionality for
-    :class:`pcari.models.History` models.
-    """
-    save_as_continue = False
-
-    empty_value_display = '(Empty)'
-    actions = ('mark_active', 'mark_inactive')
-
-    def save_model(self, request, obj, form, change):
-        if change and issubclass(obj.__class__, History):
-            old_instance = obj.__class__.objects.get(id=obj.id)
-            if set(obj.diff(old_instance)) - {'active', 'order'}:
-                obj = obj.make_copy()
-                obj.predecessor = old_instance
-                old_instance.active, obj.active = False, True
-                old_instance.save()
-        super(HistoryAdmin, self).save_model(request, obj, form, change)
-
-    def get_readonly_fields(self, request, obj=None):
-        model = obj.__class__
-        if obj and issubclass(model, History) and not obj.active:
-            field_names = [field.name for field in get_direct_fields(model)]
-            field_names.remove('active')
-            field_names.remove('order')
-            return field_names
-        return self.readonly_fields + ('predecessor', )
-
-    def mark_active(self, request, queryset):
-        """ Mark selected instances as active in bulk. """
-        num_marked = queryset.update(active=True)
-        message = '{0} row{1} successfully marked as active.'
-        message = message.format(num_marked, 's' if num_marked != 1 else '')
-        self.message_user(request, message)
-
-    def mark_inactive(self, request, queryset):
-        """ Mark selected instances as inactive in bulk. """
-        num_marked = queryset.update(active=False)
-        message = '{0} row{1} successfully marked as inactive.'
-        message = message.format(num_marked, 's' if num_marked != 1 else '')
-        self.message_user(request, message)
-
-
-class ResponseAdmin(HistoryAdmin):
+class ResponseAdmin(admin.ModelAdmin):
     """
     Base admin behavior for :class:`pcari.models.Response` models.
     """
+    empty_value_display = '(Empty)'
     ordering = ('-timestamp',)
 
 
@@ -213,11 +168,11 @@ class CommentRatingAdmin(ResponseAdmin):
         # pylint: disable=no-self-use
         return rating.score if rating.score is not None else '(Skipped)'
     get_score.short_description = 'Score'
+    get_score.admin_order_field = 'score'
 
-    list_display = ('respondent', 'get_comment_message', 'get_score',
-                    'timestamp', 'active')
+    list_display = ('respondent', 'get_comment_message', 'get_score', 'timestamp')
     list_display_links = ('get_comment_message',)
-    list_filter = ('timestamp', 'active')
+    list_filter = ('timestamp', )
     readonly_fields = ('timestamp', )
     search_fields = ('score', 'comment__message')
 
@@ -251,10 +206,10 @@ class CommentAdmin(ResponseAdmin):
     display_wilson_score.admin_order_field = 'score_95ci_lower'
 
     list_display = ('respondent', 'display_message', 'timestamp', 'language',
-                    'flagged', 'tag', 'active', 'num_ratings',
+                    'flagged', 'tag', 'num_ratings',
                     'display_mean_score', 'display_wilson_score')
     list_display_links = ('display_message',)
-    list_filter = ('timestamp', 'language', 'flagged', 'tag', 'active')
+    list_filter = ('timestamp', 'language', 'flagged', 'tag')
     search_fields = ('message', 'tag')
     actions = ('flag_comments', 'unflag_comments')
 
@@ -289,17 +244,17 @@ class QuantitativeQuestionRatingAdmin(ResponseAdmin):
         # pylint: disable=no-self-use
         return rating.score if rating.score is not None else '(Skipped)'
     get_score.short_description = 'Score'
+    get_score.admin_order_field = 'score'
 
-    list_display = ('respondent', 'question_prompt', 'timestamp', 'get_score',
-                    'active')
+    list_display = ('respondent', 'question_prompt', 'timestamp', 'get_score')
     list_display_links = ('question_prompt', )
-    list_filter = ('timestamp', 'active')
+    list_filter = ('timestamp', )
     readonly_fields = ('timestamp', )
     search_fields = ('question_prompt', 'score')
 
 
 @admin.register(OptionQuestionChoice, site=site)
-class OptionQuestionChoiceAdmin(HistoryAdmin):
+class OptionQuestionChoiceAdmin(ResponseAdmin):
     """
     Admin behavior for :class:`pcari.models.OptionQuestionChoice`.
     """
@@ -310,22 +265,20 @@ class OptionQuestionChoiceAdmin(HistoryAdmin):
         return choice.option or self.empty_value_display
     option_display.short_description = 'Option'
 
-    list_display = ('respondent', 'question_prompt', 'timestamp', 'option_display',
-                    'active')
+    list_display = ('respondent', 'question_prompt', 'timestamp', 'option_display')
     list_display_links = ('question_prompt', )
-    list_filter = ('timestamp', 'active')
+    list_filter = ('timestamp', )
     search_fields = ('question_prompt', 'option')
 
 
 def export_to_feature_phone(modeladmin, request, queryset):
     """ Export the selected questions to the feature phone application. """
     # pylint: disable=unused-argument
-    new_model_count = 0
     for question in queryset:
         for language, _ in settings.LANGUAGES:
             components = [question._meta.label_lower.replace('.', '-'),
                           unicode(question.pk), language]
-            _, created = phone_models.Question.objects.get_or_create(
+            phone_models.Question.objects.get_or_create(
                 key='-'.join(components),
                 defaults={
                     'text': translate(question.prompt, language),
@@ -334,49 +287,49 @@ def export_to_feature_phone(modeladmin, request, queryset):
                     'related_object': question,
                 }
             )
-            new_model_count += created
-    message = 'Successfully exported {} questions out of {}.'
-    modeladmin.message_user(request, message.format(new_model_count, queryset.count()))
-export_to_feature_phone.short_description = 'Export to feature phone application'
+    message = 'Successfully copied {} question{}.'
+    count = queryset.count()
+    modeladmin.message_user(request, message.format(count, 's' if count > 1 else ''))
+export_to_feature_phone.short_description = 'Use questions for feature phone'
 
 
 @admin.register(QualitativeQuestion, site=site)
-class QualitativeQuestionAdmin(HistoryAdmin):
+class QualitativeQuestionAdmin(admin.ModelAdmin):
     """
     Admin behavior for :class:`pcari.models.QualitativeQuestion`.
     """
-    actions = [export_to_feature_phone]
-
     def display_question_num_comments(self, question):
         # pylint: disable=no-self-use
         return question.comments.count()
     display_question_num_comments.short_description = 'Number of comments'
 
-    list_display = ('prompt', 'tag', 'active', 'display_question_num_comments')
-    list_filter = ('tag', 'active')
+    empty_value_display = '(Empty)'
+    list_display = ('prompt', 'tag', 'display_question_num_comments')
+    list_filter = ('tag', )
     search_fields = ('prompt', 'tag')
+    actions = [export_to_feature_phone]
 
 
 @admin.register(QuantitativeQuestion, site=site)
-class QuantitativeQuestionAdmin(HistoryAdmin):
+class QuantitativeQuestionAdmin(admin.ModelAdmin):
     """
     Admin behavior for :class:`pcari.models.QuantitativeQuestion`.
     """
-    actions = [export_to_feature_phone]
-
     def num_ratings(self, comment):
         # pylint: disable=no-self-use
         return comment.num_ratings
     num_ratings.short_description = 'Number of ratings'
     num_ratings.admin_order_field = 'num_ratings'
 
-    list_display = ('prompt', 'tag', 'active', 'num_ratings')
-    list_filter = ('tag', 'active')
+    empty_value_display = '(Empty)'
+    list_display = ('prompt', 'tag', 'num_ratings')
+    list_filter = ('tag', )
     search_fields = ('prompt', 'tag')
+    actions = [export_to_feature_phone]
 
 
 @admin.register(OptionQuestion, site=site)
-class OptionQuestionAdmin(HistoryAdmin):
+class OptionQuestionAdmin(admin.ModelAdmin):
     """
     Admin behavior for :class:`pcari.models.OptionQuestion`.
     """
@@ -391,8 +344,9 @@ class OptionQuestionAdmin(HistoryAdmin):
     def options(self, option_question):
         return ', '.join(option_question.options) or self.empty_value_display
 
-    list_display = ('get_prompt', 'options', 'get_tag', 'active')
-    list_filter = ('tag', 'active')
+    empty_value_display = '(Empty)'
+    list_display = ('get_prompt', 'options', 'get_tag')
+    list_filter = ('tag', )
     search_fields = ('prompt', 'options', 'tag')
 
 
@@ -402,27 +356,31 @@ class LocationAdmin(admin.ModelAdmin):
     def display_country(self, location):
         return location.country or self.empty_value_display
     display_country.short_description = 'Country'
+    display_country.admin_order_field = 'country'
 
     def display_province(self, location):
         return location.province or self.empty_value_display
     display_province.short_description = 'Province'
+    display_province.admin_order_field = 'province'
 
     def display_municipality(self, location):
         return location.municipality or self.empty_value_display
     display_municipality.short_description = 'Municipality'
+    display_municipality.admin_order_field = 'municipality'
 
     def display_division(self, location):
         return location.division or self.empty_value_display
     display_division.short_description = 'Division'
+    display_division.admin_order_field = 'division'
 
-    def enable_as_input_option(self, request, queryset):
+    def enable_as_input_options(self, request, queryset):
         """ Enable locations as valid inputs in bulk. """
         num_enabled = queryset.update(enabled=True)
         message = '{0} location{1} successfully enabled as available options.'
         message = message.format(num_enabled, 's' if num_enabled != 1 else '')
         self.message_user(request, message)
 
-    def disable_as_input_option(self, request, queryset):
+    def disable_as_input_options(self, request, queryset):
         """ Disable locations as valid inputs in bulk. """
         num_disabled = queryset.update(enabled=False)
         message = '{0} location{1} successfully disabled as available options.'
@@ -430,7 +388,7 @@ class LocationAdmin(admin.ModelAdmin):
         self.message_user(request, message)
 
     empty_value_display = '(Empty)'
-    actions = ('enable_as_input', 'disable_as_input')
+    actions = ('enable_as_input_options', 'disable_as_input_options')
     list_display = ('id', 'display_country', 'display_province',
                     'display_municipality', 'display_division', 'enabled')
     list_filter = ('country', 'province')
@@ -438,7 +396,7 @@ class LocationAdmin(admin.ModelAdmin):
 
 
 @admin.register(Respondent, site=site)
-class RespondentAdmin(HistoryAdmin):
+class RespondentAdmin(admin.ModelAdmin):
     """
     Admin behavior for :class:`pcari.models.Respondent`.
     """
@@ -454,11 +412,10 @@ class RespondentAdmin(HistoryAdmin):
         comments = list(respondent.comments)
         return '(No comments)' if not comments else ''.join(map(unicode, comments))
 
+    empty_value_display = '(Empty)'
     list_display = ('id', 'comments', 'age', 'gender', 'display_location',
-                    'language', 'submitted_personal_data', 'completed_survey',
-                    'num_questions_rated', 'num_comments_rated', 'active')
-    list_filter = ('gender', 'language', 'submitted_personal_data',
-                   'completed_survey', 'active')
+                    'language', 'num_questions_rated', 'num_comments_rated')
+    list_filter = ('gender', 'language')
     search_fields = ('gender', 'location', 'language',
                      'submitted_personal_data', 'completed_survey')
 
