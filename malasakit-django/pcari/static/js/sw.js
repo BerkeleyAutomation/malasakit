@@ -22,12 +22,17 @@ const VIEWS = [
 
 const STATIC_RESOURCES = [
     'css/main.min.css',
+    'data/bloom-icon.json',
     'js/jquery-3.2.1.min.js',
     'js/d3.v4.min.js',
     'js/client.js',
     'js/bloom.js',
     'js/sw-bootstrap.js',
-    'js/uuid4.js'
+    'js/uuid4.js',
+    'img/landing',
+    'img/green-emoticon.png',
+    'img/yellow-emoticon.jpg',
+    'img/red-emoticon.png'
 ];
 
 function makeURLsToCache() {
