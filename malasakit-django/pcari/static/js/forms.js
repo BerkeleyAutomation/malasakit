@@ -1,5 +1,6 @@
 /* forms.js */
 
+var SKIPPED = null;
 var DEFAULT_MIN_SCORE = 1;
 var DEFAULT_MAX_SCORE = 6;
 
@@ -21,6 +22,22 @@ function makeClipFunction(lower, upper) {
 }
 
 function validateResponseState() {
+}
+
+function renderControlButton(id, color, label, callback) {
+    return $('<button>').attr('id', id).addClass(color).text(label).on('click', callback);
+}
+
+function renderPreviousButton(renderer) {
+    return renderControlButton('previous', 'blue', gettext('Previous'), function() {
+        renderer.previous();
+    });
+}
+
+function renderNextButton(renderer) {
+    return renderControlButton('next', 'blue', gettext('Next'), function() {
+        renderer.next();
+    });
 }
 
 function renderSlider(id, question) {
@@ -48,7 +65,7 @@ function renderNumericTextField(id, question) {
     // TODO
 }
 
-function renderButtonGroup(minScore, maxScore, callback) {
+function renderButtonGroup(renderer, minScore, maxScore, saveCallback) {
     var buttonContainer = $('<div>').addClass('scale-container');
     var buttonGroup = $('<ul>').addClass('button-group scale-center');
     for (var score = minScore; score <= maxScore; score++) {
@@ -57,7 +74,8 @@ function renderButtonGroup(minScore, maxScore, callback) {
                 .addClass('nav-button')
                 .text(score)
                 .on('click', function() {
-                    callback(parseInt($(this).text()));
+                    saveCallback(parseInt($(this).text()));
+                    renderer.next();
                 })
         ));
     }
@@ -68,7 +86,39 @@ function renderButtonGroup(minScore, maxScore, callback) {
     buttonContainer.append($('<span>').addClass('right-anchor').append(
         $('<img>').attr('src', urljoin([STATIC_URL_ROOT, 'img/green-emoticon.png'])).attr('width', 48)
     ));
-    return buttonContainer;
+    var skip = renderControlButton('skip', 'red', gettext('Skip'), function() {
+        saveCallback(SKIPPED);
+        renderer.next();
+    });
+    return $('<div>').append(buttonContainer).append(
+        $('<ul>').addClass('button-group')
+            .append($('<li>').append(renderPreviousButton(renderer)))
+            .append($('<li>').append(skip))
+    );
+}
+
+function isQuantitativeQuestion(question) {
+    var inputType = question['input-type'];
+    return inputType === 'range' || inputType === 'number' || inputType === 'buttons';
+}
+
+function isOptionQuestion(question) {
+    var inputType = question['input-type'];
+    return inputType === 'select' || inputType === 'radio';
+}
+
+function findFirstUnansweredQuestion(questions) {
+    var currentResponse = storage.get(['current']);
+    var ratings = storage.get([currentResponse, 'question-ratings']);
+    for (var index in questions) {
+        var question = questions[index];
+        if (isQuantitativeQuestion(question)) {
+            return index;
+        } else {
+            //
+        }
+    }
+    return questions.length - 1;  /* Default to last question. */
 }
 
 function ProfileQuestionRenderer(previousURL, nextURL) {
@@ -111,21 +161,28 @@ function ProfileQuestionRenderer(previousURL, nextURL) {
         $('#notice').empty();
         $('#button-group').empty();
         var question = questions[index];
-        var prompt = question.prompts[getCurrentLanguage()]
+        var prompt = question.prompts[getCurrentLanguage()];
         $('#prompt').html(addLinebreaks(prompt));
 
         var question = questions[index];
         var minScore = question['min-score'] || DEFAULT_MIN_SCORE;
         var maxScore = question['max-score'] || DEFAULT_MAX_SCORE;
+
+        function ratingSaveCallback(rating) {
+            var currentResponse = storage.get(['current']);
+            storage.set([currentResponse, 'question-ratings', question.id.toString()], rating);
+        }
+
         switch (question['input-type']) {
             case 'range':
             //    break;
             case 'number':
             //    break;
             case 'buttons':
-                // FIXME
                 $('#answer').append(
-                    renderButtonGroup(minScore, maxScore, function(value) {console.log(value);})
+                    renderButtonGroup(this, minScore, maxScore, function(value) {
+                        console.log(value);
+                    })
                 );
                 break;
             case 'select':

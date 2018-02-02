@@ -103,14 +103,12 @@ function initializeStorageState() {
 function fetchAPIData() {
     fetch(urljoin([API_URL_ROOT, '/fetch/quantitative-questions/']), ['quantitative-questions']);
     fetch(urljoin([API_URL_ROOT, '/fetch/option-questions/']), ['option-questions']);
-    /*
     fetch(urljoin([API_URL_ROOT, '/fetch/qualitative-questions/']), ['qualitative-questions']);
     fetch(urljoin([API_URL_ROOT, '/fetch/locations/']), ['locations']);
     fetch(urljoin([STATIC_URL_ROOT, '/data/bloom-icon.json']), ['bloom-icon']);
-    if (storage.isStale('comments', 12*60*60*1000)) {
-        fetch(urljoin(API_URL_ROOT, '/fetch/comments/'), ['comments']);
+    if (!storage.hasObject('comments') || storage.isStale('comments', 12*60*60*1000)) {
+        fetch(urljoin([API_URL_ROOT, '/fetch/comments/']), ['comments']);
     }
-    */
 }
 
 function pushCompletedResponses() {
