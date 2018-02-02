@@ -82,9 +82,9 @@ compiledocs:
 preparetrans:
 	mkdir -p $(DJANGO_PROJECT_ROOT)/locale
 	cd $(DJANGO_PROJECT_ROOT) && ./manage.py makedbtrans -o locale/db.pot $(DB_TRANS_TARGETS)
-	cd $(DJANGO_PROJECT_ROOT) && ./manage.py makemessages -a -d django
+	cd $(DJANGO_PROJECT_ROOT) && django-admin -a -d django
 	rm -f $(DJANGO_PROJECT_ROOT)/locale/db.pot
-	cd $(DJANGO_PROJECT_ROOT) && ./manage.py makemessages -a -d djangojs
+	cd $(DJANGO_PROJECT_ROOT) && django-admin -a -d djangojs
 
 compiletrans:
 	cd $(DJANGO_PROJECT_ROOT) && django-admin compilemessages

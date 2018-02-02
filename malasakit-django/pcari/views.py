@@ -240,8 +240,8 @@ def fetch_comments(request):
 
 
 def translate(text, language_code):
-    translation.activate(language_code)
-    return ugettext(text)
+    with translation.override(language_code):
+        return ugettext(text)
 
 
 @profile

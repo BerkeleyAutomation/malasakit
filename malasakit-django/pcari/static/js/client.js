@@ -23,7 +23,9 @@ function getCurrentLanguage() {
 function recordCurrentLanguage() {
     if (storage.hasObject('current-response')) {
         var current = storage.get(['current-response']);
-        storage.set([current, 'personal-data', 'language'], getCurrentLanguage());
+        if (current !== null) {
+            storage.set([current, 'personal-data', 'language'], getCurrentLanguage());
+        }
     }
 }
 
@@ -154,11 +156,6 @@ const DEFAULT_COMMENT_SAMPLE_SIZE = 8;
 
 const SKIPPED = null;
 
-function displayError(message) {
-    var banner = $('<p>').addClass('error banner').html(message);
-    $('header > .container').append(banner);
-}
-
 function displayNoCurrentRespondentError() {
     var current = Resource.load('current');
     if (current === undefined || current.data === null || !isResponseName(current.data)) {
@@ -171,12 +168,6 @@ function displayNoCurrentRespondentError() {
 
 function validatePositiveInteger(event) {
     return event.ctrlKey || event.altKey || 0x30 <= event.keyCode <= 0x39;
-}
-
-function makeClipped(lower, upper) {
-    return function(n) {
-        return Math.max(lower, Math.min(upper, n));
-    }
 }
 
 function displayLocalStorageUsage(precision=3) {

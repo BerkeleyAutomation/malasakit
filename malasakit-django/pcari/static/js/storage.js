@@ -47,7 +47,7 @@ function Storage(name) {
             if (obj === null) {
                 throw 'No object with name "' + name + '"';
             }
-            cache[name] = JSON.parse(obj);
+            cache[name] = obj = JSON.parse(obj);
         } else {
             obj = cache[name];
         }
