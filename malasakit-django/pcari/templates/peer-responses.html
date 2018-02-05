@@ -57,9 +57,9 @@
             </blockquote>
             {% if num_ratings %}
               <div class="bubbled">
-                {% if question.mean_score <= 2 %}
+                {% if question.mean_score <= 2.667 %}
                   <img src="{% static 'img/red-emoticon.png' %}">
-                {% elif question.mean_score <= 4 %}
+                {% elif question.mean_score <= 4.333 %}
                   <img src="{% static 'img/yellow-emoticon.jpg' %}">
                 {% else %}
                   <img src="{% static 'img/green-emoticon.png' %}">
