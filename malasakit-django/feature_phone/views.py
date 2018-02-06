@@ -184,7 +184,8 @@ class PromptLanguageView(PromptView):
         play_recording(action, Instructions.objects.get(key='language-selection', language='en'))
         for key in sorted(SaveLanguageView.key_to_language.keys()):
             language = SaveLanguageView.key_to_language[key]
-            if language != 'en':
+            language_codes_in_use = [code_and_name[0] for code_and_name in settings.LANGUAGES]
+            if language != 'en' and language in language_codes_in_use:
                 instruction = Instructions.objects.get(key='language-selection', language=language)
                 play_recording(action, instruction)
 
