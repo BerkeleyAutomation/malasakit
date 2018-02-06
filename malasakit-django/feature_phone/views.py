@@ -203,6 +203,9 @@ class SaveLanguageView(SaveView):
     def save(self, request, voice_response):
         digit = request.POST.get('Digits')
         language = self.key_to_language.get(digit, settings.LANGUAGE_CODE)
+        language_codes_in_use = [code_and_name[0] for code_and_name in settings.LANGUAGES]
+        if language not in language_codes_in_use:
+            language = 'en'
 
         # pylint: disable=no-member
         related_object = web_models.Respondent.objects.create()
