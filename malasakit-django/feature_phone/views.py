@@ -45,7 +45,7 @@ def play_recording(action, recording):
         recording: A `Recording` instance.
     """
     if recording.recording.name:
-        url = os.path.join(settings.URL_ROOT, settings.MEDIA_URL, recording.recording.name)
+        url = os.path.join(settings.MEDIA_URL, recording.recording.name)
         action.play(url)
     elif recording.text:
         action.say(recording.text)

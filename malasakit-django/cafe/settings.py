@@ -189,7 +189,7 @@ STATIC_URL = os.path.join(URL_ROOT, 'static/')
 
 # Media files
 MEDIA_ROOT = os.path.join(PROJECT_DIR, 'media')
-MEDIA_URL = '/media/'
+MEDIA_URL = os.path.join(URL_ROOT, 'media')
 
 
 # Custom settings
