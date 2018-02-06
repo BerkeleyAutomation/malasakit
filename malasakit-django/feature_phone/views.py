@@ -616,7 +616,8 @@ def fetch_question_pks(question_type, include_orphans=False):
                                         language=get_language())
     # Need to use a list because the filter needs to access a field of `related_object`
     questions = [question for question in questions if question.related_object is None
-                 and include_orphans or question.related_object.active]
+                 and include_orphans or question.related_object is not None and
+                 question.related_object.enabled]
     def key(question):
         """ Sort questions such that orphaned questions or those with no order given are last. """
         if question.related_object and question.related_object.order is not None:
