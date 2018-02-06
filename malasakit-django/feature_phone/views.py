@@ -192,7 +192,7 @@ class PromptLanguageView(PromptView):
 
 class SaveLanguageView(SaveView):
     """ Save listener language selections, and redirect them accordingly. """
-    next_view = 'feature-phone:prompt-irb-instructions'
+    next_view = 'feature-phone:prompt-irb-notice'
     key_to_language = {
         '1': 'en',
         '2': 'tl',
