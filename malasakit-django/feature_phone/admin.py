@@ -32,8 +32,9 @@ class RecordingAdmin(admin.ModelAdmin):
         # pylint: disable=no-self-use
         for field_name in fields:
             field = getattr(obj, field_name)
-            destination = os.path.join(field_name, os.path.basename(field.path))
-            zip_file.write(field.path, destination)
+            if hasattr(field, 'url'):
+                destination = os.path.join(field_name, os.path.basename(field.path))
+                zip_file.write(field.path, destination)
 
     def download_files(self, request, queryset):
         """ Prepare a ZIP file of all file fields for selected instances. """
@@ -70,7 +71,7 @@ class InstructionsAdmin(RecordingAdmin):
     list_filter = ('language', )
     search_fields = ('text', 'tag')
     empty_value_display = '(Empty)'
-    actions = ('download_list_action', )
+    actions = ('download_files', )
 
 
 @admin.register(Response, site=site)
@@ -79,7 +80,7 @@ class ResponseAdmin(RecordingAdmin):
     list_display = ('__unicode__', 'timestamp', 'respondent', 'url')
     list_filter = ('timestamp', )
     empty_value_display = '(Empty)'
-    actions = ('download_list_action', )
+    actions = ('download_files', )
 
 
 @admin.register(Respondent, site=site)
@@ -88,4 +89,4 @@ class RespondentAdmin(RecordingAdmin):
     list_display = ('id', 'call_sid', 'age', 'gender', 'location', 'language')
     list_filter = ('language', )
     empty_value_display = '(Empty)'
-    actions = ('download_list_action', )
+    actions = ('download_files', )
