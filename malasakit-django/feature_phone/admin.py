@@ -24,7 +24,7 @@ class RecordingAdmin(admin.ModelAdmin):
     }
 
     def get_file_fields(self, model):
-        """ Return a list of strings of field names of a model. """
+        """ Return a model's field names as a list of strings. """
         # pylint: disable=no-self-use
         return [field.name for field in model._meta.fields
                 if isinstance(field, models.FileField)]
@@ -37,7 +37,7 @@ class RecordingAdmin(admin.ModelAdmin):
         Args:
             zip_file: a zipfile.ZipFile object where recordings will be written
                 to.
-            obj: an instance of a Response or Recording object to save
+            obj: an instance of a Response or Respondent object to save
                 recordings from.
             fields: a list of strings where each element is a name of a field
                 of obj.
@@ -53,7 +53,7 @@ class RecordingAdmin(admin.ModelAdmin):
         """ Prepare a ZIP file of all file fields for selected instances.
 
         Args:
-            queryset: list of models selected for this action.
+            queryset: a Django QuerySet of models selected for this action.
         """
         # pylint: disable=unused-argument
         file_fields = self.get_file_fields(queryset.model)
