@@ -24,11 +24,24 @@ class RecordingAdmin(admin.ModelAdmin):
     }
 
     def get_file_fields(self, model):
+        """ Return a model's field names as a list of strings. """
         # pylint: disable=no-self-use
         return [field.name for field in model._meta.fields
                 if isinstance(field, models.FileField)]
 
     def add_to_zip(self, zip_file, obj, fields):
+        """
+        Writes recording files of a model to zip folder sorted by subfolders
+        named after each field of the object.
+
+        Args:
+            zip_file: a zipfile.ZipFile object where recordings will be written
+                to.
+            obj: an instance of a Response or Respondent object to save
+                recordings from.
+            fields: a list of strings where each element is a name of a field
+                of obj.
+        """
         # pylint: disable=no-self-use
         for field_name in fields:
             field = getattr(obj, field_name)
@@ -37,7 +50,11 @@ class RecordingAdmin(admin.ModelAdmin):
                 zip_file.write(field.path, destination)
 
     def download_files(self, request, queryset):
-        """ Prepare a ZIP file of all file fields for selected instances. """
+        """ Prepare a ZIP file of all file fields for selected instances.
+
+        Args:
+            queryset: a Django QuerySet of models selected for this action.
+        """
         # pylint: disable=unused-argument
         file_fields = self.get_file_fields(queryset.model)
         zip_buffer = StringIO.StringIO()
