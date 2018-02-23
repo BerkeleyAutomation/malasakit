@@ -36,7 +36,7 @@ from pcari.models import QualitativeQuestion, Comment, CommentRating
 from pcari.models import OptionQuestion, OptionQuestionChoice
 from pcari.models import QuantitativeQuestionRating, QuantitativeQuestion
 from pcari.models import Location, Respondent
-from pcari.views import export_data, translate, make_2d_projectiona
+from pcari.views import export_data, translate, make_2d_projection
 from feature_phone import models as phone_models
 
 __all__ = [
@@ -92,10 +92,10 @@ class MalasakitAdminSite(admin.AdminSite):
                       plot_height=700)
 
         project = make_2d_projection()
-        x, y = np.array([project(respondent) for respondent in Respondent.active_objects.all()]).T
+        x, y = np.array([project(respondent) for respondent in Respondent.objects.all()]).T
         renderer = plot.scatter(x, y, fill_alpha=0.5)
 
-        age_bounds = Respondent.active_objects.all().aggregate(Min('age'), Max('age'))
+        age_bounds = Respondent.objects.all().aggregate(Min('age'), Max('age'))
         min_age, max_age = age_bounds.get('age__min', 1), age_bounds.get('age__max', 100)
         age = RangeSlider(start=min_age, end=max_age, value=(min_age, max_age), step=1, title='Age')
         selectors = Tabs(tabs=[
@@ -105,8 +105,7 @@ class MalasakitAdminSite(admin.AdminSite):
         ])
 
         def regenerate(attr, old, new):
-            print 'OK'
-            query = Respondent.active_objects.filter(
+            query = Respondent.objects.filter(
                 age__gte=min_age_select.value,
                 age__lte=max_age_select.value,
             )
