@@ -19,7 +19,7 @@ msgstr ""
 
 #: pcari/static/js/bloom.js:183
 msgid "There are no more comments to rate."
-msgstr ""
+msgstr "Wala nang komentong mapupuntusan."
 
 #: pcari/static/js/client.js:80
 msgid "new response"
@@ -42,3 +42,6 @@ msgstr ""
 #: pcari/static/js/client.js:272
 msgid "AJAX with CSRF token usage initialized"
 msgstr ""
+
+msgid "You previously chose to skip this question."
+msgstr "Dati mong linaktawan ang katanungang ito."

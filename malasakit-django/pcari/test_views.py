@@ -203,7 +203,6 @@ class ResponseSaveTestCase(TestCase):
 class PCACorrectnessTestCase(TestCase):
     """ Test the correctness of the principal component analysis. """
     serialized_rollback = True
-
     fixtures = ['pca-test-data.yaml']
 
     def test_ratings_matrix_entries(self):
@@ -212,7 +211,7 @@ class PCACorrectnessTestCase(TestCase):
         indices = lambda respondent_id, question_id: (respondent_id_map[respondent_id],
                                                       question_id_map[question_id])
 
-        self.assertEqual(ratings_matrix.shape, (3, 2))
+        self.assertEqual(ratings_matrix.shape, (3, 3))
         self.assertEqual(ratings_matrix[indices(1, 1)], 9)
         self.assertEqual(ratings_matrix[indices(2, 1)], 0)
         self.assertEqual(ratings_matrix[indices(3, 1)], 1)

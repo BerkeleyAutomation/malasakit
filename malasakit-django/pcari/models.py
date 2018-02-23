@@ -35,7 +35,8 @@ from django.utils.translation import ugettext_lazy as _
 
 __all__ = ['Comment', 'QuantitativeQuestionRating', 'CommentRating',
            'QualitativeQuestion', 'QuantitativeQuestion', 'Respondent',
-           'OptionQuestion', 'OptionQuestionChoice', 'Location']
+           'OptionQuestion', 'OptionQuestionChoice', 'Location',
+           'get_concrete_fields', 'get_direct_fields']
 
 _LANGUAGE_CODES = [''] + [code for code, name in settings.LANGUAGES]
 LANGUAGE_VALIDATOR = RegexValidator(r'^({0})$'.format('|'.join(_LANGUAGE_CODES)))
@@ -86,118 +87,26 @@ class RatingStatisticsManager(models.Manager):
         queryset = queryset.annotate(
             num_ratings=Coalesce(Sum(
                 Case(
-                    When(ratings__score__isnull=False, ratings__active=True, then=1),
+                    When(ratings__score__isnull=False, then=1),
                     output_field=models.PositiveIntegerField(),
                 ),
             ), 0),
-            mean_score=Avg(Case(
-                When(ratings__active=True, then='ratings__score'),
-            )),
-            score_stddev=StdDev(Case(
-                When(ratings__active=True, then='ratings__score'),
-            ), sample=True),
+            mean_score=Avg('ratings__score'),
+            score_stddev=StdDev('ratings__score', sample=True),
         ).annotate(
-            score_sem=F('score_stddev')/Sqrt(F('num_ratings'),
-                                             output_field=models.FloatField()),
+            score_sem=F('score_stddev')/Sqrt(F('num_ratings'), output_field=models.FloatField()),
         ).annotate(
-            score_95ci_lower=Greatest(Coalesce(
-                F('mean_score') - self.z_crit*F('score_sem'),
-            0), 0),
-            score_95ci_upper=Least(Coalesce(
-                F('mean_score') + self.z_crit*F('score_sem'),
-            9), 9),
+            score_95ci_lower=Greatest(
+                Coalesce(F('mean_score') - self.z_crit*F('score_sem'), settings.DEFAULT_MIN_SCORE),
+            settings.DEFAULT_MIN_SCORE),
+            score_95ci_upper=Least(
+                Coalesce(F('mean_score') + self.z_crit*F('score_sem'), settings.DEFAULT_MAX_SCORE),
+            settings.DEFAULT_MAX_SCORE),
         )
         return queryset
 
 
-class ActiveObjectManager(models.Manager):
-    """
-    The ``ActiveObjectManager`` provides a shortcut for filtering for active
-    instances by default.
-    """
-    def get_queryset(self):
-        return super(ActiveObjectManager, self).get_queryset().filter(active=True)
-
-
-class History(models.Model):
-    """
-    The ``History`` abstract model records how one model instance derives from
-    another.
-
-    The database should be insert-only such that when updating a field of a
-    model instance, a new instance is created, rather than overwriting the
-    attribute of an old instance. This model effectively implements a primitive
-    form of version control to determine which instances are active and how
-    instances have been edited.
-
-    Attributes:
-        predecessor: A reference to the instance this instance is based on. If
-            this instance is the first of its kind (e.g., a new question), this
-            reference should be `None` (which is the default value). This
-            allows for a tree structure of revisions, where the ``predecessor``
-            points to a "parent node" (analogous to ``git`` without merging).
-            A sequence of predecessors should never be cyclical.
-        active (bool): A flag indicating whether this instance is considered
-            usable or not. Typically, when a new model instance is created from
-            an old one when updating a field, the old instance is marked as
-            inactive.
-        predecessors: A generator of predecessors, from the most recent to the
-            original. Analogous to crawling up the revision tree.
-    """
-    objects = models.Manager()
-    active_objects = ActiveObjectManager()
-    predecessor = models.ForeignKey('self', on_delete=models.SET_NULL,
-                                    null=True, blank=True, default=None,
-                                    related_name='successors')
-    active = models.BooleanField(default=True)
-
-    def make_copy(self):
-        """
-        Make a copy of the current model, excluding unique fields.
-
-        Returns:
-            An unsaved copy of ``self``.
-        """
-        model = self.__class__
-        copy = model()
-        for field in get_direct_fields(model):
-            if field.editable and not field.unique:
-                value = getattr(self, field.name)
-                setattr(copy, field.name, value)
-        return copy
-
-    def diff(self, other):
-        """
-        Find fields where the two instances have different values.
-
-        Args:
-            other: An instance of the same model.
-
-        Yields:
-            str: A field name where the two instances have different values.
-
-        Raises:
-            AssertionError: if ``self`` and ``other`` are not instances of the
-                same model.
-        """
-        model = self.__class__
-        assert isinstance(other, model)
-        for field in get_direct_fields(model):
-            if getattr(self, field.name) != getattr(other, field.name):
-                yield field.name
-
-    @property
-    def predecessors(self):
-        current = self
-        while current.predecessor is not None:
-            current = current.predecessor
-            yield current
-
-    class Meta:
-        abstract = True
-
-
-class Response(History):
+class Response(models.Model):
     """
     A ``Response`` is an abstract model of respondent-generated data.
 
@@ -226,7 +135,6 @@ class Rating(Response):
             this model.)
     """
     SKIPPED = None
-
     score = models.PositiveIntegerField(default=SKIPPED, null=True, blank=True)
 
     class Meta:
@@ -241,9 +149,8 @@ class QuantitativeQuestionRating(Rating):
     Attributes:
         question: The quantitative question rated.
     """
-    question = models.ForeignKey('QuantitativeQuestion',
-                                 on_delete=models.CASCADE,
-                                 related_name='ratings')
+    question = models.ForeignKey('QuantitativeQuestion', on_delete=models.CASCADE,
+        related_name='ratings')
 
     def clean(self):
         """
@@ -262,8 +169,7 @@ class QuantitativeQuestionRating(Rating):
             max_score = float('inf')
 
         if not (min_score <= self.score <= max_score) and self.score != Rating.SKIPPED:
-            raise ValidationError(_('Score not in min and max bounds'),
-                                  code='score-out-of-bounds')
+            raise ValidationError(_('Score not between min and max'), code='score-out-of-bounds')
 
     def __unicode__(self):
         template = 'Rating {0} to {1}'
@@ -281,8 +187,7 @@ class CommentRating(Rating):
     Attributes:
         comment: The comment rated.
     """
-    comment = models.ForeignKey('Comment', on_delete=models.CASCADE,
-                                related_name='ratings')
+    comment = models.ForeignKey('Comment', on_delete=models.CASCADE, related_name='ratings')
 
     def __unicode__(self):
         return 'Rating {0} to {1}'.format(self.score, self.comment)
@@ -293,8 +198,7 @@ class CommentRating(Rating):
 
 class Comment(Response):
     """
-    A ``Comment`` is an open-ended text response to a
-    :class:`QualitativeQuestion`.
+    A ``Comment`` is an open-ended text response to a :class:`QualitativeQuestion`.
 
     Attributes:
         MAX_MESSAGE_DISPLAY_LENGTH (int): The maximum number of characters in the
@@ -306,20 +210,28 @@ class Comment(Response):
             inspection. A flagged comment will not show up to other
             respondents.
         tag (str): A short summary of this comment's message.
+        original: If this comment is a translation, this field references the
+            original comment.
         word_count (int): The number of words in the `message`. (Words are
             delimited with contiguous whitespace.)
     """
     MAX_MESSAGE_DISPLAY_LENGTH = 140
     objects = RatingStatisticsManager()
     question = models.ForeignKey('QualitativeQuestion',
-                                 on_delete=models.CASCADE,
-                                 related_name='comments')
+        on_delete=models.CASCADE, related_name='comments')
     language = models.CharField(max_length=8, choices=settings.LANGUAGES,
-                                blank=True, default='',
-                                validators=[LANGUAGE_VALIDATOR])
+        blank=True, default='', validators=[LANGUAGE_VALIDATOR])
     message = models.TextField(blank=True, default='')
-    flagged = models.BooleanField(default=False)
-    tag = models.CharField(max_length=256, blank=True, default='')
+    flagged = models.BooleanField(default=False,
+        help_text=_('Indicates whether this comment should be reviewed for a '
+                    'lack of constructive content. Flagged comments will not '
+                    'be displayed to participants.'))
+    tag = models.CharField(max_length=256, blank=True, default='',
+        help_text=_('One or more comma-separated topics this comment relates to.'))
+    original = models.ForeignKey('self', on_delete=models.CASCADE, null=True,
+        default=None, related_name='translations',
+        help_text=_('If this comment is a translation, this field references '
+                    'the original suggestion.'))
 
     def __unicode__(self):
         if self.message is not None and self.message.strip():
@@ -334,7 +246,7 @@ class Comment(Response):
         return len(self.message.split())
 
 
-class Question(History):
+class Question(models.Model):
     """
     A ``Question`` models all prompts presented to a respondent.
 
@@ -345,14 +257,17 @@ class Question(History):
         order (int): A key used for sorting questions in ascending order before
             being displayed. This value need not be unique--ties are broken
             arbitrarily. Questions without an ``order`` are displayed last.
+        enabled (bool): Indicates whether this question should be asked to users.
     """
     prompt = models.TextField(blank=True, default='')
-    tag = models.CharField(max_length=256, blank=True, default='')
+    tag = models.CharField(max_length=256, blank=True, default='',
+        help_text=_('One or more comma-separated topics this question relates to.'))
     order = models.IntegerField(null=True, blank=True, default=None,
-                                help_text='Questions are displayed using this '
-                                          'value sorted in ascending order. '
-                                          'Questions without a given <tt>order</tt> '
-                                          'are displayed last.')
+        help_text=_('This field determines how questions are ordered. '
+                    'Questions with greater <tt>order</tt> values are displayed later. '
+                    'Questions without an <tt>order</tt> are displayed last.'))
+    enabled = models.BooleanField(default=True,
+        help_text=_('Indicates whether this question should be asked to users.'))
 
     class Meta:
         abstract = True
@@ -393,25 +308,24 @@ class QuantitativeQuestion(Question):
         max_score (int): The largest possible score for this question. A value
             of `None` is treated as positive infinity (that is, no upper bound).
         input_type (str): How the input should be rendered.
-        show_statistics (bool): Show statistics for this question on the peer
-            responses page.
     """
     INPUT_TYPE_CHOICES = (
-        ('range', 'Range'),
-        ('number', 'Number'),
-        # Possibly allow for a row of buttons as well
+        ('range', _('Slider')),
+        ('number', _('Numeric text')),
+        ('buttons', _('Buttons')),
     )
 
     objects = RatingStatisticsManager()
-    left_anchor = models.TextField(blank=True, default='')
-    right_anchor = models.TextField(blank=True, default='')
-    min_score = models.PositiveSmallIntegerField(default=0, null=True,
-                                                 verbose_name=_('Maximum score'))
-    max_score = models.PositiveSmallIntegerField(default=9, null=True,
-                                                 verbose_name=_('Minimum score'))
+    left_anchor = models.TextField(blank=True, default='',
+        help_text=_('This label describes what the lowest score means.'))
+    right_anchor = models.TextField(blank=True, default='',
+        help_text=_('This label describes what the greatest score means.'))
+    min_score = models.PositiveSmallIntegerField(default=settings.DEFAULT_MIN_SCORE, null=True,
+        verbose_name=_('Maximum score'))
+    max_score = models.PositiveSmallIntegerField(default=settings.DEFAULT_MAX_SCORE, null=True,
+        verbose_name=_('Minimum score'))
     input_type = models.CharField(max_length=16, choices=INPUT_TYPE_CHOICES,
-                                  default='range')
-    show_statistics = models.BooleanField(default=True)
+        default='range', help_text=_('What user interface element should be used.'))
 
     def __unicode__(self):
         return 'Quantitative question {0}: "{1}"'.format(self.pk, self.prompt)
@@ -436,20 +350,20 @@ class OptionQuestion(Question):
         input_type (str): How the input should be rendered.
     """
     INPUT_TYPE_CHOICES = (
-        ('select', 'Select'),
-        ('radio', 'Radio'),
+        ('select', _('Dropdown')),
+        ('radio', _('Multiple choice')),
     )
 
     _options_text = models.TextField(
         blank=True,
         default=json.dumps([]),
-        verbose_name='Options as JSON',
-        help_text='A JSON list has the form: <tt>["Choice A", "Choice B"]</tt>. '
-                  'Each option is wrapped in double quotation marks. '
-                  'The options are then separated by commas within the square brackets.',
+        verbose_name=_('List of options'),
+        help_text=_('The list should be formatted as follows: <tt>["Choice A", "Choice B"]</tt>. '
+                    'Each option is wrapped in double quotation marks. '
+                    'The options are then separated by commas within the square brackets.'),
     )
     input_type = models.CharField(max_length=16, choices=INPUT_TYPE_CHOICES,
-                                  default='select')
+        default='select', help_text=_('What user interface element should be used.'))
 
     @property
     def options(self):
@@ -532,20 +446,22 @@ class Location(models.Model):
     province = models.CharField(max_length=64, blank=True, default='')
     municipality = models.CharField(max_length=64, blank=True, default='')
     division = models.CharField(max_length=64,
-                                help_text=_('A basic administrative unit within a municipality.'))
+        help_text=_('A basic administrative unit within a municipality.'))
     enabled = models.BooleanField(default=False,
-                                  help_text=_('Indicates whether data collection is occuring'
-                                              'at this location, and should be presented to '
-                                              'participants as an answer to residence questions.'))
+        verbose_name=_('Enabled as input'),
+        help_text=_('Indicates whether data collection is occuring '
+                    'at this location, and should be presented to '
+                    'participants as an answer to residence questions.'))
 
     def __unicode__(self):
-        return ', '.join([self.country, self.province, self.municipality, self.division])
+        fields = [self.country, self.province, self.municipality, self.division]
+        return ', '.join([field for field in fields if field])
 
     class Meta:
         unique_together = ('country', 'province', 'municipality', 'division')
 
 
-class Respondent(History):
+class Respondent(models.Model):
     """
     A ``Respondent`` represents a one-time participant in a survey.
 
@@ -562,12 +478,6 @@ class Respondent(History):
             municipality, and barangay.)
         language (str): The language preferred by this respondent. Selected
             from :attr:`pcari.models.LANGUAGES`.
-        submitted_personal_data (bool): Whether the user completed the form
-            asking for :attr:`age`, :attr:`gender`, and :attr:`location`.
-            Because this form is entirely optional, there is no other way to
-            infer a respondent's progression through this stage.
-        completed_survey (bool): Whether the respondent completed the entire
-            survey.
         num_questions_rated (int): The number of quantitative questions
             answered by this respondent. From this number, one can infer whether
             this respondent reached the rating stage of the survey. This
@@ -579,25 +489,22 @@ class Respondent(History):
             respondent.
     """
     GENDERS = (
-        ('', '(Empty)'),
-        ('M', 'Male'),
-        ('F', 'Female'),
+        ('', _('(Empty)')),
+        ('M', _('Male')),
+        ('F', _('Female')),
     )
 
     age = models.PositiveSmallIntegerField(default=None, null=True, blank=True,
-                                           validators=[MinValueValidator(0),
-                                                       MaxValueValidator(120)])
+        validators=[MinValueValidator(0), MaxValueValidator(120)])
     gender = models.CharField(max_length=1, choices=GENDERS, blank=True,
-                              default='', validators=[RegexValidator(r'^(|M|F)$')])
+        default='', validators=[RegexValidator(r'^(|M|F)$')])
     location = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True,
-                                 blank=True, default=None, related_name='residents')
+        blank=True, default=None, related_name='residents')
     language = models.CharField(max_length=8, choices=settings.LANGUAGES,
-                                blank=True, default='',
-                                validators=[LANGUAGE_VALIDATOR])
-    submitted_personal_data = models.BooleanField(default=False)
-    completed_survey = models.BooleanField(default=False)
+        blank=True, default='', validators=[LANGUAGE_VALIDATOR])
+    sector = models.CharField(max_length=64, blank=True, default='')
     uuid = models.UUIDField(unique=True, default=None, editable=False,
-                            null=True, blank=True)
+        null=True, blank=True, help_text=_('Unique identifier generated client-side.'))
 
     def __unicode__(self):
         return 'Respondent {0}'.format(self.pk)

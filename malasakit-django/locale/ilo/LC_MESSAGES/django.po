@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.25\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-22 19:28+0000\n"
+"POT-Creation-Date: 2018-02-02 15:06-0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: ILOCANO\n"
@@ -17,129 +17,201 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: QuantitativeQuestion.prompt:1
-msgid "I have suffered the consequence of a typhoon or flood."
-msgstr ""
-
 #: QuantitativeQuestion.prompt:2
-msgid "I feel prepared to handle a major typhoon right now."
+msgid "We conduct disaster drills regularly, at least twice a year."
 msgstr ""
 
 #: QuantitativeQuestion.prompt:3
-msgid "The barangay’s typhoon Early Warning System is effective."
+msgid ""
+"I regularly participate in our barangay’s clean-up drives to fix drainages "
+"to reduce the risk of flooding."
 msgstr ""
 
 #: QuantitativeQuestion.prompt:4
 msgid ""
-"My family has identified a place to meet and ways to communicate in a "
-"disaster."
+"We have an excellent disaster evacuation center with facilities such as "
+"comfort room, kitchen, clinic and playground during typhoon or flood."
 msgstr ""
 
 #: QuantitativeQuestion.prompt:5
-msgid ""
-"How many days of disaster supplies (e.g., canned food, bottled water, "
-"medicine) are immediately available to you in your home?"
+msgid "We have an effective early warning system for disasters."
 msgstr ""
 
 #: QuantitativeQuestion.prompt:6
 msgid ""
-"I feel like I could count on my nearest neighbors for support when "
-"recovering from a major typhoon."
+"To my knowledge, the barangay administration does not extend special care or "
+"help to senior citizen/elderly, pregnant women and person with disability "
+"(PWD) during disasters."
 msgstr ""
 
 #: QuantitativeQuestion.prompt:7
 msgid ""
-"I believe our barangay will help my community repair and rebuild after a "
-"major typhoon."
+"My family has plenty of food and water supplies ready to survive in times of "
+"disaster."
 msgstr ""
 
 #: QuantitativeQuestion.prompt:8
-msgid "How many weeks has it been since you participated in a disaster drill?"
+msgid "Our barangay doesn’t have an early-warning system for disasters."
 msgstr ""
 
-#: QuantitativeQuestion.left_anchor:1
-msgid "I have not suffered at all."
-msgstr ""
-
-#: QuantitativeQuestion.left_anchor:2
-msgid "Not at all prepared."
-msgstr ""
-
-#: QuantitativeQuestion.left_anchor:3
-msgid "Not at all effective."
-msgstr ""
-
-#: QuantitativeQuestion.left_anchor:4
-msgid "We have not talked about it."
-msgstr ""
-
-#: QuantitativeQuestion.left_anchor:6
-msgid "I am not confident my neighbors will help me after a typhoon."
-msgstr ""
-
-#: QuantitativeQuestion.left_anchor:7
-msgid "I am not confident our barangay will help very much."
-msgstr ""
-
-#: QuantitativeQuestion.right_anchor:1
-msgid "I have lost a home or loved one to a typhoon or flood."
-msgstr ""
-
-#: QuantitativeQuestion.right_anchor:2
-msgid "Very prepared."
-msgstr ""
-
-#: QuantitativeQuestion.right_anchor:3
-msgid "Very effective."
-msgstr ""
-
-#: QuantitativeQuestion.right_anchor:4
-msgid "We have a plan and review it regularly."
-msgstr ""
-
-#: QuantitativeQuestion.right_anchor:6
-msgid "I strongly believe my neighbors will help me after a typhoon."
-msgstr ""
-
-#: QuantitativeQuestion.right_anchor:7
-msgid "I am confident our barangay will help us recover."
+#: QuantitativeQuestion.left_anchor:5
+msgid "Strongly disagree"
 msgstr ""
 
 #: QualitativeQuestion.prompt:1
-msgid "How can your Barangay help you better prepare for a disaster?"
+msgid ""
+"How can your barangay better help vulnerable groups such as elderly, women, "
+"children, and persons with disabilities during typhoon or flood?"
 msgstr ""
 
-#: cafe/settings.py:162
+#: cafe/settings.py:160
 msgid "English"
 msgstr ""
 
-#: cafe/settings.py:163
+#: cafe/settings.py:161
 msgid "Filipino"
 msgstr ""
 
-#: cafe/settings.py:164
-msgid "Cebuano"
+#: feature_phone/models.py:53
+msgid "Related object ID"
 msgstr ""
 
-#: cafe/settings.py:165
-msgid "Ilocano"
+#: feature_phone/models.py:138
+#, python-format
+msgid "question fails uniqueness constraint on combined files: %(fields)s"
 msgstr ""
 
-#: pcari/models.py:267
-msgid "Score not in min and max bounds"
+#: feature_phone/models.py:167
+msgid "Prompt ID"
 msgstr ""
 
-#: pcari/models.py:474
+#: pcari/models.py:172
+msgid "Score not between min and max"
+msgstr ""
+
+#: pcari/models.py:226
+msgid ""
+"Indicates whether this comment should be reviewed for a lack of constructive "
+"content. Flagged comments will not be displayed to participants."
+msgstr ""
+
+#: pcari/models.py:230
+msgid "One or more comma-separated topics this comment relates to."
+msgstr ""
+
+#: pcari/models.py:233
+msgid ""
+"If this comment is a translation, this field references the original "
+"suggestion."
+msgstr ""
+
+#: pcari/models.py:264
+msgid "One or more comma-separated topics this question relates to."
+msgstr ""
+
+#: pcari/models.py:266
+msgid ""
+"This field determines how questions are ordered. Questions with greater "
+"<tt>order</tt> values are displayed later. Questions without an <tt>order</"
+"tt> are displayed last."
+msgstr ""
+
+#: pcari/models.py:270
+msgid "Indicates whether this question should be asked to users."
+msgstr ""
+
+#: pcari/models.py:313
+msgid "Slider"
+msgstr ""
+
+#: pcari/models.py:314
+msgid "Numeric text"
+msgstr ""
+
+#: pcari/models.py:315
+msgid "Buttons"
+msgstr ""
+
+#: pcari/models.py:320
+msgid "This label describes what the lowest score means."
+msgstr ""
+
+#: pcari/models.py:322
+msgid "This label describes what the greatest score means."
+msgstr ""
+
+#: pcari/models.py:324
+msgid "Maximum score"
+msgstr ""
+
+#: pcari/models.py:326
+msgid "Minimum score"
+msgstr ""
+
+#: pcari/models.py:328 pcari/models.py:366
+msgid "What user interface element should be used."
+msgstr ""
+
+#: pcari/models.py:353
+msgid "Dropdown"
+msgstr ""
+
+#: pcari/models.py:354
+msgid "Multiple choice"
+msgstr ""
+
+#: pcari/models.py:360
+msgid "List of options"
+msgstr ""
+
+#: pcari/models.py:361
+msgid ""
+"The list should be formatted as follows: <tt>[\"Choice A\", \"Choice B\"]</"
+"tt>. Each option is wrapped in double quotation marks. The options are then "
+"separated by commas within the square brackets."
+msgstr ""
+
+#: pcari/models.py:389
 msgid "\"_options_text\" is not a JSON list of strings"
 msgstr ""
 
-#: pcari/models.py:477
+#: pcari/models.py:392
 msgid "\"_options_text\" must contain at least one option"
 msgstr ""
 
-#: pcari/models.py:503
+#: pcari/models.py:418
 #, python-format
 msgid "\"%(option)s\" is not a valid option"
+msgstr ""
+
+#: pcari/models.py:449
+msgid "A basic administrative unit within a municipality."
+msgstr ""
+
+#: pcari/models.py:451
+msgid "Enabled as input"
+msgstr ""
+
+#: pcari/models.py:452
+msgid ""
+"Indicates whether data collection is occuring at this location, and should "
+"be presented to participants as an answer to residence questions."
+msgstr ""
+
+#: pcari/models.py:492
+msgid "(Empty)"
+msgstr ""
+
+#: pcari/models.py:493 pcari/templates/personal-information.html:89
+msgid "Male"
+msgstr ""
+
+#: pcari/models.py:494 pcari/templates/personal-information.html:90
+msgid "Female"
+msgstr ""
+
+#: pcari/models.py:507
+msgid "Unique identifier generated client-side."
 msgstr ""
 
 #: pcari/templates/about.html:5 pcari/templates/about.html:6
@@ -255,18 +327,14 @@ msgstr ""
 msgid "For inquiries, please contact:"
 msgstr ""
 
-#: pcari/templates/admin/base.html:7
-msgid "Configuration"
+#: pcari/templates/admin/base.html:7 pcari/templates/admin/configuration.html:5
+#: pcari/templates/admin/configuration.html:42
+msgid "Site configuration"
 msgstr ""
 
 #: pcari/templates/admin/base.html:9 pcari/templates/admin/statistics.html:6
 #: pcari/templates/admin/statistics.html:159
 msgid "Statistics"
-msgstr ""
-
-#: pcari/templates/admin/configuration.html:5
-#: pcari/templates/admin/configuration.html:42
-msgid "Site configuration"
 msgstr ""
 
 #: pcari/templates/admin/configuration.html:44
@@ -279,7 +347,7 @@ msgstr ""
 
 #: pcari/templates/admin/configuration.html:54
 #: pcari/templates/admin/configuration.html:71
-#: pcari/templates/quantitative-questions.html:195
+#: pcari/templates/quantitative-questions.html:229
 #: pcari/templates/rate-comments.html:51
 msgid "Submit"
 msgstr ""
@@ -300,12 +368,16 @@ msgstr ""
 msgid "Quantitative question rating distributions"
 msgstr ""
 
-#: pcari/templates/base.html:60
+#: pcari/templates/base.html:59
+msgid "This site uses the Collective Assessment and Feedback Engine (CAFÉ)."
+msgstr ""
+
+#: pcari/templates/base_with_links.html:7
 #, python-format
 msgid ""
-"This site uses the <a href=\"http://cafesystem.org/\">Collective Assessment "
-"and Feedback Engine (CAFÉ)</a>. Learn more about <a href=\"%(about_url)s"
-"\">CAFÉ</a>."
+"This site uses the <a href=\"http://cafesystem.org/\" target=\"_blank"
+"\">Collective Assessment and Feedback Engine (CAFÉ)</a>. Learn more about <a "
+"href=\"%(about_url)s\">CAFÉ</a>."
 msgstr ""
 
 #: pcari/templates/end.html:5 pcari/templates/end.html:6
@@ -342,7 +414,7 @@ msgid "Begin"
 msgstr ""
 
 #: pcari/templates/nav-buttons.html:7
-#: pcari/templates/quantitative-questions.html:189
+#: pcari/templates/quantitative-questions.html:223
 msgid "Previous"
 msgstr ""
 
@@ -350,80 +422,100 @@ msgstr ""
 msgid "Next"
 msgstr ""
 
-#: pcari/templates/peer-responses.html:5 pcari/templates/peer-responses.html:6
+#: pcari/templates/peer-responses.html:6 pcari/templates/peer-responses.html:7
 msgid "Peer Responses"
 msgstr ""
 
-#: pcari/templates/peer-responses.html:32
+#: pcari/templates/peer-responses.html:42
 msgid ""
 "Below, you can see how the other respondents answered the survey questions."
 msgstr ""
 
-#: pcari/templates/peer-responses.html:41
+#: pcari/templates/peer-responses.html:51
 #, python-format
 msgid "<strong>%(num_ratings)s</strong> other people answered this question:"
 msgstr ""
 
-#: pcari/templates/peer-responses.html:49
+#: pcari/templates/peer-responses.html:67
 #, python-format
 msgid "Average answer: <strong>%(mean)s</strong>"
 msgstr ""
 
-#: pcari/templates/peer-responses.html:55
+#: pcari/templates/peer-responses.html:74
 msgid "Your answer:"
 msgstr ""
 
-#: pcari/templates/peer-responses.html:55
+#: pcari/templates/peer-responses.html:74
 msgid "Not rated"
 msgstr ""
 
-#: pcari/templates/peer-responses.html:63
+#: pcari/templates/peer-responses.html:82
 msgid ""
 "There are not enough data to show how your responses compare to those of "
 "others."
 msgstr ""
 
-#: pcari/templates/personal-information.html:81
-#: pcari/templates/personal-information.html:82
+#: pcari/templates/personal-information.html:67
+#: pcari/templates/personal-information.html:68
 msgid "Personal Information"
 msgstr ""
 
-#: pcari/templates/personal-information.html:87
+#: pcari/templates/personal-information.html:73
 msgid ""
 "All questions on this page are strictly optional. Your responses will be "
 "anonymous."
 msgstr ""
 
-#: pcari/templates/personal-information.html:94
+#: pcari/templates/personal-information.html:81
 msgid "Age"
 msgstr ""
 
-#: pcari/templates/personal-information.html:98
+#: pcari/templates/personal-information.html:85
 msgid "Gender"
 msgstr ""
 
-#: pcari/templates/personal-information.html:101
+#: pcari/templates/personal-information.html:88
 msgid "Select gender"
 msgstr ""
 
-#: pcari/templates/personal-information.html:102
-msgid "Male"
+#: pcari/templates/personal-information.html:95
+msgid "Barangay"
+msgstr ""
+
+#: pcari/templates/personal-information.html:98
+msgid "Select barangay"
 msgstr ""
 
 #: pcari/templates/personal-information.html:103
-msgid "Female"
+msgid "Sector"
+msgstr ""
+
+#: pcari/templates/personal-information.html:106
+msgid "Select sector"
+msgstr ""
+
+#: pcari/templates/personal-information.html:107
+msgid "LGBT"
 msgstr ""
 
 #: pcari/templates/personal-information.html:108
-msgid "Province"
+msgid "Senior Citizen"
 msgstr ""
 
-#: pcari/templates/personal-information.html:115
-msgid "City / Municipality"
+#: pcari/templates/personal-information.html:109
+msgid "Youth"
 msgstr ""
 
-#: pcari/templates/personal-information.html:122
-msgid "Barangay"
+#: pcari/templates/personal-information.html:110
+msgid "Women"
+msgstr ""
+
+#: pcari/templates/personal-information.html:111
+msgid "PWD"
+msgstr ""
+
+#: pcari/templates/personal-information.html:112
+msgid "Religious Organization"
 msgstr ""
 
 #: pcari/templates/qualitative-questions.html:6
@@ -440,17 +532,17 @@ msgstr ""
 msgid "Profile Questions"
 msgstr ""
 
-#: pcari/templates/quantitative-questions.html:173
+#: pcari/templates/quantitative-questions.html:207
 msgid ""
-"Below, you will see either a slider or a text box. Please answer each "
-"question by moving the slider knob or filling in the box with a number."
+"Rate the statement below from one to six, where one represents totally "
+"disagree and the six represents totally agreeable."
 msgstr ""
 
-#: pcari/templates/quantitative-questions.html:181
+#: pcari/templates/quantitative-questions.html:215
 msgid "Question"
 msgstr ""
 
-#: pcari/templates/quantitative-questions.html:192
+#: pcari/templates/quantitative-questions.html:226
 #: pcari/templates/rate-comments.html:48
 msgid "Skip"
 msgstr ""
@@ -492,19 +584,19 @@ msgstr ""
 msgid "Your current answer is "
 msgstr ""
 
-#: pcari/views.py:719
+#: pcari/views.py:711
 msgid "Page Not Found"
 msgstr ""
 
-#: pcari/views.py:720
+#: pcari/views.py:712
 msgid "The requested page does not appear to exist."
 msgstr ""
 
-#: pcari/views.py:728
+#: pcari/views.py:720
 msgid "Internal Error"
 msgstr ""
 
-#: pcari/views.py:729
+#: pcari/views.py:721
 msgid ""
 "The server is currently experiencing some issues. Please let the maintainers "
 "know immediately."

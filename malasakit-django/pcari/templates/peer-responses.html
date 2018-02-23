@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% load i18n %}
+{% load static %}
 
 {% block title %}{% trans 'Peer Responses' %}{% endblock %}
 {% block main-heading %}{% trans 'Peer Responses' %}{% endblock %}
@@ -18,8 +19,17 @@
         var score = ratings[id];
         if (score !== SKIPPED) {
           $('#answer-' + id).text(score);
+          if (score <= 2) {
+            var emoticon = '/img/red-emoticon.png';
+          } else if (score <= 4) {
+            var emoticon = '/img/yellow-emoticon.jpg';
+          } else {
+            var emoticon = '/img/green-emoticon.png'
+          }
+          $('#answer-' + id).parent().prepend($('<img>').attr('src', STATIC_URL_ROOT + emoticon));
         } else {
           $('#answer-' + id).text(gettext('Skipped'));
+          $('#answer-' + id).parent().prepend($('<img>').attr('src', STATIC_URL_ROOT + '/img/yellow-emoticon.jpg'));
         }
       }
     });
@@ -45,11 +55,20 @@
             <blockquote>
               {% trans question.prompt %}
             </blockquote>
-            <div class="bubbled">
-              {% blocktrans trimmed %}
-                Average answer: <strong>{{ mean }}</strong>
-              {% endblocktrans %}
-            </div>
+            {% if num_ratings %}
+              <div class="bubbled">
+                {% if question.mean_score <= 2.667 %}
+                  <img src="{% static 'img/red-emoticon.png' %}">
+                {% elif question.mean_score <= 4.333 %}
+                  <img src="{% static 'img/yellow-emoticon.jpg' %}">
+                {% else %}
+                  <img src="{% static 'img/green-emoticon.png' %}">
+                {% endif %}
+                {% blocktrans trimmed %}
+                  Average answer: <strong>{{ mean }}</strong>
+                {% endblocktrans %}
+              </div>
+            {% endif %}
             <div class="bubbled">
               {% with id=question.id %}
                 {% trans 'Your answer:'%} <strong id="answer-{{ id }}">{% trans 'Not rated' %}</strong>
