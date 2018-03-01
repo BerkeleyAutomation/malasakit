@@ -27,6 +27,13 @@ from django.utils.translation import ugettext_lazy as _
 from pcari.models import LANGUAGE_VALIDATOR
 
 
+class ViewPermissionMixin(models.Model):
+    """ Super class for all models to allow for custom 'view' permissions. """
+    class Meta:
+        abstract = True
+        default_permissions = ('add', 'change', 'delete', 'view')
+
+
 class RelatedObjectMixin(models.Model):
     """
     The ``RelatedObjectMixin`` provides models access to their corresponding linked
@@ -75,7 +82,7 @@ def generate_recording_path(instance, filename):
     return '{0}/{1}'.format(model_name_slug, filename)
 
 
-class Recording(models.Model):
+class Recording(ViewPermissionMixin):
     """
     A Recording is an abstract model of a recording
 
@@ -86,7 +93,7 @@ class Recording(models.Model):
     recording = models.FileField(upload_to=generate_recording_path)
     text = models.TextField(blank=True, default='')
 
-    class Meta:
+    class Meta(ViewPermissionMixin.Meta):
         abstract = True
 
 
@@ -111,7 +118,7 @@ class Instructions(Recording):
             text = text[:self.MAX_TEXT_DISPLAY_LENGTH] + ' ...'
         return 'Instructional recording: "{0}"'.format(text)
 
-    class Meta:
+    class Meta(ViewPermissionMixin.Meta):
         verbose_name_plural = 'instructions'
         unique_together = ('key', 'language')
 
@@ -174,14 +181,14 @@ class Response(Recording, RelatedObjectMixin):
             self.related_object_type.model,
         )
 
-    class Meta:
+    class Meta(ViewPermissionMixin.Meta):
         unique_together = [
             ('related_object_type', 'related_object_id'),
             ('prompt_type', 'prompt_id', 'respondent'),
         ]
 
 
-class Respondent(models.Model):
+class Respondent(ViewPermissionMixin):
     """
     A ``Respondent`` represents a one-time participant in the survey.
 

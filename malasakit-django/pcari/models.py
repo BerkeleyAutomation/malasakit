@@ -107,9 +107,10 @@ class RatingStatisticsManager(models.Manager):
 
 
 class ViewPermissionMixin(models.Model):
+    """ Super class for all models to allow for custom 'view' permissions. """
     class Meta:
         abstract = True
-        default_permissions = ('add', 'change', 'delete', 'view') 
+        default_permissions = ('add', 'change', 'delete', 'view')
 
 
 class Response(ViewPermissionMixin):

@@ -148,6 +148,11 @@ site.filter_actions(Group, ['delete_selected'])
 
 class AdminViewMixin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
+        """
+        This function is called to determine if a user can see objects in
+        the admin panel. Will return true if the user has either "change" or
+        "view" permissions on a model.
+        """
         if admin.ModelAdmin.has_change_permission(self, request, obj):
             return True
         for perm in request.user.get_all_permissions():
@@ -156,17 +161,18 @@ class AdminViewMixin(admin.ModelAdmin):
         return False
 
     def get_readonly_fields(self, request, obj=None):
+        """
+        This function is called to determine which fields cannot be edited. If
+        a user only has "view" permissions, all fields are read-only. This does
+        not prevent data download.
+        """
+        if admin.ModelAdmin.has_change_permission(self, request, obj):
+            return self.readonly_fields
         for perm in request.user.get_all_permissions():
             if 'view_' + self.model.__name__.lower() == perm.split('.')[1]:
-                #print([repr(field).split(' ')[1].split('>')[0] for field in self.model._meta.get_fields()])
-                #return [repr(field).split(' ')[1].split('>')[0] for field in self.model._meta.get_fields()]
-                fields = []
-                for f in self.model._meta.get_fields():
-                    if hasattr(self.model, f.name):
-                        fields.append(f.name)
-                return fields
+                return [field.name for field in self.opts.local_fields]
         return self.readonly_fields
-        
+
 
 class ResponseAdmin(AdminViewMixin):
     """
