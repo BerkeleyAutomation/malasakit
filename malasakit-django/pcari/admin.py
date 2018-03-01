@@ -147,6 +147,9 @@ site.filter_actions(Group, ['delete_selected'])
 
 
 class AdminViewMixin(admin.ModelAdmin):
+    """
+    Super class for admins to implement 'view' permissions.
+    """
     def has_change_permission(self, request, obj=None):
         """
         This function is called to determine if a user can see objects in
