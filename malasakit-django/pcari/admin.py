@@ -13,15 +13,15 @@ import json
 import os
 
 from django.conf import settings
-from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
-from django.shortcuts import redirect, reverse, render
-from django.views.decorators.http import require_POST
 from django.conf.urls import url
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import User, Group
 from django.contrib.contenttypes.models import ContentType
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+from django.shortcuts import redirect, reverse, render
+from django.views.decorators.http import require_POST
 
 from pcari.models import QualitativeQuestion, Comment, CommentRating
 from pcari.models import OptionQuestion, OptionQuestionChoice
