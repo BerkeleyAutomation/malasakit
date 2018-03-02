@@ -24,14 +24,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from pcari.models import LANGUAGE_VALIDATOR
-
-
-class ViewPermissionMixin(models.Model):
-    """ Super class for all models to allow for custom 'view' permissions. """
-    class Meta:
-        abstract = True
-        default_permissions = ('add', 'change', 'delete', 'view')
+from pcari.models import LANGUAGE_VALIDATOR, ViewPermissionMixin
 
 
 class RelatedObjectMixin(models.Model):
