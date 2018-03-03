@@ -152,9 +152,10 @@ class AdminViewMixin(admin.ModelAdmin):
     """
     def has_change_permission(self, request, obj=None):
         """
-        This function is called to determine if a user can see objects in
-        the admin panel. Will return true if the user has either "change" or
-        "view" permissions on a model.
+        Django calls this to determine if a user can see objects in the admin
+        panel. Return true if the user has either "change" or "view"
+        permissions on a model. Overriding the default which only returns true
+        if the user has "change" permissions.
         """
         if admin.ModelAdmin.has_change_permission(self, request, obj):
             return True
@@ -165,9 +166,10 @@ class AdminViewMixin(admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         """
-        This function is called to determine which fields cannot be edited. If
-        a user only has "view" permissions, all fields are read-only. This does
-        not prevent data download.
+        Django calls this to determine which fields cannot be edited. If a user
+        has "change" permissions, return the default list to allow user to
+        change fields. If a user only has "view" permissions, all fields are
+        read-only. This does not prevent data download.
         """
         if admin.ModelAdmin.has_change_permission(self, request, obj):
             return self.readonly_fields
