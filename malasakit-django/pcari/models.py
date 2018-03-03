@@ -106,14 +106,12 @@ class RatingStatisticsManager(models.Manager):
         return queryset
 
 
-class ViewPermissionMixin(models.Model):
-    """ Super class for all models to allow for custom 'view' permissions. """
-    class Meta:
-        abstract = True
-        default_permissions = ('add', 'change', 'delete', 'view')
+class ViewMeta:
+    """ Meta super class to add custom 'view' permissions. """
+    default_permissions = ('add', 'change', 'delete', 'view')
 
 
-class Response(ViewPermissionMixin):
+class Response(models.Model):
     """
     A ``Response`` is an abstract model of respondent-generated data.
 
@@ -126,7 +124,7 @@ class Response(ViewPermissionMixin):
     respondent = models.ForeignKey('Respondent', on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
 
-    class Meta(ViewPermissionMixin.Meta):
+    class Meta(ViewMeta):
         abstract = True
 
 
@@ -144,7 +142,7 @@ class Rating(Response):
     SKIPPED = None
     score = models.PositiveIntegerField(default=SKIPPED, null=True, blank=True)
 
-    class Meta(ViewPermissionMixin.Meta):
+    class Meta(ViewMeta):
         abstract = True
 
 
@@ -182,7 +180,7 @@ class QuantitativeQuestionRating(Rating):
         template = 'Rating {0} to {1}'
         return template.format(self.score, self.question)
 
-    class Meta(ViewPermissionMixin.Meta):
+    class Meta(ViewMeta):
         unique_together = ('respondent', 'question')
 
 
@@ -199,7 +197,7 @@ class CommentRating(Rating):
     def __unicode__(self):
         return 'Rating {0} to {1}'.format(self.score, self.comment)
 
-    class Meta(ViewPermissionMixin.Meta):
+    class Meta(ViewMeta):
         unique_together = ('respondent', 'comment')
 
 
@@ -253,7 +251,7 @@ class Comment(Response):
         return len(self.message.split())
 
 
-class Question(ViewPermissionMixin):
+class Question(models.Model):
     """
     A ``Question`` models all prompts presented to a respondent.
 
@@ -276,7 +274,7 @@ class Question(ViewPermissionMixin):
     enabled = models.BooleanField(default=True,
         help_text=_('Indicates whether this question should be asked to users.'))
 
-    class Meta(ViewPermissionMixin.Meta):
+    class Meta(ViewMeta):
         abstract = True
 
 
@@ -430,11 +428,11 @@ class OptionQuestionChoice(Response):
         template = 'Option question choice {0}: "{1}"'
         return template.format(self.question_id, self.option)
 
-    class Meta(ViewPermissionMixin.Meta):
+    class Meta(ViewMeta):
         unique_together = ('respondent', 'question')
 
 
-class Location(ViewPermissionMixin):
+class Location(models.Model):
     """
     A ``Location`` represents a named government-designated area in the world.
 
@@ -464,11 +462,11 @@ class Location(ViewPermissionMixin):
         fields = [self.country, self.province, self.municipality, self.division]
         return ', '.join([field for field in fields if field])
 
-    class Meta(ViewPermissionMixin.Meta):
+    class Meta(ViewMeta):
         unique_together = ('country', 'province', 'municipality', 'division')
 
 
-class Respondent(ViewPermissionMixin):
+class Respondent(models.Model):
     """
     A ``Respondent`` represents a one-time participant in a survey.
 
