@@ -111,7 +111,7 @@ class RespondentAdmin(RecordingAdmin):
     list_display = ('id', 'call_sid', 'age', 'gender', 'location', 'language')
     list_filter = ('language', )
     empty_value_display = '(Empty)'
-    actions = ('download_files', )
+    actions = ('download_files', 'classify_digits')
 
     def classify_digits(self, request, queryset):
         file_fields = self.get_file_fields(queryset.model)
