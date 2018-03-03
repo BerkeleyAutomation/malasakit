@@ -529,3 +529,7 @@ class Respondent(models.Model):
     @property
     def comments(self):
         return Comment.objects.filter(respondent=self).all()
+
+
+    class Meta(ViewMeta):
+        pass

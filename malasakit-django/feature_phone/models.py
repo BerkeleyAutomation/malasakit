@@ -215,3 +215,7 @@ class Respondent(models.Model):
 
     def __unicode__(self):
         return 'Respondent {0}'.format(self.pk)
+
+
+    class Meta(ViewMeta):
+        pass
