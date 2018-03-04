@@ -99,3 +99,7 @@ bloom-icon.json
 
 # Screenshots generated during testing
 /malasakit-django/screenshots/
+
+# Sublime Project Settings
+package.sublime-workspace
+package.sublime-project

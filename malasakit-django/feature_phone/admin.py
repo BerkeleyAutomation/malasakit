@@ -116,7 +116,10 @@ class RespondentAdmin(RecordingAdmin):
     def classify_digits(self, request, queryset):
         file_fields = self.get_file_fields(queryset.model)
         old_cwd = os.getcwd()
-        asr_root = os.path.join(os.path.dirname(settings.PROJECT_DIR), 'kaldi', 'egs', 'malasakit-digits')
+        asr_root = os.path.join(os.path.dirname(settings.PROJECT_DIR),
+                                'kaldi',
+                                'egs',
+                                'malasakit-digits')
         if os.path.exists(asr_root):
             os.chdir(asr_root)
             quantitative_question_type = ContentType.objects.get_for_model(
@@ -134,21 +137,38 @@ class RespondentAdmin(RecordingAdmin):
                     related_object_type=quantitative_question_type,
                 )
                 language_code = language_code_map.get(respondent.language)
-                for response in responses:
-                    if language_code and response.recording:
-                        subproc = subprocess.Popen([
-                            'sudo', '.', './path.sh', '&&',
-                            'sudo', './recognize.sh', response.recording.path, language_code,
-                        ])
-                        recording_basename = os.path.basename(response.recording.filename)
-                        digit_file = os.path.join(asr_root, 'recognition',
-                                                  'recognized_digit_' + recording_basename + '.txt')
-                        with open(digit_file) as output:
-                            # TODO: create object if it does not exist
-                            if response.related_object is not None:
-                                try:
-                                    response.related_object.score = int(output.read()[0])
-                                    response.save()
-                                except ValueError:
-                                    pass
+                classify_responses(responses, language_code, asr_root)
             os.chdir(old_cwd)
+        else:
+            message = ("ERROR: The classification engine was not set up"
+                       "properly. Please notify the site maintainers.")
+            self.message_user(request, message, level=messages.ERROR)
+
+    def classify_responses(responses, language_code, asr_root):
+        for response in responses:
+            if language_code and response.recording:
+                subproc = subprocess.Popen([
+                    'sudo', '.', './path.sh', '&&',
+                    'sudo', './recognize.sh', response.recording.path, language_code,
+                ])
+                recording_basename = os.path.basename(response.recording.filename)
+                filename = 'recognized_digit_' + recording_basename + '.txt'
+                digit_file = os.path.join(asr_root, 'recognition', filename)
+                with open(digit_file) as output:
+                    # TODO: create object if it does not exist
+                    if response.related_object is not None:
+                        try:
+                            response.related_object.score = int(output.read()[0])
+                            response.save()
+                        except ValueError:
+                            pass
+                    else:
+                        new_rating = web_models.QuantitativeQuestionRating(
+                            question=response.prompt.related_object,
+                            respondent=response.respondent
+                        )
+                        try:
+                            new_rating.score = int(output.read()[0])
+                            new_rating.save()
+                        except ValueError:
+                            pass
