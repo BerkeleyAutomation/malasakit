@@ -157,7 +157,7 @@ class AdminViewMixin(admin.ModelAdmin):
         permissions on a model. Overriding the default which only returns true
         if the user has "change" permissions.
         """
-        if admin.ModelAdmin.has_change_permission(self, request, obj):
+        if super(AdminViewMixin, self).has_change_permission(request, obj):
             return True
         for perm in request.user.get_all_permissions():
             if 'view_' + self.model.__name__.lower() == perm.split('.')[1]:
@@ -171,7 +171,7 @@ class AdminViewMixin(admin.ModelAdmin):
         change fields. If a user only has "view" permissions, all fields are
         read-only. This does not prevent data download.
         """
-        if admin.ModelAdmin.has_change_permission(self, request, obj):
+        if super(AdminViewMixin, self).has_change_permission(request, obj):
             return self.readonly_fields
         for perm in request.user.get_all_permissions():
             if 'view_' + self.model.__name__.lower() == perm.split('.')[1]:
