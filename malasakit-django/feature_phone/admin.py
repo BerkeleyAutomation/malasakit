@@ -10,12 +10,13 @@ from django.contrib import admin
 from django.db import models
 from django.http import HttpResponse
 
+from pcari.admin import AdminViewMixin
 from pcari.admin import site
 from feature_phone.models import Instructions, Question
 from feature_phone.models import Response, Respondent
 
 
-class RecordingAdmin(admin.ModelAdmin):
+class RecordingAdmin(AdminViewMixin):
     """ Model admin that supports the storage of audio recordings. """
     formfield_overrides = {
         models.FileField: {
