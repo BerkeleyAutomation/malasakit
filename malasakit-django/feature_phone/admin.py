@@ -10,12 +10,13 @@ from django.contrib import admin
 from django.db import models
 from django.http import HttpResponse
 
+from pcari.admin import AdminViewMixin
 from pcari.admin import site
 from feature_phone.models import Instructions, Question
 from feature_phone.models import Response, Respondent
 
 
-class RecordingAdmin(admin.ModelAdmin):
+class RecordingAdmin(AdminViewMixin):
     """ Model admin that supports the storage of audio recordings. """
     formfield_overrides = {
         models.FileField: {
@@ -24,19 +25,37 @@ class RecordingAdmin(admin.ModelAdmin):
     }
 
     def get_file_fields(self, model):
+        """ Return a model's field names as a list of strings. """
         # pylint: disable=no-self-use
         return [field.name for field in model._meta.fields
                 if isinstance(field, models.FileField)]
 
     def add_to_zip(self, zip_file, obj, fields):
+        """
+        Writes recording files of a model to zip folder sorted by subfolders
+        named after each field of the object.
+
+        Args:
+            zip_file: a zipfile.ZipFile object where recordings will be written
+                to.
+            obj: an instance of a Response or Respondent object to save
+                recordings from.
+            fields: a list of strings where each element is a name of a field
+                of obj.
+        """
         # pylint: disable=no-self-use
         for field_name in fields:
             field = getattr(obj, field_name)
-            destination = os.path.join(field_name, os.path.basename(field.path))
-            zip_file.write(field.path, destination)
+            if hasattr(field, 'url'):
+                destination = os.path.join(field_name, os.path.basename(field.path))
+                zip_file.write(field.path, destination)
 
     def download_files(self, request, queryset):
-        """ Prepare a ZIP file of all file fields for selected instances. """
+        """ Prepare a ZIP file of all file fields for selected instances.
+
+        Args:
+            queryset: a Django QuerySet of models selected for this action.
+        """
         # pylint: disable=unused-argument
         file_fields = self.get_file_fields(queryset.model)
         zip_buffer = StringIO.StringIO()
@@ -70,7 +89,7 @@ class InstructionsAdmin(RecordingAdmin):
     list_filter = ('language', )
     search_fields = ('text', 'tag')
     empty_value_display = '(Empty)'
-    actions = ('download_list_action', )
+    actions = ('download_files', )
 
 
 @admin.register(Response, site=site)
@@ -79,7 +98,7 @@ class ResponseAdmin(RecordingAdmin):
     list_display = ('__unicode__', 'timestamp', 'respondent', 'url')
     list_filter = ('timestamp', )
     empty_value_display = '(Empty)'
-    actions = ('download_list_action', )
+    actions = ('download_files', )
 
 
 @admin.register(Respondent, site=site)
@@ -88,4 +107,4 @@ class RespondentAdmin(RecordingAdmin):
     list_display = ('id', 'call_sid', 'age', 'gender', 'location', 'language')
     list_filter = ('language', )
     empty_value_display = '(Empty)'
-    actions = ('download_list_action', )
+    actions = ('download_files', )
