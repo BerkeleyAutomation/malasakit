@@ -118,7 +118,7 @@ class RespondentAdmin(RecordingAdmin):
         Admin action to call the ASR to transcribe the given responses
         """
         old_cwd = os.getcwd()
-        asr_root = os.path.join(os.path.dirname(settings.PROJECT_DIR),
+        asr_root = os.path.join(os.path.dirname(os.path.dirname(settings.PROJECT_DIR)),
                                 'kaldi', 'egs', 'malasakit-digits')
         if os.path.exists(asr_root):
             os.chdir(asr_root)
