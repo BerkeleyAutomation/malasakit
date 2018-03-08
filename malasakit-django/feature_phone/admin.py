@@ -5,7 +5,6 @@ import os
 import StringIO
 import subprocess
 import zipfile
-import tempfile
 
 from django import forms
 from django.conf import settings
@@ -115,7 +114,9 @@ class RespondentAdmin(RecordingAdmin):
     actions = ('download_files', 'classify_digits')
 
     def classify_digits(self, request, queryset):
-        file_fields = self.get_file_fields(queryset.model)
+        """
+        Admin action to call the ASR to transcribe the given responses
+        """
         old_cwd = os.getcwd()
         asr_root = os.path.join(os.path.dirname(settings.PROJECT_DIR),
                                 'kaldi', 'egs', 'malasakit-digits')
@@ -136,17 +137,18 @@ class RespondentAdmin(RecordingAdmin):
                     related_object_type=quantitative_question_type,
                 )
                 language_code = language_code_map.get(respondent.language)
-                classify_responses(responses, language_code, asr_root)
+                self.classify_responses(responses, language_code, asr_root)
             os.chdir(old_cwd)
         else:
             message = ("ERROR: The classification engine was not set up "
                        "properly. Please notify the site maintainers.")
             self.message_user(request, message, level=messages.ERROR)
 
+    @staticmethod
     def classify_responses(responses, language_code, asr_root):
         for response in responses:
             if language_code and response.recording:
-                subproc = subprocess.Popen([
+                subprocess.Popen([
                     'sudo', '.', './path.sh', '&&',
                     'sudo', './recognize.sh', response.recording.path, language_code,
                 ])
@@ -154,7 +156,6 @@ class RespondentAdmin(RecordingAdmin):
                 filename = 'recognized_digit_' + recording_basename + '.txt'
                 digit_file = os.path.join(asr_root, 'recognition', filename)
                 with open(digit_file) as output:
-                    # TODO: create object if it does not exist
                     if response.related_object is not None:
                         try:
                             response.related_object.score = int(output.read()[0])
