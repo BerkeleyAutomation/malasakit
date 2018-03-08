@@ -173,65 +173,22 @@ def get_respondent(session, pk_key='respondent-pk'):
     return Respondent.objects.get(pk=session[pk_key])
 
 
-class PromptLanguageView(PromptView):
-    """ Ask the listener for their preferred language. """
-    submit_view = 'feature-phone:save-language'
+class PromptIRBNoticeView(PromptView):
+    """ Present an IRB notice to listeners, and allow them to opt-out. """
+    submit_view = 'feature-phone:verify-irb-notice'
+    prompts = ['welcome', 'introduction', 'irb-notice', 'irb-notice-prompt']
     accept_keypress = True
     accept_speech = False
 
-    def ask(self, request, action):
-        play_recording(action, Instructions.objects.get(key='welcome', language='en'))
-        play_recording(action, Instructions.objects.get(key='language-selection', language='en'))
-        for key in sorted(SaveLanguageView.key_to_language.keys()):
-            language = SaveLanguageView.key_to_language[key]
-            language_codes_in_use = [code_and_name[0] for code_and_name in settings.LANGUAGES]
-            if language != 'en' and language in language_codes_in_use:
-                instruction = Instructions.objects.get(key='language-selection', language=language)
-                play_recording(action, instruction)
-
-
-class SaveLanguageView(SaveView):
-    """ Save listener language selections, and redirect them accordingly. """
-    next_view = 'feature-phone:prompt-irb-notice'
-    key_to_language = {
-        '1': 'en',
-        '2': 'tl',
-        '3': 'ceb',
-        '4': 'ilo',
-    }
-
-    def save(self, request, voice_response):
-        digit = request.POST.get('Digits')
-        language = self.key_to_language.get(digit, settings.LANGUAGE_CODE)
-        language_codes_in_use = [code_and_name[0] for code_and_name in settings.LANGUAGES]
-        if language not in language_codes_in_use:
-            language = 'en'
-
-        # pylint: disable=no-member
+    def post(self, request):
         related_object = web_models.Respondent.objects.create()
         respondent = Respondent.objects.create(
             related_object_id=related_object.id,
             call_sid=request.POST['CallSid'],
-            language=language,
+            language=get_language(),
         )
         request.session['respondent-pk'] = respondent.pk
-
-        LOGGER.info("Respondent %d selected language '%s'", respondent.pk, language)
-        return language
-
-    def post(self, request):
-        voice_response = VoiceResponse()
-        language = self.save(request, voice_response)
-        voice_response.redirect(localize_url(reverse(self.next_view), language))
-        return HttpResponse(voice_response, content_type='application/xml')
-
-
-class PromptIRBNoticeView(PromptView):
-    """ Present an IRB notice to listeners, and allow them to opt-out. """
-    submit_view = 'feature-phone:verify-irb-notice'
-    prompts = ['introduction', 'irb-notice', 'irb-notice-prompt']
-    accept_keypress = True
-    accept_speech = False
+        return super(PromptView, self).post(request)
 
 
 class VerifyIRBNoticeView(SaveView):
