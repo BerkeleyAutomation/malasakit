@@ -24,7 +24,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from pcari.models import LANGUAGE_VALIDATOR
+from pcari.models import LANGUAGE_VALIDATOR, ViewMeta
 
 
 class RelatedObjectMixin(models.Model):
@@ -86,7 +86,7 @@ class Recording(models.Model):
     recording = models.FileField(upload_to=generate_recording_path)
     text = models.TextField(blank=True, default='')
 
-    class Meta:
+    class Meta(ViewMeta):
         abstract = True
 
 
@@ -111,7 +111,7 @@ class Instructions(Recording):
             text = text[:self.MAX_TEXT_DISPLAY_LENGTH] + ' ...'
         return 'Instructional recording: "{0}"'.format(text)
 
-    class Meta:
+    class Meta(ViewMeta):
         verbose_name_plural = 'instructions'
         unique_together = ('key', 'language')
 
@@ -174,7 +174,7 @@ class Response(Recording, RelatedObjectMixin):
             self.related_object_type.model,
         )
 
-    class Meta:
+    class Meta(ViewMeta):
         unique_together = [
             ('related_object_type', 'related_object_id'),
             ('prompt_type', 'prompt_id', 'respondent'),
@@ -215,3 +215,7 @@ class Respondent(models.Model):
 
     def __unicode__(self):
         return 'Respondent {0}'.format(self.pk)
+
+
+    class Meta(ViewMeta):
+        pass

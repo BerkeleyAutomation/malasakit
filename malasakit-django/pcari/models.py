@@ -106,6 +106,11 @@ class RatingStatisticsManager(models.Manager):
         return queryset
 
 
+class ViewMeta:
+    """ Meta super class to add custom 'view' permissions. """
+    default_permissions = ('add', 'change', 'delete', 'view')
+
+
 class Response(models.Model):
     """
     A ``Response`` is an abstract model of respondent-generated data.
@@ -119,7 +124,7 @@ class Response(models.Model):
     respondent = models.ForeignKey('Respondent', on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
+    class Meta(ViewMeta):
         abstract = True
 
 
@@ -137,7 +142,7 @@ class Rating(Response):
     SKIPPED = None
     score = models.PositiveIntegerField(default=SKIPPED, null=True, blank=True)
 
-    class Meta:
+    class Meta(ViewMeta):
         abstract = True
 
 
@@ -175,7 +180,7 @@ class QuantitativeQuestionRating(Rating):
         template = 'Rating {0} to {1}'
         return template.format(self.score, self.question)
 
-    class Meta:
+    class Meta(ViewMeta):
         unique_together = ('respondent', 'question')
 
 
@@ -192,7 +197,7 @@ class CommentRating(Rating):
     def __unicode__(self):
         return 'Rating {0} to {1}'.format(self.score, self.comment)
 
-    class Meta:
+    class Meta(ViewMeta):
         unique_together = ('respondent', 'comment')
 
 
@@ -269,7 +274,7 @@ class Question(models.Model):
     enabled = models.BooleanField(default=True,
         help_text=_('Indicates whether this question should be asked to users.'))
 
-    class Meta:
+    class Meta(ViewMeta):
         abstract = True
 
 
@@ -423,7 +428,7 @@ class OptionQuestionChoice(Response):
         template = 'Option question choice {0}: "{1}"'
         return template.format(self.question_id, self.option)
 
-    class Meta:
+    class Meta(ViewMeta):
         unique_together = ('respondent', 'question')
 
 
@@ -457,7 +462,7 @@ class Location(models.Model):
         fields = [self.country, self.province, self.municipality, self.division]
         return ', '.join([field for field in fields if field])
 
-    class Meta:
+    class Meta(ViewMeta):
         unique_together = ('country', 'province', 'municipality', 'division')
 
 
@@ -524,3 +529,7 @@ class Respondent(models.Model):
     @property
     def comments(self):
         return Comment.objects.filter(respondent=self).all()
+
+
+    class Meta(ViewMeta):
+        pass
