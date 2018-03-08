@@ -13,15 +13,15 @@ import json
 import os
 
 from django.conf import settings
-from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
-from django.shortcuts import redirect, reverse, render
-from django.views.decorators.http import require_POST
 from django.conf.urls import url
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import User, Group
 from django.contrib.contenttypes.models import ContentType
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+from django.shortcuts import redirect, reverse, render
+from django.views.decorators.http import require_POST
 
 from pcari.models import QualitativeQuestion, Comment, CommentRating
 from pcari.models import OptionQuestion, OptionQuestionChoice
@@ -146,7 +146,40 @@ site.register(Group, GroupAdmin)
 site.filter_actions(Group, ['delete_selected'])
 
 
-class ResponseAdmin(admin.ModelAdmin):
+class AdminViewMixin(admin.ModelAdmin):
+    """
+    Super class for admins to implement 'view' permissions.
+    """
+    def has_change_permission(self, request, obj=None):
+        """
+        Django calls this to determine if a user can see objects in the admin
+        panel. Return true if the user has either "change" or "view"
+        permissions on a model. Overriding the default which only returns true
+        if the user has "change" permissions.
+        """
+        if super(AdminViewMixin, self).has_change_permission(request, obj):
+            return True
+        for perm in request.user.get_all_permissions():
+            if 'view_' + self.model.__name__.lower() == perm.split('.')[1]:
+                return True
+        return False
+
+    def get_readonly_fields(self, request, obj=None):
+        """
+        Django calls this to determine which fields cannot be edited. If a user
+        has "change" permissions, return the default list to allow user to
+        change fields. If a user only has "view" permissions, all fields are
+        read-only. This does not prevent data download.
+        """
+        if super(AdminViewMixin, self).has_change_permission(request, obj):
+            return self.readonly_fields
+        for perm in request.user.get_all_permissions():
+            if 'view_' + self.model.__name__.lower() == perm.split('.')[1]:
+                return [field.name for field in self.opts.local_fields]
+        return self.readonly_fields
+
+
+class ResponseAdmin(AdminViewMixin):
     """
     Base admin behavior for :class:`pcari.models.Response` models.
     """
@@ -294,7 +327,7 @@ export_to_feature_phone.short_description = 'Use questions for feature phone'
 
 
 @admin.register(QualitativeQuestion, site=site)
-class QualitativeQuestionAdmin(admin.ModelAdmin):
+class QualitativeQuestionAdmin(AdminViewMixin):
     """
     Admin behavior for :class:`pcari.models.QualitativeQuestion`.
     """
@@ -311,7 +344,7 @@ class QualitativeQuestionAdmin(admin.ModelAdmin):
 
 
 @admin.register(QuantitativeQuestion, site=site)
-class QuantitativeQuestionAdmin(admin.ModelAdmin):
+class QuantitativeQuestionAdmin(AdminViewMixin):
     """
     Admin behavior for :class:`pcari.models.QuantitativeQuestion`.
     """
@@ -329,7 +362,7 @@ class QuantitativeQuestionAdmin(admin.ModelAdmin):
 
 
 @admin.register(OptionQuestion, site=site)
-class OptionQuestionAdmin(admin.ModelAdmin):
+class OptionQuestionAdmin(AdminViewMixin):
     """
     Admin behavior for :class:`pcari.models.OptionQuestion`.
     """
@@ -351,7 +384,7 @@ class OptionQuestionAdmin(admin.ModelAdmin):
 
 
 @admin.register(Location, site=site)
-class LocationAdmin(admin.ModelAdmin):
+class LocationAdmin(AdminViewMixin):
     """ Admin behavior for :class:`pcari.models.Location`. """
     def display_country(self, location):
         return location.country or self.empty_value_display
@@ -396,7 +429,7 @@ class LocationAdmin(admin.ModelAdmin):
 
 
 @admin.register(Respondent, site=site)
-class RespondentAdmin(admin.ModelAdmin):
+class RespondentAdmin(AdminViewMixin):
     """
     Admin behavior for :class:`pcari.models.Respondent`.
     """
