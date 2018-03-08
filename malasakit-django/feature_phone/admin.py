@@ -139,7 +139,7 @@ class RespondentAdmin(RecordingAdmin):
                 classify_responses(responses, language_code, asr_root)
             os.chdir(old_cwd)
         else:
-            message = ("ERROR: The classification engine was not set up"
+            message = ("ERROR: The classification engine was not set up "
                        "properly. Please notify the site maintainers.")
             self.message_user(request, message, level=messages.ERROR)
 
