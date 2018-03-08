@@ -1,10 +1,9 @@
 - model: feature_phone.instructions
   pk: 65
   fields:
-    key: language-selection
+    key: welcome
     language: ceb
-    text:
-      To use Cebuano, press three.
+    text: Welcome to Malasakit.
 - model: feature_phone.instructions
   pk: 66
   fields:

@@ -1,10 +1,9 @@
 - model: feature_phone.instructions
   pk: 97
   fields:
-    key: language-selection
+    key: welcome
     language: ilo
-    text:
-      To use Ilocano, press four.
+    text: Welcome to Malasakit.
 - model: feature_phone.instructions
   pk: 98
   fields:
