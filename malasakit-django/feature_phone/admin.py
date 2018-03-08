@@ -117,9 +117,7 @@ class RespondentAdmin(RecordingAdmin):
         file_fields = self.get_file_fields(queryset.model)
         old_cwd = os.getcwd()
         asr_root = os.path.join(os.path.dirname(settings.PROJECT_DIR),
-                                'kaldi',
-                                'egs',
-                                'malasakit-digits')
+                                'kaldi', 'egs', 'malasakit-digits')
         if os.path.exists(asr_root):
             os.chdir(asr_root)
             quantitative_question_type = ContentType.objects.get_for_model(
@@ -163,12 +161,13 @@ class RespondentAdmin(RecordingAdmin):
                         except ValueError:
                             pass
                     else:
-                        new_rating = web_models.QuantitativeQuestionRating(
-                            question=response.prompt.related_object,
-                            respondent=response.respondent
-                        )
                         try:
-                            new_rating.score = int(output.read()[0])
-                            new_rating.save()
+                            new_rating = web_models.QuantitativeQuestionRating.objects.create(
+                                question=response.prompt.related_object,
+                                respondent=response.respondent.related_object,
+                                score=int(output.read()[0])
+                            )
+                            response.related_object = new_rating
+                            response.save()
                         except ValueError:
                             pass
