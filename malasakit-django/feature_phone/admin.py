@@ -3,15 +3,19 @@
 import datetime
 import os
 import StringIO
+import subprocess
 import zipfile
 
 from django import forms
-from django.contrib import admin
+from django.conf import settings
+from django.contrib import admin, messages
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.http import HttpResponse
 
 from pcari.admin import AdminViewMixin
 from pcari.admin import site
+from pcari import models as web_models
 from feature_phone.models import Instructions, Question
 from feature_phone.models import Response, Respondent
 
@@ -107,4 +111,65 @@ class RespondentAdmin(RecordingAdmin):
     list_display = ('id', 'call_sid', 'age', 'gender', 'location', 'language')
     list_filter = ('language', )
     empty_value_display = '(Empty)'
-    actions = ('download_files', )
+    actions = ('download_files', 'classify_digits')
+
+    def classify_digits(self, request, queryset):
+        """
+        Admin action to call the ASR to transcribe the given responses
+        """
+        old_cwd = os.getcwd()
+        asr_root = os.path.join(os.path.dirname(settings.PROJECT_DIR),
+                                'kaldi', 'egs', 'malasakit-digits')
+        if os.path.exists(asr_root):
+            os.chdir(asr_root)
+            quantitative_question_type = ContentType.objects.get_for_model(
+                web_models.QuantitativeQuestion
+            )
+            language_code_map = {
+                'en': 'eng',
+                'tl': 'fil',
+                'ceb': 'ceb',
+                'ilo': 'ilk',
+            }
+            for respondent in queryset:
+                responses = Response.objects.filter(
+                    respondent=respondent,
+                    related_object_type=quantitative_question_type,
+                )
+                language_code = language_code_map.get(respondent.language)
+                self.classify_responses(responses, language_code, asr_root)
+            os.chdir(old_cwd)
+        else:
+            message = ("ERROR: The classification engine was not set up "
+                       "properly. Please notify the site maintainers.")
+            self.message_user(request, message, level=messages.ERROR)
+
+    @staticmethod
+    def classify_responses(responses, language_code, asr_root):
+        for response in responses:
+            if language_code and response.recording:
+                subprocess.Popen([
+                    'sudo', '.', './path.sh', '&&',
+                    'sudo', './recognize.sh', response.recording.path, language_code,
+                ])
+                recording_basename = os.path.basename(response.recording.filename)
+                filename = 'recognized_digit_' + recording_basename + '.txt'
+                digit_file = os.path.join(asr_root, 'recognition', filename)
+                with open(digit_file) as output:
+                    if response.related_object is not None:
+                        try:
+                            response.related_object.score = int(output.read()[0])
+                            response.save()
+                        except ValueError:
+                            pass
+                    else:
+                        try:
+                            new_rating = web_models.QuantitativeQuestionRating.objects.create(
+                                question=response.prompt.related_object,
+                                respondent=response.respondent.related_object,
+                                score=int(output.read()[0])
+                            )
+                            response.related_object = new_rating
+                            response.save()
+                        except ValueError:
+                            pass
