@@ -29,7 +29,6 @@ from twilio.twiml.voice_response import VoiceResponse, Gather
 
 from feature_phone.models import Respondent, Question, Response, Instructions
 from pcari import models as web_models
-from pcari.templatetags.localize_url import localize_url
 
 REPEAT_DIGIT = '*'
 SKIP_DIGIT = '#'
@@ -188,7 +187,7 @@ class PromptIRBNoticeView(PromptView):
             language=get_language(),
         )
         request.session['respondent-pk'] = respondent.pk
-        return super(PromptView, self).post(request)
+        return super(PromptIRBNoticeView, self).post(request)
 
 
 class VerifyIRBNoticeView(SaveView):
