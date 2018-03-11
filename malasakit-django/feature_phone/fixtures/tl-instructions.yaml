@@ -1,10 +1,9 @@
 - model: feature_phone.instructions
   pk: 33
   fields:
-    key: language-selection
+    key: welcome
     language: tl
-    text:
-      To use Filipino, press two.
+    text: Welcome to Malasakit.
 - model: feature_phone.instructions
   pk: 34
   fields:

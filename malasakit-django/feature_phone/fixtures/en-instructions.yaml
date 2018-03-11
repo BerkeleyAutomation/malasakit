@@ -1,17 +1,9 @@
 - model: feature_phone.instructions
-  pk: 15
+  pk: 1
   fields:
     key: welcome
     language: en
     text: Welcome to Malasakit.  # Translator: do not translate this.
-- model: feature_phone.instructions
-  pk: 1
-  fields:
-    key: language-selection
-    language: en
-    text:
-      # Translator: For language X, translate as "To use X, press Y."
-      To use English, press one.
 - model: feature_phone.instructions
   pk: 2
   fields:

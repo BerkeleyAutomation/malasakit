@@ -14,8 +14,6 @@ from feature_phone import views
 app_name = 'feature-phone'
 
 urlpatterns = [
-    url(r'^language/prompt/$', views.PromptLanguageView.as_view(), name='prompt-language'),
-    url(r'^language/save/$', views.SaveLanguageView.as_view(), name='save-language'),
     url(r'^irb-notice/prompt/$', views.PromptIRBNoticeView.as_view(), name='prompt-irb-notice'),
     url(r'^irb-notice/save/$', views.VerifyIRBNoticeView.as_view(), name='verify-irb-notice'),
     url(r'^gender/prompt/$', views.PromptGenderView.as_view(), name='prompt-gender'),
