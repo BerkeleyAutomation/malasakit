@@ -28,7 +28,7 @@ from django.db.models.fields.related_descriptors import (
     ReverseManyToOneDescriptor,
 )
 
-sys.path.insert(0, os.path.abspath('../../malasakit-django'))
+sys.path.insert(0, os.path.abspath('../../malasakit'))
 os.environ['DJANGO_SETTINGS_MODULE'] = 'cafe.settings'
 django.setup()
 

@@ -87,8 +87,8 @@ ENV/
 
 # Minified static assets
 *.min.*
-/malasakit-django/cafe/static/
-/malasakit-django/cafe/media/
+/malasakit/cafe/static/
+/malasakit/cafe/media/
 
 # Node modules and related files
 node_modules/
@@ -98,7 +98,7 @@ package-lock.json
 bloom-icon.json
 
 # Screenshots generated during testing
-/malasakit-django/screenshots/
+/malasakit/screenshots/
 
 # Sublime Project Settings
 package.sublime-workspace

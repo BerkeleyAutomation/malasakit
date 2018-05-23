@@ -1,4 +1,4 @@
-DJANGO_PROJECT_ROOT=malasakit-django
+DJANGO_PROJECT_ROOT=malasakit
 DOCS_BUILD_PATH=docs-build
 DOCS_PATH=docs
 
