@@ -1,6 +1,6 @@
 # English-Tagalog Translations for Malasakit
 # Copyright (C) 2017 PCARI
-# This file is distributed under the same license as the `malasakit-v1` package.
+# This file is distributed under the same license as the `malasakit` package.
 # JEFFREY ANCHETA <jrancheta@national-u.edu.ph>, 2017.
 #
 #, fuzzy

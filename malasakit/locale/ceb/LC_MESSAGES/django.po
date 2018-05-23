@@ -1,6 +1,6 @@
 # English-Cebuano Translations for Malasakit
 # Copyright (C) 2017
-# This file is distributed under the same license as the `malasakit-v1` package.
+# This file is distributed under the same license as the `malasakit` package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
 #
 #, fuzzy
