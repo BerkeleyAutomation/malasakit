@@ -1,5 +1,5 @@
-pcari\.management\.commands\.makedbtrans module
-===============================================
+pcari.management.commands.makedbtrans module
+============================================
 
 .. automodule:: pcari.management.commands.makedbtrans
     :members:

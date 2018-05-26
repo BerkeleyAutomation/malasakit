@@ -1,5 +1,5 @@
-pcari\.views module
-===================
+pcari.views module
+==================
 
 .. automodule:: pcari.views
     :members:

@@ -1,5 +1,5 @@
-pcari\.management package
-=========================
+pcari.management package
+========================
 
 Subpackages
 -----------

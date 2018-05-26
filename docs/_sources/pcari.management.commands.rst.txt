@@ -1,5 +1,5 @@
-pcari\.management\.commands package
-===================================
+pcari.management.commands package
+=================================
 
 Submodules
 ----------

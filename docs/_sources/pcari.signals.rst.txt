@@ -1,5 +1,5 @@
-pcari\.signals module
-=====================
+pcari.signals module
+====================
 
 .. automodule:: pcari.signals
     :members:

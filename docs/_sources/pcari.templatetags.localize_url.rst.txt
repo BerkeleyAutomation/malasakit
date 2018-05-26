@@ -1,5 +1,5 @@
-pcari\.templatetags\.localize\_url module
-=========================================
+pcari.templatetags.localize\_url module
+=======================================
 
 .. automodule:: pcari.templatetags.localize_url
     :members:
