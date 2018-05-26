@@ -436,7 +436,7 @@ class SaveCommentRatingView(SaveView):
 
 
 class QualitativeQuestionInstructionsView(PromptView):
-    """ Expalin the qualitative question section, and initialize session data. """
+    """ Read the qualitative question to the participant. """
     # NOTE: this only works because there is one qualitative question.
     submit_view = 'feature-phone:save-comment'
     accept_keypress = True
@@ -446,7 +446,7 @@ class QualitativeQuestionInstructionsView(PromptView):
 
 
 class SaveCommentView(SaveView):
-    """ Handle responses to the suggestion confirmation prompt. """
+    """ Handle responses to the participant's comment. """
     next_view = 'feature-phone:end'
 
     def post(self, request):
