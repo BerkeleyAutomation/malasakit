@@ -31,7 +31,10 @@ DB_TRANS_TARGETS=\
 EXCLUDED_MODULES=\
 	$(DJANGO_PROJECT_ROOT)/pcari/migrations\
 	$(DJANGO_PROJECT_ROOT)/pcari/test*\
-	$(DJANGO_PROJECT_ROOT)/pcari/urls.py
+	$(DJANGO_PROJECT_ROOT)/pcari/urls.py\
+	$(DJANGO_PROJECT_ROOT)/feature_phone/migrations\
+	$(DJANGO_PROJECT_ROOT)/feature_phone/test*\
+	$(DJANGO_PROJECT_ROOT)/feature_phone/urls.py\
 
 CLEANTEXT_TARGETS=\
 	Comment.message\
@@ -63,6 +66,7 @@ testclient:
 preparedocs:
 	mkdir -p $(DOCS_BUILD_PATH)
 	sphinx-apidoc -f -e -o $(DOCS_BUILD_PATH)/source $(DJANGO_PROJECT_ROOT)/pcari $(EXCLUDED_MODULES)
+	sphinx-apidoc -f -e -o $(DOCS_BUILD_PATH)/source $(DJANGO_PROJECT_ROOT)/feature_phone $(EXCLUDED_MODULES)
 
 compiledocs:
 	rm -rf $(DOCS_PATH)
