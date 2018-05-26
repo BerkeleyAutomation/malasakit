@@ -11,8 +11,7 @@ References:
     * `Django Model Reference <https://docs.djangoproject.com/en/dev/topics/db/models/>`_
     * `Django Field Reference <https://docs.djangoproject.com/en/dev/ref/models/fields/>`_
     * `QuerySet API <https://docs.djangoproject.com/en/dev/ref/models/querysets/>`_
-    * `The contenttypes framework
-       <https://docs.djangoproject.com/en/dev/ref/contrib/contenttypes/>`_
+    * `The contenttypes framework <https://docs.djangoproject.com/en/dev/ref/contrib/contenttypes/>`_
 """
 
 from __future__ import unicode_literals
