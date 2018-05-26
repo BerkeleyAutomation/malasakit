@@ -10,7 +10,7 @@ const API_URL_ROOT = APP_URL_ROOT + '/api';
 const STATIC_URL_ROOT = APP_URL_ROOT + '/static';
 const RESPONSE_SAVE_ENDPOINT = API_URL_ROOT + '/save-response/';
 
-const RESPONSE_LIFETIME = 60*1000;
+const RESPONSE_LIFETIME = 60*60*1000;  // Assume responses are generally filled out in an hour
 const DEFAULT_COMMENT_SAMPLE_SIZE = 8;
 const STATIC_RESOURCES = [
     {
