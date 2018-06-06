@@ -1,3 +1,5 @@
+# FIXME: these tests broke after some backwards-incompatible changes.
+
 from __future__ import unicode_literals
 import datetime
 import logging

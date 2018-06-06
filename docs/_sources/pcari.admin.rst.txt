@@ -1,5 +1,5 @@
-pcari\.admin module
-===================
+pcari.admin module
+==================
 
 .. automodule:: pcari.admin
     :members:

@@ -1,5 +1,5 @@
-pcari\.templatetags package
-===========================
+pcari.templatetags package
+==========================
 
 Submodules
 ----------

@@ -1,5 +1,5 @@
-pcari\.management\.commands\.cleantext module
-=============================================
+pcari.management.commands.cleantext module
+==========================================
 
 .. automodule:: pcari.management.commands.cleantext
     :members:

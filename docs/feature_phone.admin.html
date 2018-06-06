@@ -1,0 +1,271 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>feature_phone.admin module &#8212; Malasakit 1.25 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="feature_phone.apps module" href="feature_phone.apps.html" />
+    <link rel="prev" title="feature_phone package" href="feature_phone.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-feature_phone.admin">
+<span id="feature-phone-admin-module"></span><h1>feature_phone.admin module<a class="headerlink" href="#module-feature_phone.admin" title="Permalink to this headline">¶</a></h1>
+<p>Define how Django should present feature phone-specific models to administrators.</p>
+<dl class="class">
+<dt id="feature_phone.admin.InstructionsAdmin">
+<em class="property">class </em><code class="descclassname">feature_phone.admin.</code><code class="descname">InstructionsAdmin</code><span class="sig-paren">(</span><em>model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.admin.InstructionsAdmin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#feature_phone.admin.RecordingAdmin" title="feature_phone.admin.RecordingAdmin"><code class="xref py py-class docutils literal notranslate"><span class="pre">feature_phone.admin.RecordingAdmin</span></code></a></p>
+<p>Admin for feature phone instructions model, which includes questions.</p>
+<dl class="attribute">
+<dt id="feature_phone.admin.InstructionsAdmin.actions">
+<code class="descname">actions</code><em class="property"> = ('download_files',)</em><a class="headerlink" href="#feature_phone.admin.InstructionsAdmin.actions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="feature_phone.admin.InstructionsAdmin.display_key">
+<code class="descname">display_key</code><span class="sig-paren">(</span><em>instructions</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.admin.InstructionsAdmin.display_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="feature_phone.admin.InstructionsAdmin.display_text">
+<code class="descname">display_text</code><span class="sig-paren">(</span><em>instructions</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.admin.InstructionsAdmin.display_text" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.admin.InstructionsAdmin.empty_value_display">
+<code class="descname">empty_value_display</code><em class="property"> = '(Empty)'</em><a class="headerlink" href="#feature_phone.admin.InstructionsAdmin.empty_value_display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.admin.InstructionsAdmin.list_display">
+<code class="descname">list_display</code><em class="property"> = ('display_text', 'display_key', 'language', 'recording')</em><a class="headerlink" href="#feature_phone.admin.InstructionsAdmin.list_display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.admin.InstructionsAdmin.list_filter">
+<code class="descname">list_filter</code><em class="property"> = ('language',)</em><a class="headerlink" href="#feature_phone.admin.InstructionsAdmin.list_filter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.admin.InstructionsAdmin.search_fields">
+<code class="descname">search_fields</code><em class="property"> = ('text', 'tag')</em><a class="headerlink" href="#feature_phone.admin.InstructionsAdmin.search_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="feature_phone.admin.RecordingAdmin">
+<em class="property">class </em><code class="descclassname">feature_phone.admin.</code><code class="descname">RecordingAdmin</code><span class="sig-paren">(</span><em>model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.admin.RecordingAdmin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pcari.admin.AdminViewMixin</span></code></p>
+<p>Model admin that supports the storage of audio recordings.</p>
+<dl class="method">
+<dt id="feature_phone.admin.RecordingAdmin.add_to_zip">
+<code class="descname">add_to_zip</code><span class="sig-paren">(</span><em>zip_file</em>, <em>obj</em>, <em>fields</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.admin.RecordingAdmin.add_to_zip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes recording files of a model to zip folder sorted by subfolders
+named after each field of the object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>zip_file</strong> – a zipfile.ZipFile object where recordings will be written
+to.</li>
+<li><strong>obj</strong> – an instance of a Response or Respondent object to save
+recordings from.</li>
+<li><strong>fields</strong> – a list of strings where each element is a name of a field
+of obj.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="feature_phone.admin.RecordingAdmin.download_files">
+<code class="descname">download_files</code><span class="sig-paren">(</span><em>request</em>, <em>queryset</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.admin.RecordingAdmin.download_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare a ZIP file of all file fields for selected instances.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>queryset</strong> – a Django QuerySet of models selected for this action.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.admin.RecordingAdmin.formfield_overrides">
+<code class="descname">formfield_overrides</code><em class="property"> = {&lt;class 'django.db.models.fields.files.FileField'&gt;: {'widget': &lt;django.forms.widgets.FileInput object at 0x7f8564e18690&gt;}}</em><a class="headerlink" href="#feature_phone.admin.RecordingAdmin.formfield_overrides" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="feature_phone.admin.RecordingAdmin.get_file_fields">
+<code class="descname">get_file_fields</code><span class="sig-paren">(</span><em>model</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.admin.RecordingAdmin.get_file_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a model’s field names as a list of strings.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="feature_phone.admin.RespondentAdmin">
+<em class="property">class </em><code class="descclassname">feature_phone.admin.</code><code class="descname">RespondentAdmin</code><span class="sig-paren">(</span><em>model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.admin.RespondentAdmin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#feature_phone.admin.RecordingAdmin" title="feature_phone.admin.RecordingAdmin"><code class="xref py py-class docutils literal notranslate"><span class="pre">feature_phone.admin.RecordingAdmin</span></code></a></p>
+<p>Admin for feature phone respondent model.</p>
+<dl class="attribute">
+<dt id="feature_phone.admin.RespondentAdmin.actions">
+<code class="descname">actions</code><em class="property"> = ('download_files', 'classify_digits')</em><a class="headerlink" href="#feature_phone.admin.RespondentAdmin.actions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="feature_phone.admin.RespondentAdmin.classify_digits">
+<code class="descname">classify_digits</code><span class="sig-paren">(</span><em>request</em>, <em>queryset</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.admin.RespondentAdmin.classify_digits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Admin action to call the ASR to transcribe the given responses</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="feature_phone.admin.RespondentAdmin.classify_responses">
+<em class="property">static </em><code class="descname">classify_responses</code><span class="sig-paren">(</span><em>language_code</em>, <em>asr_root</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.admin.RespondentAdmin.classify_responses" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.admin.RespondentAdmin.empty_value_display">
+<code class="descname">empty_value_display</code><em class="property"> = '(Empty)'</em><a class="headerlink" href="#feature_phone.admin.RespondentAdmin.empty_value_display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.admin.RespondentAdmin.list_display">
+<code class="descname">list_display</code><em class="property"> = ('id', 'call_sid', 'age', 'gender', 'location', 'language')</em><a class="headerlink" href="#feature_phone.admin.RespondentAdmin.list_display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.admin.RespondentAdmin.list_filter">
+<code class="descname">list_filter</code><em class="property"> = ('language',)</em><a class="headerlink" href="#feature_phone.admin.RespondentAdmin.list_filter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="feature_phone.admin.ResponseAdmin">
+<em class="property">class </em><code class="descclassname">feature_phone.admin.</code><code class="descname">ResponseAdmin</code><span class="sig-paren">(</span><em>model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.admin.ResponseAdmin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#feature_phone.admin.RecordingAdmin" title="feature_phone.admin.RecordingAdmin"><code class="xref py py-class docutils literal notranslate"><span class="pre">feature_phone.admin.RecordingAdmin</span></code></a></p>
+<p>Admin for feature phone response model.</p>
+<dl class="attribute">
+<dt id="feature_phone.admin.ResponseAdmin.actions">
+<code class="descname">actions</code><em class="property"> = ('download_files',)</em><a class="headerlink" href="#feature_phone.admin.ResponseAdmin.actions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.admin.ResponseAdmin.empty_value_display">
+<code class="descname">empty_value_display</code><em class="property"> = '(Empty)'</em><a class="headerlink" href="#feature_phone.admin.ResponseAdmin.empty_value_display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.admin.ResponseAdmin.list_display">
+<code class="descname">list_display</code><em class="property"> = ('__unicode__', 'timestamp', 'respondent', 'url')</em><a class="headerlink" href="#feature_phone.admin.ResponseAdmin.list_display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.admin.ResponseAdmin.list_filter">
+<code class="descname">list_filter</code><em class="property"> = ('timestamp',)</em><a class="headerlink" href="#feature_phone.admin.ResponseAdmin.list_filter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Malasakit</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="pcari.html">Web frontend</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="feature_phone.html">Feature phone frontend</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="feature_phone.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="feature_phone.html#module-feature_phone">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="feature_phone.html">feature_phone package</a><ul>
+      <li>Previous: <a href="feature_phone.html" title="previous chapter">feature_phone package</a></li>
+      <li>Next: <a href="feature_phone.apps.html" title="next chapter">feature_phone.apps module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, UC Berkeley.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/feature_phone.admin.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,14 +1,6 @@
 pcari package
 =============
 
-Subpackages
------------
-
-.. toctree::
-
-    pcari.management
-    pcari.templatetags
-
 Submodules
 ----------
 

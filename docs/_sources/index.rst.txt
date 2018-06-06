@@ -10,17 +10,18 @@ Welcome to Malasakit's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   PCARI application <pcari>
+   Web frontend <pcari>
+   Feature phone frontend <feature_phone>
 
 Malasakit is a customizable participatory assessment platform written in Django
 that collects and integrates quantitative assessment, qualitative feedback, and
 peer-to-peer collaborative filtering on ways local communities can become
 better prepared for typhoons and floods.
 
-The project code is on `GitHub <https://github.com/BerkeleyAutomation/malasakit-v1>`_.
+The project code is on `GitHub <https://github.com/BerkeleyAutomation/malasakit>`_.
 Supplementary documentation for the project lives on the repository wiki. To get started,
-see the `setup instructions <https://github.com/BerkeleyAutomation/malasakit-v1/wiki/Setup>`_
-and the `guidelines for contributing <https://github.com/BerkeleyAutomation/malasakit-v1/wiki/Guidelines-for-Contributing>`_
+see the `setup instructions <https://github.com/BerkeleyAutomation/malasakit/wiki/Setup>`_
+and the `guidelines for contributing <https://github.com/BerkeleyAutomation/malasakit/wiki/Guidelines-for-Contributing>`_
 to the project.
 
 Indices and tables

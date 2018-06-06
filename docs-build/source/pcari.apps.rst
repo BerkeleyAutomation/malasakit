@@ -1,5 +1,5 @@
-pcari\.apps module
-==================
+pcari.apps module
+=================
 
 .. automodule:: pcari.apps
     :members:

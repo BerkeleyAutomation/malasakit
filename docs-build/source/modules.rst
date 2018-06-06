@@ -1,7 +1,7 @@
-pcari
-=====
+feature_phone
+=============
 
 .. toctree::
    :maxdepth: 4
 
-   pcari
+   feature_phone

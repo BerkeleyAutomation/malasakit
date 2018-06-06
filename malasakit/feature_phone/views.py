@@ -100,7 +100,7 @@ class PromptView(View):
         recording_callback (str): The name of the view that will handle actions
             made after Twilio finalizes the recording.
 
-    Notes:
+    Note:
         Keypresses made while a prompt plays will interrupt the playback, while
         speech will not. Only speech made after the prompt plays will be
         recorded.
@@ -309,7 +309,7 @@ class PromptQuantitativeQuestionView(PromptView):
         play_recording(action, Question.objects.get(pk=question_pk))
 
     def post(self, request):
-        if request.session['index'] >= len(request.session['obj-keys']):
+        if request.session.get('index', float('inf')) >= len(request.session['obj-keys']):
             voice_response = VoiceResponse()
             voice_response.redirect(reverse('feature-phone:comment-rating-instructions'))
             return HttpResponse(voice_response, content_type='application/xml')
@@ -361,10 +361,15 @@ class CommentRatingInstructions(PromptView):
     timeout = 0
     prompts = ['comment-rating-instructions']
 
-    def ask(self, request, action):
-        speak(action, self.prompts)
+    def post(self, request):
+        try:
+            request.session['obj-keys'] = select_comment_pks()
+        except ValueError:
+            voice_response = VoiceResponse()
+            voice_response.redirect(reverse('feature-phone:qualitative-question-instructions'))
+            return HttpResponse(voice_response, content_type='application/xml')
         request.session['index'] = 0
-        request.session['obj-keys'] = select_comment_pks()
+        return super(CommentRatingInstructions, self).post(request)
 
 
 class PromptCommentView(PromptView):
@@ -431,99 +436,34 @@ class SaveCommentRatingView(SaveView):
 
 
 class QualitativeQuestionInstructionsView(PromptView):
-    """ Expalin the qualitative question section, and initialize session data. """
-    submit_view = 'feature-phone:prompt-qualitative-question'
-    accept_keypress = True
-    accept_speech = False
-    timeout = 0
-    prompts = ['qualitative-question-instructions']
-
-    def ask(self, request, action):
-        speak(action, self.prompts)
-        request.session['index'] = 0
-        question_type = ContentType.objects.get_for_model(web_models.QualitativeQuestion)
-        request.session['obj-keys'] = fetch_question_pks(question_type)
-
-
-class PromptQualitativeQuestionView(PromptView):
-    """ Ask the listener for a suggestion. """
-    submit_view = 'feature-phone:confirm-comment'
+    """ Read the qualitative question to the participant. """
+    # NOTE: this only works because there is one qualitative question.
+    submit_view = 'feature-phone:save-comment'
     accept_keypress = True
     accept_speech = True
+    prompts = ['qualitative-question-instructions']
     recording_callback = 'feature-phone:download-recording'
 
-    def ask(self, request, action):
-        question_pk = request.session['obj-keys'][request.session['index']]
-        question = Question.objects.get(pk=question_pk)
-        play_recording(action, question)
+
+class SaveCommentView(SaveView):
+    """ Handle responses to the participant's comment. """
+    next_view = 'feature-phone:end'
 
     def post(self, request):
-        if request.session['index'] >= len(request.session['obj-keys']):
-            voice_response = VoiceResponse()
-            voice_response.redirect(reverse('feature-phone:end'))
-            return HttpResponse(voice_response, content_type='application/xml')
-        return super(PromptQualitativeQuestionView, self).post(request)
-
-
-class ConfirmCommentView(PromptView):
-    """
-    Ask the listener to confirm they are satisfied with their suggestion.
-
-    Note:
-        Since the raw suggestions are played back to other listeners, it is
-        important to ensure listeners can re-record their suggestions. However,
-        this only happens once (otherwise, listeners may feel compelled to
-        unnecessarily polish their suggestions).
-    """
-    submit_view = 'feature-phone:save-comment'
-    prompts = ['qualitative-question-confirm']
-    accept_keypress = True
-    accept_speech = False
-
-    def post(self, request):
-        question_pk = request.session['obj-keys'][request.session['index']]
-        question = Question.objects.get(pk=question_pk)
+        question = web_models.QualitativeQuestion.objects.first()
         respondent = get_respondent(request.session)
-
         if request.POST.get('Digits') == 'hangup':
             return HttpResponse(content_type='application/xml')
-        elif request.POST.get('Digits') == SKIP_DIGIT or request.session.get('repeat'):
-            if request.session.get('repeat'):
-                response = Response.objects.get(
-                    respondent=respondent,
-                    prompt_type=ContentType.objects.get_for_model(Question),
-                    prompt_id=question_pk,
-                )
-                response.url = request.POST['RecordingUrl']
-                response.save()
-            request.session['index'] += 1
-            request.session['repeat'] = False
-            voice_response = VoiceResponse()
-            voice_response.redirect(reverse('feature-phone:prompt-qualitative-question'))
-            return HttpResponse(voice_response, content_type='application/xml')
         else:
             comment = web_models.Comment.objects.create(
-                question=question.related_object,
+                question=question,
                 respondent=respondent.related_object,
                 language=get_language(),
             )
             response = make_response(respondent, question, comment)
-            response.url = request.POST['RecordingUrl']
+            response.url = request.POST.get('RecordingUrl', '')
             response.save()
-        return super(ConfirmCommentView, self).post(request)
-
-
-class SaveCommentView(SaveView):
-    """ Handle responses to the suggestion confirmation prompt. """
-    next_view = 'feature-phone:prompt-qualitative-question'
-    rerecord_key = '1'
-
-    def save(self, request, voice_response):
-        if request.POST.get('Digits', '') != self.rerecord_key:
-            request.session['index'] += 1
-            request.session['repeat'] = False
-        else:
-            request.session['repeat'] = True
+        return super(SaveCommentView, self).post(request)
 
 
 @csrf_exempt

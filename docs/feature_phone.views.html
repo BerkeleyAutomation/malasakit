@@ -1,0 +1,827 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>feature_phone.views module &#8212; Malasakit 1.25 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="feature_phone.models module" href="feature_phone.models.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-feature_phone.views">
+<span id="feature-phone-views-module"></span><h1>feature_phone.views module<a class="headerlink" href="#module-feature_phone.views" title="Permalink to this headline">¶</a></h1>
+<p>This module defines the application’s views, which are needed to render pages.</p>
+<p>“Pages” are generated in TwiML (Twilio Markup Language) for Twilio to play
+desired audio.</p>
+<p>See <a class="reference external" href="https://www.twilio.com/docs/api/twiml">https://www.twilio.com/docs/api/twiml</a> and
+<a class="reference external" href="https://twilio.github.io/twilio-python/6.5.0/twiml/">https://twilio.github.io/twilio-python/6.5.0/twiml/</a></p>
+<dl class="class">
+<dt id="feature_phone.views.CommentRatingInstructions">
+<em class="property">class </em><code class="descclassname">feature_phone.views.</code><code class="descname">CommentRatingInstructions</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.CommentRatingInstructions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#feature_phone.views.PromptView" title="feature_phone.views.PromptView"><code class="xref py py-class docutils literal notranslate"><span class="pre">feature_phone.views.PromptView</span></code></a></p>
+<p>Explain the peer evaluation section, and select the suggestions to be presented.</p>
+<dl class="attribute">
+<dt id="feature_phone.views.CommentRatingInstructions.accept_keypress">
+<code class="descname">accept_keypress</code><em class="property"> = True</em><a class="headerlink" href="#feature_phone.views.CommentRatingInstructions.accept_keypress" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.CommentRatingInstructions.accept_speech">
+<code class="descname">accept_speech</code><em class="property"> = False</em><a class="headerlink" href="#feature_phone.views.CommentRatingInstructions.accept_speech" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="feature_phone.views.CommentRatingInstructions.post">
+<code class="descname">post</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.CommentRatingInstructions.post" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serve the Twilio client directions for collecting input.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.CommentRatingInstructions.prompts">
+<code class="descname">prompts</code><em class="property"> = ['comment-rating-instructions']</em><a class="headerlink" href="#feature_phone.views.CommentRatingInstructions.prompts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.CommentRatingInstructions.submit_view">
+<code class="descname">submit_view</code><em class="property"> = 'feature-phone:prompt-comment'</em><a class="headerlink" href="#feature_phone.views.CommentRatingInstructions.submit_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.CommentRatingInstructions.timeout">
+<code class="descname">timeout</code><em class="property"> = 0</em><a class="headerlink" href="#feature_phone.views.CommentRatingInstructions.timeout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="feature_phone.views.PromptAgeView">
+<em class="property">class </em><code class="descclassname">feature_phone.views.</code><code class="descname">PromptAgeView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.PromptAgeView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#feature_phone.views.PromptView" title="feature_phone.views.PromptView"><code class="xref py py-class docutils literal notranslate"><span class="pre">feature_phone.views.PromptView</span></code></a></p>
+<p>Ask listeners for their age.</p>
+<dl class="attribute">
+<dt id="feature_phone.views.PromptAgeView.accept_keypress">
+<code class="descname">accept_keypress</code><em class="property"> = False</em><a class="headerlink" href="#feature_phone.views.PromptAgeView.accept_keypress" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.PromptAgeView.accept_speech">
+<code class="descname">accept_speech</code><em class="property"> = True</em><a class="headerlink" href="#feature_phone.views.PromptAgeView.accept_speech" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.PromptAgeView.prompts">
+<code class="descname">prompts</code><em class="property"> = ['age-prompt']</em><a class="headerlink" href="#feature_phone.views.PromptAgeView.prompts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.PromptAgeView.recording_callback">
+<code class="descname">recording_callback</code><em class="property"> = 'feature-phone:download-age'</em><a class="headerlink" href="#feature_phone.views.PromptAgeView.recording_callback" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.PromptAgeView.submit_view">
+<code class="descname">submit_view</code><em class="property"> = 'feature-phone:prompt-barangay'</em><a class="headerlink" href="#feature_phone.views.PromptAgeView.submit_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="feature_phone.views.PromptBarangayView">
+<em class="property">class </em><code class="descclassname">feature_phone.views.</code><code class="descname">PromptBarangayView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.PromptBarangayView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#feature_phone.views.PromptView" title="feature_phone.views.PromptView"><code class="xref py py-class docutils literal notranslate"><span class="pre">feature_phone.views.PromptView</span></code></a></p>
+<p>Ask listeners for their barangay.</p>
+<dl class="attribute">
+<dt id="feature_phone.views.PromptBarangayView.accept_keypress">
+<code class="descname">accept_keypress</code><em class="property"> = False</em><a class="headerlink" href="#feature_phone.views.PromptBarangayView.accept_keypress" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.PromptBarangayView.accept_speech">
+<code class="descname">accept_speech</code><em class="property"> = True</em><a class="headerlink" href="#feature_phone.views.PromptBarangayView.accept_speech" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.PromptBarangayView.prompts">
+<code class="descname">prompts</code><em class="property"> = ['barangay-prompt']</em><a class="headerlink" href="#feature_phone.views.PromptBarangayView.prompts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.PromptBarangayView.recording_callback">
+<code class="descname">recording_callback</code><em class="property"> = 'feature-phone:download-barangay'</em><a class="headerlink" href="#feature_phone.views.PromptBarangayView.recording_callback" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.PromptBarangayView.submit_view">
+<code class="descname">submit_view</code><em class="property"> = 'feature-phone:quantitative-question-instructions'</em><a class="headerlink" href="#feature_phone.views.PromptBarangayView.submit_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="feature_phone.views.PromptCommentView">
+<em class="property">class </em><code class="descclassname">feature_phone.views.</code><code class="descname">PromptCommentView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.PromptCommentView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#feature_phone.views.PromptView" title="feature_phone.views.PromptView"><code class="xref py py-class docutils literal notranslate"><span class="pre">feature_phone.views.PromptView</span></code></a></p>
+<p>Play back a suggestion to the listener.</p>
+<dl class="attribute">
+<dt id="feature_phone.views.PromptCommentView.accept_keypress">
+<code class="descname">accept_keypress</code><em class="property"> = True</em><a class="headerlink" href="#feature_phone.views.PromptCommentView.accept_keypress" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.PromptCommentView.accept_speech">
+<code class="descname">accept_speech</code><em class="property"> = True</em><a class="headerlink" href="#feature_phone.views.PromptCommentView.accept_speech" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="feature_phone.views.PromptCommentView.ask">
+<code class="descname">ask</code><span class="sig-paren">(</span><em>request</em>, <em>action</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.PromptCommentView.ask" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="feature_phone.views.PromptCommentView.post">
+<code class="descname">post</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.PromptCommentView.post" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serve the Twilio client directions for collecting input.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.PromptCommentView.recording_callback">
+<code class="descname">recording_callback</code><em class="property"> = 'feature-phone:download-recording'</em><a class="headerlink" href="#feature_phone.views.PromptCommentView.recording_callback" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.PromptCommentView.recording_max_duration">
+<code class="descname">recording_max_duration</code><em class="property"> = 15</em><a class="headerlink" href="#feature_phone.views.PromptCommentView.recording_max_duration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.PromptCommentView.submit_view">
+<code class="descname">submit_view</code><em class="property"> = 'feature-phone:save-comment-rating'</em><a class="headerlink" href="#feature_phone.views.PromptCommentView.submit_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="feature_phone.views.PromptGenderView">
+<em class="property">class </em><code class="descclassname">feature_phone.views.</code><code class="descname">PromptGenderView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.PromptGenderView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#feature_phone.views.PromptView" title="feature_phone.views.PromptView"><code class="xref py py-class docutils literal notranslate"><span class="pre">feature_phone.views.PromptView</span></code></a></p>
+<p>Ask listeners for their gender.</p>
+<dl class="attribute">
+<dt id="feature_phone.views.PromptGenderView.accept_keypress">
+<code class="descname">accept_keypress</code><em class="property"> = True</em><a class="headerlink" href="#feature_phone.views.PromptGenderView.accept_keypress" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.PromptGenderView.accept_speech">
+<code class="descname">accept_speech</code><em class="property"> = False</em><a class="headerlink" href="#feature_phone.views.PromptGenderView.accept_speech" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.PromptGenderView.prompts">
+<code class="descname">prompts</code><em class="property"> = ['gender-prompt']</em><a class="headerlink" href="#feature_phone.views.PromptGenderView.prompts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.PromptGenderView.submit_view">
+<code class="descname">submit_view</code><em class="property"> = 'feature-phone:save-gender'</em><a class="headerlink" href="#feature_phone.views.PromptGenderView.submit_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="feature_phone.views.PromptIRBNoticeView">
+<em class="property">class </em><code class="descclassname">feature_phone.views.</code><code class="descname">PromptIRBNoticeView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.PromptIRBNoticeView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#feature_phone.views.PromptView" title="feature_phone.views.PromptView"><code class="xref py py-class docutils literal notranslate"><span class="pre">feature_phone.views.PromptView</span></code></a></p>
+<p>Present an IRB notice to listeners, and allow them to opt-out.</p>
+<dl class="attribute">
+<dt id="feature_phone.views.PromptIRBNoticeView.accept_keypress">
+<code class="descname">accept_keypress</code><em class="property"> = True</em><a class="headerlink" href="#feature_phone.views.PromptIRBNoticeView.accept_keypress" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.PromptIRBNoticeView.accept_speech">
+<code class="descname">accept_speech</code><em class="property"> = False</em><a class="headerlink" href="#feature_phone.views.PromptIRBNoticeView.accept_speech" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="feature_phone.views.PromptIRBNoticeView.post">
+<code class="descname">post</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.PromptIRBNoticeView.post" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serve the Twilio client directions for collecting input.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.PromptIRBNoticeView.prompts">
+<code class="descname">prompts</code><em class="property"> = ['welcome', 'introduction', 'irb-notice', 'irb-notice-prompt']</em><a class="headerlink" href="#feature_phone.views.PromptIRBNoticeView.prompts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.PromptIRBNoticeView.submit_view">
+<code class="descname">submit_view</code><em class="property"> = 'feature-phone:verify-irb-notice'</em><a class="headerlink" href="#feature_phone.views.PromptIRBNoticeView.submit_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="feature_phone.views.PromptQuantitativeQuestionView">
+<em class="property">class </em><code class="descclassname">feature_phone.views.</code><code class="descname">PromptQuantitativeQuestionView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.PromptQuantitativeQuestionView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#feature_phone.views.PromptView" title="feature_phone.views.PromptView"><code class="xref py py-class docutils literal notranslate"><span class="pre">feature_phone.views.PromptView</span></code></a></p>
+<p>Ask a quantitative question.</p>
+<dl class="attribute">
+<dt id="feature_phone.views.PromptQuantitativeQuestionView.accept_keypress">
+<code class="descname">accept_keypress</code><em class="property"> = True</em><a class="headerlink" href="#feature_phone.views.PromptQuantitativeQuestionView.accept_keypress" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.PromptQuantitativeQuestionView.accept_speech">
+<code class="descname">accept_speech</code><em class="property"> = True</em><a class="headerlink" href="#feature_phone.views.PromptQuantitativeQuestionView.accept_speech" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="feature_phone.views.PromptQuantitativeQuestionView.ask">
+<code class="descname">ask</code><span class="sig-paren">(</span><em>request</em>, <em>action</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.PromptQuantitativeQuestionView.ask" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="feature_phone.views.PromptQuantitativeQuestionView.post">
+<code class="descname">post</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.PromptQuantitativeQuestionView.post" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serve the Twilio client directions for collecting input.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.PromptQuantitativeQuestionView.recording_callback">
+<code class="descname">recording_callback</code><em class="property"> = 'feature-phone:download-recording'</em><a class="headerlink" href="#feature_phone.views.PromptQuantitativeQuestionView.recording_callback" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.PromptQuantitativeQuestionView.recording_max_duration">
+<code class="descname">recording_max_duration</code><em class="property"> = 15</em><a class="headerlink" href="#feature_phone.views.PromptQuantitativeQuestionView.recording_max_duration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.PromptQuantitativeQuestionView.submit_view">
+<code class="descname">submit_view</code><em class="property"> = 'feature-phone:save-quantitative-rating'</em><a class="headerlink" href="#feature_phone.views.PromptQuantitativeQuestionView.submit_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="feature_phone.views.PromptView">
+<em class="property">class </em><code class="descclassname">feature_phone.views.</code><code class="descname">PromptView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.PromptView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">django.views.generic.base.View</span></code></p>
+<p>Present a question to the listener, and gather any desired inputs.</p>
+<dl class="attribute">
+<dt id="feature_phone.views.PromptView.submit_view">
+<code class="descname">submit_view</code><a class="headerlink" href="#feature_phone.views.PromptView.submit_view" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – The name of the view the Twilio client yields
+control to after this prompt. Any data recorded arrives as POST
+parameters <cite>Digits</cite> or <cite>RecordingUrl</cite>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.PromptView.prompts">
+<code class="descname">prompts</code><a class="headerlink" href="#feature_phone.views.PromptView.prompts" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list</em> – A list of keys of instructions to read.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.PromptView.accept_keypress">
+<code class="descname">accept_keypress</code><a class="headerlink" href="#feature_phone.views.PromptView.accept_keypress" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>bool</em> – A flag that determines whether this view should
+accept a single keypress as input.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.PromptView.timeout">
+<code class="descname">timeout</code><a class="headerlink" href="#feature_phone.views.PromptView.timeout" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> – The maximum amount of time in seconds the Twilio
+client will wait for without input from the listener before moving
+to <a class="reference internal" href="#feature_phone.views.PromptView.submit_view" title="feature_phone.views.PromptView.submit_view"><code class="xref py py-attr docutils literal notranslate"><span class="pre">submit_view</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.PromptView.accept_speech">
+<code class="descname">accept_speech</code><a class="headerlink" href="#feature_phone.views.PromptView.accept_speech" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>bool</em> – A flag that determines whether this view should
+accept spoken recordings as input.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.PromptView.play_beep">
+<code class="descname">play_beep</code><a class="headerlink" href="#feature_phone.views.PromptView.play_beep" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>bool</em> – A flag that determines whether the Twilio client
+should play a beep tone to signal the start of a recording period.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.PromptView.recording_max_duration">
+<code class="descname">recording_max_duration</code><a class="headerlink" href="#feature_phone.views.PromptView.recording_max_duration" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> – The maximum amount of time a recording
+may take.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.PromptView.recording_callback">
+<code class="descname">recording_callback</code><a class="headerlink" href="#feature_phone.views.PromptView.recording_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – The name of the view that will handle actions
+made after Twilio finalizes the recording.</p>
+</dd></dl>
+
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Keypresses made while a prompt plays will interrupt the playback, while
+speech will not. Only speech made after the prompt plays will be
+recorded.</p>
+</div>
+<dl class="attribute">
+<dt>
+<code class="descname">accept_keypress</code><em class="property"> = True</em></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">accept_speech</code><em class="property"> = False</em></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="feature_phone.views.PromptView.ask">
+<code class="descname">ask</code><span class="sig-paren">(</span><em>request</em>, <em>action</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.PromptView.ask" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="feature_phone.views.PromptView.dispatch">
+<code class="descname">dispatch</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.PromptView.dispatch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="feature_phone.views.PromptView.fallback">
+<code class="descname">fallback</code><span class="sig-paren">(</span><em>voice_response</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.PromptView.fallback" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.PromptView.http_method_names">
+<code class="descname">http_method_names</code><em class="property"> = ['post']</em><a class="headerlink" href="#feature_phone.views.PromptView.http_method_names" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">play_beep</code><em class="property"> = True</em></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="feature_phone.views.PromptView.post">
+<code class="descname">post</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.PromptView.post" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serve the Twilio client directions for collecting input.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">prompts</code><em class="property"> = []</em></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">recording_callback</code><em class="property"> = None</em></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">recording_max_duration</code><em class="property"> = 60</em></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">submit_view</code><em class="property"> = None</em></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">timeout</code><em class="property"> = 4</em></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="feature_phone.views.QualitativeQuestionInstructionsView">
+<em class="property">class </em><code class="descclassname">feature_phone.views.</code><code class="descname">QualitativeQuestionInstructionsView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.QualitativeQuestionInstructionsView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#feature_phone.views.PromptView" title="feature_phone.views.PromptView"><code class="xref py py-class docutils literal notranslate"><span class="pre">feature_phone.views.PromptView</span></code></a></p>
+<p>Read the qualitative question to the participant.</p>
+<dl class="attribute">
+<dt id="feature_phone.views.QualitativeQuestionInstructionsView.accept_keypress">
+<code class="descname">accept_keypress</code><em class="property"> = True</em><a class="headerlink" href="#feature_phone.views.QualitativeQuestionInstructionsView.accept_keypress" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.QualitativeQuestionInstructionsView.accept_speech">
+<code class="descname">accept_speech</code><em class="property"> = True</em><a class="headerlink" href="#feature_phone.views.QualitativeQuestionInstructionsView.accept_speech" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.QualitativeQuestionInstructionsView.prompts">
+<code class="descname">prompts</code><em class="property"> = ['qualitative-question-instructions']</em><a class="headerlink" href="#feature_phone.views.QualitativeQuestionInstructionsView.prompts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.QualitativeQuestionInstructionsView.recording_callback">
+<code class="descname">recording_callback</code><em class="property"> = 'feature-phone:download-recording'</em><a class="headerlink" href="#feature_phone.views.QualitativeQuestionInstructionsView.recording_callback" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.QualitativeQuestionInstructionsView.submit_view">
+<code class="descname">submit_view</code><em class="property"> = 'feature-phone:save-comment'</em><a class="headerlink" href="#feature_phone.views.QualitativeQuestionInstructionsView.submit_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="feature_phone.views.QuantiativeQuestionInstructionsView">
+<em class="property">class </em><code class="descclassname">feature_phone.views.</code><code class="descname">QuantiativeQuestionInstructionsView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.QuantiativeQuestionInstructionsView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#feature_phone.views.PromptView" title="feature_phone.views.PromptView"><code class="xref py py-class docutils literal notranslate"><span class="pre">feature_phone.views.PromptView</span></code></a></p>
+<p>Explain the quantitative question section, and initialize session data.</p>
+<dl class="attribute">
+<dt id="feature_phone.views.QuantiativeQuestionInstructionsView.accept_keypress">
+<code class="descname">accept_keypress</code><em class="property"> = True</em><a class="headerlink" href="#feature_phone.views.QuantiativeQuestionInstructionsView.accept_keypress" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.QuantiativeQuestionInstructionsView.accept_speech">
+<code class="descname">accept_speech</code><em class="property"> = False</em><a class="headerlink" href="#feature_phone.views.QuantiativeQuestionInstructionsView.accept_speech" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="feature_phone.views.QuantiativeQuestionInstructionsView.ask">
+<code class="descname">ask</code><span class="sig-paren">(</span><em>request</em>, <em>action</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.QuantiativeQuestionInstructionsView.ask" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.QuantiativeQuestionInstructionsView.prompts">
+<code class="descname">prompts</code><em class="property"> = ['quantitative-question-instructions', 'quantitative-question-reminder']</em><a class="headerlink" href="#feature_phone.views.QuantiativeQuestionInstructionsView.prompts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.QuantiativeQuestionInstructionsView.submit_view">
+<code class="descname">submit_view</code><em class="property"> = 'feature-phone:prompt-quantitative-question'</em><a class="headerlink" href="#feature_phone.views.QuantiativeQuestionInstructionsView.submit_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.QuantiativeQuestionInstructionsView.timeout">
+<code class="descname">timeout</code><em class="property"> = 0</em><a class="headerlink" href="#feature_phone.views.QuantiativeQuestionInstructionsView.timeout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="feature_phone.views.SaveCommentRatingView">
+<em class="property">class </em><code class="descclassname">feature_phone.views.</code><code class="descname">SaveCommentRatingView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.SaveCommentRatingView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#feature_phone.views.SaveView" title="feature_phone.views.SaveView"><code class="xref py py-class docutils literal notranslate"><span class="pre">feature_phone.views.SaveView</span></code></a></p>
+<p>Recording a rating of a suggestion.</p>
+<dl class="attribute">
+<dt id="feature_phone.views.SaveCommentRatingView.next_view">
+<code class="descname">next_view</code><em class="property"> = 'feature-phone:prompt-comment'</em><a class="headerlink" href="#feature_phone.views.SaveCommentRatingView.next_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="feature_phone.views.SaveCommentRatingView.post">
+<code class="descname">post</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.SaveCommentRatingView.post" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle incoming input.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="feature_phone.views.SaveCommentRatingView.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>request</em>, <em>voice_response</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.SaveCommentRatingView.save" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="feature_phone.views.SaveCommentView">
+<em class="property">class </em><code class="descclassname">feature_phone.views.</code><code class="descname">SaveCommentView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.SaveCommentView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#feature_phone.views.SaveView" title="feature_phone.views.SaveView"><code class="xref py py-class docutils literal notranslate"><span class="pre">feature_phone.views.SaveView</span></code></a></p>
+<p>Handle responses to the participant’s comment.</p>
+<dl class="attribute">
+<dt id="feature_phone.views.SaveCommentView.next_view">
+<code class="descname">next_view</code><em class="property"> = 'feature-phone:end'</em><a class="headerlink" href="#feature_phone.views.SaveCommentView.next_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="feature_phone.views.SaveCommentView.post">
+<code class="descname">post</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.SaveCommentView.post" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle incoming input.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="feature_phone.views.SaveGenderView">
+<em class="property">class </em><code class="descclassname">feature_phone.views.</code><code class="descname">SaveGenderView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.SaveGenderView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#feature_phone.views.SaveView" title="feature_phone.views.SaveView"><code class="xref py py-class docutils literal notranslate"><span class="pre">feature_phone.views.SaveView</span></code></a></p>
+<p>Save responses to the gender question.</p>
+<dl class="attribute">
+<dt id="feature_phone.views.SaveGenderView.key_to_gender">
+<code class="descname">key_to_gender</code><em class="property"> = {'1': 'M', '2': 'F'}</em><a class="headerlink" href="#feature_phone.views.SaveGenderView.key_to_gender" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.SaveGenderView.next_view">
+<code class="descname">next_view</code><em class="property"> = 'feature-phone:prompt-age'</em><a class="headerlink" href="#feature_phone.views.SaveGenderView.next_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="feature_phone.views.SaveGenderView.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>request</em>, <em>voice_response</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.SaveGenderView.save" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="feature_phone.views.SaveQuantitativeRatingView">
+<em class="property">class </em><code class="descclassname">feature_phone.views.</code><code class="descname">SaveQuantitativeRatingView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.SaveQuantitativeRatingView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#feature_phone.views.SaveView" title="feature_phone.views.SaveView"><code class="xref py py-class docutils literal notranslate"><span class="pre">feature_phone.views.SaveView</span></code></a></p>
+<p>Record a rating to a quantitative question.</p>
+<dl class="attribute">
+<dt id="feature_phone.views.SaveQuantitativeRatingView.next_view">
+<code class="descname">next_view</code><em class="property"> = 'feature-phone:prompt-quantitative-question'</em><a class="headerlink" href="#feature_phone.views.SaveQuantitativeRatingView.next_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="feature_phone.views.SaveQuantitativeRatingView.post">
+<code class="descname">post</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.SaveQuantitativeRatingView.post" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle incoming input.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="feature_phone.views.SaveQuantitativeRatingView.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>request</em>, <em>voice_response</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.SaveQuantitativeRatingView.save" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="feature_phone.views.SaveView">
+<em class="property">class </em><code class="descclassname">feature_phone.views.</code><code class="descname">SaveView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.SaveView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">django.views.generic.base.View</span></code></p>
+<p>Process incoming data, then redirect the listener to another view.</p>
+<dl class="method">
+<dt id="feature_phone.views.SaveView.dispatch">
+<code class="descname">dispatch</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.SaveView.dispatch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.SaveView.http_method_names">
+<code class="descname">http_method_names</code><em class="property"> = ['post']</em><a class="headerlink" href="#feature_phone.views.SaveView.http_method_names" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.SaveView.next_view">
+<code class="descname">next_view</code><em class="property"> = None</em><a class="headerlink" href="#feature_phone.views.SaveView.next_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="feature_phone.views.SaveView.post">
+<code class="descname">post</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.SaveView.post" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle incoming input.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="feature_phone.views.SaveView.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>request</em>, <em>voice_response</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.SaveView.save" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="feature_phone.views.VerifyIRBNoticeView">
+<em class="property">class </em><code class="descclassname">feature_phone.views.</code><code class="descname">VerifyIRBNoticeView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.VerifyIRBNoticeView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#feature_phone.views.SaveView" title="feature_phone.views.SaveView"><code class="xref py py-class docutils literal notranslate"><span class="pre">feature_phone.views.SaveView</span></code></a></p>
+<p>Hang up if the listener does not accept the IRB, or continue otherwise.</p>
+<dl class="attribute">
+<dt id="feature_phone.views.VerifyIRBNoticeView.accept_irb_key">
+<code class="descname">accept_irb_key</code><em class="property"> = '1'</em><a class="headerlink" href="#feature_phone.views.VerifyIRBNoticeView.accept_irb_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="feature_phone.views.VerifyIRBNoticeView.next_view">
+<code class="descname">next_view</code><em class="property"> = 'feature-phone:prompt-gender'</em><a class="headerlink" href="#feature_phone.views.VerifyIRBNoticeView.next_view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="feature_phone.views.VerifyIRBNoticeView.post">
+<code class="descname">post</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.VerifyIRBNoticeView.post" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle incoming input.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="feature_phone.views.download_age_recording">
+<code class="descclassname">feature_phone.views.</code><code class="descname">download_age_recording</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.download_age_recording" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download recordings of listeners stating their ages.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="feature_phone.views.download_barangay_recording">
+<code class="descclassname">feature_phone.views.</code><code class="descname">download_barangay_recording</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.download_barangay_recording" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download recordings of listeners stating their barangays.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="feature_phone.views.download_recording">
+<code class="descclassname">feature_phone.views.</code><code class="descname">download_recording</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.download_recording" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download a recording for a <cite>Response</cite> instance, which must have had its URL set.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="feature_phone.views.end">
+<code class="descclassname">feature_phone.views.</code><code class="descname">end</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clean up local session data, thank the listener, and hang up.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="feature_phone.views.error">
+<code class="descclassname">feature_phone.views.</code><code class="descname">error</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read an error message to a listener, and gracefully exit.</p>
+<p>This should never happen. Uses a minimal <cite>Say</cite> verb to avoid points of failure.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="feature_phone.views.fetch_question_pks">
+<code class="descclassname">feature_phone.views.</code><code class="descname">fetch_question_pks</code><span class="sig-paren">(</span><em>question_type</em>, <em>include_orphans=False</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.fetch_question_pks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch all primary keys (in order) of a given question type.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>question_type</strong> – A <cite>ContentType</cite> instance of the question model.</li>
+<li><strong>include_orphans</strong> (<em>bool</em>) – A flag that indicates whether the query should
+return feature phone-only questions.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="feature_phone.views.fetch_recording">
+<code class="descclassname">feature_phone.views.</code><code class="descname">fetch_recording</code><span class="sig-paren">(</span><em>file_field</em>, <em>url</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.fetch_recording" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download a recording from the given URL as a file field value.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="feature_phone.views.get_respondent">
+<code class="descclassname">feature_phone.views.</code><code class="descname">get_respondent</code><span class="sig-paren">(</span><em>session</em>, <em>pk_key='respondent-pk'</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.get_respondent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="feature_phone.views.make_response">
+<code class="descclassname">feature_phone.views.</code><code class="descname">make_response</code><span class="sig-paren">(</span><em>respondent</em>, <em>prompt</em>, <em>related_object</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.make_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a feature phone response.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="feature_phone.views.play_recording">
+<code class="descclassname">feature_phone.views.</code><code class="descname">play_recording</code><span class="sig-paren">(</span><em>action</em>, <em>recording</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.play_recording" title="Permalink to this definition">¶</a></dt>
+<dd><p>Play a voice recording, either from a file or using speech synthesis.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>action</strong> – A Twilio object that supports <cite>Say</cite> and <cite>Play</cite> verbs.</li>
+<li><strong>recording</strong> – A <cite>Recording</cite> instance.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="feature_phone.views.select_comment_pks">
+<code class="descclassname">feature_phone.views.</code><code class="descname">select_comment_pks</code><span class="sig-paren">(</span><em>num_to_select=2</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.select_comment_pks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select comments to play to a listener.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="feature_phone.views.speak">
+<code class="descclassname">feature_phone.views.</code><code class="descname">speak</code><span class="sig-paren">(</span><em>action</em>, <em>instruction_keys</em>, <em>pause_duration=0</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.speak" title="Permalink to this definition">¶</a></dt>
+<dd><p>Play a list of instructions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>action</strong> – A Twilio object that supports <cite>Say</cite>, <cite>Play</cite>, and <cite>Pause</cite> verbs.</li>
+<li><strong>instruction_keys</strong> (<em>list</em>) – A list of instruction keys.</li>
+<li><strong>pause_duration</strong> (<em>float</em>) – The delay between instructions in seconds.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">To minimize possibly unwanted latency, a pause does not follow the last
+instruction spoken.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="feature_phone.views.transcribe_rating">
+<code class="descclassname">feature_phone.views.</code><code class="descname">transcribe_rating</code><span class="sig-paren">(</span><em>response</em>, <em>text=''</em><span class="sig-paren">)</span><a class="headerlink" href="#feature_phone.views.transcribe_rating" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transcribe a keypress to its related web-facing model.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Malasakit</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="pcari.html">Web frontend</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="feature_phone.html">Feature phone frontend</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="feature_phone.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="feature_phone.html#module-feature_phone">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="feature_phone.html">feature_phone package</a><ul>
+      <li>Previous: <a href="feature_phone.models.html" title="previous chapter">feature_phone.models module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, UC Berkeley.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/feature_phone.views.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
